@@ -106,6 +106,8 @@ void OnContextMenu(HWND hwnd, HWND hwndClicked, int xPos, int yPos)
 			LoadMenuFromText(m_hMenu, m_tcmenutxt, &fd);
 		else
 			LoadMenuFromText(m_hMenu, NULL, NULL);
+		
+		MemReduce();
 	}
 	
 	CheckMenu(m_hMenu);

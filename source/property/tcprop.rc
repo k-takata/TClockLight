@@ -282,7 +282,7 @@ BEGIN
     PUSHBUTTON      "...",IDC_DROPFILESAPPSANSHO,188,40,14,14
 END
 
-IDD_PAGETOOLTIP DIALOG DISCARDABLE  0, 0, 203, 108
+IDD_PAGETOOLTIP DIALOG DISCARDABLE  0, 0, 203, 135
 STYLE DS_CONTROL | WS_CHILD
 FONT 9, "MS Sans Serif"
 BEGIN
@@ -290,6 +290,7 @@ BEGIN
                     WS_TABSTOP,4,6,99,11
     RTEXT           "Format",IDC_STATIC,0,26,27,10
     EDITTEXT        IDC_TOOLTIP,33,23,146,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_TOOLTIPBROWSE,183,23,15,14
     RTEXT           "Style",IDC_STATIC,23,46,27,10
     CONTROL         "Normal",IDC_TOOLTIPSTYLE1,"Button",BS_AUTORADIOBUTTON | 
                     WS_GROUP | WS_TABSTOP,58,44,44,11
@@ -301,6 +302,16 @@ BEGIN
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,148,57,9,14
     LTEXT           "seconds",IDC_STATIC,94,64,42,11
+    RTEXT           "Font",IDC_STATIC,16,85,37,11
+    COMBOBOX        IDC_TOOLTIPFONT,57,81,92,120,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Font size",IDC_STATIC,16,103,37,11
+    COMBOBOX        IDC_TOOLTIPFONTSIZE,57,101,42,66,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Bold",IDC_TOOLTIPBOLD,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,115,103,33,12
+    CONTROL         "Italic",IDC_TOOLTIPITALIC,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,157,103,33,12
 END
 
 IDD_PAGESTARTBUTTON DIALOG DISCARDABLE  0, 0, 210, 187
@@ -436,8 +447,6 @@ END
 // Icon
 //
 
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
 IDI_TCPROP              ICON    DISCARDABLE     "tcprop.ico"
 IDI_TCLOCK              ICON    DISCARDABLE     "tclock.ico"
 IDI_PLAY                ICON    DISCARDABLE     "play.ico"
@@ -459,11 +468,7 @@ VS_VERSION_INFO VERSIONINFO
  FILEVERSION 0,0,0,1
  PRODUCTVERSION 0,0,0,1
  FILEFLAGSMASK 0x3fL
-#ifdef _DEBUG
- FILEFLAGS 0x1L
-#else
  FILEFLAGS 0x0L
-#endif
  FILEOS 0x40004L
  FILETYPE 0x2L
  FILESUBTYPE 0x0L
@@ -488,7 +493,6 @@ BEGIN
         VALUE "Translation", 0x0, 1200
     END
 END
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -551,11 +555,11 @@ BEGIN
     IDS_MONOFFSEC           "Seconds"
     IDS_RECYCLE             "Recycle Bin"
     IDS_OPENBY              "Open with..."
-    IDS_COPYTO              "Copy To..."
 END
 
 STRINGTABLE DISCARDABLE 
 BEGIN
+    IDS_COPYTO              "Copy To..."
     IDS_MOVETO              "Move To..."
     IDS_APPLICATION         "Application"
     IDS_FOLDER              "Folder"

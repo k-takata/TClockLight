@@ -30,14 +30,14 @@ static void OnFileChange(HWND hDlg);
 static void OnTest(HWND hDlg, WORD id);
 static void OnInterval(HWND hDlg);
 static void EnableAlarmPageItems(HWND hDlg);
-static void GetAlarmFromDlg(HWND hDlg, PALARMSTRUCT pAS);
-static void SetAlarmToDlg(HWND hDlg, PALARMSTRUCT pAS);
+static void GetAlarmFromDlg(HWND hDlg, PALARMSTRUCT pitem);
+static void SetAlarmToDlg(HWND hDlg, const ALARMSTRUCT *pitem);
+static PALARMSTRUCT CBGetAlarmStruct(HWND hDlg, int idCombo, int index);
 
 static BOOL  m_bInit = FALSE;
 static BOOL  m_bChanged = FALSE;
 
-static PALARMSTRUCT m_pAlarm = NULL;
-static int m_numAlarm = 0;
+static PALARMSTRUCT m_pListAlarm = NULL;
 static int m_nCurrent = -1;
 static BOOL m_bPlaying = FALSE;
 
@@ -162,37 +162,38 @@ void SendPSChanged(HWND hDlg)
 --------------------------------------------------*/
 void OnInit(HWND hDlg)
 {
-	int i;
+	PALARMSTRUCT pitem;
+	int count;
 	
 	m_bInit = FALSE;
 	
 	// common/tclang.c
 	SetDialogLanguage(hDlg, "Alarm", g_hfontDialog);
 	
-	m_numAlarm = GetMyRegLong("", "AlarmNum", 0);
-	if(m_numAlarm < 1) m_numAlarm = 0;
+	count = GetMyRegLong("", "AlarmNum", 0);
 	
-	if(m_numAlarm > 0)
+	if(count > 0)
 	{
-		m_pAlarm = malloc(sizeof(ALARMSTRUCT) * m_numAlarm);
-		LoadAlarm(m_pAlarm, m_numAlarm); // common/alarmstruct.c
+		m_pListAlarm = LoadAlarm(); // common/alarmstruct.c
 	}
-	else // no alarm
+	else // alarm count is zero
 	{
-		PALARMSTRUCT pAS;
-		
-		m_numAlarm = 1;
-		m_pAlarm = malloc(sizeof(ALARMSTRUCT));
-		
-		pAS = m_pAlarm;
-		memset(pAS, 0, sizeof(ALARMSTRUCT));
-		strcpy(pAS->name, "Alarm1");
-		pAS->bEnable = TRUE;
+		ALARMSTRUCT item;
+		memset(&item, 0, sizeof(ALARMSTRUCT));
+		strcpy(item.name, "Alarm1");
+		item.bEnable = TRUE;
+		//common/list.c
+		m_pListAlarm = copy_listitem(NULL, &item, sizeof(item));
 	}
 	
-	for(i = 0; i < m_numAlarm; i++)
-		 CBAddString(hDlg, IDC_COMBOALARM, (LPARAM)(m_pAlarm+i)->name);
+	pitem = m_pListAlarm;
+	while(pitem)
+	{
+		CBAddString(hDlg, IDC_COMBOALARM, (LPARAM)pitem->name);
+		pitem = pitem->next;
+	}
 	
+	m_nCurrent = -1;
 	CBSetCurSel(hDlg, IDC_COMBOALARM, 0);
 	OnName(hDlg);
 	
@@ -209,30 +210,14 @@ void OnInit(HWND hDlg)
 --------------------------------------------------*/
 void OnApply(HWND hDlg)
 {
-	int i, nOldAlarm;
-	
 	if(!m_bChanged) return;
 	m_bChanged = FALSE;
 	
 	OnNameDropDown(hDlg);
 	
-	if(m_pAlarm && (0 <= m_nCurrent && m_nCurrent < m_numAlarm))
-		GetAlarmFromDlg(hDlg, (m_pAlarm + m_nCurrent));
+	GetAlarmFromDlg(hDlg, get_listitem(m_pListAlarm, m_nCurrent));
 	
-	nOldAlarm = GetMyRegLong("", "AlarmNum", 0);
-	if(nOldAlarm < 1) nOldAlarm = 0;
-	
-	SetMyRegLong("", "AlarmNum", m_numAlarm);
-	
-	if(m_pAlarm)
-		SaveAlarm(m_pAlarm, m_numAlarm); // common/alarmstruct.c
-	
-	for(i = m_numAlarm; i < nOldAlarm; i++)
-	{
-		char subkey[20];
-		wsprintf(subkey, "Alarm%d", i + 1);
-		DelMyRegKey(subkey);
-	}
+	SaveAlarm(m_pListAlarm); // common/alarmstruct.c
 }
 
 /*------------------------------------------------
@@ -242,7 +227,8 @@ void OnDestroy(HWND hDlg)
 {
 	if(m_bPlaying) StopFile(); m_bPlaying = FALSE;
 	
-	if(m_pAlarm) free(m_pAlarm);
+	clear_list(m_pListAlarm); // common/list.c
+	m_pListAlarm = NULL;
 }
 
 /*------------------------------------------------
@@ -252,16 +238,13 @@ void OnName(HWND hDlg)
 {
 	int index;
 	
-	if(m_pAlarm && 0 <= m_nCurrent && m_nCurrent < m_numAlarm)
-		GetAlarmFromDlg(hDlg, m_pAlarm + m_nCurrent);
-	
 	index = CBGetCurSel(hDlg, IDC_COMBOALARM);
+	if(index < 0) return;
 	
-	if(m_pAlarm && 0 <= index && index < m_numAlarm)
-	{
-		SetAlarmToDlg(hDlg, m_pAlarm + index);
-		m_nCurrent = index;
-	}
+	GetAlarmFromDlg(hDlg, get_listitem(m_pListAlarm, m_nCurrent));
+	
+	SetAlarmToDlg(hDlg, get_listitem(m_pListAlarm, index));
+	m_nCurrent = index;
 }
 
 /*------------------------------------------------
@@ -271,16 +254,18 @@ void OnName(HWND hDlg)
 void OnNameDropDown(HWND hDlg)
 {
 	char name[BUFSIZE_NAME];
+	PALARMSTRUCT pitem;
 	
-	if(!m_pAlarm || !(0 <= m_nCurrent && m_nCurrent < m_numAlarm)) return;
+	pitem = get_listitem(m_pListAlarm, m_nCurrent);
+	if(pitem == NULL) return;
 	
 	GetDlgItemText(hDlg, IDC_COMBOALARM, name, BUFSIZE_NAME);
 	
-	if(strcmp(name, m_pAlarm[m_nCurrent].name) != 0)
+	if(strcmp(name, pitem->name) != 0)
 	{
+		strcpy(pitem->name, name);
 		CBDeleteString(hDlg, IDC_COMBOALARM, m_nCurrent);
-		CBInsertString(hDlg, IDC_COMBOALARM, m_nCurrent, name);
-		strcpy(m_pAlarm[m_nCurrent].name, name);
+		CBInsertString(hDlg, IDC_COMBOALARM, m_nCurrent, (LPARAM)name);
 	}
 }
 
@@ -289,35 +274,31 @@ void OnNameDropDown(HWND hDlg)
 --------------------------------------------------*/
 void OnAdd(HWND hDlg)
 {
-	PALARMSTRUCT pASNew, pAS;
-	int i;
+	PALARMSTRUCT pitem;
+	int count, index;
+	
+	count = CBGetCount(hDlg, IDC_COMBOALARM);
+	if(count < 0) return;
 	
 	OnNameDropDown(hDlg);
 	
-	if(m_pAlarm && (0 <= m_nCurrent && m_nCurrent < m_numAlarm))
-		GetAlarmFromDlg(hDlg, (m_pAlarm + m_nCurrent));
+	GetAlarmFromDlg(hDlg, get_listitem(m_pListAlarm, m_nCurrent));
 	
-	pASNew = malloc(sizeof(ALARMSTRUCT)*(m_numAlarm+1));
-	for(i = 0; i < m_numAlarm && m_pAlarm; i++)
-		memcpy(pASNew + i, m_pAlarm + i, sizeof(ALARMSTRUCT));
+	pitem = malloc(sizeof(ALARMSTRUCT));
+	memset(pitem, 0, sizeof(ALARMSTRUCT));
+	wsprintf(pitem->name, "Alarm%d", count + 1);
+	pitem->bEnable = TRUE;
+	// common/list.c
+	m_pListAlarm = add_listitem(m_pListAlarm, pitem); 
 	
-	pAS = pASNew + i;
-	memset(pAS, 0, sizeof(ALARMSTRUCT));
-	wsprintf(pAS->name, "Alarm%d", i+1);
-	pAS->bEnable = TRUE;
+	index = CBAddString(hDlg, IDC_COMBOALARM, (LPARAM)pitem->name);
+	CBSetCurSel(hDlg, IDC_COMBOALARM, index);
 	
-	CBAddString(hDlg, IDC_COMBOALARM, (LPARAM)pAS->name);
-	CBSetCurSel(hDlg, IDC_COMBOALARM, i);
-	m_nCurrent = i;
-	
-	m_numAlarm++;
-	if(m_pAlarm) free(m_pAlarm);
-	m_pAlarm = pASNew;
-	
-	if(m_numAlarm == 1)
+	if(count == 0)
 		EnableAlarmPageItems(hDlg);
 	
-	SetAlarmToDlg(hDlg, pAS);
+	SetAlarmToDlg(hDlg, pitem);
+	m_nCurrent = index;
 	
 	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
 }
@@ -327,44 +308,35 @@ void OnAdd(HWND hDlg)
 --------------------------------------------------*/
 void OnDelete(HWND hDlg)
 {
-	PALARMSTRUCT pASNew;
-	int i, j;
+	int count, index;
+	PALARMSTRUCT pitem;
 	
-	if(!m_pAlarm || m_numAlarm < 1) return;
-	if(!(0 <= m_nCurrent && m_nCurrent < m_numAlarm)) return;
+	count = CBGetCount(hDlg, IDC_COMBOALARM);
+	if(count < 1) return;
 	
-	if(m_numAlarm > 1)
+	index = CBGetCurSel(hDlg, IDC_COMBOALARM);
+	if(index < 0) return;
+	
+	pitem = get_listitem(m_pListAlarm, index);
+	if(pitem == NULL) return;
+	// common/list.c
+	m_pListAlarm = del_listitem(m_pListAlarm, pitem);
+	
+	CBDeleteString(hDlg, IDC_COMBOALARM, index);
+	
+	if(count > 1)
 	{
-		pASNew = malloc(sizeof(ALARMSTRUCT)*(m_numAlarm-1));
-		for(i = 0, j = 0; i < m_numAlarm; i++)
-		{
-			if(i != m_nCurrent)
-			{
-				memcpy(pASNew + j, m_pAlarm + i, sizeof(ALARMSTRUCT));
-				j++;
-			}
-		}
-		
-		CBDeleteString(hDlg, IDC_COMBOALARM, m_nCurrent);
-		
-		if(m_nCurrent == m_numAlarm - 1) m_nCurrent--;
-		CBSetCurSel(hDlg, IDC_COMBOALARM, m_nCurrent);
-		SetAlarmToDlg(hDlg, (pASNew + m_nCurrent));
-		
-		m_numAlarm--;
-		free(m_pAlarm);
-		m_pAlarm = pASNew;
+		if(index == count - 1) index--;
+		CBSetCurSel(hDlg, IDC_COMBOALARM, index);
 	}
 	else
 	{
-		free(m_pAlarm); m_pAlarm = NULL;
-		m_numAlarm = 0;
-		m_nCurrent = -1;
-		
-		CBDeleteString(hDlg, IDC_COMBOALARM, 0);
+		index = -1;
 		EnableAlarmPageItems(hDlg);
-		SetAlarmToDlg(hDlg, NULL);
 	}
+	
+	SetAlarmToDlg(hDlg, get_listitem(m_pListAlarm, index));
+	m_nCurrent = index;
 	
 	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
 }
@@ -391,17 +363,18 @@ void OnEnableAlarm(HWND hDlg)
 --------------------------------------------------*/
 void OnDay(HWND hDlg)
 {
-	PALARMSTRUCT pAS;
+	PALARMSTRUCT pitem;
 	
-	if(!m_pAlarm || !(0 <= m_nCurrent && m_nCurrent < m_numAlarm)) return;
-	pAS = m_pAlarm + m_nCurrent;
-	GetAlarmFromDlg(hDlg, pAS);
-	SetAlarmTime(pAS);
+	pitem = get_listitem(m_pListAlarm, m_nCurrent);
+	if(pitem == NULL) return;
+	
+	GetAlarmFromDlg(hDlg, pitem);
+	SetAlarmTime(pitem);
 	
 	// open dialog - alarmday.c
-	if(SetAlarmDay(hDlg, pAS) == IDOK)
+	if(SetAlarmDay(hDlg, pitem) == IDOK)
 	{
-		SetDlgItemText(hDlg, IDC_WDAYALARM, pAS->strWDays);
+		SetDlgItemText(hDlg, IDC_WDAYALARM, pitem->strWDays);
 		SendPSChanged(hDlg);
 	}
 }
@@ -485,7 +458,7 @@ void OnInterval(HWND hDlg)
 void EnableAlarmPageItems(HWND hDlg)
 {
 	HWND hwnd;
-	BOOL b = (m_pAlarm != NULL);
+	BOOL b = (m_pListAlarm != NULL);
 	
 	hwnd = GetWindow(hDlg, GW_CHILD);
 	while(hwnd)
@@ -500,46 +473,56 @@ void EnableAlarmPageItems(HWND hDlg)
 /*------------------------------------------------
   get settings of an alarm from the page
 --------------------------------------------------*/
-void GetAlarmFromDlg(HWND hDlg, PALARMSTRUCT pAS)
+void GetAlarmFromDlg(HWND hDlg, PALARMSTRUCT pitem)
 {
-	GetDlgItemText(hDlg, IDC_COMBOALARM, pAS->name, BUFSIZE_NAME);
-	pAS->bEnable = IsDlgButtonChecked(hDlg, IDC_ENABLEALARM);
+	if(!pitem) return;
 	
-	GetDlgItemText(hDlg, IDC_HOURALARM, pAS->strHours, 80);
-	GetDlgItemText(hDlg, IDC_MINUTEALARM, pAS->strMinutes, 80);
-	pAS->second = GetDlgItemInt(hDlg, IDC_SECONDALARM, NULL, FALSE);
-	GetDlgItemText(hDlg, IDC_WDAYALARM, pAS->strWDays, 80);
+	GetDlgItemText(hDlg, IDC_COMBOALARM, pitem->name, BUFSIZE_NAME);
+	pitem->bEnable = IsDlgButtonChecked(hDlg, IDC_ENABLEALARM);
 	
-	GetDlgItemText(hDlg, IDC_FILEALARM, pAS->fname, MAX_PATH);
-	pAS->bHour12 = IsDlgButtonChecked(hDlg, IDC_12HOURALARM);
-	pAS->bRepeat = IsDlgButtonChecked(hDlg, IDC_REPEATALARM);
-	pAS->bBlink = IsDlgButtonChecked(hDlg, IDC_BLINKALARM);
-	pAS->bBootExec = IsDlgButtonChecked(hDlg, IDC_ALARMBOOTEXEC);
-	pAS->bInterval = IsDlgButtonChecked(hDlg, IDC_ALARMINTERVAL);
-	pAS->nInterval = GetDlgItemInt(hDlg, IDC_ALARMINTERVALMIN, NULL, FALSE);
+	GetDlgItemText(hDlg, IDC_HOURALARM, pitem->strHours, 80);
+	GetDlgItemText(hDlg, IDC_MINUTEALARM, pitem->strMinutes, 80);
+	pitem->second = GetDlgItemInt(hDlg, IDC_SECONDALARM, NULL, FALSE);
+	GetDlgItemText(hDlg, IDC_WDAYALARM, pitem->strWDays, 80);
+	
+	GetDlgItemText(hDlg, IDC_FILEALARM, pitem->fname, MAX_PATH);
+	pitem->bHour12 = IsDlgButtonChecked(hDlg, IDC_12HOURALARM);
+	pitem->bRepeat = IsDlgButtonChecked(hDlg, IDC_REPEATALARM);
+	pitem->bBlink = IsDlgButtonChecked(hDlg, IDC_BLINKALARM);
+	pitem->bBootExec = IsDlgButtonChecked(hDlg, IDC_ALARMBOOTEXEC);
+	pitem->bInterval = IsDlgButtonChecked(hDlg, IDC_ALARMINTERVAL);
+	pitem->nInterval = GetDlgItemInt(hDlg, IDC_ALARMINTERVALMIN, NULL, FALSE);
 }
 
 /*------------------------------------------------
   set settings of an alarm to the page
 --------------------------------------------------*/
-void SetAlarmToDlg(HWND hDlg, PALARMSTRUCT pAS)
+void SetAlarmToDlg(HWND hDlg, const ALARMSTRUCT *pitem)
 {
-	SetDlgItemText(hDlg, IDC_COMBOALARM, pAS ? pAS->name : "");
-	CheckDlgButton(hDlg, IDC_ENABLEALARM, pAS ? pAS->bEnable : FALSE);
+	ALARMSTRUCT item;
 	
-	SetDlgItemText(hDlg, IDC_HOURALARM, pAS ? pAS->strHours : "");
-	SetDlgItemText(hDlg, IDC_MINUTEALARM, pAS ? pAS->strMinutes : "");
-	if(pAS && pAS->second)
-		SetDlgItemInt(hDlg, IDC_SECONDALARM, pAS->second, FALSE);
+	if(!pitem)
+	{
+		memset(&item, 0, sizeof(item));
+		pitem = &item;
+	}
+	
+	SetDlgItemText(hDlg, IDC_COMBOALARM, pitem->name);
+	CheckDlgButton(hDlg, IDC_ENABLEALARM, pitem->bEnable);
+	
+	SetDlgItemText(hDlg, IDC_HOURALARM, pitem->strHours);
+	SetDlgItemText(hDlg, IDC_MINUTEALARM, pitem->strMinutes);
+	if(pitem->second)
+		SetDlgItemInt(hDlg, IDC_SECONDALARM, pitem->second, FALSE);
 	else SetDlgItemText(hDlg, IDC_SECONDALARM, "");
-	SetDlgItemText(hDlg, IDC_WDAYALARM, pAS ? pAS->strWDays : "");
-	SetDlgItemText(hDlg, IDC_FILEALARM, pAS ? pAS->fname : "");
-	CheckDlgButton(hDlg, IDC_12HOURALARM, pAS ? pAS->bHour12 : FALSE);
-	CheckDlgButton(hDlg, IDC_REPEATALARM, pAS ? pAS->bRepeat : FALSE);
-	CheckDlgButton(hDlg, IDC_BLINKALARM,  pAS ? pAS->bBlink  : FALSE);
-	CheckDlgButton(hDlg, IDC_ALARMBOOTEXEC, pAS ? pAS->bBootExec : FALSE);
-	CheckDlgButton(hDlg, IDC_ALARMINTERVAL, pAS ? pAS->bInterval : FALSE);
-	SetDlgItemInt(hDlg, IDC_ALARMINTERVALMIN, pAS ? pAS->nInterval : 0, FALSE);
+	SetDlgItemText(hDlg, IDC_WDAYALARM, pitem->strWDays);
+	SetDlgItemText(hDlg, IDC_FILEALARM, pitem->fname);
+	CheckDlgButton(hDlg, IDC_12HOURALARM, pitem->bHour12);
+	CheckDlgButton(hDlg, IDC_REPEATALARM, pitem->bRepeat);
+	CheckDlgButton(hDlg, IDC_BLINKALARM,  pitem->bBlink);
+	CheckDlgButton(hDlg, IDC_ALARMBOOTEXEC, pitem->bBootExec);
+	CheckDlgButton(hDlg, IDC_ALARMINTERVAL, pitem->bInterval);
+	SetDlgItemInt(hDlg, IDC_ALARMINTERVALMIN, pitem->nInterval, FALSE);
 	
 	OnEnableAlarm(hDlg);
 	OnInterval(hDlg);

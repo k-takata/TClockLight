@@ -157,6 +157,7 @@ void OnCreate(HWND hwnd)
 	InitAlarm();  // alarm.c
 	InitMouseFunction(hwnd); // mouse.c
 	// InitSNTP(hwnd); // sntp.c
+	InitMemReduce(); // memreduce.c
 	
 	// delay starting
 	nDelay = GetMyRegLong(NULL, "DelayStart", 0);
@@ -168,6 +169,8 @@ void OnCreate(HWND hwnd)
 	else OnTimerStart(hwnd);
 	
 	SetTimer(hwnd, IDTIMER_MAIN, 1000, NULL);
+	
+	MemReduce();
 }
 
 /*-------------------------------------------------------
@@ -198,6 +201,8 @@ void ClearTClockMain(HWND hwnd)
 	EndMouseFunction(hwnd);
 	EndAlarm();
 	EndMenu();
+	
+	EndMemReduce();
 	
 	KillTimer(hwnd, IDTIMER_MAIN);
 	
@@ -289,6 +294,8 @@ void OnTCMReloadSetting(HWND hwnd)
 {
 	InitAlarm(); // alarm.c
 	InitMouseFunction(hwnd); // mouse.c
+	
+	MemReduce();
 }
 
 /*-------------------------------------------------------

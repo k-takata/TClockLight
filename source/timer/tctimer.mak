@@ -21,7 +21,7 @@ COMMONH=$(COMMONDIR)\common.h
 OBJS=timermain.obj timerdlg.obj timer.obj\
 	tclang.obj langcode.obj selectfile.obj\
 	playfile.obj soundselect.obj\
-	utl.obj exec.obj reg.obj font.obj
+	list.obj utl.obj exec.obj reg.obj font.obj
 
 LIBS=kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib\
 	shell32.lib winmm.lib comctl32.lib
@@ -106,6 +106,8 @@ playfile.obj: $(COMMONDIR)\playfile.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\playfile.c
 soundselect.obj: $(COMMONDIR)\soundselect.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\soundselect.c
+list.obj: $(COMMONDIR)\list.c $(COMMONH)
+	$(CC) $(COPT)$@ $(COMMONDIR)\list.c
 utl.obj: $(COMMONDIR)\utl.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\utl.c
 exec.obj: $(COMMONDIR)\exec.c $(COMMONH)

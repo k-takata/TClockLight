@@ -447,6 +447,9 @@ void OnCopyData(HWND hwnd, HWND hwndFrom, const COPYDATASTRUCT* pcds)
 		case COPYDATA_COPY:
 			OnCopy(hwnd, p);
 			break;
+		case COPYDATA_TOOLTIP:
+			PopupTooltip(hwnd, p);
+			break;
 	}
 	
 	if(bResize) ClearClockDC();

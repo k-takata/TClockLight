@@ -105,6 +105,7 @@ void OnTooltipMouseMsg(HWND hwndClock,
 	UINT message, WPARAM wParam, LPARAM lParam);
 BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh);
 void OnTimerTooltip(HWND hwndClock);
+void PopupTooltip(HWND hwndClock, const wchar_t *p);
 
 /* ---------- userstr.c ----------- */
 void InitUserStr(void);

@@ -36,8 +36,6 @@ static BOOL  m_bChanged = FALSE;
 
 static char *m_section = "Mouse";
 static PMOUSESTRUCT m_pMouseCommand = NULL;
-static int m_numMouseCommand = 0;
-static int m_numOld = 0;
 static int m_nCurrent = -1;
 static int m_widthOpt = 0;
 
@@ -135,10 +133,9 @@ void SendPSChanged(HWND hDlg)
 --------------------------------------------------*/
 void OnInit(HWND hDlg)
 {
-	PMOUSESTRUCT pMSS;
+	PMOUSESTRUCT pitem;
 	RECT rc;
 	BOOL b;
-	int i;
 	
 	m_bInit = FALSE;
 	
@@ -148,14 +145,8 @@ void OnInit(HWND hDlg)
 		ImportOldMouseFunc(); // common/mousestruct.c
 	}
 	
-	m_numMouseCommand = GetMyRegLong(m_section, "MouseNum", 0);
-	m_numOld = m_numMouseCommand;
-	
-	if(m_numMouseCommand == 0) m_numMouseCommand = 1;
-	
-	m_pMouseCommand = malloc(sizeof(MOUSESTRUCT) * m_numMouseCommand);
 	// common/mousestruct.c
-	LoadMouseFunc(m_pMouseCommand, m_numMouseCommand);
+	m_pMouseCommand = LoadMouseFunc();
 	
 	// common/tclang.c
 	SetDialogLanguage(hDlg, "Mouse", g_hfontDialog);
@@ -176,13 +167,14 @@ void OnInit(HWND hDlg)
 	
 	InitFunction(hDlg, IDC_MOUSEFUNC);
 	
-	pMSS = m_pMouseCommand;
-	for(i = 0; i < m_numMouseCommand; i++)
+	pitem = m_pMouseCommand;
+	while(pitem)
 	{
-		CBAddString(hDlg, IDC_NAMECLICK, (LPARAM)pMSS->name);
-		pMSS++;
+		CBAddString(hDlg, IDC_NAMECLICK, (LPARAM)pitem->name);
+		pitem = pitem->next;
 	}
 	
+	m_nCurrent = -1;
 	CBSetCurSel(hDlg, IDC_NAMECLICK, 0);
 	OnName(hDlg);
 	
@@ -198,7 +190,7 @@ void OnInit(HWND hDlg)
 --------------------------------------------------*/
 void OnDestroy(HWND hDlg)
 {
-	if(m_pMouseCommand) free(m_pMouseCommand);
+	clear_list(m_pMouseCommand);
 	m_pMouseCommand = NULL;
 }
 
@@ -207,30 +199,14 @@ void OnDestroy(HWND hDlg)
 --------------------------------------------------*/
 void OnApply(HWND hDlg)
 {
-	char section[20];
-	int i;
-	
 	if(!m_bChanged) return;
 	m_bChanged = FALSE;
 	
 	OnNameDropDown(hDlg);
 	
-	if(m_pMouseCommand && 0 <= m_nCurrent && m_nCurrent < m_numMouseCommand)
-		GetMouseCommandFromDlg(hDlg, (m_pMouseCommand + m_nCurrent));
+	GetMouseCommandFromDlg(hDlg, get_listitem(m_pMouseCommand, m_nCurrent));
 	
-	SetMyRegLong(m_section, "MouseNum", m_numMouseCommand);
-	if(m_pMouseCommand)
-		SaveMouseFunc(m_pMouseCommand, m_numMouseCommand);
-	
-	if(m_numMouseCommand < m_numOld)
-	{
-		for(i = m_numMouseCommand; i < m_numOld; i++)
-		{
-			wsprintf(section, "Mouse%d", i+1);
-			DelMyRegKey(section);
-		}
-	}
-	m_numOld = m_numMouseCommand;
+	SaveMouseFunc(m_pMouseCommand); // common/mousestruct.c
 	
 	SetMyRegLong(m_section, "RightClickMenu",
 		IsDlgButtonChecked(hDlg, IDC_RCLICKMENU));
@@ -244,19 +220,15 @@ void OnName(HWND hDlg)
 {
 	int index;
 	
-	if(m_pMouseCommand &&
-		0 <= m_nCurrent && m_nCurrent < m_numMouseCommand)
-		GetMouseCommandFromDlg(hDlg, m_pMouseCommand + m_nCurrent);
-	
 	index = CBGetCurSel(hDlg, IDC_NAMECLICK);
+	if(index < 0) return ;
 	
-	if(m_pMouseCommand &&
-		0 <= index && index < m_numMouseCommand)
-	{
-		SetMouseCommandToDlg(hDlg, m_pMouseCommand + index);
-		OnFunction(hDlg, TRUE);
-		m_nCurrent = index;
-	}
+	GetMouseCommandFromDlg(hDlg, get_listitem(m_pMouseCommand, m_nCurrent));
+	
+	SetMouseCommandToDlg(hDlg, get_listitem(m_pMouseCommand, index));
+	
+	OnFunction(hDlg, TRUE);
+	m_nCurrent = index;
 }
 
 /*------------------------------------------------
@@ -266,17 +238,18 @@ void OnName(HWND hDlg)
 void OnNameDropDown(HWND hDlg)
 {
 	char name[BUFSIZE_NAME];
+	PMOUSESTRUCT pitem;
 	
-	if(!m_pMouseCommand ||
-		!(0 <= m_nCurrent && m_nCurrent < m_numMouseCommand)) return;
+	pitem = get_listitem(m_pMouseCommand, m_nCurrent);
+	if(pitem == NULL) return;
 	
 	GetDlgItemText(hDlg, IDC_NAMECLICK, name, BUFSIZE_NAME);
 	
-	if(strcmp(name, m_pMouseCommand[m_nCurrent].name) != 0)
+	if(strcmp(name, pitem->name) != 0)
 	{
+		strcpy(pitem->name, name);
 		CBDeleteString(hDlg, IDC_NAMECLICK, m_nCurrent);
 		CBInsertString(hDlg, IDC_NAMECLICK, m_nCurrent, name);
-		strcpy(m_pMouseCommand[m_nCurrent].name, name);
 	}
 }
 
@@ -285,37 +258,32 @@ void OnNameDropDown(HWND hDlg)
 --------------------------------------------------*/
 void OnAdd(HWND hDlg)
 {
-	PMOUSESTRUCT pNew, pMSS;
-	int i;
+	PMOUSESTRUCT pitem;
+	int count, index;
+	
+	count = CBGetCount(hDlg, IDC_NAMECLICK);
+	if(count < 0) return;
 	
 	OnNameDropDown(hDlg);
 	
-	if(m_pMouseCommand &&
-		(0 <= m_nCurrent && m_nCurrent < m_numMouseCommand))
-		GetMouseCommandFromDlg(hDlg, (m_pMouseCommand + m_nCurrent));
+	GetMouseCommandFromDlg(hDlg, get_listitem(m_pMouseCommand, m_nCurrent));
 	
-	pNew = malloc(sizeof(MOUSESTRUCT)*(m_numMouseCommand+1));
-	for(i = 0; i < m_numMouseCommand && m_pMouseCommand; i++)
-		memcpy(pNew + i, m_pMouseCommand + i, sizeof(MOUSESTRUCT));
+	pitem = malloc(sizeof(MOUSESTRUCT));
+	memset(pitem, 0, sizeof(MOUSESTRUCT));
+	wsprintf(pitem->name, "Mouse%d", count+1);
+	pitem->nClick = 1;
+	pitem->nCommand = 0;
+	// common/list.c
+	m_pMouseCommand = add_listitem(m_pMouseCommand, pitem); 
 	
-	pMSS = pNew + i;
-	memset(pMSS, 0, sizeof(MOUSESTRUCT));
-	wsprintf(pMSS->name, "Mouse%d", i+1);
-	pMSS->nClick = 1;
-	pMSS->nCommand = 0;
+	index = CBAddString(hDlg, IDC_NAMECLICK, (LPARAM)pitem->name);
+	CBSetCurSel(hDlg, IDC_NAMECLICK, index);
+	m_nCurrent = index;
 	
-	CBAddString(hDlg, IDC_NAMECLICK, (LPARAM)pMSS->name);
-	CBSetCurSel(hDlg, IDC_NAMECLICK, i);
-	m_nCurrent = i;
-	
-	m_numMouseCommand++;
-	if(m_pMouseCommand) free(m_pMouseCommand);
-	m_pMouseCommand = pNew;
-	
-	if(m_numMouseCommand == 1)
+	if(count == 0)
 		EnableMousePageItems(hDlg);
 	
-	SetMouseCommandToDlg(hDlg, pMSS);
+	SetMouseCommandToDlg(hDlg, pitem);
 	OnFunction(hDlg, FALSE);
 	
 	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
@@ -326,46 +294,39 @@ void OnAdd(HWND hDlg)
 --------------------------------------------------*/
 void OnDelete(HWND hDlg)
 {
-	PMOUSESTRUCT pNew;
-	int i, j;
+	int count, index;
+	PMOUSESTRUCT pitem;
 	
-	if(!m_pMouseCommand || m_numMouseCommand < 1) return;
-	if(!(0 <= m_nCurrent && m_nCurrent < m_numMouseCommand)) return;
+	count = CBGetCount(hDlg, IDC_NAMECLICK);
+	if(count < 1) return;
 	
-	if(m_numMouseCommand > 1)
+	index = CBGetCurSel(hDlg, IDC_NAMECLICK);
+	if(index < 0) return;
+	
+	pitem = get_listitem(m_pMouseCommand, index);
+	if(pitem == NULL) return;
+	// common/list.c
+	m_pMouseCommand = del_listitem(m_pMouseCommand, pitem);
+	
+	CBDeleteString(hDlg, IDC_NAMECLICK, index);
+	
+	if(count > 0)
 	{
-		pNew = malloc(sizeof(MOUSESTRUCT)*(m_numMouseCommand-1));
-		for(i = 0, j = 0; i < m_numMouseCommand; i++)
-		{
-			if(i != m_nCurrent)
-			{
-				memcpy(pNew + j, m_pMouseCommand + i, sizeof(MOUSESTRUCT));
-				j++;
-			}
-		}
+		if(index == count - 1) index--;
+		CBSetCurSel(hDlg, IDC_NAMECLICK, index);
 		
-		CBDeleteString(hDlg, IDC_NAMECLICK, m_nCurrent);
-		
-		if(m_nCurrent == m_numMouseCommand - 1) m_nCurrent--;
-		CBSetCurSel(hDlg, IDC_NAMECLICK, m_nCurrent);
-		SetMouseCommandToDlg(hDlg, (pNew + m_nCurrent));
+		SetMouseCommandToDlg(hDlg, get_listitem(m_pMouseCommand, index));
 		OnFunction(hDlg, TRUE);
-		
-		m_numMouseCommand--;
-		free(m_pMouseCommand);
-		m_pMouseCommand = pNew;
 	}
 	else
 	{
-		free(m_pMouseCommand); m_pMouseCommand = NULL;
-		m_numMouseCommand = 0;
-		m_nCurrent = -1;
+		index = -1;
 		
-		CBDeleteString(hDlg, IDC_NAMECLICK, 0);
 		EnableMousePageItems(hDlg);
 		SetMouseCommandToDlg(hDlg, NULL);
 		OnFunction(hDlg, FALSE);
 	}
+	m_nCurrent = index;
 	
 	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
 }
@@ -446,49 +407,40 @@ void OnBrowse(HWND hDlg)
 /*------------------------------------------------
   set MOUSESTRUCT data to dialog
 --------------------------------------------------*/
-void SetMouseCommandToDlg(HWND hDlg, PMOUSESTRUCT pMSS)
+void SetMouseCommandToDlg(HWND hDlg, PMOUSESTRUCT pitem)
 {
+	MOUSESTRUCT item;
 	int i, count;
 	
-	if(!pMSS)
+	if(!pitem)
 	{
-		SetDlgItemText(hDlg, IDC_NAMECLICK, "");
-		CBSetCurSel(hDlg, IDC_MOUSEBUTTON, 0);
-		CheckRadioButton(hDlg, IDC_RADSINGLE, IDC_RADQUADRUPLE,
-			IDC_RADSINGLE);
-		CheckDlgButton(hDlg, IDC_MOUSECTRL,  FALSE);
-		CheckDlgButton(hDlg, IDC_MOUSESHIFT, FALSE);
-		CheckDlgButton(hDlg, IDC_MOUSEALT,   FALSE);
-		CBSetCurSel(hDlg, IDC_MOUSEFUNC, 0);
-		ShowDlgItem(hDlg, IDC_LABMOUSEOPT, FALSE);
-		ShowDlgItem(hDlg, IDC_MOUSEOPT, FALSE);
-		ShowDlgItem(hDlg, IDC_MOUSEOPTSANSHO, FALSE);
-		ShowDlgItem(hDlg, IDC_LABMOUSEOPT2, FALSE);
-		return;
+		memset(&item, 0, sizeof(item));
+		item.nClick = 1;
+		pitem = &item;
 	}
 	
-	CBSetCurSel(hDlg, IDC_MOUSEBUTTON, pMSS->nButton);
+	CBSetCurSel(hDlg, IDC_MOUSEBUTTON, pitem->nButton);
 	
 	CheckRadioButton(hDlg, IDC_RADSINGLE, IDC_RADQUADRUPLE,
-		IDC_RADSINGLE + pMSS->nClick - 1);
+		IDC_RADSINGLE + pitem->nClick - 1);
 	
-	CheckDlgButton(hDlg, IDC_MOUSECTRL,  pMSS->bCtrl);
-	CheckDlgButton(hDlg, IDC_MOUSESHIFT, pMSS->bShift);
-	CheckDlgButton(hDlg, IDC_MOUSEALT,   pMSS->bAlt);
+	CheckDlgButton(hDlg, IDC_MOUSECTRL,  pitem->bCtrl);
+	CheckDlgButton(hDlg, IDC_MOUSESHIFT, pitem->bShift);
+	CheckDlgButton(hDlg, IDC_MOUSEALT,   pitem->bAlt);
 	
 	CBSetCurSel(hDlg, IDC_MOUSEFUNC, 0);
 	count = CBGetCount(hDlg, IDC_MOUSEFUNC);
 	for(i = 0; i < count; i++)
 	{
-		if(CBGetItemData(hDlg, IDC_MOUSEFUNC, i) == pMSS->nCommand)
+		if(CBGetItemData(hDlg, IDC_MOUSEFUNC, i) == pitem->nCommand)
 		{
 			CBSetCurSel(hDlg, IDC_MOUSEFUNC, i); break;
 		}
 	}
-	if(i == count && pMSS->nCommand > 100)
+	if(i == count && pitem->nCommand > 100)
 	{
-		wsprintf(pMSS->option, "%d", pMSS->nCommand);
-		pMSS->nCommand = IDC_COMMAND;
+		wsprintf(pitem->option, "%d", pitem->nCommand);
+		pitem->nCommand = IDC_COMMAND;
 		for(i = 0; i < count; i++)
 		{
 			if(CBGetItemData(hDlg, IDC_MOUSEFUNC, i) == IDC_COMMAND)
@@ -498,36 +450,36 @@ void SetMouseCommandToDlg(HWND hDlg, PMOUSESTRUCT pMSS)
 		}
 	}
 	
-	SetDlgItemText(hDlg, IDC_MOUSEOPT, pMSS->option);
+	SetDlgItemText(hDlg, IDC_MOUSEOPT, pitem->option);
 }
 
 /*------------------------------------------------
   get MOUSESTRUCT data from dialog
 --------------------------------------------------*/
-void GetMouseCommandFromDlg(HWND hDlg, PMOUSESTRUCT pMSS)
+void GetMouseCommandFromDlg(HWND hDlg, PMOUSESTRUCT pitem)
 {
 	int i;
 	
-	if(!pMSS) return;
+	if(!pitem) return;
 	
-	pMSS->nButton = CBGetCurSel(hDlg, IDC_MOUSEBUTTON);
+	pitem->nButton = CBGetCurSel(hDlg, IDC_MOUSEBUTTON);
 	
 	for(i = 0; i < 4; i++)
 	{
 		if(IsDlgButtonChecked(hDlg, IDC_RADSINGLE + i))
 		{
-			pMSS->nClick = i + 1;
+			pitem->nClick = i + 1;
 			break;
 		}
 	}
 	
-	pMSS->bCtrl  = IsDlgButtonChecked(hDlg, IDC_MOUSECTRL);
-	pMSS->bShift = IsDlgButtonChecked(hDlg, IDC_MOUSESHIFT);
-	pMSS->bAlt   = IsDlgButtonChecked(hDlg, IDC_MOUSEALT);
+	pitem->bCtrl  = IsDlgButtonChecked(hDlg, IDC_MOUSECTRL);
+	pitem->bShift = IsDlgButtonChecked(hDlg, IDC_MOUSESHIFT);
+	pitem->bAlt   = IsDlgButtonChecked(hDlg, IDC_MOUSEALT);
 	
-	pMSS->nCommand = CBGetItemData(hDlg, IDC_MOUSEFUNC,
+	pitem->nCommand = CBGetItemData(hDlg, IDC_MOUSEFUNC,
 			CBGetCurSel(hDlg, IDC_MOUSEFUNC));
-	GetDlgItemText(hDlg, IDC_MOUSEOPT, pMSS->option, MAX_PATH);
+	GetDlgItemText(hDlg, IDC_MOUSEOPT, pitem->option, MAX_PATH);
 }
 
 /*------------------------------------------------

@@ -149,6 +149,8 @@ void OnTClockCommand(HWND hwnd, int id, int code)
 	
 	// open file written in tcmenu.txt
 	else if(id < 100) ContextMenuCommand(hwnd, id); // menu.c
+	
+	MemReduce();
 }
 
 /*------------------------------------------------
@@ -183,6 +185,11 @@ BOOL ExecCommandString(HWND hwnd, const char *command)
 			CopyToClipBoard(hwnd, option);
 		else if(g_hwndClock)
 			PostMessage(g_hwndClock, CLOCKM_COPY, 0, 0);
+		return FALSE;
+	}
+	else if(strcmp(cmdstr, "tip") == 0)
+	{
+		SendStringToClock(g_hwndClock, option, COPYDATA_TOOLTIP);
 		return FALSE;
 	}
 	else if(strcmp(cmdstr, "sntp") == 0)

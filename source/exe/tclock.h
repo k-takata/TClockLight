@@ -59,6 +59,7 @@ extern HWND  g_hwndClock;
 
 /* ---------- cmdopt.c ------------- */
 void CheckCommandLine(HWND hwnd, BOOL bPrev);
+void SendStringToClock(HWND hwndClock, const char *value, int type);
 
 /* ---------- command.c ---------------- */
 void OnTClockCommand(HWND hwnd, int id, int code);
@@ -100,4 +101,9 @@ void OnTCMRequestSNTPLog(HWND hwndMain, HWND hDlg); */
 /* ---------- about.c -------------- */
 void ShowAboutBox(HWND hwnd);
 extern HWND g_hDlgAbout;
+
+/* ---------- memreduce.c -------------- */
+void InitMemReduce(void);
+void MemReduce(void);
+void EndMemReduce(void);
 

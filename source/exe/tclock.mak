@@ -21,8 +21,9 @@ COMMONH=$(COMMONDIR)\common.h
 
 OBJS=main2.obj wndproc.obj cmdopt.obj command.obj menu.obj\
 	alarm.obj mouse.obj mouse2.obj about.obj\
+	memreduce.obj\
 	langcode.obj utl.obj exec.obj reg.obj autoformat.obj localeinfo.obj\
-	playfile.obj alarmstruct.obj mousestruct.obj
+	playfile.obj list.obj alarmstruct.obj mousestruct.obj
 
 LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib winmm.lib
 
@@ -112,6 +113,8 @@ sntp.obj: $(SRCDIR)\sntp.c $(TCLOCKH) $(COMMONDIR)\command.h
 	$(CC) $(COPT)$@ $(SRCDIR)\sntp.c
 about.obj: $(SRCDIR)\about.c $(TCLOCKH)
 	$(CC) $(COPT)$@ $(SRCDIR)\about.c
+memreduce.obj: $(SRCDIR)\memreduce.c $(TCLOCKH)
+	$(CC) $(COPT)$@ $(SRCDIR)\memreduce.c
 
 # common obj files
 
@@ -119,6 +122,8 @@ langcode.obj: $(COMMONDIR)\langcode.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\langcode.c
 playfile.obj: $(COMMONDIR)\playfile.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\playfile.c
+list.obj: $(COMMONDIR)\list.c $(COMMONH)
+	$(CC) $(COPT)$@ $(COMMONDIR)\list.c
 alarmstruct.obj: $(COMMONDIR)\alarmstruct.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\alarmstruct.c
 mousestruct.obj: $(COMMONDIR)\mousestruct.c $(COMMONH) $(COMMONDIR)\command.h

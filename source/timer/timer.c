@@ -18,28 +18,29 @@ void OnStopTimer(HWND hDlg, int id);
 
 /* Statics */
 
-static void DoTimer(HWND hwnd, int index);
-static void DeleteRunningTimer(HWND hwnd, int index);
+static void DoTimer(HWND hwnd, PTIMERSTRUCT pitem);
+static void DeleteRunningTimer(HWND hwnd, PTIMERSTRUCT pitem);
 
 static PTIMERSTRUCT m_pTimerRun = NULL;
-static int m_numTimerRun = 0;
 static int m_idCurrent = 1;
 
 /*-------------------------------------------
   add a timer to m_pTimerRun and start
 ---------------------------------------------*/
-void TimerStart(PTIMERSTRUCT pTS)
+void TimerStart(const PTIMERSTRUCT pitem)
 {
-	PTIMERSTRUCT pNew;
+	PTIMERSTRUCT pnewitem;
 	
-	pTS->interval = pTS->minute * 60 + pTS->second;
-	pTS->tickonstart = GetTickCount();
-	pTS->id = m_idCurrent++;
+	if(!pitem) return;
 	
-	pNew = AddTimerStruct(m_pTimerRun, m_numTimerRun, pTS);
-	m_numTimerRun++;
-	if(m_pTimerRun) free(m_pTimerRun);
-	m_pTimerRun = pNew;
+	pnewitem = malloc(sizeof(TIMERSTRUCT));
+	memcpy(pnewitem, pitem, sizeof(TIMERSTRUCT));
+	
+	pnewitem->interval = pnewitem->minute * 60 + pnewitem->second;
+	pnewitem->tickonstart = GetTickCount();
+	pnewitem->id = m_idCurrent++;
+	
+	m_pTimerRun = add_listitem(m_pTimerRun, pnewitem);
 }
 
 /*-------------------------------------------
@@ -47,9 +48,8 @@ void TimerStart(PTIMERSTRUCT pTS)
 ---------------------------------------------*/
 void ClearTimer(void)
 {
-	free(m_pTimerRun);
+	clear_list(m_pTimerRun);
 	m_pTimerRun = NULL;
-	m_numTimerRun = 0;
 }
 
 /*-------------------------------------------
@@ -65,8 +65,8 @@ BOOL IsTimerRunning(void)
 ---------------------------------------------*/
 void OnTimerTimer(HWND hwnd)
 {
+	PTIMERSTRUCT pitem, pDo;
 	DWORD tick;
-	int i, indexDo;
 	int nCopyData;
 	char s[20];
 	wchar_t ws[20];
@@ -74,21 +74,20 @@ void OnTimerTimer(HWND hwnd)
 	if(!m_pTimerRun) return;
 	
 	tick = GetTickCount();
-	indexDo = -1;
-	for(i = 0; i < m_numTimerRun; i++)
+	pDo = NULL;
+	pitem = m_pTimerRun;
+	while(pitem)
 	{
-		PTIMERSTRUCT pTS = m_pTimerRun + i;
-		
-		if(pTS->bDisp)
+		if(pitem->bDisp)
 		{
 			int remaining =
-				pTS->interval - (tick - pTS->tickonstart)/1000 - 1;
+				pitem->interval - (tick - pitem->tickonstart)/1000 - 1;
 			if(remaining >= 0)
 			{
-				if(pTS->nDispType == 0)
+				if(pitem->nDispType == 0)
 					nCopyData = COPYDATA_DISP1;
-				else if(pTS->nDispType == 2)
-					nCopyData = COPYDATA_USTR0 + pTS->nUserStr;
+				else if(pitem->nDispType == 2)
+					nCopyData = COPYDATA_USTR0 + pitem->nUserStr;
 				else
 					nCopyData = COPYDATA_CAT1;
 				wsprintf(s, "[%02d:%02d]", remaining/60, remaining%60);
@@ -98,12 +97,14 @@ void OnTimerTimer(HWND hwnd)
 			}
 		}
 		
-		if(indexDo < 0 && tick - pTS->tickonstart > pTS->interval * 1000)
-			indexDo = i;
+		if(pDo == NULL &&
+			tick - pitem->tickonstart > pitem->interval * 1000)
+			pDo = pitem;
+		
+		pitem = pitem->next;
 	}
 	
-	if(indexDo >= 0)
-		DoTimer(hwnd, indexDo);
+	if(pDo) DoTimer(hwnd, pDo);
 }
 
 /*-------------------------------------------
@@ -147,7 +148,7 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 	{
 		if(strncmp(p, "#Timer Begin", 12) == 0)
 		{
-			int i;
+			PTIMERSTRUCT pitem;
 			DWORD tick;
 			char s[160];
 			
@@ -157,17 +158,19 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 			
 			tick = GetTickCount();
 			
-			for(i = 0; i < m_numTimerRun && m_pTimerRun; i++)
+			pitem = m_pTimerRun;
+			while(pitem)
 			{
-				PTIMERSTRUCT pTS = m_pTimerRun + i;
 				int remaining =
-					pTS->interval - (tick - pTS->tickonstart)/1000 - 1;
+					pitem->interval - (tick - pitem->tickonstart)/1000 - 1;
 				
 				wsprintf(s, "\"%s %s %02d:%02d\" post %s %d 0 %d\r\n",
 					MyString(IDS_STOP, "Stop"),
-					pTS->name, remaining/60, remaining%60,
-					CLASS_TCLOCKTIMER, TIMERM_STOP, pTS->id);
+					pitem->name, remaining/60, remaining%60,
+					CLASS_TCLOCKTIMER, TIMERM_STOP, pitem->id);
 				_lwrite(hf, s, strlen(s));
+				
+				pitem = pitem->next;
 			}
 			
 			while(*p)
@@ -198,87 +201,68 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 ---------------------------------------------*/
 void OnStopTimer(HWND hwnd, int id)
 {
-	int i;
+	PTIMERSTRUCT pitem;
 	
-	if(!m_pTimerRun) return;
-	
-	for(i = 0; i < m_numTimerRun; i++)
+	pitem = m_pTimerRun;
+	while(pitem)
 	{
-		if((m_pTimerRun + i)->id == id)
+		if(pitem->id == id)
 		{
-			DeleteRunningTimer(hwnd, i);
+			DeleteRunningTimer(hwnd, pitem);
 			break;
 		}
+		pitem = pitem->next;
 	}
 }
 
 /*-------------------------------------------
   execute timer
 ---------------------------------------------*/
-void DoTimer(HWND hwnd, int index)
+void DoTimer(HWND hwnd, PTIMERSTRUCT pitem)
 {
-	PTIMERSTRUCT pTS;
 	char command[MAX_PATH + 10];
 	HWND hwndMain;
 	
-	if(!m_pTimerRun ||
-		!(0 <= index && index < m_numTimerRun)) return;
-	
-	pTS = m_pTimerRun + index;
+	if(!pitem) return;
 	
 	command[0] = 0;
-	if(pTS->bRepeat) strcpy(command, "-1 ");
-	strcat(command, pTS->fname);
+	if(pitem->bRepeat) strcpy(command, "-1 ");
+	strcat(command, pitem->fname);
 	hwndMain = GetTClockMainWindow();
 	if(hwndMain)
 		SendStringToOther(hwndMain, hwnd, command, COPYDATA_SOUND);
 	
-	if(pTS->bBlink)
+	if(pitem->bBlink)
 		PostMessage(g_hwndClock, CLOCKM_BLINK, 0, 0);
 	
-	DeleteRunningTimer(hwnd, index);
+	DeleteRunningTimer(hwnd, pitem);
 }
 
 /*-------------------------------------------
   delete an executed timer from array
 ---------------------------------------------*/
-void DeleteRunningTimer(HWND hwnd, int index)
+void DeleteRunningTimer(HWND hwnd, PTIMERSTRUCT pitem)
 {
-	PTIMERSTRUCT pTS;
+	if(!pitem) return;
 	
-	if(!m_pTimerRun) return;
-	
-	pTS = m_pTimerRun + index;
-	
-	if(pTS->bDisp)
+	if(pitem->bDisp)
 	{
 		int nCopyData;
-		if(pTS->nDispType == 0)
+		if(pitem->nDispType == 0)
 			nCopyData = COPYDATA_DISP1;
-		else if(pTS->nDispType == 2)
-			nCopyData = COPYDATA_USTR0 + pTS->nUserStr;
+		else if(pitem->nDispType == 2)
+			nCopyData = COPYDATA_USTR0 + pitem->nUserStr;
 		else
 			nCopyData = COPYDATA_CAT1;
 		SendStringToOtherW(g_hwndClock, hwnd, L"", nCopyData);
 	}
 	
-	if(m_numTimerRun > 1)
-	{
-		PTIMERSTRUCT pNew;
-		pNew = DelTimerStruct(m_pTimerRun, m_numTimerRun, index);
-		m_numTimerRun--;
-		free(m_pTimerRun);
-		m_pTimerRun = pNew;
-	}
-	else
-	{
-		m_numTimerRun = 0;
-		free(m_pTimerRun);
-		m_pTimerRun = NULL;
-	}
+	// common/list.c
+	m_pTimerRun = del_listitem(m_pTimerRun, pitem);
 	
 	OnRequestMenu(hwnd, TRUE);
 	
-	if(m_numTimerRun == 0 && !(g_hDlg && IsWindow(g_hDlg)))
+	// exit if there is no timer
+	if(m_pTimerRun == NULL && !(g_hDlg && IsWindow(g_hDlg)))
 		PostMessage(hwnd, WM_CLOSE, 0, 0);
 }

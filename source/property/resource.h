@@ -111,10 +111,15 @@
 // tooltip
 #define IDC_USETOOLTIP1                 1450
 #define IDC_TOOLTIP                     1451
-#define IDC_TOOLTIPSTYLE1               1452
-#define IDC_TOOLTIPSTYLE2               1453
-#define IDC_TOOLTIPTIME                 1454
-#define IDC_TOOLTIPTIMESPIN             1455
+#define IDC_TOOLTIPBROWSE               1452
+#define IDC_TOOLTIPSTYLE1               1453
+#define IDC_TOOLTIPSTYLE2               1454
+#define IDC_TOOLTIPTIME                 1455
+#define IDC_TOOLTIPTIMESPIN             1456
+#define IDC_TOOLTIPFONT                 1457
+#define IDC_TOOLTIPFONTSIZE             1458
+#define IDC_TOOLTIPBOLD                 1459
+#define IDC_TOOLTIPITALIC               1460
 
 // alarm
 #define IDC_COMBOALARM                  1301
