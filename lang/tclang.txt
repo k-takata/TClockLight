@@ -1,0 +1,244 @@
+[Main]
+DialogFont=MS Sans Serif, 8
+Version=TClock Light 040424
+HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/en/
+
+[Property]
+Title=TClock Properties
+Line01=" [Treeview                  ] [Dialog Pane                                                       ]"
+Line02="                              [OK           ] [Cancel       ] [Apply        ] [Help         ]"
+
+[Color]
+HelpURL=color.html
+Line01=" [     Background1][                             ][...]"
+Line02=" [     Background2][                             ][...]"
+Line03="              [Gradation ] [     Horizontal][     Vertical]"
+Line04="                 [    Paint Tray background]"
+Line05="          [Text   ][                             ][...]"
+Line06="          [Font   ][                             ]"
+Line07="          [Size   ][         ]   [    Bold]  [    Italic]"
+
+[Size]
+HelpURL=size.html
+Line01=" [Alignment                                       ]"
+Line02="    [    Left]   [    Center]  [    Right]"
+Line03=" [Arrangement of text                             ]"
+Line04="  [Vertical position] [       ][]"
+Line05="        [Line height] [       ][]"
+Line06=" [    Fit clock to tray]"
+Line07=" [Arrangement of size                             ]"
+Line08="    [Width] [       ][] [Height] [       ][]"
+
+[Format]
+HelpURL=format.html
+Line01="[Locale] [                                    ]"
+Line02=" [   Year  ]   [   Year (2 digits) ]"
+Line03=" [   Month ]   [   Month (digits) ]"
+Line04=" [   Day   ]   [   Day of Week  ]   [   Line break ]"
+Line05=" [   Hour  ]   [   Minute ]         [   Second ]"
+Line06=" [   12H   ]   [   AM/PM  ]         [  Details...  ]"
+Line07=" [   Customize format ]"
+Line08=" [                                                           ]"
+
+[Format2]
+Title=Details
+Line01="  [AM symbol  ][             ]"
+Line02="  [PM symbol  ][             ]"
+Line03="   [    Show 0:xx at 12:xx]"
+Line04="         [    OK       ]  [  Cancel     ]"
+
+[Alarm]
+HelpURL=alarm.html
+Line01="    [    Name][                            ] [  Add   ] [Delete  ]"
+Line02="              [    Enable]"
+Line03="    [    Hour][                       ] [    12H]"
+Line04="    [  Minute][                       ] [Second ] [     ]"
+Line05="[ Day of Week][                       ][...]"
+Line06="    [    File][                                         ][...]"
+Line07="    [    Test][   ]    [   Repeat]  [   Blink]"
+Line08="              [   Execute when TClock is started]"
+Line09="              [   At regular intervals:] [     ][minutes]"
+
+[AlarmDay]
+Title=Day of Week
+Line01="   [    Every day ]"
+Line02="   [    Sunday  ]"
+Line03="   [    Monday  ]   [    Tuesday ]  [    Wednesday  ]"
+Line04="   [    Thursday]   [    Friday  ]  [    Saturday   ]"
+Line05="            [    OK      ]  [  Cancel    ]"
+
+[Cuckoo]
+HelpURL=cuckoo.html
+Line01="[    Cuckoo clock]"
+Line02="  [   File][                                        ][...]"
+Line03="  [   Test][   ]    [    Repeat]   [    Blink]"
+
+[Mouse]
+HelpURL=mouse.html
+Line01="  [   Name][                            ] [  Add     ] [Delete    ]"
+Line02="  [ Button][                      ]"
+Line03="           [    single] [    double] [    triple][    quadruple]"
+Line04="           [    Ctrl] [    Shift] [    Alt]"
+Line05="[ Function][                               ]"
+Line06="  [   File][                                       ][...]"
+Line07="           [   Always show TClock menu on right button click]"
+
+[Mouse2]
+HelpURL=mouse2.html
+Line01=" [Drop files                                                   ]"
+Line02="  [   Function][                              ]"
+Line03="  [       File][                                       ][...]"
+
+[Tooltip]
+HelpURL=tooltip.html
+Line01=" [    Show toolip]"
+Line02="  [Format ][                                           ]"
+Line03="       [Style ] [    Normal] [    Balloon]"
+Line04="  [Pop-up time ][        ][][seconds]"
+
+[StartButton]
+HelpURL=startbutton.html
+Line01=" [    Customize Start button]"
+Line02="      [ Icon][                                          ][...]"
+Line03="   [ Caption][                        ]"
+Line04="             [ Color][                          ][...]"
+Line05="             [  Font][                          ]"
+Line06="          [Font size][       ]  [    Bold] [    Italic]"
+Line07="   [      Background][                                     ][...]"
+Line08="   [    Flat button]"
+Line09=" [    Hide Start button]   [    Start menu from clock]"
+
+[SelectIcon]
+Title=Select Icon
+Line01="  [                                                         ]"
+Line02="  [                                                         ]"
+Line03="      [    OK        ]  [  Cancel      ]  [Browse...     ]"
+
+[StartMenu]
+HelpURL=startmenu.html
+Line01=" [   Customize Start menu]"
+Line02="      [Bitmap][                                         ][...]"
+Line03="              [    Tile]"
+Line04="       [Color][                       ][...]"
+Line05=" [Transparency of Start menu][        ][]"
+
+[Taskbar]
+HelpURL=taskbar.html
+Line01=" [    Flat Task switch]"
+Line02=" [    Separators of Task swtch]"
+Line03=" [    Hide grippers]"
+Line04=" [    Flat Tray]"
+Line05=" [    Flat Task bar]"
+Line06=" [    Hide text of Task switch]"
+Line07=" [Transparency of Taskbar ][        ][]"
+
+[Misc]
+HelpURL=misc.html
+Line01=" [    Do not customize clock ]"
+Line02=" [    Play WAVE by using MCI  ]"
+Line03=" [Start to customize after][      ][seconds]"
+Line04=" [  Customize again after Explorer crushes]"
+Line05=" [Help URL ]"
+Line06=" [                                          ][...]"
+
+[Timer]
+HelpURL=timer.html
+Title=Timer
+Line01="  [  Name][                                  ] [  Add    ] [Delete   ]"
+Line02="  [  Time][       ][][:][       ][] [(minutes:seconds)]"
+Line03="  [  File][                                          ][...]"
+Line04="  [  Test][   ]    [    Repeat]   [    Blink]"
+Line05="         [    Show remaining time on clock]"
+Line06="            [    Whole]   [    Add]"
+Line07="            [   User string (0-9)][      ]"
+Line08="           [  Start       ]  [ Cancel       ]  [  Help        ]"
+
+[SyncTime]
+HelpURL=sntp.html
+Title=Synchronization Settings
+Line01="  [ NTP Server ][                                    ] [ Delete   ]"
+Line02="  [     Timeout][          ][][msecs]"
+Line03="                [     Save Log]"
+Line04="        [Sound][                                           ][...]"
+Line05="   [Adjust Now   ]"
+Line06="   [                                                             ]"
+Line07="          [  OK          ]  [ Cancel       ]  [  Help       ]"
+
+[Player]
+HelpURL=player.html
+Title=Player settings
+Line01="   [     Show elasped time on clock]"
+Line02="       [    Whole ]   [    Add ]"
+Line03="       [  User string (0-9)][     ]"
+Line04="        [  OK          ]  [ Cancel       ]  [  Help       ]"
+
+
+; Test button in Open File dialog
+[TestSound]
+Line01="[                                  ]"
+Line02="[Test:][   ]"
+
+[String]
+Clock=Clock
+Color=Color and Font
+SizePos=Size and Position
+Format=Format
+Alarm=Alarm
+Cuckoo=Cuckoo clock
+Mouse=Mouse
+Click=Click
+Mouse2=Drop
+Sync=Synchronization
+Tooltip=Tooltip
+Taskbar=Taskbar
+Startbutton=Start button
+Startmenu=Start menu
+Misc=Misc
+
+ButtonFace=Button Face
+ButtonShadow=Button Shadow
+ButtonLight=Button Highlight
+ButtonText=Button Text
+
+NoIcon=No icons in this file.
+
+LButton=Left button
+RButton=Right button
+MButton=Middle button
+XButton1=Side button 1
+XButton2=Side button 2
+File=File
+
+None=(none)
+OpenFile=Open File
+MouseCopy=Copy to Clipboard
+SyncTime=Synchronize
+TClockMenu=TClock Menu
+PropDate=Date/Time Properties
+ExitWin=Shut Down Windows
+Logoff=Log off
+Run=Run
+AllMin=Minimize All Windows
+ShowDesk=Show Desktop
+SSaver=Screen Saver
+MonOff=Monitor OFF
+; You can leave 'Kyu!'as it is.
+Kyu=Kyu!
+TCCmd=TClock Command
+FormatCopy=Format
+Numero=No.
+MonOffSec=Seconds
+
+Recycle=Recycle Bin
+OpenBy=Open with...
+CopyTo=Copy To...
+MoveTo=Move To...
+Application=Application
+Folder=Folder
+
+Stop=Stop
+Pause=Pause/Resume
+Next=Next
+Prev=Previous
+
+

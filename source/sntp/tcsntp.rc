@@ -1,0 +1,104 @@
+#include <windows.h>
+#include "resource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG DIALOG DISCARDABLE  0, 0, 244, 175
+STYLE DS_MODALFRAME | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Settings of Synchronization"
+FONT 9, "MS Sans Serif"
+BEGIN
+    RTEXT           "NTP Server",IDC_STATIC,10,10,40,12
+    COMBOBOX        IDC_NTPSERVER,55,7,113,76,CBS_DROPDOWN | CBS_AUTOHSCROLL | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Delete",IDC_DELSERVER,176,7,33,14
+    RTEXT           "Timeout",IDC_STATIC,10,31,40,12
+    EDITTEXT        IDC_TIMEOUT,55,27,44,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_TIMEOUTSPIN,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | 
+                    UDS_NOTHOUSANDS,93,15,9,14
+    LTEXT           "msecs",IDC_STATIC,103,31,42,12
+    CONTROL         "Save Log",IDC_SNTPLOG,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,55,47,49,12
+    RTEXT           "Sound",IDC_STATIC,10,67,40,12
+    EDITTEXT        IDC_SYNCSOUND,55,64,139,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_SYNCSOUNDBROWSE,200,64,14,14
+    PUSHBUTTON      "Adjust Now",IDC_SYNCNOW,17,87,57,14
+    EDITTEXT        IDC_SNTPLOGRESULT,16,106,207,40,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,38,154,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,96,154,50,14
+    PUSHBUTTON      "Help",IDC_MYHELP,154,154,50,14
+END
+
+TESTSOUNDLG DIALOG DISCARDABLE  0, 0, 183, 64
+STYLE DS_3DLOOK | DS_CONTROL | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS
+FONT 9, "MS Sans Serif"
+BEGIN
+    LTEXT           "",1119,3,4,175,33
+    LTEXT           "Test:",1,7,47,40,9
+    PUSHBUTTON      "",2,41,44,15,14,BS_ICON
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_TCSNTP              ICON    DISCARDABLE     "tcsntp.ico"
+IDI_TCLOCK              ICON    DISCARDABLE     "tclock.ico"
+IDI_PLAY                ICON    DISCARDABLE     "play.ico"
+IDI_STOP                ICON    DISCARDABLE     "stop.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// 24
+//
+
+1                       24      DISCARDABLE     "tclock.manifest"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 0,0,0,1
+ PRODUCTVERSION 0,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "Comments", "TCSNTP\0"
+            VALUE "CompanyName", "Kazubon\0"
+            VALUE "FileDescription", "TClock Light\0"
+            VALUE "FileVersion", "0, 0, 0, 1\0"
+            VALUE "InternalName", "TCSNTP\0"
+            VALUE "LegalCopyright", "(C) Kazuto Sato\0"
+            VALUE "OriginalFilename", "tcsntp.exe\0"
+            VALUE "ProductName", "TClock Light\0"
+            VALUE "ProductVersion", "0, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
+

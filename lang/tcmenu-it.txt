@@ -1,0 +1,20 @@
+#
+# TClock context menu
+#
+
+"Modifica Data/Ora"                    408
+"Riduci a icona tutte le finestre"     415
+"Task Manager..."                      420
+"Proprietà - Barra delle applicazioni" 413
+---------------------------
+"Timer"                                103
+#Timer Begin
+#Timer End
+---------------------------
+"Impostazioni della Sincronizzazione"  tcsntp.exe
+"Sincronizza"                          104
+---------------------------
+"Proprietà - TClock"                   100
+"Guida di TClock"                      101
+"Informazioni su TClock"               108
+"Esci da TClock"                       102

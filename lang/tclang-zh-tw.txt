@@ -1,0 +1,244 @@
+[Main]
+DialogFont=新細明體,9
+Version=TClock Light 040424
+HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/en/
+Written by=Albert Wan Kwok Leung
+Thanks to=Jian-Ting Chen
+
+[Property]
+Title=TClock 內容
+Line01=" [Treeview               ][Dialog Pane                                                          ]"
+Line02="                           [確定        ] [取消        ] [套用        ] [說明        ]"
+
+[Color]
+HelpURL=color.html
+Line01=" [    背景顏色1][                         ][...]"
+Line02=" [    背景顏色2][                         ][...]"
+Line03="            [ 逐漸變色 ] [   水平 ] [   垂直 ]"
+Line04="               [     時鐘色彩延申至工作列圖示區  ]"
+Line05="     [ 文字顏色][                          ][...]"
+Line06="       [   字型][                          ]"
+Line07="       [   大小][        ]    [   粗體]   [   斜體 ]"
+
+[Size]
+HelpURL=size.html
+Line01=" [文字對齊                                        ]"
+Line02="    [    左齊]   [    置中]  [    右齊]"
+Line03=" [調節字體                                        ]"
+Line04="    [   垂直的位置] [       ][]"
+Line05="  [   文字行列高度] [       ][]"
+Line06=" [    配合時鐘至工具列  ]"
+Line07=" [調節大小                                        ]"
+Line08="   [ 時鐘寬度] [       ][] [ 時鐘高度] [       ][]"
+
+[Format]
+HelpURL=format.html
+Line01="[  所在位置] [                              ]"
+Line02="  [   年 (四位數) ] [   年 (兩位數) ]"
+Line03="  [   月 ]          [   月 (數字) ]"
+Line04="  [   日 ]          [   星期幾 ]      [   換行 ]"
+Line05="  [   時 ]          [   分 ]          [   秒 ]"
+Line06="  [   12小時制 ]    [   上午/下午 ]   [更多...   ]"
+Line07="  [   自訂格式 ]"
+Line08="  [                                                           ]"
+
+[Format2]
+Title=細節
+Line01="  [  上午符號][           ]"
+Line02="  [  下午符號][           ]"
+Line03="   [    將12:00顯示成0:00 ]"
+Line04="         [   確定     ]  [   取消     ]"
+
+[Alarm]
+HelpURL=alarm.html
+Line01="[  鬧鐘名稱][                             ] [新增    ] [刪除    ]"
+Line02="            [     啟動]"
+Line03="  [    時間][                       ] [   12小時制 ]"
+Line04="  [      分][                       ] [ 秒][     ]"
+Line05=" [   星期幾][                       ][...]"
+Line06="  [    檔案][                                             ][...]"
+Line07="  [    測試][   ]    [    反覆 ]  [    閃爍 ]"
+Line08="            [   TClock 開始後便自動執行  ]"
+Line09="            [   定時執行 每次相隔 : ][     ][分]"
+
+[AlarmDay]
+Title=在星期幾啟動鬧鐘
+Line01="   [    每一天 ]"
+Line02="   [    星期日 ]"
+Line03="   [    星期一 ]   [    星期二 ]  [    星期三 ]"
+Line04="   [    星期四 ]   [    星期五 ]  [    星期六 ]"
+Line05="              [   確定     ]  [   取消     ]"
+
+[Cuckoo]
+HelpURL=cuckoo.html
+Line01=" [    整點報時 ]
+Line02="  [   檔案][                                             ][...]"
+Line03="  [   測試][   ]    [    反覆 ]  [    閃爍 ]"
+
+[Mouse]
+HelpURL=mouse.html
+Line01="    [   名稱][                                ] [新增    ] [刪除    ]"
+Line02="[ 在時鐘上按][                    ]"
+Line03="             [   按一下 ] [   連按兩下 ] [   連按三下 ] [   連按四下 ]"
+Line04="             [   Ctrl]  [   Shift]  [   Alt]"
+Line05=" [  功能選擇][                            ]"
+Line06="   [    檔案][                                          ][...]"
+Line07="      [   每次按滑鼠右鍵都顯示TClock選單           ]"
+
+[Mouse2]
+HelpURL=mouse2.html
+Line01=" [如何處理拖曳到時鐘上的檔案？                                  ]"
+Line02="  [   功能選擇][                          ]"
+Line03="  [   應用程式][                                        ][...]"
+
+[Tooltip]
+HelpURL=tooltip.html
+Line01=" [    顯示提示信息 ]"
+Line02="   [ 格式 ][                                             ]"
+Line03="        [風格   ] [   一般式]  [   氣球狀]"
+Line04=" [  跳出時間 ][        ][][秒 ]"
+
+[StartButton]
+HelpURL=startbutton.html
+Line01=" [    自訂開始按鈕 ]"
+Line02="    [  圖示][                                            ][...]"
+Line03="    [  標題][                      ]"
+Line04="         [  文字顏色][                          ][...]"
+Line05="         [      字型][                          ]"
+Line06="         [      大小][        ]   [   粗體]   [   斜體 ]"
+Line07="    [   背景       ] [                                        ][...]"
+Line08="    [   平面化 ]"
+Line09=" [    隱藏開始按鈕  ]   [     從時鐘顯示開始功能表 ]"
+
+[SelectIcon]
+Title=選擇圖示
+Line01="  [                                                         ]"
+Line02="  [                                                         ]"
+Line03="         [   確定     ]  [   取消     ]  [ 瀏覽...   ]"
+
+[StartMenu]
+HelpURL=startmenu.html
+Line01=" [    自訂開始功能表]"
+Line02="    [ 點陣圖][                                          ][...]"
+Line03="             [    並排顯示 ]"
+Line04="      [ 顏色][                         ][...]"
+Line05=" [開始鍵透明化 ] [        ][]"
+
+[Taskbar]
+HelpURL=taskbar.html
+Line01="  [   按鈕平面化  ]"
+Line02="  [   分隔按鈕  ]"
+Line03="  [   隱藏拉線 ]"
+Line04="  [   平面工具列 ]"
+Line05="  [   工具列平面化 ]"
+Line06="  [   按鈕文字隱藏 ]"
+Line07="  [工具列透明化 ] [        ][]"
+
+[Misc]
+HelpURL=misc.html
+Line01="  [   閉關自訂時鐘的功能   ]"
+Line02="  [   使用 MCI 播放波形檔   ]"
+Line03="  [在][      ][秒後啟動 TClock 的功能  ]"
+Line04="  [   當檔案總管損毀後再次設定   ]"
+Line05="  [說明文件網址   ]"
+Line06="  [                                           ][...]"
+
+[Timer]
+HelpURL=timer.html
+Title=計時器
+Line01="  [  名稱][                                ] [新增    ] [刪除    ]"
+Line02="  [  時間][       ][][:][       ][] [(分:秒)]"
+Line03="  [  檔案][                                                   ][...]"
+Line04="  [  測試][   ]    [    反覆 ]  [    閃爍 ]"
+Line05="          [   顯示餘下時間 ]"
+Line06="              [   全部 ]  [   新增 ]"
+Line07="              [   個人設定 (0-9)][      ]"
+Line08="             [  開始       ]  [ 取消        ]  [  說明       ]"
+
+[SyncTime]
+HelpURL=sntp.html
+Title=時間同步化之切定
+Line01="   [ 伺服器][                                       ] [ 刪除   ]"
+Line02="   [   時限][          ][][毫秒]"
+Line03="            [    儲存記錄 ]"
+Line04="   [   聲音][                                             ][...]"
+Line05="   [立刻對時    ]"
+Line06="   [                                                            ]"
+Line07="           [  確定      ]  [ 取消       ]  [  說明      ]"
+
+[Player]
+HelpURL=player.html
+Title=Player Settings
+Line01="   [   顯示已過時間 ]"
+Line02="      [   全部 ]  [   新增 ]"
+Line03="      [   個人設定 (0-9)][      ]"
+Line04="           [  確定      ]  [ 取消       ]  [  說明      ]"
+
+; Test button in Open File dialog
+[TestSound]
+Line01="[                                      ]"
+Line02="[測試:][   ]"
+
+[String]
+Clock=時鐘
+Color=顏色和字型
+SizePos=位置和大小
+Format=時間格式
+Alarm=鬧鐘
+Cuckoo=整點報時
+Mouse=滑鼠
+Click=選取
+Mouse2=拖放
+Sync=對時
+Tooltip=工具提示
+Taskbar=工作列
+Startbutton=開始按鈕
+Startmenu=開始功能表
+Misc=雜項
+
+ButtonFace=按鈕表面顏色
+ButtonShadow=按鈕陰影顏色
+ButtonLight=按鈕明亮部分顏色
+ButtonText=按鈕文字顏色
+
+NoIcon=在這個檔案當中沒有圖示
+
+LButton=滑鼠左鍵
+RButton=滑鼠右鍵
+MButton=滑鼠中央鍵
+XButton1=滑鼠測鍵 1
+XButton2=滑鼠測鍵 2
+File=檔案
+
+None=(無)
+OpenFile=滑鼠左鍵
+MouseCopy=複製到剪貼簿
+SyncTime=對時
+TClockMenu=TClock 選單
+PropDate=日期/時間 內容
+ExitWin=關閉 Windows
+Logoff=登出
+Run=執行應用程式
+AllMin=所有視窗縮到最小
+ShowDesk=顯示卓面
+SSaver=螢幕保護程式
+MonOff=關閉顯示器
+Kyu=Kyu!
+TCCmd=TClock Command
+FormatCopy=格式
+Numero=No.
+MonOffSec=秒
+
+Recycle=丟到資源回收筒
+OpenBy=開啟檔案...
+CopyTo=複製到...
+MoveTo=移動到...
+Application=應用程式
+Folder=資料夾
+
+Stop=停止
+Pause=暫停/繼續
+Next=下一個
+Prev=上一個
+
+

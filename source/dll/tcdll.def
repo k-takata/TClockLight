@@ -1,0 +1,11 @@
+LIBRARY 	tcdll.tclock
+
+DESCRIPTION	"Dll for TClock"
+
+SECTIONS
+MYDATA    SHARED READ WRITE
+
+EXPORTS
+HookStart
+HookEnd
+GetTClockVersion

@@ -1,0 +1,243 @@
+[Main]
+DialogFont=ＭＳ Ｐゴシック,9
+Version=TClock Light 040424
+HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/ja/
+
+[Property]
+Title=TClockのプロパティ
+Line01=" [Treeview                ][Dialog Pane                                                       ]"
+Line02="                            [OK           ] [キャンセル   ] [適用         ] [ヘルプ       ]"
+
+[Color]
+HelpURL=color.html
+Line01="    [   背景色1][                        ][...]"
+Line02="    [   背景色2][                        ][...]"
+Line03="              [ グラデーション]  [    横] [    縦]"
+Line04="                [   トレイの背景を塗りつぶす]"
+Line05="      [文字色  ][                        ][...]"
+Line06="      [フォント][                        ]"
+Line07="[フォントサイズ][        ]   [    太字] [    斜体]"
+
+[Size]
+HelpURL=size.html
+Line01=" [揃え方                                      ]"
+Line02="      [   左]    [   中央]   [   右]"
+Line03=" [テキストの調整                              ]"
+Line04="      [上下位置] [       ][]"
+Line05="        [  行間] [       ][]"
+Line06=" [   サイズをトレイに合わせる ]"
+Line07=" [サイズの調整                                ]"
+Line08="    [  幅] [       ][] [  高さ] [       ][]"
+
+[Format]
+HelpURL=format.html
+Line01="[ 地域] [                             ]"
+Line02="  [   年]         [   年(2桁)]"
+Line03="  [   月]         [   月(数字)]"
+Line04="  [   日]         [   曜日]         [   改行]"
+Line05="  [   時]         [   分]           [   秒]"
+Line06="  [   12時間制 ]  [   午前/午後]    [  詳細...   ]"
+Line07="  [  書式を自分で入力する  ]"
+Line08="  [                                                           ]"
+
+[Format2]
+Title=詳細
+Line01="  [午前の記号  ][           ]"
+Line02="  [午後の記号  ][           ]"
+Line03="   [    12時を0時と表示]"
+Line04="       [    OK       ]  [キャンセル   ]"
+
+[Alarm]
+HelpURL=alarm.html
+Line01=" [    名前][                           ] [ 追加  ] [ 削除  ]"
+Line02="           [   有効]"
+Line03=" [      時][                       ] [    12時間制]"
+Line04=" [      分][                       ]  [ 秒][     ]"
+Line05=" [    曜日][                       ][...]"
+Line06=" [ファイル][                                        ][...]"
+Line07="  [ テスト][   ]    [    繰り返す]  [    点滅する]"
+Line08="           [    TClockの起動時に実行 ]"
+Line09="           [   一定間隔で実行:] [      ][分]"
+
+[AlarmDay]
+Title=曜日
+Line01="   [    毎日]"
+Line02="   [    日曜日]"
+Line03="   [    月曜日]   [    火曜日]   [    水曜日]"
+Line04="   [    木曜日]   [    金曜日]   [    土曜日]"
+Line05="            [    OK       ]  [キャンセル   ]"
+
+[Cuckoo]
+HelpURL=cuckoo.html
+Line01=" [     はと時計]
+Line02="  [ ファイル][                                       ][...]"
+Line03="  [   テスト][   ]    [    繰り返す]  [    点滅する]"
+
+[Mouse]
+HelpURL=mouse.html
+Line01="  [  名前][                             ] [ 追加  ] [ 削除  ]"
+Line02="  [ボタン][                    ]"
+Line03="          [   シングル] [   ダブル]  [   3回]  [   4回]"
+Line04="          [   Ctrl] [   Shift] [   Alt]"
+Line05="   [ 機能][                             ]"
+Line06="[ファイル][                                          ][...]"
+Line07="  [    常に右クリックでTClockのメニューを表示]"
+
+[Mouse2]
+HelpURL=mouse2.html
+Line01=" [ファイルのドロップ                                          ]"
+Line02="       [ 機能][                          ]"
+Line03="  [  ファイル][                                       ][...]"
+
+[Tooltip]
+HelpURL=tooltip.html
+Line01=" [    ツールチップの表示]"
+Line02="     [  書式][                                         ]"
+Line03="   [表示形式] [    通常] [    バルーン]"
+Line04="   [表示時間][        ][][秒]"
+
+[StartButton]
+HelpURL=startbutton.html
+Line01=" [   スタートボタンを改造する]"
+Line02="       [アイコン][                                        ][...]"
+Line03="   [キャプション][                      ]"
+Line04="                [文字色][                         ][...]"
+Line05="              [フォント][                         ]"
+Line06="        [フォントサイズ][       ]  [   太字 ] [   斜体 ]"
+Line07="    [   背景画像] [                                         ][...]"
+Line08="    [   平らなスタートボタン]"
+Line09=" [  スタートボタンを隠す]   [   時計にスタートメニュー]"
+
+[SelectIcon]
+Title=アイコンの選択
+Line01="  [                                               ]"
+Line02="  [                                               ]"
+Line03="     [    OK     ]  [キャンセル ]  [参照...   ]"
+
+[StartMenu]
+HelpURL=startmenu.html
+Line01=" [   スタートメニューを改造する]"
+Line02="  [ビットマップ][                                       ][...]"
+Line03="                [   並べる]"
+Line04="           [ 色][                        ][...]"
+Line05=" [スタートメニューの透明度][         ][]"
+
+[Taskbar]
+HelpURL=taskbar.html
+Line01=" [   平らなタスクスイッチ]"
+Line02=" [   区切りを入れる]"
+Line03=" [   取っ手を消す]"
+Line04=" [   平らなトレイ]"
+Line05=" [   平らなタスクバー]"
+Line06=" [   タスクスイッチにアイコンのみ表示]"
+Line07=" [タスクバーの透明度][         ][]"
+
+[Misc]
+HelpURL=misc.html
+Line01=" [   時計を改造しない]"
+Line02=" [   MCIでWAVを鳴らす  ]"
+Line03=" [起動してから][      ][秒後に改造開始  ]"
+Line04=" [   Explorerのクラッシュ後に改造し直す]"
+Line05=" [ヘルプのURL ]"
+Line06=" [                                              ][...]"
+
+[Timer]
+HelpURL=timer.html
+Title=タイマー
+Line01="     [ 名前][                                 ] [ 追加  ] [ 削除  ]"
+Line02="     [ 時間][       ][][:][       ][] [(分:秒)]"
+Line03="  [ファイル][                                               ][...]"
+Line04="    [テスト][   ]    [    繰り返す]   [    点滅する]"
+Line05="            [   時計に残り時間を表示]"
+Line06="              [   全体]   [   追加]"
+Line07="              [   ユーザー文字列(0-9)  ][     ]"
+Line08="          [開始         ]   [キャンセル   ]   [ヘルプ       ]"
+
+[SyncTime]
+HelpURL=sntp.html
+Title=時刻合わせの設定
+Line01="   [NTPサーバー  ][                                    ] [ 削除  ]"
+Line02="  [タイムアウト  ][          ][][ミリ秒]"
+Line03="                  [   ログを保存]"
+Line04="        [サウンド][                                        ][...]"
+Line05="   [今すぐ同期   ]"
+Line06="   [                                                            ]"
+Line07="         [ OK          ]   [キャンセル   ]   [ヘルプ       ]"
+
+[Player]
+HelpURL=player.html
+Title=プレイヤーの設定
+Line01="   [   時計に経過時間を表示  ]"
+Line02="      [   全体 ]   [   追加 ]"
+Line03="      [   ユーザー文字列(0-9)  ][    ]"
+Line04="       [ OK          ]  [キャンセル    ]  [ヘルプ        ]"
+
+; Test button in Open File dialog
+[TestSound]
+Line01="[                                      ]"
+Line02="[テスト:][   ]"
+
+
+[String]
+Clock=時計
+Color=色とフォント
+SizePos=位置とサイズ
+Format=書式
+Alarm=アラーム
+Cuckoo=はと時計
+Mouse=マウス操作
+Click=クリック
+Mouse2=ドロップ
+Sync=時刻合わせ
+Tooltip=ツールチップ
+Taskbar=タスクバー
+Startbutton=スタートボタン
+Startmenu=スタートメニュー
+Misc=その他
+
+LButton=左ボタン
+RButton=右ボタン
+MButton=中央ボタン
+XButton1=サイドボタン1
+XButton2=サイドボタン2
+File=ファイル
+
+None=（なし）
+OpenFile=ファイルを開く
+MouseCopy=クリップボードにコピー
+SyncTime=時刻の同期
+TClockMenu=TClockの右クリックメニュー
+PropDate=日付と時刻のプロパティ
+ExitWin=Windowsの終了
+Logoff=ログオフ
+Run=ファイル名を指定して実行
+AllMin=すべてのウィンドウを最小化
+ShowDesk=デスクトップの表示
+SSaver=スクリーンセーバー
+MonOff=モニターOFF
+Kyu=キュ!
+TCCmd=TClockのコマンド
+FormatCopy=書式
+Numero=番号
+MonOffSec=秒数
+
+Recycle=ごみ箱
+OpenBy=プログラムで開く
+CopyTo=コピー
+MoveTo=移動
+Play=プレイヤー
+Application=プログラム
+Folder=フォルダ
+
+ButtonFace=ボタンの表面
+ButtonShadow=ボタンの影
+ButtonLight=ボタンの明るい部分
+ButtonText=ボタンの文字
+
+NoIcon=アイコンがありません。
+
+Stop=中止
+Pause=停止/再開
+Next=次へ
+Prev=前へ
+

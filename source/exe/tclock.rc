@@ -1,0 +1,68 @@
+#include <windows.h>
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+
+ABOUTBOX DIALOG DISCARDABLE  0, 0, 232, 124
+STYLE DS_MODALFRAME | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 9, "MS Sans Serif"
+BEGIN
+    ICON            "MYICON",-1,11,10,20,20
+    LTEXT           "TClock Light      (C) 1997-2003 Kazuto Sato", -1,40,17,
+                    200,11
+    LTEXT           "This program is free software; you can redistribute it and/or modify it under the terms of the GNU GPL.",-1,20,42,200,40
+    LTEXT           "E-mail",-1,20,68,30,11
+    LTEXT           "kazuto.sato@nifty.com",100,55,68,80,11,SS_NOTIFY
+    LTEXT           "WWW",-1,20,80,30,11
+    LTEXT           "http://homepage1.nifty.com/kazubon/",101,55,80,
+                    133,11,SS_NOTIFY
+    DEFPUSHBUTTON   "OK", IDOK, 100, 100, 32, 14, WS_GROUP
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 0,0,0,1
+ PRODUCTVERSION 0,0,0,1
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "Comments", "TCLOCK\0"
+            VALUE "CompanyName", "Kazubon\0"
+            VALUE "FileDescription", "TClock Light\0"
+            VALUE "FileVersion", "0, 0, 0, 1\0"
+            VALUE "InternalName", "TCLOCK\0"
+            VALUE "LegalCopyright", "(C) Kazuto Sato\0"
+            VALUE "OriginalFilename", "tclock.exe\0"
+            VALUE "ProductName", "TClock Light\0"
+            VALUE "ProductVersion", "0, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+MYICON               ICON    DISCARDABLE     "tclock.ico"
+
+

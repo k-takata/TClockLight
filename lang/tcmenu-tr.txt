@@ -1,0 +1,20 @@
+#
+# TClock sað tuþ menüsü
+#
+
+"Tari&h/Zaman Ayarla"   408
+"Tümünü &Simgeleþtir"   415
+"&Görev Yöneticisi..."  420
+"Gö&rev Çubuðu Özellikleri" 413
+---------------------------
+"&Zamanlayýcý"          103
+#Timer Begin
+#Timer End
+---------------------------
+"Eþitleme &Ayarlarý"  tcsntp.exe
+"&Eþitle"               104
+---------------------------
+"&TClock Özellikleri"   100
+"TClock Yardýmý"        101
+"TClock Hakkýnda"       108
+"T&Clock'tan Çýk"       102

@@ -1,0 +1,244 @@
+[Main]
+DialogFont=MS Sans Serif,8
+Version=TClock Light 040424
+HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/en/
+Written By=Alessandro Pini
+
+[Property]
+Title=Proprietà - TClock
+Line01=" [Vista ad albero                   ][Dialog Pane                                                          ]"
+Line02="                                       [OK           ] [Annulla      ] [Applica      ] [Guida        ]"
+
+[Color]
+HelpURL=color.html
+Line01="     [Sfondo 1    ][                               ][...]"
+Line02="     [Sfondo 2    ][                               ][...]"
+Line03="                  [Gradazione]  [Orizzontale   ]  [Verticale   ]"
+Line04="                   [Colora lo sfondo del raccoglitore  ]"
+Line05="       [Testo     ][                               ][...]"
+Line06="[Tipo di Carattere][                               ]"
+Line07="       [Dimensione][        ]  [Grassetto     ]  [Corsivo    ]"
+
+[Size]
+HelpURL=size.html
+Line01="  [Allineamento                                     ]"
+Line02="     [Sinistra   ]  [Centro   ]  [Destra   ]"
+Line03="  [Disposizione del testo                           ]"
+Line04="   [Posizione verticale ] [        ][]"
+Line05="   [Altezza della linea ] [        ][]"
+Line06="  [Adatta l'orologio al raccoglitore  ]"
+Line07="  [Variazione delle dimensioni                      ]"
+Line08="   [Larghezza ] [        ][] [Altezza ] [        ][]"
+
+[Format]
+HelpURL=format.html
+Line01="[Lingua e impostazioni] [                                   ]"
+Line02="  [Anno     ]    [Anno (2 cifre)   ]"
+Line03="  [Mese     ]    [Mese (cifre)   ]"
+Line04="  [Giorno   ]    [Giorno della settimana   ] [A capo      ]"
+Line05="  [Ora      ]    [Minuto    ]       [Secondo      ]"
+Line06="  [12H      ]    [AM/PM     ]       [Dettagli...  ]"
+Line07="  [Personalizza il formato  ]"
+Line08="  [                                                         ]"
+
+[Format2]
+Title=Dettagli
+Line01="  [Simbolo AM  ][             ]"
+Line02="  [Simbolo PM  ][             ]"
+Line03="    [Indica 0:xx alle 12:xx   ]"
+Line04="          [OK          ]  [Annulla     ]"
+
+[Alarm]
+HelpURL=alarm.html
+Line01="    [Nome   ][                              ] [Aggiungi  ][Cancella  ]"
+Line02="             [Attiva   ]"
+Line03="    [Ora    ][                       ] [12H    ]"
+Line04="    [Minuto ][                       ] [Secondo ] [     ]"
+Line05="[Giorno della settimana][                      ][...]"
+Line06="    [File   ][                                             ][...]"
+Line07="    [Test   ][   ]    [Ripeti    ]  [Lampeggia    ]"
+Line08="             [  Esegui all'avvio di TClock]"
+Line09="             [  A intervalli regolari:][     ][minuti]"
+
+[AlarmDay]
+Title=Giorno della Settimana
+Line01="   [Tutti i giorni      ]"
+Line02="   [Domenica       ]"
+Line03="   [Lunedì     ]   [Martedì    ]   [Mercoledì    ]"
+Line04="   [Giovedì    ]   [Venerdì    ]   [Sabato       ]"
+Line05="             [OK          ]   [Annulla     ]"
+
+[Cuckoo]
+HelpURL=cuckoo.html
+Line01=" [Orologio a cucù   ]"
+Line02="  [File   ][                                     ][...]"
+Line03="  [Test   ][   ]   [Ripeti    ]  [Lampeggia    ]"
+
+[Mouse]
+HelpURL=mouse.html
+Line01="  [Nome   ][                               ] [Aggiungi  ][Cancella  ]"
+Line02="  [Bottone][                      ]"
+Line03="           [singolo   ] [doppio   ] [triplo   ][quadruplo   ]"
+Line04="           [Ctrl  ]   [Shift  ]  [Alt  ]"
+Line05="[Funzione ][                                  ]"
+Line06="  [File   ][                                  ][...]"
+Line07="   [Mostra sempre il menu di TClock alla pressione del tasto destro]"
+
+[Mouse2]
+HelpURL=mouse2.html
+Line01=" [Trascina file                                               ]"
+Line02="  [Funzione     ][                              ]"
+Line03="  [File         ][                                    ][...]"
+
+[Tooltip]
+HelpURL=tooltip.html
+Line01=" [Mostra suggerimento  ]"
+Line02="             [Formato  ][                                 ]"
+Line03="                    [Stile ] [Normale    ] [Fumetto    ]"
+Line04="  [Tempo di apparizione][        ][][secondi ]"
+
+[StartButton]
+HelpURL=startbutton.html
+Line01=" [Personalizza il pulsante Start  ]"
+Line02="    [Icona][                                         ][...]"
+Line03="    [Testo][                         ]"
+Line04="              [Colore][                              ][...]"
+Line05="   [Tipo di Carattere][                              ]"
+Line06="          [Dimensione][        ]  [Grassetto     ]  [Corsivo    ]"
+Line07="      [Sfondo    ][                                        ][...]"
+Line08="      [Pulsante piatto   ]"
+Line09=" [Nascondi il pulsante Start  ]   [Menu Start dall'orologio  ]"
+
+[SelectIcon]
+Title=Scegli Icona
+Line01="  [                                                          ]"
+Line02="  [                                                          ]"
+Line03="         [OK         ]  [Annulla     ]  [Scegli...   ]"
+
+[StartMenu]
+HelpURL=startmenu.html
+Line01=" [Personalizza il menu Start  ]"
+Line02="     [Bitmap][                                       ][...]"
+Line03="             [Affiancata   ]"
+Line04="     [Colore][                              ][...]"
+Line05=" [Trasparenza del menu Start][        ][]"
+
+[Taskbar]
+HelpURL=taskbar.html
+Line01=" [Pulsanti delle applicazioni piatti ]"
+Line02=" [Separatori fra i pulsanti delle applicazioni ]"
+Line03=" [Nascondi maniglie   ]"
+Line04=" [Raccoglitore piatto   ]"
+Line05=" [Barra delle applicazioni piatta  ]"
+Line06=" [Nascondi testo dei pulsanti delle applicazioni ]"
+Line07=" [Trasparenza della barra delle applicazioni][        ][]"
+
+[Misc]
+HelpURL=misc.html
+Line01=" [Non personalizzare l'orologio   ]"
+Line02=" [Suona i WAVE utilizzando l'MCI    ]"
+Line03=" [Avvia la personalizzazione dopo][      ][secondi]"
+Line04=" [Personalizza di nuovo dopo un crash di Explorer  ]"
+Line05=" [URL della guida]"
+Line06=" [                                         ][...]"
+
+[Timer]
+HelpURL=timer.html
+Title=Timer
+Line01="  [Nome  ][                                 ] [Aggiungi   ] [Cancella   ]"
+Line02="  [Tempo ][        ][][:][        ][][(minuti:secondi) ]"
+Line03="  [File  ][                                                 ][...]"
+Line04="  [Test  ][   ]    [Ripeti   ]  [Lampeggia    ]"
+Line05="         [Indica il tempo rimanente sull'orologio  ]"
+Line06="            [Intero   ]  [Aggiungi    ]"
+Line07="            [Stringa dell'utente (0-9) ][      ]"
+Line08="             [Avvia        ]   [Annulla      ]   [Guida        ]"
+
+[SyncTime]
+HelpURL=sntp.html
+Title=Impostazioni della Sincronizzazione
+Line01="  [Server NTP ][                                    ] [Cancella  ]"
+Line02="  [Timeout    ][          ][][millisecondi]"
+Line03="               [Salva Registrazione   ]"
+Line04="        [Suono][                                        ][...]"
+Line05="   [Regola Ora    ]"
+Line06="   [                                                               ]"
+Line07="            [OK           ]   [Annulla      ]   [Guida        ]"
+
+[Player]
+HelpURL=player.html
+Title=Impostazioni del Riproduttore
+Line01="   [Indica tempo trascorso sull'orologio   ]"
+Line02="      [Intero    ]  [Aggiungi    ]"
+Line03="      [Stringa dell'utente (0-9)][     ]"
+Line04="           [OK          ]  [Annulla      ]  [Guida        ]"
+
+
+; Test button in Open File dialog
+[TestSound]
+Line01="[                                      ]"
+Line02="[Test:][   ]"
+
+[String]
+Clock=Orologio
+Color=Colore e Tipo di Carattere
+SizePos=Dimensioni e Posizione
+Format=Formato
+Alarm=Sveglia
+Cuckoo=Cucù
+Mouse=Mouse
+Click=Click
+Mouse2=Trascinamento
+Sync=Sincronizzazione
+Tooltip=Suggerimento
+Taskbar=Barra delle Applicazioni
+Startbutton=Pulsante Start
+Startmenu=Menu Start
+Misc=Varie
+
+ButtonFace=Facciata del Pulsante
+ButtonShadow=Ombre sul Pulsante
+ButtonLight=Alte luci sul Pulsante
+ButtonText=Testo del Pulsante
+
+NoIcon=Non ci sono icone in questo file.
+
+LButton=Pulsante sinistro
+RButton=Pulsante destro
+MButton=Pulsante centrale
+XButton1=Pulsante laterale 1
+XButton2=Pulsante laterale 2
+File=File
+
+None=(none)
+OpenFile=Apri File
+MouseCopy=Copia negli Appunti
+SyncTime=Sincronizza
+TClockMenu=Menu di TClock
+PropDate=Proprietà - Data/Ora
+ExitWin=Chiudi sessione di  Windows
+Logoff=Disconnessione da Windows
+Run=Esegui
+AllMin=Riduci a Icona Tutte le Finestre
+ShowDesk=Mostra il Desktop
+SSaver=Salvaschermo
+MonOff=Spegni il Monitor
+Kyu=Kyu!
+TCCmd=Comando di TClock
+FormatCopy=Formato
+Numero=N.
+MonOffSec=Secondi
+
+Recycle=Cestino
+OpenBy=Apri con...
+CopyTo=Copia in...
+MoveTo=Sposta in...
+Application=Applicazione
+Folder=Cartella
+
+Stop=Stop
+Pause=Pausa/Riprendi
+Next=Prossimo
+Prev=Precedente
+
+
