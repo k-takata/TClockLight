@@ -50,6 +50,9 @@ void LoadAlarm(PALARMSTRUCT pAS, int count)
 		pAS[i].bBootExec = GetMyRegLong(subkey, "OnBoot", FALSE);
 		pAS[i].bInterval = GetMyRegLong(subkey, "Interval", FALSE);
 		pAS[i].nInterval = GetMyRegLong(subkey, "IntervalMinutes", 0);
+		pAS[i].bResumeExec = GetMyRegLong(subkey, "OnResume", FALSE);
+		pAS[i].nResumeDelay = GetMyRegLong(subkey, "ResumeDelay", 0);
+		pAS[i].bResumeTimer = FALSE;
 		
 		SetAlarmTime(pAS + i);
 	}
@@ -81,6 +84,8 @@ void SaveAlarm(const PALARMSTRUCT pAS, int count)
 		SetMyRegLong(subkey, "OnBoot", pAS[i].bBootExec);
 		SetMyRegLong(subkey, "Interval", pAS[i].bInterval);
 		SetMyRegLong(subkey, "IntervalMinutes", pAS[i].nInterval);
+		SetMyRegLong(subkey, "OnResume", pAS[i].bResumeExec);
+		SetMyRegLong(subkey, "ResumeDelay", pAS[i].nResumeDelay);
 	}
 }
 

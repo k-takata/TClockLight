@@ -84,6 +84,8 @@ void InitAlarm(void)
 						pAS->tickLast = GetTickCount();
 					m_bCheckEverySeconds = TRUE;
 				}
+				if(pAS->bResumeExec)
+					m_bCheckEverySeconds = TRUE;
 			}
 		}
 	}
@@ -105,6 +107,7 @@ void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason)
 {
 	PALARMSTRUCT pAS;
 	static int hourLast = 0, minuteLast = 0;
+	static DWORD resumeTick = 0;
 	int i, hour, loops;
 	
 	if(!m_pAlarm) return;
@@ -117,6 +120,9 @@ void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason)
 		hourLast = st->wHour;
 		minuteLast = st->wMinute;
 	}
+	// save resume time
+	if(reason == 2)
+		resumeTick = GetTickCount();
 	
 	for(i = 0; i < m_numAlarm; i++)
 	{
@@ -156,6 +162,29 @@ void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason)
 		if(reason == 1)
 		{
 			if(pAS->bBootExec) bexec = TRUE;
+		}
+		
+		// Execute on resume
+		if(reason == 2 && pAS->bResumeExec)
+		{
+			if(pAS->nResumeDelay == 0)
+			{
+				bexec = TRUE;
+				pAS->bResumeTimer = FALSE;
+			}
+			else
+			{
+				pAS->bResumeTimer = TRUE;
+				continue;
+			}
+		}
+		if(reason == 0 && pAS->bResumeTimer)
+		{
+			if(GetTickCount() - resumeTick > pAS->nResumeDelay * 1000)
+			{
+				bexec = TRUE;
+				pAS->bResumeTimer = FALSE;
+			}
 		}
 		
 		// At regular intervals

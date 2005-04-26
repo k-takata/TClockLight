@@ -106,9 +106,11 @@ void OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	if(message == WM_RBUTTONDOWN &&
 		(!m_pMouseCommand || m_bRClickMenu))
 	{
+	/*
 		POINT pt;
 		GetCursorPos(&pt);
 		OnContextMenu(hwnd, NULL, pt.x, pt.y);
+	*/
 		return;
 	}
 	
@@ -171,6 +173,16 @@ void OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	
 	if(m_bTimer) KillTimer(hwnd, IDTIMER_MOUSE);
 	m_bTimer = FALSE;
+	
+	if(message == WM_RBUTTONUP &&
+		(!m_pMouseCommand || m_bRClickMenu))
+	{
+		POINT pt = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+		ClientToScreen(GetClockWindow(), &pt);
+		ScreenToClient(hwnd, &pt);
+		DefWindowProc(hwnd, message, wParam, MAKELPARAM(pt.x, pt.y));
+		return;
+	}
 	
 	if(!m_pMouseCommand) return;
 	

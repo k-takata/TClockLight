@@ -135,6 +135,8 @@
 #define IDC_ALARMBOOTEXEC               1316
 #define IDC_ALARMINTERVAL               1317
 #define IDC_ALARMINTERVALMIN            1318
+#define IDC_ALARMRESUMEEXEC             1319
+#define IDC_ALARMRESUMEDELAY            1320
 
 #define IDC_ALARMDAY0                   1350
 #define IDC_ALARMDAY1                   1351

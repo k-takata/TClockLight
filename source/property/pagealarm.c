@@ -29,6 +29,7 @@ static void OnBrowse(HWND hDlg);
 static void OnFileChange(HWND hDlg);
 static void OnTest(HWND hDlg, WORD id);
 static void OnInterval(HWND hDlg);
+static void OnResumeExec(HWND hDlg);
 static void EnableAlarmPageItems(HWND hDlg);
 static void GetAlarmFromDlg(HWND hDlg, PALARMSTRUCT pAS);
 static void SetAlarmToDlg(HWND hDlg, PALARMSTRUCT pAS);
@@ -85,6 +86,7 @@ BOOL CALLBACK PageAlarmProc(HWND hDlg, UINT message,
 				case IDC_SECONDALARM:
 				case IDC_WDAYALARM:
 				case IDC_ALARMINTERVALMIN:
+				case IDC_ALARMRESUMEDELAY:
 					if(code == EN_CHANGE)
 						SendPSChanged(hDlg);
 					break;
@@ -114,6 +116,10 @@ BOOL CALLBACK PageAlarmProc(HWND hDlg, UINT message,
 					break;
 				case IDC_ALARMINTERVAL:
 					OnInterval(hDlg);
+					SendPSChanged(hDlg);
+					break;
+				case IDC_ALARMRESUMEEXEC:
+					OnResumeExec(hDlg);
 					SendPSChanged(hDlg);
 					break;
 			}
@@ -480,6 +486,22 @@ void OnInterval(HWND hDlg)
 }
 
 /*------------------------------------------------
+  "Execute when resumed" checkbox
+--------------------------------------------------*/
+void OnResumeExec(HWND hDlg)
+{
+	HWND hwnd = GetDlgItem(hDlg, IDC_ALARMRESUMEEXEC);
+	BOOL b = IsDlgButtonChecked(hDlg, IDC_ALARMRESUMEEXEC);
+	
+	if(!IsDlgButtonChecked(hDlg, IDC_ENABLEALARM)) b = FALSE;
+	
+	hwnd = GetNextWindow(hwnd, GW_HWNDNEXT);
+	EnableWindow(hwnd, b);
+	hwnd = GetNextWindow(hwnd, GW_HWNDNEXT);
+	EnableWindow(hwnd, b);
+}
+
+/*------------------------------------------------
   enable/disable all dialog items
 --------------------------------------------------*/
 void EnableAlarmPageItems(HWND hDlg)
@@ -517,6 +539,8 @@ void GetAlarmFromDlg(HWND hDlg, PALARMSTRUCT pAS)
 	pAS->bBootExec = IsDlgButtonChecked(hDlg, IDC_ALARMBOOTEXEC);
 	pAS->bInterval = IsDlgButtonChecked(hDlg, IDC_ALARMINTERVAL);
 	pAS->nInterval = GetDlgItemInt(hDlg, IDC_ALARMINTERVALMIN, NULL, FALSE);
+	pAS->bResumeExec = IsDlgButtonChecked(hDlg, IDC_ALARMRESUMEEXEC);
+	pAS->nResumeDelay = GetDlgItemInt(hDlg, IDC_ALARMRESUMEDELAY, NULL, FALSE);
 }
 
 /*------------------------------------------------
@@ -540,7 +564,10 @@ void SetAlarmToDlg(HWND hDlg, PALARMSTRUCT pAS)
 	CheckDlgButton(hDlg, IDC_ALARMBOOTEXEC, pAS ? pAS->bBootExec : FALSE);
 	CheckDlgButton(hDlg, IDC_ALARMINTERVAL, pAS ? pAS->bInterval : FALSE);
 	SetDlgItemInt(hDlg, IDC_ALARMINTERVALMIN, pAS ? pAS->nInterval : 0, FALSE);
+	CheckDlgButton(hDlg, IDC_ALARMRESUMEEXEC, pAS ? pAS->bResumeExec : FALSE);
+	SetDlgItemInt(hDlg, IDC_ALARMRESUMEDELAY, pAS ? pAS->nResumeDelay : 0, FALSE);
 	
 	OnEnableAlarm(hDlg);
 	OnInterval(hDlg);
+	OnResumeExec(hDlg);
 }

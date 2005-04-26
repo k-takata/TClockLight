@@ -116,6 +116,8 @@ void OnContextMenu(HWND hwnd, HWND hwndClicked, int xPos, int yPos)
 	// open popup menu
 	TrackPopupMenu(m_hMenu, TPM_LEFTALIGN|TPM_RIGHTBUTTON,
 		xPos, yPos, 0, hwnd, NULL);
+	
+	PostMessage(hwnd, WM_NULL, 0, 0);
 }
 
 /*------------------------------------------------
@@ -147,6 +149,7 @@ void SetFocusTClockMain(HWND hwnd)
 	curthread = GetWindowThreadProcessId(GetForegroundWindow(), &pid);
 	mythread = GetCurrentThreadId();
 	AttachThreadInput(mythread, curthread, TRUE);
+	SetForegroundWindow(hwnd);
 	SetFocus(hwnd);
 	AttachThreadInput(mythread, curthread, FALSE);
 }

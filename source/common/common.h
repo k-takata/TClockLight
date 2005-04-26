@@ -117,6 +117,9 @@ typedef struct _tagAlarmStruct
 	BOOL bInterval;
 	int  nInterval;
 	DWORD tickLast;
+	BOOL bResumeExec;
+	int  nResumeDelay;
+	BOOL bResumeTimer;
 } ALARMSTRUCT;
 typedef ALARMSTRUCT* PALARMSTRUCT;
 

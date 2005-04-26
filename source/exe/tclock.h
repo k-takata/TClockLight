@@ -7,6 +7,7 @@
 #define WINVER       0x0400
 
 #include <windows.h>
+#include <windowsx.h>
 #include <mmsystem.h>
 #include <shlobj.h>
 #include "../common/common.h"

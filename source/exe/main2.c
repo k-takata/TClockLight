@@ -20,6 +20,9 @@ UINT g_uTaskbarRestart;     // taskbar recreating message
 
 /* Statics */
 
+typedef BOOL (WINAPI *pfnImmDisableIME)(DWORD);
+
+static void DisableIME(void);
 static void InitTClockMain(void);
 static BOOL CheckTCDLL(void);
 static void InitTextColor(void);
@@ -41,6 +44,8 @@ int TClockExeMain(void)
 		CheckCommandLine(hwnd, TRUE);
 		return 1;
 	}
+	
+	DisableIME();
 	
 	if(!CheckTCDLL()) { return 1; }
 	
@@ -71,6 +76,8 @@ int TClockExeMain(void)
 		CLASS_TCLOCKMAIN, TITLE_TCLOCKMAIN, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,
 		NULL, NULL, g_hInst, NULL);
+	ShowWindow(hwnd, SW_MINIMIZE);
+	ShowWindow(hwnd, SW_HIDE);
 	// ShowWindow(hwnd, SW_SHOW);
 	// UpdateWindow(hwnd);
 	
@@ -89,6 +96,27 @@ int TClockExeMain(void)
 	UnregisterClass(CLASS_TCLOCKMAIN, g_hInst);
 	
 	return msg.wParam;
+}
+
+/*-------------------------------------------
+  disable IME
+---------------------------------------------*/
+void DisableIME(void)
+{
+	HMODULE hImm32;
+	pfnImmDisableIME pImmDisableIME;
+	
+	hImm32 = LoadLibrary("imm32.dll");
+	if (hImm32 == NULL)
+		return;
+	pImmDisableIME = (pfnImmDisableIME)
+			GetProcAddress(hImm32, "ImmDisableIME");
+	if (pImmDisableIME == NULL)
+		return;
+	
+	pImmDisableIME(0);
+	
+	FreeLibrary(hImm32);
 }
 
 /*-------------------------------------------

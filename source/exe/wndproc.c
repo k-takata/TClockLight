@@ -19,6 +19,7 @@ HWND g_hwndClock = NULL; // clock window
 static void OnCreate(HWND hwnd);
 static void OnDestroy(HWND hwnd);
 static void ClearTClockMain(HWND hwnd);
+static void OnPowerBroadcast(HWND hwnd, WPARAM wParam);
 static void OnTimerStart(HWND hwnd);
 static void OnTimerMain(HWND hwnd);
 static void OnTCMHwndClock(HWND hwnd, LPARAM lParam);
@@ -50,6 +51,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if(wParam) ClearTClockMain(hwnd);
 			break;
 		
+		case WM_POWERBROADCAST:
+			OnPowerBroadcast(hwnd, wParam);
+			return TRUE;
+		
 		case WM_TIMER:
 			switch (wParam)
 			{
@@ -75,7 +80,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return 0;
 		case WM_CONTEXTMENU:
 			// menu.c
-			OnContextMenu(hwnd, (HWND)wParam, LOWORD(lParam), HIWORD(lParam));
+			OnContextMenu(hwnd, (HWND)wParam,
+				GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			return 0;
 		case WM_EXITMENULOOP:
 			// menu.c
@@ -206,6 +212,21 @@ void ClearTClockMain(HWND hwnd)
 	
 	if(m_bHook) HookEnd();  // dll/main.c - uninstall the hook
 	m_bHook = FALSE;
+}
+
+/*-------------------------------------------------------
+  WM_POWERBROADCAST message
+---------------------------------------------------------*/
+void OnPowerBroadcast(HWND hwnd, WPARAM wParam)
+{
+	switch (wParam) {
+		case PBT_APMRESUMESUSPEND:
+			OnTimerAlarm(hwnd, NULL, 2);
+			break;
+			
+		default:
+			break;
+	}
 }
 
 /*-------------------------------------------------------
