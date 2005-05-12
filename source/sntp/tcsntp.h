@@ -24,6 +24,8 @@
 
 #define BUFSIZE_SERVER 81
 
+#define SNTPLOG		"SNTP.txt"
+
 /* ---------- main.c --------------- */
 
 BOOL ExecCommandString(HWND hwnd, const char *command);

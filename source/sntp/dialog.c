@@ -19,6 +19,7 @@ HWND g_hwndLog = NULL;
 
 BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 static void OnInit(HWND hDlg);
+static void LoadLog(HWND hDlg);
 static void OnOK(HWND hDlg);
 static void OnCancel(HWND hDlg);
 static void OnHelp(HWND hDlg);
@@ -28,6 +29,9 @@ static void OnBrowse(HWND hDlg);
 static void OnSyncNow(HWND hDlg);
 
 static char *m_section = "SNTP";
+
+#define DEFAULT_NTPSERVER	"ntp.jst.mfeed.ad.jp"
+#define LOG_BUF_SIZE	2048
 
 /*-------------------------------------------------------
   SNTPM_SHOWDLG message
@@ -116,7 +120,7 @@ void OnInit(HWND hDlg)
 	count = GetMyRegLong(m_section, "ServerNum", 0);
 	
 	if(server[0] == 0 && count == 0)
-		strcpy(server, "ntp1.jst.mfeed.ad.jp");
+		strcpy(server, DEFAULT_NTPSERVER);
 	
 	for(i = 0; i < count; i++)
 	{
@@ -152,6 +156,35 @@ void OnInit(HWND hDlg)
 	
 	GetMyRegStr(m_section, "Sound", s, MAX_PATH, "");
 	SetDlgItemText(hDlg, IDC_SYNCSOUND, s);
+	
+	LoadLog(hDlg);
+}
+
+/*-------------------------------------------
+  load SNTP log
+---------------------------------------------*/
+void LoadLog(HWND hDlg)
+{
+	HFILE hf;
+	char fname[MAX_PATH];
+	char buf[LOG_BUF_SIZE];
+	char *p = buf;
+	
+	if(!IsDlgButtonChecked(hDlg, IDC_SNTPLOG)) return;
+	
+	strcpy(fname, g_mydir);
+	add_title(fname, SNTPLOG);
+	hf = _lopen(fname, OF_READ);
+	if(hf == HFILE_ERROR) return;
+	_llseek(hf, -(sizeof(buf) - 1), 2);
+	_lread(hf, buf, sizeof(buf) - 1);
+	_lclose(hf);
+	buf[sizeof(buf) - 1] = '\0';
+	while (*p && (*p != '\n'))
+		++p;
+	if (*p == '\n')
+		++p;
+	SetDlgItemText(hDlg, IDC_SNTPLOGRESULT, p);
 }
 
 /*-------------------------------------------

@@ -564,7 +564,7 @@ void Log(HWND hwndSNTP, const char *msg)
 		char fname[MAX_PATH];
 		
 		strcpy(fname, g_mydir);
-		add_title(fname, "SNTP.txt");
+		add_title(fname, SNTPLOG);
 		hf = _lopen(fname, OF_WRITE);
 		if(hf == HFILE_ERROR)
 			hf = _lcreat(fname, 0);
