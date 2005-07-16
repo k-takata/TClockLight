@@ -97,8 +97,7 @@ void OnTimerTimer(HWND hwnd)
 			}
 		}
 		
-		if(pDo == NULL &&
-			tick - pitem->tickonstart > pitem->interval * 1000)
+		if(pDo == NULL && tick - pitem->tickonstart > pitem->interval * 1000)
 			pDo = pitem;
 		
 		pitem = pitem->next;
@@ -115,10 +114,10 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 	char tcmenutxt[MAX_PATH];
 	WIN32_FIND_DATA fd;
 	HANDLE hfind;
-	HFILE hf;
-	int size;
+	HANDLE hf;
+	DWORD size, dw;
 	char *buf;
-	const char *p, *np;
+	const char *p, *sp;
 	static BOOL bWrite = FALSE;
 	
 	if(!bClear && m_pTimerRun == NULL) return;
@@ -132,18 +131,19 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 	if(hfind == INVALID_HANDLE_VALUE) return;
 	
 	FindClose(hfind);
-	size = (int)fd.nFileSizeLow;
+	size = fd.nFileSizeLow;
 	buf = malloc(size+1);
 	if(!buf) return;
 	
-	hf = _lopen(tcmenutxt, OF_READWRITE);
-	if(hf == HFILE_ERROR) { free(buf); return; }
-	_lread(hf, buf, size);
+	hf = CreateFile(tcmenutxt, GENERIC_READ | GENERIC_WRITE, 0,
+		NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if(hf == INVALID_HANDLE_VALUE) { free(buf); return; }
+	ReadFile(hf, buf, size, &dw, NULL);
 	*(buf + size) = 0;
 	
-	_llseek(hf, 0, 0);
+	SetFilePointer(hf, 0, NULL, FILE_BEGIN);
 	
-	p = buf;
+	sp = p = buf;
 	while(*p)
 	{
 		if(strncmp(p, "#Timer Begin", 12) == 0)
@@ -152,9 +152,9 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 			DWORD tick;
 			char s[160];
 			
-			np = nextline(p);
-			_lwrite(hf, p, np - p);
-			p = np;
+			p = nextline(p);
+			WriteFile(hf, sp, p - sp, &dw, NULL);
+			sp = p;
 			
 			tick = GetTickCount();
 			
@@ -168,29 +168,28 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 					MyString(IDS_STOP, "Stop"),
 					pitem->name, remaining/60, remaining%60,
 					CLASS_TCLOCKTIMER, TIMERM_STOP, pitem->id);
-				_lwrite(hf, s, strlen(s));
+				WriteFile(hf, s, strlen(s), &dw, NULL);
 				
 				pitem = pitem->next;
 			}
 			
-			while(*p)
+			while(*sp)
 			{
-				if(strncmp(p, "#Timer End", 10) == 0)
+				if(strncmp(sp, "#Timer End", 10) == 0)
 					break;
-				p = nextline(p);
+				sp = nextline(sp);
 			}
+			p = nextline(sp);
 		}
 		else
-		{
-			np = nextline(p);
-			_lwrite(hf, p, np - p);
-			p = np;
-		}
+			p = nextline(p);
 	}
 	
-	_lwrite(hf, NULL, 0); // truncate
+	WriteFile(hf, sp, p - sp, &dw, NULL);
 	
-	_lclose(hf);
+	SetEndOfFile(hf);
+	
+	CloseHandle(hf);
 	free(buf);
 	
 	bWrite = TRUE;

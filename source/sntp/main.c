@@ -19,8 +19,8 @@ char      g_inifile[MAX_PATH];     // ini file name
 char      g_langfile[MAX_PATH];    // tclang.txt
 HFONT     g_hfontDialog = NULL;    // dialog font
 HWND      g_hwndMain  = NULL;      // main window
-HICON     g_hIconPlay, g_hIconStop;
-                                   // icons to use frequently
+HICON     g_hIconPlay, g_hIconStop; // icons to use frequently
+
 /* Statics */
 
 static int TCSNTPMain(void);
@@ -91,8 +91,7 @@ int TCSNTPMain(void)
 	
 	while(GetMessage(&msg, NULL, 0, 0))
 	{
-		if(g_hDlg && IsWindow(g_hDlg) && IsDialogMessage(g_hDlg, &msg)) ;
-		else
+		if(!(g_hDlg && IsWindow(g_hDlg) && IsDialogMessage(g_hDlg, &msg)))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -181,8 +180,6 @@ void OnCreate(HWND hwnd)
 	}
 	
 	CheckCommandLine(hwnd, FALSE);
-	
-	SetTimer(hwnd, IDTIMER_MAIN, 1000, NULL);
 }
 
 /*-------------------------------------------------------
@@ -191,8 +188,6 @@ void OnCreate(HWND hwnd)
 void OnDestroy(HWND hwnd)
 {
 	EndSNTP(hwnd); // sntp.c
-	
-	KillTimer(hwnd, IDTIMER_MAIN);
 	
 	if(g_hfontDialog) DeleteObject(g_hfontDialog);
 	
@@ -256,7 +251,7 @@ void CheckCommandLine(HWND hwnd, BOOL bPrev)
 	
 	if(bSilent)
 	{
-		if(StartSyncTime(hwnd, NULL, bOnlyRas) == FALSE)
+		if(StartSyncTime(hwnd, bOnlyRas) == FALSE)
 			PostMessage(hwnd, WM_CLOSE, 0, 0);
 	}
 	else
@@ -270,8 +265,7 @@ void CheckCommandLine(HWND hwnd, BOOL bPrev)
 ---------------------------------------------*/
 BOOL ExecCommandString(HWND hwnd, const char *command)
 {
-	SendStringToOther(GetTClockMainWindow(), hwnd, command,
-		COPYDATA_EXEC);
+	SendStringToOther(GetTClockMainWindow(), hwnd, command, COPYDATA_EXEC);
 	
 	return FALSE;
 }

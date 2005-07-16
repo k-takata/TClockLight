@@ -22,8 +22,7 @@ char      g_langfile[MAX_PATH];    // tclang.txt
 HFONT     g_hfontDialog = NULL;    // dialog font
 HWND      g_hwndClock = NULL;      // clock window handle
 HWND      g_hwndTimer = NULL;      // main window
-HICON     g_hIconPlay, g_hIconStop;
-                                   // icons to use frequently
+HICON     g_hIconPlay, g_hIconStop; // icons to use frequently
 
 /* Statics */
 
@@ -93,8 +92,7 @@ int TCTimerMain(void)
 	
 	while(GetMessage(&msg, NULL, 0, 0))
 	{
-		if(g_hDlg && IsWindow(g_hDlg) && IsDialogMessage(g_hDlg, &msg)) ;
-		else
+		if(!(g_hDlg && IsWindow(g_hDlg) && IsDialogMessage(g_hDlg, &msg)))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -279,8 +277,7 @@ void SetOnContextMenu(void)
 ---------------------------------------------*/
 BOOL ExecCommandString(HWND hwnd, const char *command)
 {
-	SendStringToOther(GetTClockMainWindow(), hwnd, command,
-		COPYDATA_EXEC);
+	SendStringToOther(GetTClockMainWindow(), hwnd, command, COPYDATA_EXEC);
 	
 	return FALSE;
 }

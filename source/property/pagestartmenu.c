@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageStartMenuProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageStartMenuProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -25,14 +25,14 @@ static void OnBrowse(HWND hDlg);
 static void OnChooseColor(HWND hDlg);
 static void SetColorFromBmp(HWND hDlg, int idCombo, const char* fname);
 
-static char *m_section = "StartMenu";
+static const char *m_section = "StartMenu";
 static BOOL m_bInit = FALSE;
 static BOOL m_bChanged = FALSE;
 
 /*------------------------------------------------
    dialog procedure of this page
 --------------------------------------------------*/
-BOOL CALLBACK PageStartMenuProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageStartMenuProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -209,18 +209,13 @@ void OnDrawItem(HWND hDlg, LPDRAWITEMSTRUCT pdis)
 --------------------------------------------------*/
 void OnStartMenu(HWND hDlg)
 {
-	HWND hwnd;
-	BOOL b;
+	HWND hwnd = GetDlgItem(hDlg, IDC_STARTMENU);
+	BOOL b = IsDlgButtonChecked(hDlg, IDC_STARTMENU);
 	
-	b = IsDlgButtonChecked(hDlg, IDC_STARTMENU);
-	
-	hwnd = GetDlgItem(hDlg, IDC_STARTMENU);
-	hwnd = GetWindow(hwnd, GW_HWNDNEXT);
-	while(hwnd)
+	while((hwnd = GetWindow(hwnd, GW_HWNDNEXT)) != NULL)
 	{
 		EnableWindow(hwnd, b);
 		if(GetDlgCtrlID(hwnd) == IDC_STARTMENUCHOOSECOL) break;
-		hwnd = GetWindow(hwnd, GW_HWNDNEXT);
 	}
 }
 
@@ -229,20 +224,20 @@ void OnStartMenu(HWND hDlg)
 --------------------------------------------------*/
 void OnBrowse(HWND hDlg)
 {
-	char *filter = "Bitmap (*.bmp)\0*.bmp\0\0";
+	const char *filter = "Bitmap (*.bmp)\0*.bmp\0\0";
 	char deffile[MAX_PATH], fname[MAX_PATH];
 	
 	GetDlgItemText(hDlg, IDC_STARTMENUBMP, deffile, MAX_PATH);
 	
 	// select file : common/selectfile.c
-	if(!SelectMyFile(g_hInst, hDlg, filter, 0, deffile, fname))
-		return;
-	
-	SetColorFromBmp(hDlg, IDC_STARTMENUCOLOR, fname);
-	
-	SetDlgItemText(hDlg, IDC_STARTMENUBMP, fname);
-	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
-	SendPSChanged(hDlg);
+	if(SelectMyFile(g_hInst, hDlg, filter, 0, deffile, fname))
+	{
+		SetColorFromBmp(hDlg, IDC_STARTMENUCOLOR, fname);
+		
+		SetDlgItemText(hDlg, IDC_STARTMENUBMP, fname);
+		PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+		SendPSChanged(hDlg);
+	}
 }
 
 /*------------------------------------------------
@@ -251,10 +246,11 @@ void OnBrowse(HWND hDlg)
 void OnChooseColor(HWND hDlg)
 {
 	// common/combobox.c
-	ChooseColorWithCombo(g_hInst, hDlg, IDC_STARTMENUCOLOR);
-	
-	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
-	SendPSChanged(hDlg);
+	if(ChooseColorWithCombo(hDlg, IDC_STARTMENUCOLOR))
+	{
+		PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+		SendPSChanged(hDlg);
+	}
 }
 
 /*------------------------------------------------
@@ -264,43 +260,45 @@ void OnChooseColor(HWND hDlg)
 
 void SetColorFromBmp(HWND hDlg, int idCombo, const char* fname)
 {
-	HFILE hf;
+	HANDLE hf;
 	BITMAPFILEHEADER bmfh;
 	BITMAPINFOHEADER bmih;
 	int numColors;
 	BYTE pixel[3];
 	COLORREF col;
 	int i, index;
+	DWORD dwRead;
 	
-	hf = _lopen(fname, OF_READ);
-	if(hf == HFILE_ERROR) return;
+	hf = CreateFile(fname, GENERIC_READ, FILE_SHARE_READ,
+		NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if(hf == INVALID_HANDLE_VALUE) return;
 	
-	if(_lread(hf, &bmfh, sizeof(bmfh)) != sizeof(bmfh) ||
+	if( !ReadFile(hf, &bmfh, sizeof(bmfh), &dwRead, NULL) ||
 		bmfh.bfType != *(WORD*)"BM" ||
-		_lread(hf, &bmih, sizeof(bmih)) != sizeof(bmih) ||
-		bmih.biSize != sizeof(bmih) ||
+		!ReadFile(hf, &bmih, sizeof(bmih), &dwRead, NULL) ||
+		bmih.biSize < sizeof(bmih) ||
 		bmih.biCompression != BI_RGB ||
 		!(bmih.biBitCount <= 8 || bmih.biBitCount == 24))
 	{
-		_lclose(hf); return;
+		CloseHandle(hf); return;
 	}
 	numColors = bmih.biClrUsed;
 	if(numColors == 0)
 	{
 		if(bmih.biBitCount <= 8) numColors = 1 << bmih.biBitCount;
-		else numColors = 0;
 	}
 	if(numColors > 0 &&
-		_llseek(hf, sizeof(RGBQUAD)*numColors, FILE_CURRENT) == HFILE_ERROR)
+		SetFilePointer(hf, bmfh.bfOffBits, NULL, FILE_BEGIN)
+			== INVALID_SET_FILE_POINTER)
 	{
-		_lclose(hf); return;
+		CloseHandle(hf); return;
 	}
-	if(_llseek(hf,
+	if(SetFilePointer(hf,
 			WIDTHBYTES(bmih.biWidth*bmih.biBitCount)*(bmih.biHeight-1),
-			FILE_CURRENT) == HFILE_ERROR ||
-		_lread(hf, pixel, sizeof(pixel)) != sizeof(pixel))
+			NULL, FILE_CURRENT) == INVALID_SET_FILE_POINTER ||
+		!ReadFile(hf, pixel, sizeof(pixel), &dwRead, NULL))
 	{
-		_lclose(hf); return;
+		CloseHandle(hf); return;
 	}
 	if(bmih.biBitCount < 24)
 	{
@@ -310,14 +308,14 @@ void SetColorFromBmp(HWND hDlg, int idCombo, const char* fname)
 			index = (pixel[0] & 0xF0) >> 4;
 		else if(bmih.biBitCount == 1)
 			index = (pixel[0] & 0x80) >> 7;
-		if(_llseek(hf, sizeof(bmfh)+sizeof(bmih)+sizeof(RGBQUAD)*index,
-			FILE_BEGIN) == HFILE_ERROR ||
-			_lread(hf, pixel, sizeof(pixel)) != sizeof(pixel))
+		if(SetFilePointer(hf, sizeof(bmfh)+bmih.biSize+sizeof(RGBQUAD)*index,
+			NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER ||
+			!ReadFile(hf, pixel, sizeof(pixel), &dwRead, NULL))
 		{
 			index = -1;
 		}
 	}
-	_lclose(hf);
+	CloseHandle(hf);
 	if(index == -1) return;
 	col = RGB(pixel[2], pixel[1], pixel[0]);
 	
@@ -329,7 +327,8 @@ void SetColorFromBmp(HWND hDlg, int idCombo, const char* fname)
 	{
 		if(CBGetCount(hDlg, idCombo) == 16)
 			CBAddString(hDlg, idCombo, col);
-		else CBSetItemData(hDlg, idCombo, 16, col);
+		else
+			CBSetItemData(hDlg, idCombo, 16, col);
 	}
 	CBSetCurSel(hDlg, idCombo, i);
 }

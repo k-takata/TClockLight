@@ -45,7 +45,7 @@ void OnDestroy(HWND hwnd);
 void LoadSetting(HWND hwnd);
 
 extern BOOL    g_bInitClock;
-extern HANDLE  g_hInst;
+extern HMODULE g_hInst;
 extern WNDPROC g_oldWndProc;
 extern BOOL    g_bIniSetting;
 extern char    g_inifile[];
@@ -103,7 +103,7 @@ void InitTooltip(HWND hwndClock);
 void EndTooltip(HWND hwndClock);
 void OnTooltipMouseMsg(HWND hwndClock,
 	UINT message, WPARAM wParam, LPARAM lParam);
-BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh);
+BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, LPNMHDR pnmh);
 void OnTimerTooltip(HWND hwndClock);
 void PopupTooltip(HWND hwndClock, const wchar_t *p);
 
@@ -155,7 +155,33 @@ HBITMAP ReadBitmap(HWND hwnd, const char* fname, BOOL b);
 BOOL IsSubclassed(HWND hwnd);
 BOOL CreateOffScreenDC(HDC hdc, HDC *phdcMem, HBITMAP *phbmp,
 	int width, int height);
-BOOL GetBmpSize(HBITMAP hbmp, int* w, int* h);
+BOOL GetBmpSize(HBITMAP hbmp, SIZE *size);
 void CopyParentSurface(HWND hwnd, HDC hdcDest, int xdst, int ydst,
 	int w, int h, int xsrc, int ysrc);
 
+/* ---------- sysinfo.c --------------- */
+void InitSysInfo(HWND hwnd);
+void EndSysInfo(HWND hwnd);
+void OnTimerSysInfo(void);
+void ElapsedTimeHandler(FORMATHANDLERSTRUCT* pstruc);
+void NetworkHandler(FORMATHANDLERSTRUCT* pstruc);
+void MemoryHandler(FORMATHANDLERSTRUCT* pstruc);
+void HDDHandler(FORMATHANDLERSTRUCT* pstruc);
+void CPUHandler(FORMATHANDLERSTRUCT* pstruc);
+void BatteryHandler(FORMATHANDLERSTRUCT* pstruc);
+
+/* ---------- net.c --------------- */
+void Net_start(void);
+void Net_get(double *recv, double *send);
+void Net_end(void);
+
+/* ---------- hdd.c --------------- */
+void GetDiskSpace(int nDrive, double *all, double *free);
+
+/* ---------- cpu.c --------------- */
+void CpuMoni_start(void);
+int CpuMoni_get(void);
+void CpuMoni_end(void);
+
+/* ---------- battery.c --------------- */
+int GetBatteryLifePercent(void);

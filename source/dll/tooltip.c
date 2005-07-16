@@ -8,10 +8,9 @@
 
 #include "tcdll.h"
 
-#define TTF_TRACK               0x0020
-#define TTF_ABSOLUTE            0x0080
-
 #define TTS_BALLOON    0x40
+
+#define TTF_TRACK      0x0020
 
 #define TTM_TRACKACTIVATE  (WM_USER + 17)
 #define TTM_TRACKPOSITION  (WM_USER + 18)
@@ -22,21 +21,17 @@ void InitTooltip(HWND hwndClock);
 void EndTooltip(HWND hwndClock);
 void OnTooltipMouseMsg(HWND hwndClock,
 	UINT message, WPARAM wParam, LPARAM lParam);
-BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh);
+BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, LPNMHDR pnmh);
 void OnTimerTooltip(HWND hwndClock);
 void PopupTooltip(HWND hwndClock, const wchar_t *p);
 
 /* Statics */
 
-void InitTooltipFormat(void);
-void ReadTooltipFormatFromFile(const char *fname, BOOL bInit);
-LRESULT CALLBACK WndProcTip(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+static void InitTooltipFormat(void);
+static void ReadTooltipFormatFromFile(const char *fname, BOOL bInit);
 
 static HWND m_hwndTip = NULL;
-static WNDPROC m_oldWndProc = NULL;
-static BOOL m_bTooltipShow = FALSE;
 static BOOL m_bUpdate = FALSE;
-static BOOL m_bTip1 = TRUE;
 static BOOL m_bTrackActive = FALSE;
 static char m_formatfile[MAX_PATH];
 static wchar_t *m_format = NULL;
@@ -44,7 +39,7 @@ static wchar_t *m_format_temp = NULL;
 static wchar_t *m_textToolTip = NULL;
 static int m_textlen = 0;
 static HFONT m_hFont = NULL;
-static char *m_section = "Tooltip";
+static const char *m_section = "Tooltip";
 
 /*------------------------------------------------
   create tooltip window
@@ -53,46 +48,42 @@ void InitTooltip(HWND hwndClock)
 {
 	TOOLINFO ti;
 	LONG style;
-	char s[80];
+	char s[LF_FACESIZE];
 	int n;
 	
-	m_bTrackActive = FALSE;
+	if(!GetMyRegLong(m_section, "Tip1Use", TRUE)) return;
 	
 	style = GetMyRegLong(NULL, "BalloonFlg", 0);
 	style = GetMyRegLong(m_section, "Style", style);
 	
-	m_hwndTip = CreateWindow(TOOLTIPS_CLASS, (LPSTR)NULL,
-		WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP |
-			((style == 1)? TTS_BALLOON : 0),
+	m_hwndTip = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, "",
+		WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP | ((style == 1)? TTS_BALLOON : 0),
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 		NULL, NULL, g_hInst, NULL);
 	
-	SetWindowPos(m_hwndTip, HWND_TOPMOST, 0, 0, 0, 0,
-		SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
-	
 	ti.cbSize = sizeof(TOOLINFO);
-	ti.uFlags = 0;
+	ti.uFlags = TTF_IDISHWND;
 	ti.hwnd = hwndClock;
-	ti.hinst = NULL;
-	ti.uId = 1;
-	ti.lpszText = LPSTR_TEXTCALLBACK;
+	ti.uId = (UINT_PTR)hwndClock;
 	ti.rect.left = 0;
 	ti.rect.top = 0;
-	ti.rect.right = 480; 
-	ti.rect.bottom = 480;
-	
+	ti.rect.right = 0;
+	ti.rect.bottom = 0;
+	ti.hinst = NULL;
+	ti.lpszText = LPSTR_TEXTCALLBACK;
 	SendMessage(m_hwndTip, TTM_ADDTOOL, 0, (LPARAM)&ti);
 	
 	ti.uFlags = TTF_TRACK;
 	ti.uId = 2;
 	SendMessage(m_hwndTip, TTM_ADDTOOL, 0, (LPARAM)&ti);
 	
-	m_oldWndProc = (WNDPROC)SetWindowLong(m_hwndTip, GWL_WNDPROC,
-		(LONG)WndProcTip);
+	n = GetMyRegLong(NULL, "TipDispTime", 5);
+	n = GetMyRegLong(m_section, "DispTime", n);
+	SendMessage(m_hwndTip, TTM_SETDELAYTIME, TTDT_AUTOPOP, n * 1000);
 	
-	m_bTip1 = GetMyRegLong(m_section, "Tip1Use", TRUE);
+	SendMessage(m_hwndTip, TTM_SETMAXTIPWIDTH, 0, 1024);
 	
-	GetMyRegStr(m_section, "Font", s, 80, "");
+	GetMyRegStr(m_section, "Font", s, LF_FACESIZE, "");
 	if(s[0])
 	{
 		int size, weight, italic;
@@ -109,12 +100,6 @@ void InitTooltip(HWND hwndClock)
 	}
 	
 	InitTooltipFormat();
-	
-	n = GetMyRegLong(NULL, "TipDispTime", 5);
-	n = GetMyRegLong(m_section, "DispTime", n);
-	SendMessage(m_hwndTip, TTM_SETDELAYTIME, TTDT_AUTOPOP, n * 1000);
-	
-	SendMessage(m_hwndTip, TTM_ACTIVATE, TRUE, 0);
 }
 
 /*------------------------------------------------
@@ -123,10 +108,8 @@ void InitTooltip(HWND hwndClock)
 void InitTooltipFormat(void)
 {
 	char s[BUFSIZE_TOOLTIP];
-	int len;
 	
-	GetMyRegStr(m_section, "Tooltip", s, BUFSIZE_TOOLTIP-4,
-		"\"TClock\" LDATE");
+	GetMyRegStr(m_section, "Tooltip", s, BUFSIZE_TOOLTIP-4, "\"TClock\" LDATE");
 	
 	m_formatfile[0] = 0;
 	
@@ -137,6 +120,7 @@ void InitTooltipFormat(void)
 	}
 	else if(s[0])
 	{
+		int len;
 		len = MultiByteToWideChar(CP_ACP, 0, s, -1, NULL, 0);
 		m_format = malloc(sizeof(wchar_t) * (len + 5));
 		
@@ -156,11 +140,11 @@ void InitTooltipFormat(void)
 --------------------------------------------------*/
 void ReadTooltipFormatFromFile(const char *fname, BOOL bInit)
 {
-	WIN32_FIND_DATA fd;
-	HANDLE hfind;
 	static DWORD s_lasttime = 0;
-	HFILE hf;
-	int size1, size2;
+	WIN32_FIND_DATA fd;
+	HANDLE hfind, hFile;
+	DWORD size1, dwRead;
+	int size2;
 	char *temp;
 	
 	hfind = FindFirstFile(fname, &fd);
@@ -179,20 +163,20 @@ void ReadTooltipFormatFromFile(const char *fname, BOOL bInit)
 	size1 = fd.nFileSizeLow;
 	if(size1 == 0) return;
 	
-	hf = _lopen(fname, OF_READ);
-	if(hf == HFILE_ERROR) return;
-	
+	hFile = CreateFile(fname, GENERIC_READ, FILE_SHARE_READ,
+		NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE) return;
+
 	temp = malloc(size1 + 1);
-	_lread(hf, temp, size1);
+	ReadFile(hFile, temp, size1, &dwRead, NULL);
+	CloseHandle(hFile);
 	temp[size1] = 0;
-	_lclose(hf);
 	
 	size2 = MultiByteToWideChar(CP_ACP, 0, temp, -1, NULL, 0);
-	
-	m_format = malloc(sizeof(wchar_t) * (size2 + 1));
+	m_format = malloc(sizeof(wchar_t) * size2);
 	MultiByteToWideChar(CP_ACP, 0, temp, -1, m_format, size2);
-	free(temp);
 	
+	free(temp);
 }
 
 /*------------------------------------------------
@@ -200,67 +184,16 @@ void ReadTooltipFormatFromFile(const char *fname, BOOL bInit)
 --------------------------------------------------*/
 void EndTooltip(HWND hwndClock)
 {
-	DestroyWindow(m_hwndTip);
+	if(m_hwndTip) { DestroyWindow(m_hwndTip); m_hwndTip = NULL; }
 	
-	if(m_format) free(m_format); m_format = NULL;
-	if(m_format_temp) free(m_format_temp); m_format_temp = NULL;
-	if(m_textToolTip) free(m_textToolTip); m_textToolTip = NULL;
+	if(m_format) { free(m_format); m_format = NULL; }
+	if(m_format_temp) { free(m_format_temp); m_format_temp = NULL; }
+	if(m_textToolTip) { free(m_textToolTip); m_textToolTip = NULL; }
 	m_textlen = 0;
 	
-	if(m_hFont) DeleteObject(m_hFont);
-	m_hFont = NULL;
-}
-
-/*------------------------------------------------
-  window procedure of subclassified tooltip
---------------------------------------------------*/
-LRESULT CALLBACK WndProcTip(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam)
-{
-	if(message == WM_WINDOWPOSCHANGING)
-	{
-		HWND hwndClock = GetClockWindow();
-		LPWINDOWPOS pwp = (LPWINDOWPOS)lParam;
-		RECT rcClock, rcTip;
-		int wscreen, hscreen, w, h;
-		
-		if(!(pwp->flags & SWP_NOMOVE))
-		{
-			GetWindowRect(hwndClock, &rcClock);
-			GetWindowRect(hwnd, &rcTip);
-			wscreen = GetSystemMetrics(SM_CXSCREEN);
-			hscreen = GetSystemMetrics(SM_CYSCREEN);
-			h = rcTip.bottom - rcTip.top;
-			w = rcTip.right - rcTip.left;
-			
-			if(m_bTrackActive)
-			{
-				if(rcClock.left > wscreen / 2)
-					pwp->x = wscreen - w - 1;
-				else
-					pwp->x = 0;
-				if(rcClock.top > hscreen / 2)
-					pwp->y = rcClock.top - h;
-				else
-					pwp->y = rcClock.bottom;
-			}
-			else
-			{
-				if(rcClock.top > hscreen / 2)
-					pwp->y = rcClock.top - h;
-				else
-				{
-					if(pwp->y < rcClock.bottom)
-						pwp->y = rcClock.bottom;
-				}
-			}
-			
-			return 0;
-		}
-	}
-	else if(message == WM_MOUSEMOVE) return 0;
+	m_bTrackActive = FALSE;
 	
-	return CallWindowProc(m_oldWndProc, hwnd, message, wParam, lParam);
+	if(m_hFont) { DeleteObject(m_hFont); m_hFont = NULL; }
 }
 
 /*------------------------------------------------
@@ -270,26 +203,22 @@ void OnTooltipMouseMsg(HWND hwndClock,
 	UINT message, WPARAM wParam, LPARAM lParam)
 {
 	MSG msg;
+	DWORD pos;
 	
 	if(!m_hwndTip) return;
-	if(!m_bTip1) return;
 	
 	if(m_bTrackActive)
 	{
 		TOOLINFO ti;
-		memset(&ti, 0, sizeof(ti));
 		ti.cbSize = sizeof(TOOLINFO);
-		ti.uFlags = TTF_TRACK;
 		ti.hwnd = hwndClock;
 		ti.uId = 2;
-		ti.lpszText = LPSTR_TEXTCALLBACK;
 		SendMessage(m_hwndTip, TTM_TRACKACTIVATE, FALSE, (LPARAM)&ti);
 		m_bTrackActive = FALSE;
 		
 		if(m_format_temp) free(m_format_temp);
 		m_format_temp = NULL;
 		
-		SendMessage(m_hwndTip, TTM_ACTIVATE, TRUE, 0);
 		return;
 	}
 	
@@ -300,15 +229,15 @@ void OnTooltipMouseMsg(HWND hwndClock,
 	msg.wParam = wParam;
 	msg.lParam = lParam;
 	msg.time = GetMessageTime();
-	msg.pt.x = LOWORD(GetMessagePos());
-	msg.pt.y = HIWORD(GetMessagePos());
+	pos = GetMessagePos();
+	POINTSTOPOINT(msg.pt, pos);
 	SendMessage(m_hwndTip, TTM_RELAYEVENT, 0, (LPARAM)&msg);
 }
 
 /*------------------------------------------------
   WM_NOTIFY message
 --------------------------------------------------*/
-BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh)
+BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, LPNMHDR pnmh)
 {
 	UINT code;
 	
@@ -317,8 +246,8 @@ BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh)
 	
 	switch(code)
 	{
-		case TTN_NEEDTEXT:
-		case TTN_NEEDTEXTW:
+		case TTN_GETDISPINFOA:
+		case TTN_GETDISPINFOW:
 		{
 			wchar_t *pfmt;
 			int len;
@@ -333,13 +262,8 @@ BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh)
 				pfmt = m_format;
 			}
 			
-			if(!pfmt || *pfmt == 0)
-			{
-				((LPTOOLTIPTEXTW)pnmh)->lpszText = L"";
+			if(*pfmt == 0)
 				return TRUE;
-			}
-			
-			SendMessage(m_hwndTip, TTM_SETMAXTIPWIDTH, 0, 1024);
 			
 			len = wcslen(pfmt) * 2;
 			if(len > m_textlen || !m_textToolTip)
@@ -351,41 +275,56 @@ BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh)
 			
 			MakeFormat(m_textToolTip, NULL, pfmt, m_textlen);
 			
-			if(code == TTN_NEEDTEXT)
+			if(code == TTN_GETDISPINFOA)
 			{
 				char *temp;
-				int len;
 				
 				len = WideCharToMultiByte(CP_ACP, 0, m_textToolTip, -1,
 					NULL, 0, NULL, NULL);
-				temp = malloc(len + 1);
+				temp = malloc(len);
 				WideCharToMultiByte(CP_ACP, 0, m_textToolTip, -1,
 					temp, len, NULL, NULL);
-				temp[len] = 0;
 				
 				strcpy((char*)m_textToolTip, temp);
-				((LPTOOLTIPTEXT)pnmh)->lpszText = (char*)m_textToolTip;
-				
 				free(temp);
+				
+				((LPNMTTDISPINFOA)pnmh)->lpszText = (char*)m_textToolTip;
 			}
-			else if(code == TTN_NEEDTEXTW)
+			else if(code == TTN_GETDISPINFOW)
 			{
-				((LPTOOLTIPTEXTW)pnmh)->lpszText = m_textToolTip;
+				((LPNMTTDISPINFOW)pnmh)->lpszText = m_textToolTip;
 			}
 			
 			return TRUE;
 		}
 		case TTN_SHOW:
-			if(!m_bTooltipShow)
+		{
+			RECT rcClock, rcTip;
+			int x, y;
+			
+			GetWindowRect(GetClockWindow(), &rcClock);
+			GetWindowRect(m_hwndTip, &rcTip);
+			
+			if(rcClock.top > GetSystemMetrics(SM_CYSCREEN) / 2)
+				y = rcClock.top - (rcTip.bottom - rcTip.top);
+			else
+				y = rcClock.bottom;
+			if(m_bTrackActive)
 			{
-				SetWindowPos(m_hwndTip, HWND_TOPMOST,
-					0, 0, 0, 0,
-					SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
-				m_bTooltipShow = TRUE;
-			}
-			break;
+				if(rcClock.left > GetSystemMetrics(SM_CXSCREEN) / 2)
+					x = rcClock.right - (rcTip.right - rcTip.left);
+				else
+					x = rcClock.left;
+			} else
+				x = rcTip.left;
+			
+			SetWindowPos(m_hwndTip, HWND_TOPMOST, x, y, 0, 0,
+				SWP_NOACTIVATE | SWP_NOSIZE);
+			
+			*pres = TRUE;
+			return TRUE;
+		}
 		case TTN_POP:
-			m_bTooltipShow = FALSE;
 			m_bUpdate = FALSE;
 			break;
 	}
@@ -413,7 +352,7 @@ void OnTimerTooltip(HWND hwndClock)
 	memset(&ti, 0, sizeof(TOOLINFO));
 	ti.cbSize = sizeof(TOOLINFO);
 	ti.hwnd = hwndClock;
-	ti.uId = 1;
+	ti.uId = (UINT_PTR)hwndClock;
 	ti.lpszText = LPSTR_TEXTCALLBACK;
 	SendMessage(m_hwndTip, TTM_UPDATETIPTEXT, 0, (LPARAM)&ti);
 	m_bUpdate = TRUE;
@@ -425,14 +364,10 @@ void OnTimerTooltip(HWND hwndClock)
 void PopupTooltip(HWND hwndClock, const wchar_t *p)
 {
 	TOOLINFO ti;
-	RECT rcClock, rcTip;
-	int wscreen, hscreen;
 	
 	if(!m_hwndTip) return;
-	if(!m_bTip1) return;
 	
-	if(m_format_temp) free(m_format_temp);
-	m_format_temp = NULL;
+	if(m_format_temp) { free(m_format_temp); m_format_temp = NULL; }
 	
 	if(p && *p)
 	{
@@ -440,38 +375,32 @@ void PopupTooltip(HWND hwndClock, const wchar_t *p)
 		wcscpy(m_format_temp, p);
 	}
 	
-	memset(&ti, 0, sizeof(ti));
 	ti.cbSize = sizeof(TOOLINFO);
-	ti.uFlags = TTF_TRACK;
 	ti.hwnd = hwndClock;
 	ti.uId = 2;
-	ti.lpszText = LPSTR_TEXTCALLBACK;
 	
 	if(m_bTrackActive)
-	{
 		SendMessage(m_hwndTip, TTM_TRACKACTIVATE, FALSE, (LPARAM)&ti);
-		m_bTrackActive = FALSE;
+	
+	if(GetWindowLong(m_hwndTip, GWL_STYLE)&TTS_BALLOON)
+	{
+		RECT rcClock;
+		int x, y;
+		
+		GetWindowRect(hwndClock, &rcClock);
+		
+		if(rcClock.left > GetSystemMetrics(SM_CXSCREEN) / 2)
+			x = rcClock.right - 18;
+		else
+			x = rcClock.left + 18;
+		if(rcClock.top > GetSystemMetrics(SM_CYSCREEN) / 2)
+			y = rcClock.bottom;
+		else
+			y = rcClock.top;
+		
+		SendMessage(m_hwndTip, TTM_TRACKPOSITION, 0, (LPARAM)(x | (y << 16)));
 	}
 	
 	m_bTrackActive = TRUE;
 	SendMessage(m_hwndTip, TTM_TRACKACTIVATE, TRUE, (LPARAM)&ti);
-	
-	GetWindowRect(hwndClock, &rcClock);
-	GetWindowRect(m_hwndTip, &rcTip);
-	
-	wscreen = GetSystemMetrics(SM_CXSCREEN);
-	hscreen = GetSystemMetrics(SM_CYSCREEN);
-	
-	if(GetWindowLong(m_hwndTip, GWL_STYLE)&TTS_BALLOON)
-	{
-		int x, y;
-		x = rcClock.left;
-		if(x > wscreen / 2) x += rcClock.right-rcClock.left - 16;
-		else x += 16;
-		y = rcClock.bottom;
-		if(rcClock.top > hscreen / 2) y = rcClock.top;
-		
-		SendMessage(m_hwndTip, TTM_TRACKPOSITION, 0,
-			(LPARAM)(x | (y << 16)));
-	}
 }

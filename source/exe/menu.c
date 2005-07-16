@@ -15,7 +15,6 @@ void ContextMenuCommand(HWND hwnd, int id);
 void EndMenu(void);
 void OnContextMenu(HWND hwnd, HWND hwndClicked, int xPos, int yPos);
 void OnExitMenuLoop(HWND hwnd);
-void SetFocusTClockMain(HWND hwnd);
 
 /* Statics */
 
@@ -28,16 +27,13 @@ typedef MENUSTRUCT* PMENUSTRUCT;
 
 static void SendOnContextMenu(void);
 static void CheckMenu(HMENU hmenu);
-static void LoadMenuFromText(HMENU hmenu,
-	const char *fname, const WIN32_FIND_DATA *pfd);
+static void LoadMenuFromText(HMENU hmenu, const char *fname);
 static int ReadMenuCommands(HMENU hmenu, const char *p,
 	PMENUSTRUCT pmenus);
 
 static HMENU m_hMenu = NULL;
-static char m_tcmenutxt[MAX_PATH] = { 0 };
 static PMENUSTRUCT m_pmenuCommands = NULL;
 static int m_numCommands = 0;
-static DWORD m_lasttime = 0;
 
 /*------------------------------------------------
   open/execute a file with context menu
@@ -75,49 +71,51 @@ void EndMenu(void)
 --------------------------------------------------*/
 void OnContextMenu(HWND hwnd, HWND hwndClicked, int xPos, int yPos)
 {
+	static char tcmenutxt[MAX_PATH] = { 0 };
+	static DWORD lasttime = 0;
 	WIN32_FIND_DATA fd;
 	HANDLE hfind;
 	
 	SendOnContextMenu();
 	
-	if(m_tcmenutxt[0] == 0 || !IsFile(m_tcmenutxt))
+	if(tcmenutxt[0] == 0 || !IsFile(tcmenutxt))
 	{
 		// common/tclang.c
-		FindFileWithLangCode(m_tcmenutxt, GetUserDefaultLangID(), TCMENUTXT);
+		FindFileWithLangCode(tcmenutxt, GetUserDefaultLangID(), TCMENUTXT);
 	}
 	
-	hfind = FindFirstFile(m_tcmenutxt, &fd);
+	hfind = FindFirstFile(tcmenutxt, &fd);
 	if(hfind != INVALID_HANDLE_VALUE)
 	{
 		FindClose(hfind);
-		if(m_lasttime != fd.ftLastWriteTime.dwLowDateTime)
+		if(lasttime != fd.ftLastWriteTime.dwLowDateTime)
 		{
 			EndMenu();
-			m_lasttime = fd.ftLastWriteTime.dwLowDateTime;
+			lasttime = fd.ftLastWriteTime.dwLowDateTime;
 		}
 	}
-	else m_lasttime = 0;
+	else lasttime = 0;
 	
 	// create popup menu and append items from tcmenu.txt
 	if(!m_hMenu)
 	{
 		m_hMenu = CreatePopupMenu();
 		if(hfind != INVALID_HANDLE_VALUE)
-			LoadMenuFromText(m_hMenu, m_tcmenutxt, &fd);
+			LoadMenuFromText(m_hMenu, tcmenutxt);
 		else
-			LoadMenuFromText(m_hMenu, NULL, NULL);
-		
-		MemReduce();
+			LoadMenuFromText(m_hMenu, NULL);
 	}
 	
 	CheckMenu(m_hMenu);
 	
 	// get keyboard input
-	SetFocusTClockMain(hwnd);
+	SetForegroundWindow98(hwnd);
 	
 	// open popup menu
 	TrackPopupMenu(m_hMenu, TPM_LEFTALIGN|TPM_RIGHTBUTTON,
 		xPos, yPos, 0, hwnd, NULL);
+
+	PostMessage(hwnd, WM_NULL, 0, 0);
 }
 
 /*------------------------------------------------
@@ -137,20 +135,6 @@ void OnExitMenuLoop(HWND hwnd)
 		SetFocus(hwndBar);
 		AttachThreadInput(clockthread, mythread, FALSE);
 	}
-}
-
-/*------------------------------------------------
-  set keyboard focus to the main window forcely
---------------------------------------------------*/
-void SetFocusTClockMain(HWND hwnd)
-{
-	DWORD pid, curthread, mythread;
-	
-	curthread = GetWindowThreadProcessId(GetForegroundWindow(), &pid);
-	mythread = GetCurrentThreadId();
-	AttachThreadInput(mythread, curthread, TRUE);
-	SetFocus(hwnd);
-	AttachThreadInput(mythread, curthread, FALSE);
 }
 
 /*------------------------------------------------
@@ -187,45 +171,42 @@ void SendOnContextMenu(void)
 void CheckMenu(HMENU hmenu)
 {
 	char s[80];
-	int winver = CheckWinVersion();
 	
 	EnableMenuItem(hmenu, IDC_TASKMAN, MF_BYCOMMAND|
-		((winver&WINNT) ? MF_ENABLED:MF_GRAYED) );
+		((CheckWinVersion()&WINNT) ? MF_ENABLED:MF_GRAYED));
 	
 	EnableMenuItem(hmenu, IDC_SYNCTIME, MF_BYCOMMAND|
-		(GetMyRegStr("SNTP", "Server", s, 80, "") > 0 ?
-			MF_ENABLED:MF_GRAYED));
+		(GetMyRegStr("SNTP", "Server", s, 80, "") > 0 ? MF_ENABLED:MF_GRAYED));
 }
 
 /*------------------------------------------------
   read menu commands from tcmenu*.txt
 --------------------------------------------------*/
-void LoadMenuFromText(HMENU hmenu,
-	const char *fname, const WIN32_FIND_DATA *pfd)
+void LoadMenuFromText(HMENU hmenu, const char *fname)
 {
-	HFILE hf = HFILE_ERROR;
-	int size;
+	HANDLE hf = INVALID_HANDLE_VALUE;
+	DWORD size, dwRead;
 	char *pbuf;
 	
-	if(fname && pfd)
-		hf = _lopen(fname, OF_READ);
-	if(hf == HFILE_ERROR)
+	if(m_pmenuCommands) free(m_pmenuCommands);
+	m_pmenuCommands = NULL;
+	
+	if(fname)
+		hf = CreateFile(fname, GENERIC_READ, FILE_SHARE_READ,
+			NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if(hf == INVALID_HANDLE_VALUE)
 	{
 		AppendMenu(hmenu, MF_STRING, IDC_EXIT, "Exit TClock");
 		return;
 	}
 	
-	size = (int)pfd->nFileSizeLow;
+	size = GetFileSize(hf, NULL);
 	pbuf = malloc(size + 1);
-	_lread(hf, pbuf, size);
+	ReadFile(hf, pbuf, size, &dwRead, NULL);
+	CloseHandle(hf);
 	pbuf[size] = 0;
-	_lclose(hf);
 	
 	m_numCommands = ReadMenuCommands(NULL, pbuf, NULL);
-	
-	if(m_pmenuCommands) free(m_pmenuCommands);
-	m_pmenuCommands = NULL;
-	
 	if(m_numCommands > 0)
 		m_pmenuCommands = malloc(sizeof(MENUSTRUCT) * m_numCommands);
 	ReadMenuCommands(hmenu, pbuf, m_pmenuCommands);
@@ -263,7 +244,7 @@ int ReadMenuCommands(HMENU hmenu, const char *p,
 			char quot;
 			
 			quot = 0;
-			if(*p == '\"' || *p == '\'') { quot = *p; p++; }
+			if(*p == '\"' || *p == '\'') quot = *p++;
 			for(i = 0; i < 80 &&
 				*p && *p != '\r' && *p != '\n'; i++)
 			{
@@ -275,7 +256,7 @@ int ReadMenuCommands(HMENU hmenu, const char *p,
 			while(*p == ' ' || *p == '\t') p++;
 			
 			quot = 0;
-			if(*p == '\"' || *p == '\'') { quot = *p; p++; }
+			if(*p == '\"' || *p == '\'') quot = *p++;
 			for(i = 0; i < MAX_PATH-1 &&
 				*p && *p != '\r' && *p != '\n'; i++)
 			{

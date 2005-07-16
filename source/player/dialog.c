@@ -16,7 +16,7 @@ HWND g_hDlg = NULL;
 
 /* Statics */
 
-BOOL CALLBACK DlgProcPlayer(HWND, UINT, WPARAM, LPARAM);
+static INT_PTR CALLBACK DlgProcPlayer(HWND, UINT, WPARAM, LPARAM);
 static void OnInit(HWND hDlg);
 static void OnOK(HWND hDlg);
 static void OnCancel(HWND hDlg);
@@ -24,15 +24,14 @@ static void OnHelp(HWND hDlg);
 static void OnShowTime(HWND hDlg);
 static void OnUserStr(HWND hDlg);
 
-static char *m_section = "Player";
+static const char *m_section = "Player";
 
 /*-------------------------------------------------------
   PLAYERM_SHOWDLG message
 ---------------------------------------------------------*/
 void OnShowDialog(HWND hwnd)
 {
-	if(g_hDlg && IsWindow(g_hDlg)) ;
-	else
+	if(!(g_hDlg && IsWindow(g_hDlg)))
 		g_hDlg = CreateDialog(g_hInst, MAKEINTRESOURCE(IDD_PLAYER),
 			NULL, DlgProcPlayer);
 	SetForegroundWindow98(g_hDlg);
@@ -41,7 +40,7 @@ void OnShowDialog(HWND hwnd)
 /*-------------------------------------------
   dialog procedure
 ---------------------------------------------*/
-BOOL CALLBACK DlgProcPlayer(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProcPlayer(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

@@ -22,6 +22,9 @@
 #define IDD_PAGETASKBAR                 115
 #define IDD_PAGEMISC                    116
 #define IDD_SELECTICON                  117
+#define IDD_PAGEANALOGCLOCK             118
+#define IDD_PAGEDESKTOP                 119
+#define IDD_PAGECALENDAR                120
 
 #define IDC_TREE                        2801
 #define IDC_APPLY                       2802
@@ -41,6 +44,13 @@
 #define IDC_FILLTRAY                    1110
 #define IDC_COLFORE                     1111
 #define IDC_CHOOSECOLFORE               1112
+#define IDC_DECONONE                    1117
+#define IDC_DECOSHADOW                  1118
+#define IDC_DECOBORDER                  1119
+#define IDC_COLSHADOW                   1120
+#define IDC_CHOOSECOLSHADOW             1121
+#define IDC_SHADOWRANGE                 1122
+#define IDC_SHADOWRANGESPIN             1123
 #define IDC_FONT                        1113
 #define IDC_FONTSIZE                    1114
 #define IDC_BOLD                        1115
@@ -78,6 +88,8 @@
 #define IDC_CUSTOM                      1213
 #define IDC_FORMAT                      1214
 #define IDC_FORMATDETAIL                1215
+#define IDC_SYSII                       1216
+#define IDC_SYSIISPIN                   1217
 
 #define IDC_AMSYMBOL                    1251
 #define IDC_PMSYMBOL                    1252
@@ -225,6 +237,26 @@
 #define IDC_HELPURL                     1606
 #define IDC_BROWSEHELP                  1607
 
+// analog clock
+#define IDC_ANALOGCLOCK                 2401
+#define IDC_COLHOUR                     2402
+#define IDC_CHOOSECOLHOUR               2403
+#define IDC_HOURHANDBOLD                2404
+#define IDC_COLMIN                      2405
+#define IDC_CHOOSECOLMIN                2406
+#define IDC_MINHANDBOLD                 2407
+#define IDC_ANALOGPOSMIDDLE             2408
+#define IDC_ANALOGPOSLEFT               2409
+#define IDC_ANALOGPOSRIGHT              2410
+#define IDC_ANALOGHPOS                  2411
+#define IDC_ANALOGHPOSSPIN              2412
+#define IDC_ANALOGVPOS                  2413
+#define IDC_ANALOGVPOSSPIN              2414
+#define IDC_ANALOGSIZE                  2415
+#define IDC_ANALOGSIZESPIN              2416
+#define IDC_ANALOGBMP                   2417
+#define IDC_ANALOGBMPBROWSE             2418
+
 // strings
 #define IDS_BTNFACE                     1
 #define IDS_BTNSHADOW                   2
@@ -237,6 +269,7 @@
 #define IDS_COLOR                       8
 #define IDS_SIZEPOS                     9
 #define IDS_FORMAT                      10
+#define IDS_ANALOGCLOCK                 52
 #define IDS_ALARM                       11
 #define IDS_CUCKOO                      12
 #define IDS_MOUSE                       13

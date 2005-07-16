@@ -14,7 +14,7 @@ int SetAlarmDay(HWND hDlg, PALARMSTRUCT pAS);
 
 /* Statics */
 
-static BOOL CALLBACK AlarmDayProc(HWND, UINT, WPARAM, LPARAM);
+static INT_PTR CALLBACK AlarmDayProc(HWND, UINT, WPARAM, LPARAM);
 static void OnInit(HWND hDlg);
 static void OnOK(HWND hDlg);
 static void OnEveryDay(HWND hDlg);
@@ -34,7 +34,7 @@ int SetAlarmDay(HWND hDlg, PALARMSTRUCT pAS)
 /*------------------------------------------------
   dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK AlarmDayProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK AlarmDayProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -74,10 +74,9 @@ void OnInit(HWND hDlg)
 	for(i = 0; i < 7; i++)
 	{
 		if(m_pAS->wdays[i])
-		{
 			CheckDlgButton(hDlg, IDC_ALARMDAY1+i, TRUE);
+		else
 			bAll = FALSE;
-		}
 	}
 	
 	if(bAll)
@@ -102,7 +101,8 @@ void OnOK(HWND hDlg)
 	{
 		if(IsDlgButtonChecked(hDlg, IDC_ALARMDAY1 + i))
 			wsprintf(s + strlen(s), "%d,", i);
-		else bAll = FALSE;
+		else
+			bAll = FALSE;
 	}
 	
 	if(bAll)
@@ -119,22 +119,13 @@ void OnOK(HWND hDlg)
 --------------------------------------------------*/
 void OnEveryDay(HWND hDlg)
 {
+	BOOL b;
 	int i;
 	
-	if(IsDlgButtonChecked(hDlg, IDC_ALARMDAY0))
+	b = IsDlgButtonChecked(hDlg, IDC_ALARMDAY0);
+	for(i = 0; i < 7; i++)
 	{
-		for(i = 0; i < 7; i++)
-		{
-			CheckDlgButton(hDlg, IDC_ALARMDAY1 + i, TRUE);
-			EnableDlgItem(hDlg, IDC_ALARMDAY1+i, FALSE);
-		}
-	}
-	else
-	{
-		for(i = 0; i < 7; i++)
-		{
-			CheckDlgButton(hDlg, IDC_ALARMDAY1 + i, FALSE);
-			EnableDlgItem(hDlg, IDC_ALARMDAY1+i, TRUE);
-		}
+		CheckDlgButton(hDlg, IDC_ALARMDAY1 + i, b);
+		EnableDlgItem(hDlg, IDC_ALARMDAY1 + i, !b);
 	}
 }

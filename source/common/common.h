@@ -8,7 +8,7 @@
 
 #include <windows.h>
 
-#define TCLOCKVERSION     "TClock Light 040905"
+#define TCLOCKVERSION     "TClock Light 050101"
 
 #define CLASS_TCLOCKMAIN   "TClockMainClass"
 #define CLASS_TCLOCKPROP   "TClockPropertyClass"
@@ -25,40 +25,40 @@
 
 /* -- messages to send to tcdll.tclock ----------------- */
 
-#define CLOCKM_REFRESHCLOCK     (WM_USER+1)
-#define CLOCKM_REFRESHTASKBAR   (WM_USER+2)
-#define CLOCKM_BLINK            (WM_USER+3)
-#define CLOCKM_COPY             (WM_USER+4)
-#define CLOCKM_REFRESHDESKTOP   (WM_USER+5)
-#define CLOCKM_VOLCHANGE        (WM_USER+6)
-#define CLOCKM_NETINIT          (WM_USER+7)
-#define CLOCKM_DELUSRSTR        (WM_USER+8)
-#define CLOCKM_EXIT             (WM_USER+9)
-#define CLOCKM_REFRESHSTARTMENU (WM_USER+10)
-#define CLOCKM_REFRESHTOOLTIP   (WM_USER+11)
+#define CLOCKM_REFRESHCLOCK     (WM_APP+1)
+#define CLOCKM_REFRESHTASKBAR   (WM_APP+2)
+#define CLOCKM_BLINK            (WM_APP+3)
+#define CLOCKM_COPY             (WM_APP+4)
+#define CLOCKM_REFRESHDESKTOP   (WM_APP+5)
+#define CLOCKM_VOLCHANGE        (WM_APP+6)
+#define CLOCKM_NETINIT          (WM_APP+7)
+#define CLOCKM_DELUSRSTR        (WM_APP+8)
+#define CLOCKM_EXIT             (WM_APP+9)
+#define CLOCKM_REFRESHSTARTMENU (WM_APP+10)
+#define CLOCKM_REFRESHTOOLTIP   (WM_APP+11)
 
 /* -- messages to send to tclock.exe ------------------ */
 
-#define TCM_HWNDCLOCK       WM_USER
-#define TCM_CLOCKERROR      (WM_USER+1)
-#define TCM_EXIT            (WM_USER+2)
-#define TCM_STOPSOUND       (WM_USER+3)
-#define TCM_RELOADSETTING   (WM_USER+4)
-#define TCM_DESKCAL         (WM_USER+10)
-#define TCM_REQUESTSNTPLOG  (WM_USER+11)
+#define TCM_HWNDCLOCK       WM_APP
+#define TCM_CLOCKERROR      (WM_APP+1)
+#define TCM_EXIT            (WM_APP+2)
+#define TCM_STOPSOUND       (WM_APP+3)
+#define TCM_RELOADSETTING   (WM_APP+4)
+#define TCM_DESKCAL         (WM_APP+10)
+#define TCM_REQUESTSNTPLOG  (WM_APP+11)
 
 /* -- messages to send to tctimer.exe ------------------ */
-#define TIMERM_SHOWDLG      (WM_USER+1)
-#define TIMERM_REQUESTMENU  (WM_USER+2)
-#define TIMERM_STOP         (WM_USER+3)
+#define TIMERM_SHOWDLG      (WM_APP+1)
+#define TIMERM_REQUESTMENU  (WM_APP+2)
+#define TIMERM_STOP         (WM_APP+3)
 
 /* -- messages to send to tcplayer.exe ------------------ */
-#define PLAYERM_SHOWDLG     (WM_USER+1)
-#define PLAYERM_REQUESTMENU (WM_USER+2)
-#define PLAYERM_STOP        (WM_USER+3)
-#define PLAYERM_PAUSE       (WM_USER+4)
-#define PLAYERM_PREV        (WM_USER+5)
-#define PLAYERM_NEXT        (WM_USER+6)
+#define PLAYERM_SHOWDLG     (WM_APP+1)
+#define PLAYERM_REQUESTMENU (WM_APP+2)
+#define PLAYERM_STOP        (WM_APP+3)
+#define PLAYERM_PAUSE       (WM_APP+4)
+#define PLAYERM_PREV        (WM_APP+5)
+#define PLAYERM_NEXT        (WM_APP+6)
 
 /* -- dwData of COPYDATASTRUCT ----------------------- */
 
@@ -119,9 +119,9 @@ typedef struct _tagAlarmStruct
 	char strHours[80];
 	char strMinutes[80];
 	char strWDays[80];
-	char hours[24];
-	char minutes[60];
-	char wdays[7];
+	BYTE hours[24];
+	BYTE minutes[60];
+	BYTE wdays[7];
 	int  second;
 	char fname[MAX_PATH];
 	BOOL bHour12;
@@ -164,8 +164,7 @@ void InitColorCombo(HWND hDlg, int idCombo,
 	const COLORREF *pColAdd, int nAdd, COLORREF colDef);
 void OnMeasureItemColorCombo(LPMEASUREITEMSTRUCT pmis);
 void OnDrawItemColorCombo(LPDRAWITEMSTRUCT pdis, char (*pTexts)[80]);
-void ChooseColorWithCombo(HINSTANCE hInst, HWND hDlg,
-	int idCombo);
+BOOL ChooseColorWithCombo(HWND hDlg, int idCombo);
 void InitFontNameCombo(HWND hDlg, int idCombo, const char* deffont);
 void InitFontSizeCombo(HWND hDlg, int idCombo,
 	const char *fontname, int charset);
@@ -233,9 +232,9 @@ int r_strnicmp(const char* d, const char* s, size_t n);
 int r_atoi(const char *p);
 int r_atox(const char *p);
 int r__wtoi(const WCHAR *p);
-int r_wcslen(const wchar_t *p);
+size_t r_wcslen(const wchar_t *p);
 wchar_t *r_wcscpy(wchar_t *dp, const wchar_t *sp);
-int r_wcsncmp(const wchar_t *p1, const wchar_t *p2, int count);
+int r_wcsncmp(const wchar_t *p1, const wchar_t *p2, size_t count);
 wchar_t *r_wcscat(wchar_t *dp, const wchar_t *sp);
 wchar_t *r_wcsstr(const wchar_t *string, const wchar_t *strCharSet);
 
@@ -315,7 +314,6 @@ DWORDLONG r_M32x32to64(DWORD a, DWORD b);
 
 BOOL PlayFile(HWND hwnd, const char *fname, int loops);
 BOOL PlayFileCmdLine(HWND hwnd, const char *str);
-BOOL Player(HWND hwnd, const char *fname);
 void StopFile(void);
 void OnMCINotify(HWND hwnd, WPARAM wFlags, LONG lDevID);
 BOOL IsSoundFile(const char* fname);
@@ -399,7 +397,6 @@ void WriteDebugW(const wchar_t* s);
 
 #define EnableDlgItem(hDlg,id,b) EnableWindow(GetDlgItem((hDlg),(id)),(b))
 #define ShowDlgItem(hDlg,id,b) ShowWindow(GetDlgItem((hDlg),(id)),(b)?SW_SHOW:SW_HIDE)
-#define AdjustDlgConboBoxDropDown(hDlg,id,b) AdjustConboBoxDropDown(GetDlgItem((hDlg),(id)),(b))
 
 #define CBAddString(hDlg,id,lParam) SendDlgItemMessage((hDlg),(id),CB_ADDSTRING,0,(lParam))
 #define CBDeleteString(hDlg,id, i) SendDlgItemMessage((hDlg),(id),CB_DELETESTRING,(i),0)

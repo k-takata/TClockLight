@@ -12,17 +12,19 @@
 #include "../common/common.h"
 
 // notification of event to get host
-#define WSOCK_GETHOST (WM_USER+1)
+#define WSOCK_GETHOST (WM_APP+1)
 // notification of socket event
-#define WSOCK_SELECT  (WM_USER+2)
+#define WSOCK_SELECT  (WM_APP+2)
 
 #define IDTIMER_MAIN  1
 
-#define SNTPM_SHOWDLG  (WM_USER+10)
-#define SNTPM_ERROR    (WM_USER+11)
-#define SNTPM_SUCCESS  (WM_USER+12)
+#define SNTPM_SHOWDLG  (WM_APP+10)
+#define SNTPM_ERROR    (WM_APP+11)
+#define SNTPM_SUCCESS  (WM_APP+12)
 
 #define BUFSIZE_SERVER 81
+
+#define SNTPLOG "SNTP.txt"
 
 /* ---------- main.c --------------- */
 
@@ -48,7 +50,7 @@ BOOL InitSNTP(HWND hwndParent);
 void EndSNTP(HWND hwndParent);
 void SetSNTPParam(const char *servername, int nTimeout, BOOL bLog,
 	const char *soundfile);
-BOOL StartSyncTime(HWND hwnd, const char *pServer, BOOL bRAS);
+BOOL StartSyncTime(HWND hwnd, BOOL bRAS);
 void OnTimerSNTP(HWND hwndMain);
 void OnGetHost(HWND hwnd, WPARAM wParam, LPARAM lParam);
 void OnReceive(HWND hwnd, WPARAM wParam, LPARAM lParam);

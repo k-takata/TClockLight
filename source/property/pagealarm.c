@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageAlarmProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageAlarmProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -34,8 +34,8 @@ static void GetAlarmFromDlg(HWND hDlg, PALARMSTRUCT pitem);
 static void SetAlarmToDlg(HWND hDlg, const ALARMSTRUCT *pitem);
 static PALARMSTRUCT CBGetAlarmStruct(HWND hDlg, int idCombo, int index);
 
-static BOOL  m_bInit = FALSE;
-static BOOL  m_bChanged = FALSE;
+static BOOL m_bInit = FALSE;
+static BOOL m_bChanged = FALSE;
 
 static PALARMSTRUCT m_pListAlarm = NULL;
 static int m_nCurrent = -1;
@@ -44,7 +44,7 @@ static BOOL m_bPlaying = FALSE;
 /*------------------------------------------------
   Dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK PageAlarmProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageAlarmProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -100,8 +100,6 @@ BOOL CALLBACK PageAlarmProc(HWND hDlg, UINT message,
 					break;
 				case IDC_SANSHOALARM:
 					OnBrowse(hDlg);
-					OnFileChange(hDlg);
-					SendPSChanged(hDlg);
 					break;
 				case IDC_12HOURALARM:
 				case IDC_REPEATALARM:
@@ -170,7 +168,7 @@ void OnInit(HWND hDlg)
 	// common/tclang.c
 	SetDialogLanguage(hDlg, "Alarm", g_hfontDialog);
 	
-	count = GetMyRegLong("", "AlarmNum", 0);
+	count = GetMyRegLong(NULL, "AlarmNum", 0);
 	
 	if(count > 0)
 	{
@@ -349,12 +347,9 @@ void OnEnableAlarm(HWND hDlg)
 	HWND hwnd = GetDlgItem(hDlg, IDC_ENABLEALARM);
 	BOOL b = IsDlgButtonChecked(hDlg, IDC_ENABLEALARM);
 	
-	hwnd = GetNextWindow(hwnd, GW_HWNDNEXT);
-	while(hwnd)
-	{
+	while((hwnd = GetNextWindow(hwnd, GW_HWNDNEXT)) != NULL)
 		EnableWindow(hwnd, b);
-		hwnd = GetNextWindow(hwnd, GW_HWNDNEXT);
-	}
+	
 	if(b) OnFileChange(hDlg);
 }
 
@@ -389,11 +384,12 @@ void OnBrowse(HWND hDlg)
 	GetDlgItemText(hDlg, IDC_FILEALARM, deffile, MAX_PATH);
 	
 	// common/soundselect.c
-	if(!BrowseSoundFile(g_hInst, hDlg, deffile, fname))
-		return;
-	
-	SetDlgItemText(hDlg, IDC_FILEALARM, fname);
-	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+	if(BrowseSoundFile(g_hInst, hDlg, deffile, fname))
+	{
+		SetDlgItemText(hDlg, IDC_FILEALARM, fname);
+		PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+		SendPSChanged(hDlg);
+	}
 }
 
 /*------------------------------------------------
@@ -418,8 +414,7 @@ void OnTest(HWND hDlg, WORD id)
 	GetDlgItemText(hDlg, IDC_FILEALARM, fname, MAX_PATH);
 	if(fname[0] == 0) return;
 	
-	if((HICON)SendDlgItemMessage(hDlg, id, BM_GETIMAGE, IMAGE_ICON, 0)
-		== g_hIconPlay)
+	if(!m_bPlaying)
 	{
 		if(PlayFile(hDlg, fname, 0))
 		{
@@ -442,9 +437,8 @@ void OnTest(HWND hDlg, WORD id)
 void OnInterval(HWND hDlg)
 {
 	HWND hwnd = GetDlgItem(hDlg, IDC_ALARMINTERVAL);
-	BOOL b = IsDlgButtonChecked(hDlg, IDC_ALARMINTERVAL);
-	
-	if(!IsDlgButtonChecked(hDlg, IDC_ENABLEALARM)) b = FALSE;
+	BOOL b = IsDlgButtonChecked(hDlg, IDC_ALARMINTERVAL)
+		&& IsDlgButtonChecked(hDlg, IDC_ENABLEALARM);
 	
 	hwnd = GetNextWindow(hwnd, GW_HWNDNEXT);
 	EnableWindow(hwnd, b);
@@ -457,10 +451,9 @@ void OnInterval(HWND hDlg)
 --------------------------------------------------*/
 void EnableAlarmPageItems(HWND hDlg)
 {
-	HWND hwnd;
+	HWND hwnd = GetWindow(hDlg, GW_CHILD);
 	BOOL b = (m_pListAlarm != NULL);
 	
-	hwnd = GetWindow(hDlg, GW_CHILD);
 	while(hwnd)
 	{
 		if(GetDlgCtrlID(hwnd) != IDC_ADDALARM)
@@ -514,7 +507,8 @@ void SetAlarmToDlg(HWND hDlg, const ALARMSTRUCT *pitem)
 	SetDlgItemText(hDlg, IDC_MINUTEALARM, pitem->strMinutes);
 	if(pitem->second)
 		SetDlgItemInt(hDlg, IDC_SECONDALARM, pitem->second, FALSE);
-	else SetDlgItemText(hDlg, IDC_SECONDALARM, "");
+	else
+		SetDlgItemText(hDlg, IDC_SECONDALARM, "");
 	SetDlgItemText(hDlg, IDC_WDAYALARM, pitem->strWDays);
 	SetDlgItemText(hDlg, IDC_FILEALARM, pitem->fname);
 	CheckDlgButton(hDlg, IDC_12HOURALARM, pitem->bHour12);

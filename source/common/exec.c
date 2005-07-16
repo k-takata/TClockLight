@@ -21,7 +21,6 @@ BOOL ExecFile(HWND hwnd, const char* command);
 static int GetPathType(const char *src);
 static BOOL GetRealFileName(char *dst, const char *src);
 
-extern HINSTANCE g_hInst;
 extern char g_mydir[];
 
 /*------------------------------------------------
@@ -43,10 +42,10 @@ void RelToAbs(char *dst, const char *src)
 ----------------------------------------------------------*/
 void GetFileAndOption(const char* command, char* fname, char* option)
 {
+	char tempfname[MAX_PATH], foundfname[MAX_PATH];
 	const char *p;
 	char *dp;
 	const char *pspace, *pfound;
-	char tempfname[MAX_PATH], foundfname[MAX_PATH];
 	BOOL bFound = FALSE;
 	
 	p = command;
@@ -157,8 +156,8 @@ int GetPathType(const char *src)
 		while(*p &&
 			(('A' <= *p && *p <= 'Z') || ('a' <= *p && *p <= 'z')))
 		{
-			if(*p == ':') return PATH_URL;
 			p++;
+			if(*p == ':') return PATH_URL;
 		}
 	}
 	return PATH_REL;
@@ -170,17 +169,8 @@ int GetPathType(const char *src)
 BOOL GetRealFileName(char *dst, const char *src)
 {
 	char fname[MAX_PATH];
-	int type;
 	
-	type = GetPathType(src);
-	
-	if(type == PATH_REL)
-	{
-		strcpy(fname, g_mydir);
-		add_title(fname, src);
-	}
-	else
-		strcpy(fname, src);
+	RelToAbs(fname, src);
 	
 	if(IsFile(fname))
 	{

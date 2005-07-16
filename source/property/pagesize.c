@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageSizeProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageSizeProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -19,13 +19,13 @@ static void SendPSChanged(HWND hDlg);
 static void OnInit(HWND hDlg);
 static void OnApply(HWND hDlg);
 static void OnFitClock(HWND hDlg);
-static BOOL  m_bInit = FALSE;
-static BOOL  m_bChanged = FALSE;
+static BOOL m_bInit = FALSE;
+static BOOL m_bChanged = FALSE;
 
 /*------------------------------------------------
   Dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK PageSizeProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageSizeProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -52,7 +52,8 @@ BOOL CALLBACK PageSizeProc(HWND hDlg, UINT message,
 				case IDC_CLOCKWIDTH:
 				case IDC_VERTPOS:
 				case IDC_LINEHEIGHT:
-					if(code == EN_CHANGE) SendPSChanged(hDlg);
+					if(code == EN_CHANGE)
+						SendPSChanged(hDlg);
 					break;
 			}
 			return TRUE;
@@ -151,8 +152,7 @@ void OnApply(HWND hDlg)
 	SetMyRegLong(NULL, "ClockWidth", UpDown_GetPos(hDlg, IDC_SPINCWIDTH));
 	SetMyRegLong(NULL, "ClockHeight", UpDown_GetPos(hDlg, IDC_SPINCHEIGHT));
 	
-	SetMyRegLong(NULL, "FitClock",
-		IsDlgButtonChecked(hDlg, IDC_FITCLOCK));
+	SetMyRegLong(NULL, "FitClock", IsDlgButtonChecked(hDlg, IDC_FITCLOCK));
 }
 
 /*------------------------------------------------

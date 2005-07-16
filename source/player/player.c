@@ -29,10 +29,10 @@ static void GetFilesInDir(HWND hwnd, const char *root);
 static BOOL m_bDisp = FALSE;
 static int m_nDispType = 0;
 static int m_nUserStr = 0;
-static char *m_section = "Player";
 static BOOL m_bPlaying = FALSE;
 static int m_numFiles = 0;
 static int m_nCurrent = 0;
+static const char *m_section = "Player";
 
 /*-------------------------------------------------------------
   initialize
@@ -94,8 +94,7 @@ BOOL Player(HWND hwnd, const char *src)
 	if(m_numFiles == 0) return FALSE;
 	m_nCurrent = 0;
 	
-	SendDlgItemMessage(hwnd, IDC_LIST, LB_GETTEXT, m_nCurrent,
-		(LPARAM)fname);
+	SendDlgItemMessage(hwnd, IDC_LIST, LB_GETTEXT, m_nCurrent, (LPARAM)fname);
 	
 	if(lstrcmpi(fname, "cdaudio") != 0)
 		RelToAbs(fname2, fname);
@@ -176,18 +175,12 @@ void PrevNextPlayer(HWND hwnd, BOOL bNext)
 		if(bNext)
 		{
 			if(m_nCurrent < m_numFiles - 1)
-			{
-				m_nCurrent++;
-				m_bPlaying = PlayByNumber(hwnd, m_nCurrent);
-			}
+				m_bPlaying = PlayByNumber(hwnd, ++m_nCurrent);
 		}
 		else
 		{
 			if(0 < m_nCurrent)
-			{
-				m_nCurrent--;
-				m_bPlaying = PlayByNumber(hwnd, m_nCurrent);
-			}
+				m_bPlaying = PlayByNumber(hwnd, --m_nCurrent);
 		}
 		if(!m_bPlaying) StopPlayer(hwnd);
 	}
@@ -206,10 +199,10 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 	char tcmenutxt[MAX_PATH];
 	WIN32_FIND_DATA fd;
 	HANDLE hfind;
-	HFILE hf;
-	int size;
+	HANDLE hf;
+	DWORD size, dw;
 	char *buf;
-	const char *p, *np;
+	const char *p, *sp;
 	static BOOL bWrite = FALSE;
 	
 	if(!bClear && !m_bPlaying) return;
@@ -223,44 +216,45 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 	if(hfind == INVALID_HANDLE_VALUE) return;
 	
 	FindClose(hfind);
-	size = (int)fd.nFileSizeLow;
+	size = fd.nFileSizeLow;
 	buf = malloc(size+1);
 	if(!buf) return;
 	
-	hf = _lopen(tcmenutxt, OF_READWRITE);
-	if(hf == HFILE_ERROR) { free(buf); return; }
-	_lread(hf, buf, size);
+	hf = CreateFile(tcmenutxt, GENERIC_READ | GENERIC_WRITE, 0,
+		NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if(hf == INVALID_HANDLE_VALUE) { free(buf); return; }
+	ReadFile(hf, buf, size, &dw, NULL);
 	*(buf + size) = 0;
 	
-	_llseek(hf, 0, 0);
+	SetFilePointer(hf, 0, NULL, FILE_BEGIN);
 	
-	p = buf;
+	sp = p = buf;
 	while(*p)
 	{
 		if(strncmp(p, "#Player Begin", 13) == 0)
 		{
-			char s[160];
-			
-			np = nextline(p);
-			_lwrite(hf, p, np - p);
-			p = np;
+			p = nextline(p);
+			WriteFile(hf, sp, p - sp, &dw, NULL);
+			sp = p;
 			
 			if(m_bPlaying)
 			{
+				char s[160];
+				
 				wsprintf(s, "\"%s\" post %s %d\r\n",
 					MyString(IDS_STOP, "Stop"), CLASS_TCLOCKPLAYER,
 					PLAYERM_STOP);
-				_lwrite(hf, s, strlen(s));
+				WriteFile(hf, s, strlen(s), &dw, NULL);
 				wsprintf(s, "\"%s\" post %s %d\r\n",
 					MyString(IDS_PAUSE, "Pause"), CLASS_TCLOCKPLAYER,
 					PLAYERM_PAUSE);
-				_lwrite(hf, s, strlen(s));
+				WriteFile(hf, s, strlen(s), &dw, NULL);
 				if((m_numFiles > 1 && m_nCurrent > 0) || IsPrevNext(FALSE))
 				{
 					wsprintf(s, "\"%s\" post %s %d\r\n",
 						MyString(IDS_PREV, "Prev"), CLASS_TCLOCKPLAYER,
 						PLAYERM_PREV);
-					_lwrite(hf, s, strlen(s));
+					WriteFile(hf, s, strlen(s), &dw, NULL);
 				}
 				if((m_numFiles > 1 && m_nCurrent < m_numFiles - 1)
 					|| IsPrevNext(TRUE))
@@ -268,28 +262,27 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 					wsprintf(s, "\"%s\" post %s %d\r\n",
 						MyString(IDS_NEXT, "Next"), CLASS_TCLOCKPLAYER,
 						PLAYERM_NEXT);
-					_lwrite(hf, s, strlen(s));
+					WriteFile(hf, s, strlen(s), &dw, NULL);
 				}
 			}
 			
-			while(*p)
+			while(*sp)
 			{
-				if(strncmp(p, "#Player End", 11) == 0)
+				if(strncmp(sp, "#Player End", 11) == 0)
 					break;
-				p = nextline(p);
+				sp = nextline(sp);
 			}
+			p = nextline(sp);
 		}
 		else
-		{
-			np = nextline(p);
-			_lwrite(hf, p, np - p);
-			p = np;
-		}
+			p = nextline(p);
 	}
 	
-	_lwrite(hf, NULL, 0); // truncate
+	WriteFile(hf, sp, p - sp, &dw, NULL);
 	
-	_lclose(hf);
+	SetEndOfFile(hf);
+	
+	CloseHandle(hf);
 	free(buf);
 	
 	bWrite = TRUE;
@@ -304,8 +297,7 @@ BOOL PlayByNumber(HWND hwnd, int n)
 	
 	if(!(0 <= n && n < m_numFiles)) return FALSE;
 	
-	SendDlgItemMessage(hwnd, IDC_LIST,
-		LB_GETTEXT, m_nCurrent, (LPARAM)fname);
+	SendDlgItemMessage(hwnd, IDC_LIST, LB_GETTEXT, m_nCurrent, (LPARAM)fname);
 	RelToAbs(fname2, fname);
 	StopFile();
 	return PlayMCI(hwnd, fname2, 0); // common/playfile.c

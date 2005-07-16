@@ -29,6 +29,7 @@ static void OnTaskbarRestart(HWND hwnd);
 static void OnCopyData(HWND hwnd, HWND hwndFrom, COPYDATASTRUCT* pcds);
 static void InitError(int n);
 
+static UINT m_uTaskbarRestart;     // taskbar recreating message
 static BOOL m_bHook = FALSE;
 static BOOL m_bStartTimer = FALSE;
 
@@ -62,8 +63,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 					OnTimerMouse(hwnd); break;
 				case IDTIMER_MONOFF:
 					KillTimer(hwnd, wParam);
-					SendMessage(GetDesktopWindow(), WM_SYSCOMMAND,
-						SC_MONITORPOWER, 2);
+					PostMessage(hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, 2);
 					break;
 			}
 			return 0;
@@ -75,7 +75,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return 0;
 		case WM_CONTEXTMENU:
 			// menu.c
-			OnContextMenu(hwnd, (HWND)wParam, LOWORD(lParam), HIWORD(lParam));
+			OnContextMenu(hwnd, (HWND)wParam,
+				GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			return 0;
 		case WM_EXITMENULOOP:
 			// menu.c
@@ -139,7 +140,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return 0;
 	}
 	
-	if(message == g_uTaskbarRestart)
+	if(message == m_uTaskbarRestart)
 		OnTaskbarRestart(hwnd);
 	
 	return DefWindowProc(hwnd, message, wParam, lParam);
@@ -154,10 +155,13 @@ void OnCreate(HWND hwnd)
 {
 	int nDelay;
 	
+	// Message of the taskbar recreating
+	// Special thanks to Mr.Inuya
+	m_uTaskbarRestart = RegisterWindowMessage("TaskbarCreated");
+	
 	InitAlarm();  // alarm.c
 	InitMouseFunction(hwnd); // mouse.c
 	// InitSNTP(hwnd); // sntp.c
-	InitMemReduce(); // memreduce.c
 	
 	// delay starting
 	nDelay = GetMyRegLong(NULL, "DelayStart", 0);
@@ -169,8 +173,6 @@ void OnCreate(HWND hwnd)
 	else OnTimerStart(hwnd);
 	
 	SetTimer(hwnd, IDTIMER_MAIN, 1000, NULL);
-	
-	MemReduce();
 }
 
 /*-------------------------------------------------------
@@ -201,8 +203,6 @@ void ClearTClockMain(HWND hwnd)
 	EndMouseFunction(hwnd);
 	EndAlarm();
 	EndMenu();
-	
-	EndMemReduce();
 	
 	KillTimer(hwnd, IDTIMER_MAIN);
 	
@@ -241,15 +241,15 @@ void OnTimerMain(HWND hwnd)
 	if((st.wMilliseconds > 200 ||
 		((g_winver | WINNT) && st.wMilliseconds > 50)))
 	{
-		KillTimer(hwnd, IDTIMER_MAIN);
+		// KillTimer(hwnd, IDTIMER_MAIN);
 		SetTimer(hwnd, IDTIMER_MAIN, 1001 - st.wMilliseconds, NULL);
 		bTimerAdjusting = TRUE;
 	}
 	else if(bTimerAdjusting)
 	{
-		KillTimer(hwnd, IDTIMER_MAIN);
-		bTimerAdjusting = FALSE;
+		// KillTimer(hwnd, IDTIMER_MAIN);
 		SetTimer(hwnd, IDTIMER_MAIN, 1000, NULL);
+		bTimerAdjusting = FALSE;
 	}
 	
 	OnTimerAlarm(hwnd, &st, 0); // alarm.c
@@ -273,7 +273,7 @@ void OnTCMClockError(HWND hwnd, LPARAM lParam)
 	char s[160];
 	
 	wsprintf(s, "%s: %d", "failed to start TClock.", lParam);
-	MessageBox(NULL, s, "Error", MB_OK|MB_ICONEXCLAMATION);
+	MessageBox(NULL, s, NULL, MB_OK|MB_ICONEXCLAMATION);
 	
 	PostMessage(hwnd, WM_CLOSE, 0, 0);
 }
@@ -294,8 +294,6 @@ void OnTCMReloadSetting(HWND hwnd)
 {
 	InitAlarm(); // alarm.c
 	InitMouseFunction(hwnd); // mouse.c
-	
-	MemReduce();
 }
 
 /*-------------------------------------------------------

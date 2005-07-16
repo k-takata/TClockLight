@@ -36,9 +36,9 @@ void MSecondHandler(FORMATHANDLERSTRUCT* pstruc);
 static BOOL m_bHour12, m_bHourZero;
 static wchar_t m_DayOfWeekShort[7][11], m_DayOfWeekLong[7][31];
 static wchar_t m_MonthShort[12][11], m_MonthLong[12][31];
-static wchar_t *m_DayOfWeekEng[7] =
+static const wchar_t *m_DayOfWeekEng[7] =
   { L"Sun", L"Mon", L"Tue", L"Wed", L"Thu", L"Fri", L"Sat" };
-static wchar_t *m_MonthEng[12] =
+static const wchar_t *m_MonthEng[12] =
   { L"Jan", L"Feb", L"Mar", L"Apr", L"May", L"Jun",
     L"Jul", L"Aug", L"Sep", L"Oct", L"Nov", L"Dec" };
 static wchar_t m_AM[11], m_PM[11], m_SDate[5], m_STime[5];
@@ -63,7 +63,6 @@ void InitFormatTime(void)
 	m_bHourZero = GetMyRegLong(NULL, "HourZero", 0);
 	
 	ilang = GetMyRegLong(NULL, "Locale", (int)GetUserDefaultLangID());
-	
 	codepage = GetCodePage(ilang);
 	
 	for(i = 0; i < 7; i++)
@@ -294,9 +293,8 @@ void HourHandler(FORMATHANDLERSTRUCT* pstruc)
 	
 	if(m_bHour12)
 	{
-		if(hour > 12) hour -= 12;
-		else if(hour == 0) hour = 12;
-		if(hour == 12 && m_bHourZero) hour = 0;
+		if(hour >= 12) hour -= 12;
+		if(hour == 0 && !m_bHourZero) hour = 12;
 	}
 	
 	pstruc->sp++;
@@ -396,15 +394,11 @@ void AltYearHandler(FORMATHANDLERSTRUCT* pstruc)
 	int n = 1;
 	while(*pstruc->sp == 'Y') { n *= 10; pstruc->sp++; }
 	if(m_AltYear < 0) return;
-	if(n < m_AltYear)
-	{
-		n = 1; while(n < m_AltYear) n *= 10;
-	}
-	while(1)
+	while(n <= m_AltYear) n *= 10;
+	while(n > 1)
 	{
 		if(*pstruc->dp)
 			*pstruc->dp++ = (wchar_t)((m_AltYear % n) / (n / 10) + '0');
-		if(n == 10) break;
 		n /= 10;
 	}
 }
@@ -412,8 +406,7 @@ void AltYearHandler(FORMATHANDLERSTRUCT* pstruc)
 /* g */
 void EraHandler(FORMATHANDLERSTRUCT* pstruc)
 {
-	const wchar_t *p;
-	p = m_EraStr;
+	const wchar_t *p = m_EraStr;
 	while(*p && *pstruc->sp  == 'g' && *pstruc->dp)
 	{
 		*pstruc->dp++ = *p++;
@@ -422,7 +415,7 @@ void EraHandler(FORMATHANDLERSTRUCT* pstruc)
 	while(*pstruc->sp == 'g') pstruc->sp++;
 }
 
-/* w[+/-]nn : time difference */
+/* td[+/-]hh:nn : time difference */
 void TimeDifHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	int dif;

@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageFormatProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageFormatProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -28,7 +28,7 @@ static char m_CustomFormat[BUFSIZE_FORMAT];
 static BOOL m_bInit = FALSE;
 static BOOL m_bChanged = FALSE;
 
-static char *m_entrydate[] = { "Year4", "Year", "Month", "MonthS",
+static const char *m_entrydate[] = { "Year4", "Year", "Month", "MonthS",
 	"Day", "Weekday", "Hour", "Minute", "Second", "Kaigyo",
 	"AMPM", "Hour12", "Custom",  };
 #define ENTRY(id) m_entrydate[(id)-IDC_YEAR4]
@@ -36,7 +36,7 @@ static char *m_entrydate[] = { "Year4", "Year", "Month", "MonthS",
 /*------------------------------------------------
    Dialog Procedure for the "Format" page
 --------------------------------------------------*/
-BOOL CALLBACK PageFormatProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageFormatProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -55,6 +55,7 @@ BOOL CALLBACK PageFormatProc(HWND hDlg, UINT message,
 						OnLocale(hDlg);
 					break;
 				case IDC_FORMAT:
+				case IDC_SYSII:
 					if(code == EN_CHANGE)
 						SendPSChanged(hDlg);
 					break;
@@ -113,7 +114,7 @@ void OnInit(HWND hDlg)
 		SendDlgItemMessage(hDlg, IDC_FORMAT, WM_SETFONT, (WPARAM)hfont, 0);
 	
 	// "Locale" combobox
-	ilang = GetMyRegLong("", "Locale", (int)GetUserDefaultLangID());
+	ilang = GetMyRegLong(NULL, "Locale", (int)GetUserDefaultLangID());
 	InitLocaleCombo(hDlg, IDC_LOCALE, ilang); // common/combobox.c
 	
 	InitAutoFormat(ilang); // common/autoformat.c
@@ -122,7 +123,7 @@ void OnInit(HWND hDlg)
 	for(i = IDC_YEAR4; i <= IDC_KAIGYO; i++)
 	{
 		CheckDlgButton(hDlg, i,
-			GetMyRegLong("", ENTRY(i), TRUE));
+			GetMyRegLong(NULL, ENTRY(i), TRUE));
 	}
 	
 	if(IsDlgButtonChecked(hDlg, IDC_YEAR))
@@ -139,16 +140,23 @@ void OnInit(HWND hDlg)
 	for(i = IDC_AMPM; i <= IDC_CUSTOM; i++)
 	{
 		CheckDlgButton(hDlg, i,
-			GetMyRegLong("", ENTRY(i), FALSE));
+			GetMyRegLong(NULL, ENTRY(i), FALSE));
 	}
 	
-	GetMyRegStr("", "Format", s, BUFSIZE_FORMAT, "");
+	GetMyRegStr(NULL, "Format", s, BUFSIZE_FORMAT, "");
 	SetDlgItemText(hDlg, IDC_FORMAT, s);
 	
-	GetMyRegStr("", "CustomFormat", m_CustomFormat, BUFSIZE_FORMAT, "");
-	
+	GetMyRegStr(NULL, "CustomFormat", m_CustomFormat, BUFSIZE_FORMAT, "");
+
 	On12Hour(hDlg);
 	OnCustom(hDlg, FALSE);
+	
+	// "Update interval"
+	UpDown_SetBuddy(hDlg, IDC_SYSIISPIN, IDC_SYSII);
+	UpDown_SetRange(hDlg, IDC_SYSIISPIN, 60, 1);
+	i = GetMyRegLong(NULL, "IntervalSysInfo", 4);
+	if (i < 1 || 60 < i) i = 4;
+	UpDown_SetPos(hDlg, IDC_SYSIISPIN, i);
 	
 	m_bInit = TRUE;
 }
@@ -164,22 +172,25 @@ void OnApply(HWND hDlg)
 	if(!m_bChanged) return;
 	m_bChanged = FALSE;
 	
-	SetMyRegLong("", "Locale",
+	SetMyRegLong(NULL, "Locale",
 		CBGetItemData(hDlg, IDC_LOCALE, CBGetCurSel(hDlg, IDC_LOCALE)));
 	
 	for(i = IDC_YEAR4; i <= IDC_CUSTOM; i++)
 	{
-		SetMyRegLong("", ENTRY(i), IsDlgButtonChecked(hDlg, i));
+		SetMyRegLong(NULL, ENTRY(i), IsDlgButtonChecked(hDlg, i));
 	}
 	
 	GetDlgItemText(hDlg, IDC_FORMAT, s, BUFSIZE_FORMAT);
-	SetMyRegStr("", "Format", s);
+	SetMyRegStr(NULL, "Format", s);
 	
 	if(IsDlgButtonChecked(hDlg, IDC_CUSTOM))
 	{
 		strcpy(m_CustomFormat, s);
-		SetMyRegStr("", "CustomFormat", m_CustomFormat);
+		SetMyRegStr(NULL, "CustomFormat", m_CustomFormat);
 	}
+
+	SetMyRegLong(NULL, "IntervalSysInfo",
+		UpDown_GetPos(hDlg,IDC_SYSIISPIN));
 }
 
 /*------------------------------------------------

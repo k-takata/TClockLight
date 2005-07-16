@@ -16,7 +16,7 @@ void OnDestroy(HWND hwnd);
 void LoadSetting(HWND hwnd);
 
 BOOL    g_bInitClock = FALSE;  // InitTClock() has been called
-HANDLE  g_hInst;               // instanse handle
+HMODULE g_hInst;               // instanse handle
 WNDPROC g_oldWndProc;          // clock's window procedure
 BOOL    g_bIniSetting;         // use tclock.ini
 char    g_inifile[MAX_PATH];   // ini file name
@@ -67,8 +67,8 @@ void InitClock(HWND hwnd)
 	InitUserStr();     // userstr.c
 	
 	// subclassfy the clock window !!
-	g_oldWndProc = (WNDPROC)GetWindowLong(hwnd, GWL_WNDPROC);
-	SetWindowLong(hwnd, GWL_WNDPROC, (LONG)WndProc);
+	g_oldWndProc = (WNDPROC)SetWindowLongPtr(hwnd,
+		GWLP_WNDPROC, (LONG_PTR)WndProc);
 	
 	// don't accept double clicks
 	SetClassLong(hwnd, GCL_STYLE,
@@ -79,11 +79,11 @@ void InitClock(HWND hwnd)
 	InitTaskbar(hwnd);      // taskbar.c
 	InitTaskSwitch(hwnd);  // taskswitch.c
 	InitTrayNotify(hwnd);  // traynotify.c
+	InitSysInfo(hwnd);  // sysinfo.c
 	
 	RefreshTaskbar(hwnd);  // taskbar.c
 	
 	SetTimer(hwnd, IDTIMER_MAIN, 1000, NULL);
-	
 }
 
 /*------------------------------------------------
@@ -109,12 +109,13 @@ void EndClock(HWND hwnd)
 	EndTooltip(hwnd);   // tooltip.c
 	
 	EndNewAPI();      // newapi.c
+	EndSysInfo(hwnd); // sysinfo.c
 	
 	// Stop timers
 	KillTimer(hwnd, IDTIMER_MAIN);
 	
 	// restore window procedure
-	SetWindowLong(hwnd, GWL_WNDPROC, (LONG)g_oldWndProc);
+	SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)g_oldWndProc);
 	g_oldWndProc = NULL;
 	
 	RefreshTaskbar(hwnd);  // taskbar.c

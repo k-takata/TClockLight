@@ -17,7 +17,7 @@ TDSFILE=..\out\tcprop.tds
 TCPROPH=$(SRCDIR)\tcprop.h $(SRCDIR)\resource.h $(COMMONDIR)\common.h
 COMMONH=$(COMMONDIR)\common.h
 
-OBJS=pagecolor.obj pagesize.obj pageformat.obj pageformat2.obj\
+OBJS=pagecolor.obj pagesize.obj pageformat.obj pageformat2.obj pageanalog.obj\
 	pagealarm.obj alarmday.obj pagecuckoo.obj\
 	pagemouse.obj pagemouse2.obj pagetooltip.obj\
 	pagestartbtn.obj selecticon.obj pagestartmenu.obj\
@@ -63,15 +63,15 @@ $(EXEFILE): propmain.obj $(OBJS) $(RESFILE)
 
 CC=bcc32
 LINK=ilink32
-RC=brc32
-RCOPT=-r -32 -fo
+RC=brcc32
+RCOPT=-32 -fo
 
 !IFDEF NODEFAULTLIB
 COPT=-c -w -w-8057 -O2 -Oi -d -DNODEFAULTLIB -tW -o
-LOPT=/c /C /Gn /x
+LOPT=/aa /Tpe /c /C /Gn /x
 
 $(EXEFILE): propmain.obj $(OBJS) nodeflib.obj bccexe.pat $(RESFILE)
-	$(LINK) $(LOPT) /Tpe /aa propmain.obj $(OBJS) nodeflib.obj bccexe.pat,$@,,$(LIBS),,$(RESFILE)
+	$(LINK) $(LOPT) propmain.obj $(OBJS) nodeflib.obj bccexe.pat,$@,,$(LIBS),,$(RESFILE)
 	del $(TDSFILE)
 	
 bccexe.pat: $(COMMONDIR)\bccexe.nas
@@ -79,10 +79,10 @@ bccexe.pat: $(COMMONDIR)\bccexe.nas
 
 !ELSE
 COPT=-c -w -w-8057 -O2 -Oi -d -tW -o
-LOPT=/c /C /Gn /x
+LOPT=/aa /Tpe /c /C /Gn /x
 
 $(EXEFILE): propmain.obj $(OBJS) $(RESFILE)
-	$(LINK) $(LOPT) /Tpe /aa propmain.obj $(OBJS) c0w32.obj,$@,,$(LIBS) cw32.lib,,$(RESFILE)
+	$(LINK) $(LOPT) propmain.obj $(OBJS) c0w32.obj,$@,,$(LIBS) noeh32.lib cw32.lib,,$(RESFILE)
 	del $(TDSFILE)
 
 !ENDIF
@@ -101,6 +101,8 @@ pageformat.obj: $(SRCDIR)\pageformat.c $(TCPROPH)
 	$(CC) $(COPT)$@ $(SRCDIR)\pageformat.c
 pageformat2.obj: $(SRCDIR)\pageformat2.c $(TCPROPH)
 	$(CC) $(COPT)$@ $(SRCDIR)\pageformat2.c
+pageanalog.obj: $(SRCDIR)\pageanalog.c $(TCPROPH)
+	$(CC) $(COPT)$@ $(SRCDIR)\pageanalog.c
 pagemouse.obj: $(SRCDIR)\pagemouse.c $(TCPROPH) $(COMMONDIR)\command.h
 	$(CC) $(COPT)$@ $(SRCDIR)\pagemouse.c
 pagemouse2.obj: $(SRCDIR)\pagemouse2.c $(TCPROPH)

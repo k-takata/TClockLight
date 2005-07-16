@@ -7,6 +7,7 @@
 #define WINVER       0x0400
 
 #include <windows.h>
+#include <windowsx.h>
 #include <mmsystem.h>
 #include <shlobj.h>
 #include "../common/common.h"
@@ -50,7 +51,6 @@ extern char  g_mydir[MAX_PATH];
 extern BOOL  g_bIniSetting;
 extern char  g_inifile[MAX_PATH];
 extern int   g_winver;
-extern UINT  g_uTaskbarRestart;
 
 /* ---------- wndproc.c ------------- */
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -71,7 +71,6 @@ void ContextMenuCommand(HWND hwnd, int id);
 void EndMenu(void);
 void OnContextMenu(HWND hwnd, HWND hwndClicked, int xPos, int yPos);
 void OnExitMenuLoop(HWND hwnd);
-void SetFocusTClockMain(HWND hwnd);
 
 /* ---------- mouse.c --------------- */
 void InitMouseFunction(HWND hwnd);
@@ -101,9 +100,4 @@ void OnTCMRequestSNTPLog(HWND hwndMain, HWND hDlg); */
 /* ---------- about.c -------------- */
 void ShowAboutBox(HWND hwnd);
 extern HWND g_hDlgAbout;
-
-/* ---------- memreduce.c -------------- */
-void InitMemReduce(void);
-void MemReduce(void);
-void EndMemReduce(void);
 

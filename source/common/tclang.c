@@ -16,7 +16,7 @@ HFONT CreateDialogFont(void);
 void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont);
 
 /* Statics */
-const char *GetControlTitle(char *dst, const char *src, int nMax);
+static const char *GetControlTitle(char *dst, const char *src, int nMax);
 
 /* Externs */
 
@@ -89,7 +89,6 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont)
 	HWND hwnd;
 	HDC hdc;
 	SIZE sz;
-	char *test = "TClock Light";
 	char entry[10], buf[160], title[80];
 	char classname[80];
 	RECT rcCtrl, rcWin, rcClient;
@@ -99,6 +98,7 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont)
 	int maxwidth, winwidth, framewidth;
 	int i;
 	BOOL bSize;
+	const char *test = "TClock Light";
 	
 	if(g_langfile[0] == 0) return;
 	
@@ -126,8 +126,7 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont)
 	if(title[0])
 		SetWindowText(hDlg, title);
 	
-	bSize = TRUE;
-	if(strcmp(section, "TestSound") == 0) bSize = FALSE;
+	bSize = (strcmp(section, "TestSound") != 0);
 	
 	hwnd = GetWindow(hDlg, GW_CHILD);
 	maxwidth = 0;
@@ -155,8 +154,7 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont)
 					SetWindowText(hwnd, title);
 				
 				GetClassName(hwnd, classname, 80);
-				if(bSize &&
-					strcmp(classname, "msctls_updown32") != 0)
+				if(bSize && strcmp(classname, "msctls_updown32") != 0)
 				{
 					GetWindowRect(hwnd, &rcCtrl);
 					ptCtrl.x = rcCtrl.left;

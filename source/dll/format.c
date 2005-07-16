@@ -16,7 +16,7 @@ void MakeFormat(wchar_t* dst, const SYSTEMTIME* pt,
 
 /* Statics */
 
-wchar_t m_format[BUFSIZE_FORMAT];
+static wchar_t m_format[BUFSIZE_FORMAT];
 
 /*------------------------------------------------
    format handler functions
@@ -51,6 +51,12 @@ struct {
 	
 	{ 0, L"USTR", UStrHandler },
 	// add your functions
+	{ 'S', NULL, ElapsedTimeHandler },
+	{ 'N', NULL, NetworkHandler },
+	{ 'M', NULL, MemoryHandler },
+	{ 'H', NULL, HDDHandler },
+	{ 0, L"CU", CPUHandler },
+	{ 0, L"BL", BatteryHandler },
 };
 
 #define NUM_HANDLERS (sizeof(format_handers) / sizeof(format_handers[0])) 
@@ -112,7 +118,7 @@ void MakeFormat(wchar_t* dst, const SYSTEMTIME* pt,
 				if(*struc.sp == '\"')
 				{
 					struc.sp++;
-					while(*struc.sp != '\"' && *struc.sp && *struc.dp)
+					while(*struc.sp && *struc.sp != '\"' && *struc.dp)
 						*struc.dp++ = *struc.sp++;
 					if(*struc.sp == '\"') struc.sp++;
 				}

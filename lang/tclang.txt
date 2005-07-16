@@ -1,6 +1,6 @@
 [Main]
 DialogFont=MS Sans Serif, 8
-Version=TClock Light 040905
+Version=TClock Light 050101
 HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/en/
 
 [Property]
@@ -10,13 +10,15 @@ Line02="                              [OK           ] [Cancel       ] [Apply    
 
 [Color]
 HelpURL=color.html
-Line01=" [     Background1][                             ][...]"
-Line02=" [     Background2][                             ][...]"
+Line01=" [     Background1][                          ][...]"
+Line02=" [     Background2][                          ][...]"
 Line03="              [Gradation ] [     Horizontal][     Vertical]"
 Line04="                 [    Paint Tray background]"
-Line05="          [Text   ][                             ][...]"
-Line06="          [Font   ][                             ]"
-Line07="          [Size   ][         ]   [    Bold]  [    Italic]"
+Line05="          [Text   ][                          ][...]"
+Line06="   [ Decoration   ][     None][     Shadow][     Border]"
+Line07="        [ Color   ][                          ][...][ Range][      ][] "
+Line08="          [Font   ][                          ]"
+Line09="          [Size   ][         ]   [    Bold]  [    Italic]"
 
 [Size]
 HelpURL=size.html
@@ -39,6 +41,7 @@ Line05=" [   Hour  ]   [   Minute ]         [   Second ]"
 Line06=" [   12H   ]   [   AM/PM  ]         [  Details...  ]"
 Line07=" [   Customize format ]"
 Line08=" [                                                           ]"
+Line09="[Update interval of system information ][        ][][seconds]"
 
 [Format2]
 Title=Details
@@ -46,6 +49,17 @@ Line01="  [AM symbol  ][             ]"
 Line02="  [PM symbol  ][             ]"
 Line03="   [    Show 0:xx at 12:xx]"
 Line04="         [    OK       ]  [  Cancel     ]"
+
+[AnalogClock]
+HelpURL=analog.html
+Line01="[   Display analog clock]"
+Line02="    [Hour hand] [                        ][...] [  Bold ]"
+Line03="  [Minute hand] [                        ][...] [  Bold ]"
+Line04="     [Position] [  Over the text ] [  Left ] [  Right ]"
+Line05="       [Arrangement of position                          ]"
+Line06="         [Horizontal][        ][][Vertical][        ][]"
+Line07="         [Size] [        ][]"
+Line08=" [ Background][                                       ][...]"
 
 [Alarm]
 HelpURL=alarm.html
@@ -185,6 +199,7 @@ Clock=Clock
 Color=Color and Font
 SizePos=Size and Position
 Format=Format
+AnalogClock=Analog clock
 Alarm=Alarm
 Cuckoo=Cuckoo clock
 Mouse=Mouse

@@ -109,8 +109,6 @@ SendMessage((hwnd), TCM_GETEXTENDEDSTYLE, 0, 0)
 
 #define TCM_SETITEMSIZE         (TCM_FIRST + 41)
 
-#define TB_SETBUTTONSIZE        (WM_USER + 31)
-
 #define TB_SETEXTENDEDSTYLE     (WM_USER + 84)  // For TBSTYLE_EX_*
 #define TB_GETEXTENDEDSTYLE     (WM_USER + 85)  // For TBSTYLE_EX_*
 #define BTNS_SHOWTEXT   0x0040              // ignored unless TBSTYLE_EX_MIXEDBUTTONS is set

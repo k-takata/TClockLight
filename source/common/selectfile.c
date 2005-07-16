@@ -33,44 +33,32 @@ BOOL SelectMyFile(HINSTANCE hInst, HWND hDlg,
 	const char *deffile, char *retfile)
 {
 	OPENFILENAME ofn;
-	char fname[MAX_PATH], ftitle[MAX_PATH], initdir[MAX_PATH];
+	char fname[MAX_PATH], initdir[MAX_PATH];
 	BOOL r;
 	
-	memset(&ofn, '\0', sizeof(OPENFILENAME));
+	fname[0] = 0;
 	
 	GetModuleFileName(hInst, initdir, MAX_PATH);
 	del_title(initdir);
-	if(deffile[0])
+	if(deffile[0] && IsFile(deffile))
 	{
-		WIN32_FIND_DATA fd;
-		HANDLE hfind;
-		hfind = FindFirstFile(deffile, &fd);
-		if(hfind != INVALID_HANDLE_VALUE)
-		{
-			FindClose(hfind);
-			strcpy(initdir, deffile);
-			del_title(initdir);
-		}
+		strcpy(initdir, deffile);
+		del_title(initdir);
 	}
 	
-	fname[0] = 0;
+	memset(&ofn, 0, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = hDlg;
-	ofn.hInstance = hInst;
 	ofn.lpstrFilter = filter;
 	ofn.nFilterIndex = nFilterIndex;
 	ofn.lpstrFile= fname;
 	ofn.nMaxFile = MAX_PATH;
-	ofn.lpstrFileTitle = ftitle;
-	ofn.nMaxFileTitle = MAX_PATH;
 	ofn.lpstrInitialDir = initdir;
-	ofn.Flags = OFN_HIDEREADONLY|OFN_EXPLORER|OFN_FILEMUSTEXIST;
-	// ofn.FlagsEx = 0;
+	ofn.Flags = OFN_FILEMUSTEXIST|OFN_HIDEREADONLY;
 	
 	r = GetOpenFileName(&ofn);
-	if(!r) return r;
-	
-	strcpy(retfile, ofn.lpstrFile);
+	if(r)
+		strcpy(retfile, ofn.lpstrFile);
 	
 	return r;
 }

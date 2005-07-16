@@ -16,7 +16,7 @@ void SetAlarmTime(PALARMSTRUCT pAS);
 
 /* Statics */
 
-static void ParseAlarmFormat(char* dst, const char* src, int first, int last);
+static void ParseAlarmFormat(BYTE* dst, const char* src, int first, int last);
 static void ParseAlarmFormatSub(int *n1, int *n2, int *n3, BOOL *asta,
 	const char* part);
 
@@ -30,7 +30,7 @@ PALARMSTRUCT LoadAlarm(void)
 	int i, count;
 	char subkey[20];
 	
-	count = GetMyRegLong("", "AlarmNum", 0);
+	count = GetMyRegLong(NULL, "AlarmNum", 0);
 	
 	for(i = 0; i < count; i++)
 	{
@@ -72,7 +72,7 @@ void SaveAlarm(const PALARMSTRUCT plist)
 	char subkey[20];
 	PALARMSTRUCT current;
 	
-	oldcount = GetMyRegLong("", "AlarmNum", 0);
+	oldcount = GetMyRegLong(NULL, "AlarmNum", 0);
 	
 	current = plist;
 	count = 0;
@@ -99,7 +99,7 @@ void SaveAlarm(const PALARMSTRUCT plist)
 		count++;
 	}
 	
-	SetMyRegLong("", "AlarmNum", count);
+	SetMyRegLong(NULL, "AlarmNum", count);
 	
 	for(i = count; i < oldcount; i++)
 	{
@@ -123,7 +123,7 @@ void SetAlarmTime(PALARMSTRUCT pAS)
 	}
 	if(i == 24)
 	{
-		for(i = 0; i < 24; i++) pAS->hours[i] = 1;
+		for(i = 0; i < 24; i++) pAS->hours[i] = TRUE;
 	}
 	
 	ParseAlarmFormat(pAS->minutes, pAS->strMinutes, 0, 59);
@@ -135,25 +135,23 @@ void SetAlarmTime(PALARMSTRUCT pAS)
 	}
 	if(i == 7)
 	{
-		for(i = 0; i < 7; i++) pAS->wdays[i] = 1;
+		for(i = 0; i < 7; i++) pAS->wdays[i] = TRUE;
 	}
 }
 
 /*------------------------------------------------
    alarm format string -> integer array
 --------------------------------------------------*/
-void ParseAlarmFormat(char* dst, const char* src, int first, int last)
+void ParseAlarmFormat(BYTE* dst, const char* src, int first, int last)
 {
 	char part[81];
 	int i, j;
 	
 	for(i = 0; i < last - first + 1; i++)
-		dst[i] = 0;
+		dst[i] = FALSE;
 	
-	for(i = 0; ; i++)
+	for(i = 0; parse(part, src, i, 81) == 0; i++)
 	{
-		if(parse(part, src, i, 81)) break;
-		
 		if(part[0])
 		{
 			int n1, n2, n3;
@@ -163,22 +161,21 @@ void ParseAlarmFormat(char* dst, const char* src, int first, int last)
 			
 			if(asta)
 			{
-				if(n3 < 0) n3 = 1;
+				if(n3 <= 0) n3 = 1;
 				for(j = first; j <= last; j += n3)
-					dst[j - first] = 1;
+					dst[j - first] = TRUE;
 			}
 			else if(n1 >= 0 && n2 < 0 && n3 < 0)
 			{
 				if(first <= n1 && n1 <= last)
-					dst[n1 - first] = 1;
+					dst[n1 - first] = TRUE;
 			}
 			else if(n1 >= 0 && n2 >= 0)
 			{
-				if(n3 < 0) n3 = 1;
-				j = n1;
-				if(j < first) j = first;
+				if(n3 <= 0) n3 = 1;
+				j = (n1 >= first) ? n1 : first;
 				for(; j <= n2 && j <= last; j += n3)
-					dst[j - first] = 1;
+					dst[j - first] = TRUE;
 			}
 		}
 	}

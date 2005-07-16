@@ -23,7 +23,8 @@ OBJS=dllmain.obj dllmain2.obj dllwndproc.obj draw.obj\
 	format.obj formattime.obj tooltip.obj userstr.obj\
 	startbtn.obj startmenu.obj taskbar.obj taskswitch.obj traynotify.obj\
 	bmp.obj newapi.obj dllutl.obj\
-	exec.obj utl.obj reg.obj font.obj localeinfo.obj
+	sysinfo.obj net.obj hdd.obj cpu.obj battery.obj\
+	dlexec.obj dlutl.obj dlreg.obj dlfont.obj dllocaleinfo.obj
 
 LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib
 
@@ -57,8 +58,8 @@ $(DLLFILE): $(OBJS) $(RESFILE)
 !ELSE
 CC=bcc32
 LINK=ilink32
-RC=brc32
-RCOPT=-r -32 -fo
+RC=brcc32
+RCOPT=-32 -fo
 
 !IFDEF NODEFAULTLIB
 COPT=-c -w -w-8057 -O2 -Oi -d -DNODEFAULTLIB -tWD -tWM -o
@@ -75,7 +76,7 @@ LOPT=/c /C /Gn /Tpd /x
 
 $(DLLFILE): $(OBJS) bccdll.pat $(RESFILE)
 	IMPLIB $(LIBFILE) $(DEFFILE)
-	$(LINK) $(LOPT) $(OBJS) bccdll.pat c0d32x.obj,$@,,$(LIBS) cw32mt.lib,$(DEFFILE),$(RESFILE)
+	$(LINK) $(LOPT) $(OBJS) bccdll.pat c0d32x.obj,$@,,$(LIBS) noeh32.lib cw32mt.lib,$(DEFFILE),$(RESFILE)
 	del $(TDSFILE)
 
 !ENDIF
@@ -119,18 +120,28 @@ dllutl.obj: $(SRCDIR)\dllutl.c $(TCDLLH)
 	$(CC) $(COPT)$@ $(SRCDIR)\dllutl.c
 newapi.obj: $(SRCDIR)\newapi.c $(TCDLLH)
 	$(CC) $(COPT)$@ $(SRCDIR)\newapi.c
+sysinfo.obj: $(SRCDIR)\sysinfo.c $(TCDLLH)
+	$(CC) $(COPT)$@ $(SRCDIR)\sysinfo.c
+net.obj: $(SRCDIR)\net.c $(TCDLLH)
+	$(CC) $(COPT)$@ $(SRCDIR)\net.c
+hdd.obj: $(SRCDIR)\hdd.c $(TCDLLH)
+	$(CC) $(COPT)$@ $(SRCDIR)\hdd.c
+cpu.obj: $(SRCDIR)\cpu.c $(TCDLLH)
+	$(CC) $(COPT)$@ $(SRCDIR)\cpu.c
+battery.obj: $(SRCDIR)\battery.c $(TCDLLH)
+	$(CC) $(COPT)$@ $(SRCDIR)\battery.c
 
 # common obj files
 
-utl.obj: $(COMMONDIR)\utl.c $(COMMONH)
+dlutl.obj: $(COMMONDIR)\utl.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\utl.c
-exec.obj: $(COMMONDIR)\exec.c $(COMMONH)
+dlexec.obj: $(COMMONDIR)\exec.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\exec.c
-reg.obj: $(COMMONDIR)\reg.c $(COMMONH)
+dlreg.obj: $(COMMONDIR)\reg.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\reg.c
-font.obj: $(COMMONDIR)\font.c $(COMMONH)
+dlfont.obj: $(COMMONDIR)\font.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\font.c
-localeinfo.obj: $(COMMONDIR)\localeinfo.c $(COMMONH)
+dllocaleinfo.obj: $(COMMONDIR)\localeinfo.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\localeinfo.c
 nodeflib.obj: $(COMMONDIR)\nodeflib.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\nodeflib.c

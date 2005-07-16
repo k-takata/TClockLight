@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageColorProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageColorProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -22,6 +22,7 @@ static void InitColor(HWND hDlg);
 static void OnDrawItem(HWND hDlg, LPDRAWITEMSTRUCT pdis);
 static void OnChooseColor(HWND hDlg, int id);
 static void OnCheckColor(HWND hDlg);
+static void OnSelectDecoration(HWND hDlg);
 static void InitFont(HWND hDlg);
 static void OnFont(HWND hDlg, int bInit);
 
@@ -33,7 +34,7 @@ static BOOL  m_bChanged = FALSE;
 /*------------------------------------------------
   Dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK PageColorProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageColorProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -50,6 +51,7 @@ BOOL CALLBACK PageColorProc(HWND hDlg, UINT message,
 				case IDC_COLBACK:
 				case IDC_COLBACK2:
 				case IDC_COLFORE:
+				case IDC_COLSHADOW:
 				case IDC_FONT:
 				case IDC_FONTSIZE:
 					if(code == CBN_SELCHANGE || code == CBN_EDITCHANGE)
@@ -66,7 +68,18 @@ BOOL CALLBACK PageColorProc(HWND hDlg, UINT message,
 				case IDC_CHOOSECOLBACK:
 				case IDC_CHOOSECOLBACK2:
 				case IDC_CHOOSECOLFORE:
+				case IDC_CHOOSECOLSHADOW:
 					OnChooseColor(hDlg, id);
+					break;
+				case IDC_DECONONE:
+				case IDC_DECOSHADOW:
+				case IDC_DECOBORDER:
+					OnSelectDecoration(hDlg);
+					SendPSChanged(hDlg);
+					break;
+				case IDC_SHADOWRANGE:
+					if (code == EN_CHANGE)
+						SendPSChanged(hDlg);
 					break;
 				case IDC_GRAD1:
 				case IDC_GRAD2:
@@ -118,8 +131,6 @@ void SendPSChanged(HWND hDlg)
 --------------------------------------------------*/
 void OnInit(HWND hDlg)
 {
-	LOGFONT logfont;
-	
 	m_bInit = FALSE;
 	
 	// common/tclang.c
@@ -130,20 +141,27 @@ void OnInit(HWND hDlg)
 	InitColor(hDlg);
 	
 	CheckDlgButton(hDlg, IDC_CHKCOLOR,
-		GetMyRegLong(NULL, "UseBackColor", IsXPVisualStyle() ? FALSE : TRUE));
+		GetMyRegLong(NULL, "UseBackColor", !IsXPVisualStyle()));
 	CheckDlgButton(hDlg, IDC_CHKCOLOR2,
 		GetMyRegLong(NULL, "UseBackColor2", FALSE));
 	
 	CheckRadioButton(hDlg, IDC_GRAD1, IDC_GRAD2,
-		(GetMyRegLong(NULL, "GradDir", FALSE) == 0) ? IDC_GRAD1 : IDC_GRAD2);
-	
-	OnCheckColor(hDlg);
+		(GetMyRegLong(NULL, "GradDir", 0) == 0) ? IDC_GRAD1 : IDC_GRAD2);
 	
 	CheckDlgButton(hDlg, IDC_FILLTRAY,
 		GetMyRegLong(NULL, "FillTray", FALSE));
-	if(!(g_winver&WINME)&&!(g_winver&WIN2000)&&!(g_winver&WINXP))
-		EnableDlgItem(hDlg, IDC_FILLTRAY, FALSE);
 	
+	OnCheckColor(hDlg);
+
+	// settings for decoration
+	CheckRadioButton(hDlg, IDC_DECONONE, IDC_DECOBORDER,
+		GetMyRegLong(NULL, "ClockDecoration", 0) + IDC_DECONONE);
+	OnSelectDecoration(hDlg);
+	UpDown_SetBuddy(hDlg, IDC_SHADOWRANGESPIN, IDC_SHADOWRANGE);
+	UpDown_SetRange(hDlg, IDC_SHADOWRANGESPIN, 10, 1);
+	UpDown_SetPos(hDlg, IDC_SHADOWRANGESPIN,
+		GetMyRegLong(NULL, "ShadowRange", 1));
+
 	// settings of "font" and "font size"
 	
 	InitFont(hDlg);
@@ -155,6 +173,7 @@ void OnInit(HWND hDlg)
 	m_hfontb = m_hfonti = NULL;
 	if(g_hfontDialog)
 	{
+		LOGFONT logfont;
 		char s[80];
 		
 		GetObject(g_hfontDialog, sizeof(LOGFONT), &logfont);
@@ -181,6 +200,7 @@ void OnInit(HWND hDlg)
 void OnApply(HWND hDlg)
 {
 	char s[80];
+	int i;
 	
 	// settings of "background" and "text"
 	
@@ -206,6 +226,16 @@ void OnApply(HWND hDlg)
 	SetMyRegLong(NULL, "ForeColor", 
 		CBGetItemData(hDlg, IDC_COLFORE, CBGetCurSel(hDlg, IDC_COLFORE)));
 	
+	// settings of decoration
+	if (IsDlgButtonChecked(hDlg, IDC_DECOSHADOW)) i = 1;
+	else if (IsDlgButtonChecked(hDlg, IDC_DECOBORDER)) i = 2;
+	else i = 0;
+	SetMyRegLong(NULL, "ClockDecoration", i);
+	SetMyRegLong(NULL, "ShadowColor",
+		CBGetItemData(hDlg, IDC_COLSHADOW, CBGetCurSel(hDlg, IDC_COLSHADOW)));
+	SetMyRegLong(NULL, "ShadowRange",
+		UpDown_GetPos(hDlg,IDC_SHADOWRANGESPIN));
+
 	// settings of "font" and "font size"
 	
 	CBGetLBText(hDlg, IDC_FONT, CBGetCurSel(hDlg, IDC_FONT), s);
@@ -229,33 +259,57 @@ void OnCheckColor(HWND hDlg)
 	
 	b1 = IsDlgButtonChecked(hDlg, IDC_CHKCOLOR);
 	
-	hwnd = GetWindow(GetDlgItem(hDlg, IDC_CHKCOLOR), GW_HWNDNEXT);
-	while(hwnd)
+	hwnd = GetDlgItem(hDlg, IDC_CHKCOLOR);
+	while((hwnd = GetWindow(hwnd, GW_HWNDNEXT)) != NULL)
 	{
 		EnableWindow(hwnd, b1);
-		if(hwnd == GetDlgItem(hDlg, IDC_CHKCOLOR2)) break;
-		hwnd = GetWindow(hwnd, GW_HWNDNEXT);
+		if(GetDlgCtrlID(hwnd) == IDC_CHKCOLOR2) break;
 	}
 	
 	if((g_winver&WIN98)||(g_winver&WIN2000))
-		b2 = IsDlgButtonChecked(hDlg, IDC_CHKCOLOR2);
+		b2 = b1 && IsDlgButtonChecked(hDlg, IDC_CHKCOLOR2);
 	else
 	{
 		EnableDlgItem(hDlg, IDC_CHKCOLOR2, FALSE);
 		b2 = FALSE;
 	}
 	
-	hwnd = GetWindow(GetDlgItem(hDlg, IDC_CHKCOLOR2), GW_HWNDNEXT);
-	while(hwnd)
+	hwnd = GetDlgItem(hDlg, IDC_CHKCOLOR2);
+	while((hwnd = GetWindow(hwnd, GW_HWNDNEXT)) != NULL)
 	{
-		EnableWindow(hwnd, b1 && b2);
-		if(hwnd == GetDlgItem(hDlg, IDC_GRAD2)) break;
-		hwnd = GetWindow(hwnd, GW_HWNDNEXT);
+		EnableWindow(hwnd, b2);
+		if(GetDlgCtrlID(hwnd) == IDC_GRAD2) break;
 	}
 	
 	if((g_winver&WINME)||(g_winver&WIN2000))
 		EnableDlgItem(hDlg, IDC_FILLTRAY, b1);
-	else EnableDlgItem(hDlg, IDC_FILLTRAY, FALSE);
+	else
+		EnableDlgItem(hDlg, IDC_FILLTRAY, FALSE);
+}
+
+/*---------------------------------------------------
+  enable/disable to use
+-----------------------------------------------------*/
+void OnSelectDecoration(HWND hDlg)
+{
+	BOOL b;
+	HWND hwnd;
+
+	b = !IsDlgButtonChecked(hDlg, IDC_DECONONE);
+	hwnd = GetDlgItem(hDlg, IDC_DECOBORDER);
+	while ((hwnd = GetWindow(hwnd, GW_HWNDNEXT)) != NULL)
+	{
+		EnableWindow(hwnd, b);
+		if (GetDlgCtrlID(hwnd) == IDC_CHOOSECOLSHADOW) break;
+	}
+
+	b = IsDlgButtonChecked(hDlg, IDC_DECOSHADOW);
+	hwnd = GetDlgItem(hDlg, IDC_CHOOSECOLSHADOW);
+	while ((hwnd = GetWindow(hwnd, GW_HWNDNEXT)) != NULL)
+	{
+		EnableWindow(hwnd, b);
+		if (GetDlgCtrlID(hwnd) == IDC_SHADOWRANGESPIN) break;
+	}
 }
 
 /*------------------------------------------------
@@ -270,16 +324,17 @@ void InitColor(HWND hDlg)
 	cols[2] = 0x80000000|COLOR_3DHILIGHT;
 	cols[3] = 0x80000000|COLOR_BTNTEXT;
 	
-	colDef = GetMyRegLong("", "BackColor",
-		0x80000000 | COLOR_3DFACE);
+	colDef = GetMyRegLong(NULL, "BackColor", 0x80000000 | COLOR_3DFACE);
 	InitColorCombo(hDlg, IDC_COLBACK, cols, 4, colDef);
 
-	colDef = GetMyRegLong("", "BackColor2", colDef);
+	colDef = GetMyRegLong(NULL, "BackColor2", colDef);
 	InitColorCombo(hDlg, IDC_COLBACK2, cols, 4, colDef);
 
-	colDef = GetMyRegLong("", "ForeColor",
-		0x80000000 | COLOR_BTNTEXT);
+	colDef = GetMyRegLong(NULL, "ForeColor", 0x80000000 | COLOR_BTNTEXT);
 	InitColorCombo(hDlg, IDC_COLFORE, cols, 4, colDef);
+
+	colDef = GetMyRegLong(NULL, "ShadowColor", 0);
+	InitColorCombo(hDlg, IDC_COLSHADOW, cols, 4, colDef);
 }
 
 /*------------------------------------------------
@@ -305,10 +360,11 @@ void OnChooseColor(HWND hDlg, int id)
 	int idCombo = id - 1;
 	
 	// common/combobox.c
-	ChooseColorWithCombo(g_hInst, hDlg, idCombo);
-	
-	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
-	SendPSChanged(hDlg);
+	if(ChooseColorWithCombo(hDlg, idCombo))
+	{
+		PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+		SendPSChanged(hDlg);
+	}
 }
 
 /*------------------------------------------------
@@ -316,9 +372,9 @@ void OnChooseColor(HWND hDlg, int id)
 --------------------------------------------------*/
 void InitFont(HWND hDlg)
 {
-	char s[80];
+	char s[LF_FACESIZE];
 	
-	GetMyRegStr("", "Font", s, 80, "");
+	GetMyRegStr(NULL, "Font", s, LF_FACESIZE, "");
 	if(s[0] == 0)
 	{
 		HFONT hfont;
@@ -359,6 +415,7 @@ void OnFont(HWND hDlg, BOOL bInit)
 	index = CBFindStringExact(hDlg, IDC_FONTSIZE, size);
 	if(index == CB_ERR)
 		SetDlgItemText(hDlg, IDC_FONTSIZE, size);
-	else CBSetCurSel(hDlg, IDC_FONTSIZE, index);
+	else
+		CBSetCurSel(hDlg, IDC_FONTSIZE, index);
 }
 

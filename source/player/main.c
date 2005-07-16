@@ -31,6 +31,7 @@ static void OnDestroy(HWND hwnd);
 static void OnCopyData(HWND hwnd, HWND hwndFrom, COPYDATASTRUCT* pcds);
 static void SetOnContextMenu(void);
 static void CheckCommandLine(HWND hwnd, BOOL bPrev);
+static void DisableIME(void);
 
 /*-------------------------------------------
   WinMain
@@ -67,6 +68,7 @@ int TCPlayerMain(void)
 		return 1;
 	}
 	
+	DisableIME();
 	InitTCPlayer();
 	
 	// register a window class
@@ -92,8 +94,7 @@ int TCPlayerMain(void)
 	
 	while(GetMessage(&msg, NULL, 0, 0))
 	{
-		if(g_hDlg && IsWindow(g_hDlg) && IsDialogMessage(g_hDlg, &msg)) ;
-		else
+		if(!(g_hDlg && IsWindow(g_hDlg) && IsDialogMessage(g_hDlg, &msg)))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -155,7 +156,7 @@ LRESULT CALLBACK WndProcPlayer(HWND hwnd, UINT message,
 			return 0;
 		case PLAYERM_STOP:
 			StopPlayer(hwnd);
-			PostMessage(hwnd, WM_CLOSE, 0, 0);
+			// PostMessage(hwnd, WM_CLOSE, 0, 0);
 			return 0;
 		case PLAYERM_PAUSE:
 			PausePlayer(hwnd);
@@ -347,7 +348,7 @@ void CheckCommandLine(HWND hwnd, BOOL bPrev)
 			}
 		}
 		else
-			PostMessage(hwnd, TIMERM_SHOWDLG, 0, 0);
+			PostMessage(hwnd, PLAYERM_SHOWDLG, 0, 0);
 	}
 }
 
@@ -358,9 +359,26 @@ void CheckCommandLine(HWND hwnd, BOOL bPrev)
 ---------------------------------------------*/
 BOOL ExecCommandString(HWND hwnd, const char *command)
 {
-	SendStringToOther(GetTClockMainWindow(), hwnd, command,
-		COPYDATA_EXEC);
+	SendStringToOther(GetTClockMainWindow(), hwnd, command, COPYDATA_EXEC);
 	
 	return FALSE;
+}
+
+/*-------------------------------------------
+  disables the IME
+---------------------------------------------*/
+void DisableIME(void)
+{
+	HMODULE hImm32;
+	BOOL (WINAPI *pImmDisableIME)(DWORD);
+
+	hImm32 = LoadLibrary("imm32.dll");
+	if(hImm32)
+	{
+		(FARPROC)pImmDisableIME = GetProcAddress(hImm32, "ImmDisableIME");
+		if (pImmDisableIME)
+			pImmDisableIME(0);
+		FreeLibrary(hImm32);
+	}
 }
 

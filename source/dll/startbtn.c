@@ -35,7 +35,7 @@ static void GetIconAndCaptionSize(SIZE *psz, HDC hdc,
 	HBITMAP hbmp, HICON hicon, const char* caption);
 static void DrawIconAndCaption(HDC hdc, HDC hdcMem, HBITMAP hbmp, HICON hicon,
 	const char* caption, int width, int height);
-void DrawStartButtonBack(HWND hwnd, HDC hdc, HDC hdcMem,
+static void DrawStartButtonBack(HWND hwnd, HDC hdc, HDC hdcMem,
 	HBITMAP hbmpBack, int w, int h);
 static void OnDestroyStartButton(HWND hwnd);
 static void OnPaintButton(HWND hwnd, HDC hdc);
@@ -55,7 +55,7 @@ static BOOL m_bCursorOn = FALSE;
 static HBITMAP m_hbmpButton = NULL;
 static HDC m_hdcButton = NULL;
 static int m_wButton = -1, m_hButton = -1;
-static char *m_section = "StartButton";
+static const char *m_section = "StartButton";
 
 
 /*--------------------------------------------------
@@ -217,11 +217,12 @@ BOOL LoadStartButtonSetting(void)
 	m_bHide = GetMyRegLong(NULL, "StartButtonHide", FALSE);
 	m_bHide = GetMyRegLong(m_section, "Hide", m_bHide);
 	
-	if(m_bHide) m_bCustomize = FALSE;
-	
-	m_bStartMenuClock = GetMyRegLong(NULL, "StartMenuClock", FALSE);
-	m_bStartMenuClock = GetMyRegLong(m_section, "StartMenuClock",
-		m_bStartMenuClock);
+	if(m_bHide) {
+		m_bCustomize = FALSE;
+		m_bStartMenuClock = GetMyRegLong(m_section, "StartMenuClock",
+			GetMyRegLong(NULL, "StartMenuClock", FALSE));
+	} else
+		m_bStartMenuClock = FALSE;
 	
 	if(!m_bCustomize && !m_bHide) return FALSE;
 	return TRUE;
@@ -245,10 +246,10 @@ BOOL SubClassStartButton(void)
 			m_oldClassStyle & ~(CS_HREDRAW|CS_VREDRAW));
 	}
 	
-	m_oldWndProcStart = (WNDPROC)GetWindowLong(m_hwndStart, GWL_WNDPROC);
-	SetWindowLong(m_hwndStart, GWL_WNDPROC, (LONG)WndProcStart);
-	m_oldWndProcTask = (WNDPROC)GetWindowLong(m_hwndTask, GWL_WNDPROC);
-	SetWindowLong(m_hwndTask, GWL_WNDPROC, (LONG)WndProcTask);
+	m_oldWndProcStart = (WNDPROC)SetWindowLongPtr(m_hwndStart,
+		GWLP_WNDPROC, (LONG_PTR)WndProcStart);
+	m_oldWndProcTask = (WNDPROC)SetWindowLongPtr(m_hwndTask,
+		GWLP_WNDPROC, (LONG_PTR)WndProcTask);
 	
 	return TRUE;
 }
@@ -263,7 +264,7 @@ void UnSubclassStartButton(void)
 		if(g_winver&WINXP)
 			SetClassLong(m_hwndStart, GCL_STYLE, m_oldClassStyle);
 		
-		SetWindowLong(m_hwndStart, GWL_WNDPROC, (LONG)m_oldWndProcStart);
+		SetWindowLongPtr(m_hwndStart, GWLP_WNDPROC, (LONG_PTR)m_oldWndProcStart);
 		
 		SetWindowPos(m_hwndStart, NULL, 0, 0, 0, 0,
 			SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE|SWP_SHOWWINDOW);
@@ -272,7 +273,7 @@ void UnSubclassStartButton(void)
 	
 	if(m_hwndTask && IsWindow(m_hwndTask) && m_oldWndProcTask)
 	{
-		SetWindowLong(m_hwndTask, GWL_WNDPROC, (LONG)m_oldWndProcTask);
+		SetWindowLongPtr(m_hwndTask, GWLP_WNDPROC, (LONG_PTR)m_oldWndProcTask);
 	}
 	m_oldWndProcTask = NULL;
 }
@@ -302,7 +303,7 @@ void InitStartButtonPos(HWND hwndClock)
 	{
 		SetWindowPos(m_hwndStart, NULL, 0, 0,
 			m_wButton, m_hButton,
-			SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE|SWP_SHOWWINDOW);
+			SWP_NOZORDER|SWP_NOACTIVATE|SWP_SHOWWINDOW);
 	}
 }
 
@@ -407,9 +408,9 @@ void SetStartButtonBmp(HWND hwnd)
 	
 	if(hbmpBack)
 	{
-		int w, h;
-		GetBmpSize(hbmpBack, &w, &h);
-		m_wButton = w;  m_hButton = h/3;
+		SIZE sz;
+		GetBmpSize(hbmpBack, &sz);
+		m_wButton = sz.cx;  m_hButton = sz.cy/3;
 	}
 	else
 	{
@@ -475,7 +476,8 @@ void ReadStartButtonIcon(HWND hwnd,
 	HBITMAP* phbmp, HICON* phicon, const char* fname)
 {
 	char fname2[MAX_PATH], fname3[MAX_PATH], head[2];
-	HFILE hf;
+	HANDLE hf;
+	DWORD dwRead;
 	
 	*phbmp = NULL; *phicon = NULL;
 	if(fname[0] == 0) return;
@@ -483,11 +485,12 @@ void ReadStartButtonIcon(HWND hwnd,
 	parse(fname2, fname, 0, MAX_PATH);
 	RelToAbs(fname3, fname2);
 	
-	hf = _lopen(fname3, OF_READ);
-	if(hf == HFILE_ERROR) return;
+	hf = CreateFile(fname3, GENERIC_READ, FILE_SHARE_READ,
+		NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if(hf == INVALID_HANDLE_VALUE) return;
 	
-	_lread(hf, head, 2);
-	_lclose(hf);
+	ReadFile(hf, head, 2, &dwRead, NULL);
+	CloseHandle(hf);
 	
 	if(head[0] == 'B' && head[1] == 'M') // bitmap
 		*phbmp = ReadBitmap(hwnd, fname3, TRUE);
@@ -517,10 +520,10 @@ void ReadStartButtonIcon(HWND hwnd,
 ----------------------------------------------------*/
 HFONT GetStartButtonFont(void)
 {
-	char name[80];
+	char name[LF_FACESIZE];
 	int size, weight, italic;
 	
-	GetMyRegStr(m_section, "Font", name, 80, "");
+	GetMyRegStr(m_section, "Font", name, LF_FACESIZE, "");
 	
 	if(name[0] == 0)
 	{
@@ -552,18 +555,17 @@ void GetIconAndCaptionSize(SIZE *psz, HDC hdc,
 	HBITMAP hbmp, HICON hicon, const char* caption)
 {
 	TEXTMETRIC tm;
-	SIZE szCap;
-	int w, h;
+	SIZE szIcon, szCap;
 	
 	GetTextMetrics(hdc, &tm);
 	
-	w = 0; h = 0;
+	szIcon.cx = 0; szIcon.cy = 0;
 	if(hbmp)
-		GetBmpSize(hbmp, &w, &h);
+		GetBmpSize(hbmp, &szIcon);
 	else if(hicon)
 	{
-		w = GetSystemMetrics(SM_CXSMICON);
-		h = GetSystemMetrics(SM_CYSMICON);
+		szIcon.cx = GetSystemMetrics(SM_CXSMICON);
+		szIcon.cy = GetSystemMetrics(SM_CYSMICON);
 	}
 	
 	szCap.cx = 0; szCap.cy = 0;
@@ -574,8 +576,8 @@ void GetIconAndCaptionSize(SIZE *psz, HDC hdc,
 			szCap.cx = strlen(caption) * tm.tmAveCharWidth;
 	}
 	
-	psz->cx = w + 2 + szCap.cx;
-	psz->cy = (h > szCap.cy) ? h : szCap.cy;
+	psz->cx = szIcon.cx + 2 + szCap.cx;
+	psz->cy = (szIcon.cy > szCap.cy) ? szIcon.cy : szCap.cy;
 }
 
 /*--------------------------------------------------
@@ -584,30 +586,29 @@ void GetIconAndCaptionSize(SIZE *psz, HDC hdc,
 void DrawIconAndCaption(HDC hdc, HDC hdcMem, HBITMAP hbmp, HICON hicon,
 	const char* caption, int width, int height)
 {
-	SIZE sz;
+	SIZE szCap, szIcon;
 	TEXTMETRIC tm;
-	int w, h;
 	int i;
 	
 	GetTextMetrics(hdcMem, &tm);
 	
-	GetIconAndCaptionSize(&sz, hdcMem, hbmp, hicon, caption);
+	GetIconAndCaptionSize(&szCap, hdcMem, hbmp, hicon, caption);
 	
-	w = 0; h = 0;
+	szIcon.cx = 0; szIcon.cy = 0;
 	if(hbmp)
-		GetBmpSize(hbmp, &w, &h);
+		GetBmpSize(hbmp, &szIcon);
 	else if(hicon)
 	{
-		w = GetSystemMetrics(SM_CXSMICON);
-		h = GetSystemMetrics(SM_CYSMICON);
+		szIcon.cx = GetSystemMetrics(SM_CXSMICON);
+		szIcon.cy = GetSystemMetrics(SM_CYSMICON);
 	}
 	
 	for(i = 0; i < 3; i++)
 	{
 		int x, y, d;
 		
-		x = (width - sz.cx) / 2;
-		y = (height - h) / 2 + i * height;
+		x = (width - szCap.cx) / 2;
+		y = (height - szIcon.cy) / 2 + i * height;
 		
 		d = 0;
 		if(i == 2)
@@ -620,23 +621,25 @@ void DrawIconAndCaption(HDC hdc, HDC hdcMem, HBITMAP hbmp, HICON hicon,
 			HDC hdcTemp = CreateCompatibleDC(hdc);
 			SelectObject(hdcTemp, hbmp);
 			
-			if((g_winver&WIN98)||(g_winver&WIN2000))
-				MyTransparentBlt(hdcMem, x + d, y + d, w, h,
-					hdcTemp, 0, 0, w, h, GetSysColor(COLOR_3DFACE));
+			if((g_winver&WINME)||(g_winver&WIN2000))
+				MyTransparentBlt(hdcMem, x + d, y + d, szIcon.cx, szIcon.cy,
+					hdcTemp, 0, 0, szIcon.cx, szIcon.cy,
+					GetSysColor(COLOR_3DFACE));
 			else
-				BitBlt(hdcMem, x + d, y + d, w, h, hdcTemp, 0, 0, SRCCOPY);
+				BitBlt(hdcMem, x + d, y + d, szIcon.cx, szIcon.cy,
+					hdcTemp, 0, 0, SRCCOPY);
 			
 			DeleteDC(hdcTemp);
 		}
 		else if(hicon)
 		{
 			DrawIconEx(hdcMem, x + d, y + d,
-				hicon, w, h, 0, NULL, DI_NORMAL);
+				hicon, szIcon.cx, szIcon.cy, 0, NULL, DI_NORMAL);
 		}
 		
 		if(caption)
 		{
-			x += w + 2;
+			x += szIcon.cx + 2;
 			y = (height - tm.tmHeight) / 2 + i * height;
 			
 			TextOut(hdcMem, x + d, y + d, caption, strlen(caption));
@@ -665,9 +668,8 @@ void DrawStartButtonBack(HWND hwnd, HDC hdc, HDC hdcMem,
 		HBRUSH hbr;
 		
 		SetRect(&rc, 0, 0, w, h*3);
-		hbr = CreateSolidBrush(GetSysColor(COLOR_3DFACE));
+		hbr = GetSysColorBrush(COLOR_3DFACE);
 		FillRect(hdcMem, &rc, hbr);
-		DeleteObject(hbr);
 		
 		if(!hbmpBack)
 		{
@@ -685,7 +687,7 @@ void DrawStartButtonBack(HWND hwnd, HDC hdc, HDC hdcMem,
 		HDC hdcTemp = CreateCompatibleDC(hdc);
 		SelectObject(hdcTemp, hbmpBack);
 		
-		if((g_winver&WIN98)||(g_winver&WIN2000))
+		if((g_winver&WINME)||(g_winver&WIN2000))
 			MyTransparentBlt(hdcMem, 0, 0, w, h*3,
 				hdcTemp, 0, 0, w, h*3, GetSysColor(COLOR_3DFACE));
 		else BitBlt(hdcMem, 0, 0, w, h*3, hdcTemp, 0, 0, SRCCOPY);

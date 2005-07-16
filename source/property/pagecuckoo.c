@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageCuckooProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageCuckooProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -24,15 +24,15 @@ static void OnBrowse(HWND hDlg);
 static void OnFileChange(HWND hDlg);
 static void OnTest(HWND hDlg);
 
-static BOOL  m_bInit = FALSE;
-static BOOL  m_bChanged = FALSE;
+static BOOL m_bInit = FALSE;
+static BOOL m_bChanged = FALSE;
 
 static BOOL m_bPlaying = FALSE;
 
 /*------------------------------------------------
   Dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK PageCuckooProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageCuckooProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -48,6 +48,7 @@ BOOL CALLBACK PageCuckooProc(HWND hDlg, UINT message,
 			{
 				case IDC_CUCKOO:
 					OnCuckoo(hDlg);
+					SendPSChanged(hDlg);
 					break;
 				case IDC_CUCKOOFILE:
 					if(code == EN_CHANGE)
@@ -58,8 +59,6 @@ BOOL CALLBACK PageCuckooProc(HWND hDlg, UINT message,
 					break;
 				case IDC_CUCKOOBROWSE:
 					OnBrowse(hDlg);
-					OnFileChange(hDlg);
-					SendPSChanged(hDlg);
 					break;
 				case IDC_CUCKOOREPEAT:
 				case IDC_CUCKOOBLINK:
@@ -176,14 +175,10 @@ void OnCuckoo(HWND hDlg)
 	HWND hwnd = GetDlgItem(hDlg, IDC_CUCKOO);
 	BOOL b = IsDlgButtonChecked(hDlg, IDC_CUCKOO);
 	
-	hwnd = GetNextWindow(hwnd, GW_HWNDNEXT);
-	while(hwnd)
-	{
+	while((hwnd = GetNextWindow(hwnd, GW_HWNDNEXT)) != NULL)
 		EnableWindow(hwnd, b);
-		hwnd = GetNextWindow(hwnd, GW_HWNDNEXT);
-	}
+	
 	if(b) OnFileChange(hDlg);
-	SendPSChanged(hDlg);
 }
 
 /*------------------------------------------------
@@ -196,11 +191,12 @@ void OnBrowse(HWND hDlg)
 	GetDlgItemText(hDlg, IDC_CUCKOOFILE, deffile, MAX_PATH);
 	
 	// common/soundselect.c
-	if(!BrowseSoundFile(g_hInst, hDlg, deffile, fname))
-		return;
-	
-	SetDlgItemText(hDlg, IDC_CUCKOOFILE, fname);
-	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+	if(BrowseSoundFile(g_hInst, hDlg, deffile, fname))
+	{
+		SetDlgItemText(hDlg, IDC_CUCKOOFILE, fname);
+		PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+		SendPSChanged(hDlg);
+	}
 }
 
 /*------------------------------------------------
@@ -225,8 +221,7 @@ void OnTest(HWND hDlg)
 	GetDlgItemText(hDlg, IDC_CUCKOOFILE, fname, MAX_PATH);
 	if(fname[0] == 0) return;
 	
-	if((HICON)SendDlgItemMessage(hDlg, IDC_CUCKOOTEST,
-		BM_GETIMAGE, IMAGE_ICON, 0) == g_hIconPlay)
+	if(!m_bPlaying)
 	{
 		if(PlayFile(hDlg, fname, 0))
 		{

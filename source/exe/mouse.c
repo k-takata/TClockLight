@@ -22,11 +22,11 @@ void OnTimerMouse(HWND hwnd);
 static void ExecuteMouseFunction(HWND hwnd, const PMOUSESTRUCT pMSS);
 static PMOUSESTRUCT GetMouseCommand(int button, int nclick);
 
-static char *m_section = "Mouse";
+static const char *m_section = "Mouse";
 static DWORD m_tickLast;
 static int  m_nClick = 0;       // clicking count
 static int  m_nButton = -1;     // last clicked button
-static BOOL m_bUpDown = FALSE;  // last message is up/down
+static BOOL m_bDown = FALSE;    // last message is DOWN
 static BOOL m_bTimer = FALSE;
 static UINT m_msecDoubleClick;
 static BOOL m_bStartMenuFromClock;
@@ -39,29 +39,26 @@ static PMOUSESTRUCT m_pMouseCommand = NULL;
 --------------------------------------------------*/
 void InitMouseFunction(HWND hwnd)
 {
-	char s[10];
-	
 	m_tickLast = GetTickCount();
 	
 	// Mouse double click speed
-	GetMyRegStr(m_section, "DoubleClickSpeed", s, 10, "");
-	if(s[0]) m_msecDoubleClick = atoi(s);
-	else     m_msecDoubleClick = GetDoubleClickTime();
+	m_msecDoubleClick = GetMyRegLong(m_section, "DoubleClickSpeed", 0);
+	if (m_msecDoubleClick == 0)
+		m_msecDoubleClick = GetDoubleClickTime();
 	
-	m_bStartMenuFromClock = GetMyRegLong("StartButton", "Hide", FALSE);
-	if(m_bStartMenuFromClock)
-		m_bStartMenuFromClock = 
-			GetMyRegLong("StartButton", "StartMenuClock", FALSE);
+	m_bStartMenuFromClock =
+		GetMyRegLong("StartButton", "Hide", FALSE) &&
+		GetMyRegLong("StartButton", "StartMenuClock", FALSE);
 	
-	m_bRClickMenu = GetMyRegLong(NULL, "RightClickMenu", TRUE);
-	m_bRClickMenu = GetMyRegLong(m_section, "RightClickMenu", m_bRClickMenu);
+	m_bRClickMenu = GetMyRegLong(m_section, "RightClickMenu",
+		GetMyRegLong(NULL, "RightClickMenu", TRUE));
 	
-	if(GetMyRegLong(m_section, "ver031031", 0) == 0 ||
-		GetMyRegLong(m_section, "ver230", 0))
+	if(!GetMyRegLong(m_section, "ver031031", FALSE) ||
+		GetMyRegLong(m_section, "ver230", FALSE))
 	{
-		SetMyRegLong(m_section, "ver031031", 1);
 		ImportOldMouseFunc(); // common/mousestruct.c
 		DelMyReg(m_section, "ver230");
+		SetMyRegLong(m_section, "ver031031", TRUE);
 	}
 	
 	// common/list.c
@@ -93,23 +90,18 @@ void OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	int i;
 	PMOUSESTRUCT pMSS;
 	BOOL bMoreClick;
+	DWORD tick;
 	
 	if(m_bTimer) KillTimer(hwnd, IDTIMER_MOUSE);
 	m_bTimer = FALSE;
 	
-	if(message == WM_RBUTTONDOWN &&
-		(!m_pMouseCommand || m_bRClickMenu))
-	{
-		POINT pt;
-		GetCursorPos(&pt);
-		OnContextMenu(hwnd, NULL, pt.x, pt.y);
+	if(message == WM_RBUTTONDOWN && m_bRClickMenu)
 		return;
-	}
-	
-	if(!m_pMouseCommand) return;
 	
 	if(message == WM_LBUTTONDOWN && m_bStartMenuFromClock)
 		return;
+	
+	if(!m_pMouseCommand) return;
 	
 	if(message == WM_LBUTTONDOWN)      button = 0;
 	else if(message == WM_RBUTTONDOWN) button = 1;
@@ -122,15 +114,16 @@ void OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	else return;
 	
-	if(m_nButton != button || m_bUpDown != FALSE)
+	if(m_nButton != button || m_bDown)
 		m_nClick = 0;
 	
 	m_nButton = button;
-	m_bUpDown = TRUE;
+	m_bDown = TRUE;
 	
-	if(GetTickCount() - m_tickLast > m_msecDoubleClick)
+	tick = GetTickCount();
+	if(tick - m_tickLast > m_msecDoubleClick)
 		m_nClick = 0;
-	m_tickLast = GetTickCount();
+	m_tickLast = tick;
 	
 	pMSS = GetMouseCommand(button, m_nClick + 1);
 	if(!pMSS || pMSS->nCommand == IDC_SCREENSAVER
@@ -162,14 +155,24 @@ void OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	int i;
 	PMOUSESTRUCT pMSS;
 	BOOL bMoreClick;
+	DWORD tick;
 	
 	if(m_bTimer) KillTimer(hwnd, IDTIMER_MOUSE);
 	m_bTimer = FALSE;
 	
-	if(!m_pMouseCommand) return;
+	if(message == WM_RBUTTONUP && (m_bRClickMenu || !m_pMouseCommand))
+	{
+		POINT pt;
+		pt.x = GET_X_LPARAM(lParam); pt.y = GET_Y_LPARAM(lParam);
+		ClientToScreen(GetClockWindow(), &pt);
+		OnContextMenu(hwnd, NULL, pt.x, pt.y);
+		return;
+	}
 	
 	if(message == WM_LBUTTONUP && m_bStartMenuFromClock)
 		return;
+	
+	if(!m_pMouseCommand) return;
 	
 	if(message == WM_LBUTTONUP)      button = 0;
 	else if(message == WM_RBUTTONUP) button = 1;
@@ -182,18 +185,19 @@ void OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	else return;
 	
-	if((m_nClick > 0 && m_nButton != button) || m_bUpDown != TRUE)
+	if((m_nClick > 0 && m_nButton != button) || !m_bDown)
 	{
-		m_nClick = 0; m_nButton = -1; m_bUpDown = FALSE;
+		m_nClick = 0; m_nButton = -1; m_bDown = FALSE;
 		return;
 	}
 	
 	m_nButton = button;
-	m_bUpDown = FALSE;
+	m_bDown = FALSE;
 	
-	if(GetTickCount() - m_tickLast > m_msecDoubleClick)
+	tick = GetTickCount();
+	if(tick - m_tickLast > m_msecDoubleClick)
 		m_nClick = 0;
-	m_tickLast = GetTickCount();
+	m_tickLast = tick;
 	
 	m_nClick++;
 	
@@ -225,8 +229,6 @@ void OnTimerMouse(HWND hwnd)
 {
 	PMOUSESTRUCT pMSS;
 	
-	if(!m_pMouseCommand) return;
-	
 	if(m_bTimer) KillTimer(hwnd, IDTIMER_MOUSE);
 	m_bTimer = FALSE;
 	
@@ -239,14 +241,22 @@ void OnTimerMouse(HWND hwnd)
 --------------------------------------------------*/
 void ExecuteMouseFunction(HWND hwnd, const PMOUSESTRUCT pMSS)
 {
-	m_nClick = 0; m_nButton = -1; m_bUpDown = FALSE;
+	m_nClick = 0; m_nButton = -1; m_bDown = FALSE;
 	
 	switch (pMSS->nCommand)
 	{
 		case IDC_OPENFILE:
 			if(pMSS->option[0])
 			{
-				SetFocusTClockMain(hwnd);
+				DWORD pid, curthread, mythread;
+				
+				curthread = GetWindowThreadProcessId(
+					GetForegroundWindow(), &pid);
+				mythread = GetCurrentThreadId();
+				AttachThreadInput(mythread, curthread, TRUE);
+				SetFocus(hwnd);
+				AttachThreadInput(mythread, curthread, FALSE);
+				
 				ExecCommandString(hwnd, pMSS->option);
 			}
 			break;
@@ -257,8 +267,7 @@ void ExecuteMouseFunction(HWND hwnd, const PMOUSESTRUCT pMSS)
 		{
 			int delay = atoi(pMSS->option);
 			if (delay == 0)
-				SendMessage(GetDesktopWindow(), WM_SYSCOMMAND,
-					SC_MONITORPOWER, 2);
+				PostMessage(hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, 2);
 			else
 				SetTimer(hwnd, IDTIMER_MONOFF, delay * 1000, NULL);
 			break;
@@ -266,7 +275,7 @@ void ExecuteMouseFunction(HWND hwnd, const PMOUSESTRUCT pMSS)
 		case IDC_COMMAND:
 		{
 			int nCmd = atoi(pMSS->option);
-			if(nCmd > 100) PostMessage(hwnd, WM_COMMAND, nCmd, 0);
+			if(nCmd >= 100) PostMessage(hwnd, WM_COMMAND, nCmd, 0);
 			break;
 		}
 		case IDC_FILELIST:

@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK DlgProcFormat2(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProcFormat2(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -21,7 +21,7 @@ static void OnOK(HWND hDlg);
 /*------------------------------------------------
    dialog procedure of "Detail of format"
 --------------------------------------------------*/
-BOOL CALLBACK DlgProcFormat2(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProcFormat2(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -87,7 +87,7 @@ void OnInit(HWND hDlg, LPARAM lParam)
 	CBSetCurSel(hDlg, IDC_PMSYMBOL, 0);
 	
 	CheckDlgButton(hDlg, IDC_ZERO,
-		GetMyRegLong("", "HourZero", FALSE));
+		GetMyRegLong(NULL, "HourZero", FALSE));
 }
 
 /*------------------------------------------------
@@ -98,10 +98,10 @@ void OnOK(HWND hDlg)
 	char s[80];
 	
 	GetDlgItemText(hDlg, IDC_AMSYMBOL, s, 80);
-	SetMyRegStr("", "AMsymbol", s);
+	SetMyRegStr(NULL, "AMsymbol", s);
 	GetDlgItemText(hDlg, IDC_PMSYMBOL, s, 80);
-	SetMyRegStr("", "PMsymbol", s);
+	SetMyRegStr(NULL, "PMsymbol", s);
 	
-	SetMyRegLong("", "HourZero",
+	SetMyRegLong(NULL, "HourZero",
 		IsDlgButtonChecked(hDlg, IDC_ZERO));
 }

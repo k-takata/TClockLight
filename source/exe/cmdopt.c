@@ -66,18 +66,14 @@ void CheckCommandLine(HWND hwnd, BOOL bPrev)
 			else if(strcmp(name, "blink") == 0)
 			{
 				if(bPrev && hwndClock)
-				{
-					PostMessage(hwndClock, CLOCKM_BLINK, 0,
-						atoi(value));
-				}
+					PostMessage(hwndClock, CLOCKM_BLINK, 0, atoi(value));
 			}
 			else if(strncmp(name, "ustr", 4) == 0)
 			{
 				int n = name[4] - '0';
 				
 				if(0 <= n && n <= 9 && bPrev && hwndClock)
-					SendStringToClock(hwndClock, value,
-						COPYDATA_USTR0 + n);
+					SendStringToClock(hwndClock, value, COPYDATA_USTR0 + n);
 			}
 			else if(strcmp(name, "disp1") == 0)
 			{
@@ -103,7 +99,8 @@ void CheckCommandLine(HWND hwnd, BOOL bPrev)
 			{
 				if(bPrev)
 					SendStringToOther(hwnd, NULL, value, COPYDATA_SOUND);
-				else PlayFileCmdLine(hwnd, value);
+				else
+					PlayFileCmdLine(hwnd, value);
 			}
 			else if(strcmp(name, "tip") == 0)
 			{
@@ -147,16 +144,19 @@ void CheckCommandLine(HWND hwnd, BOOL bPrev)
 --------------------------------------------------*/
 void SendStringToClock(HWND hwndClock, const char *value, int type)
 {
-	wchar_t wtemp[BUFSIZE_TOOLTIP], wvalue[BUFSIZE_TOOLTIP], *sp;
-	int i;
+	wchar_t wtemp[BUFSIZE_TOOLTIP], wvalue[BUFSIZE_TOOLTIP];
+	const wchar_t *sp;
+	int i, max;
 	
-	MultiByteToWideChar(CP_ACP,
-		0, value, -1, wtemp, BUFSIZE_DISP-1);
+	MultiByteToWideChar(CP_ACP, 0, value, -1, wtemp, BUFSIZE_TOOLTIP-1);
 	sp = wtemp;
-	for(i = 0; i < BUFSIZE_TOOLTIP-1 && *sp; i++)
+	
+	max = (type == COPYDATA_TOOLTIP) ? BUFSIZE_TOOLTIP-1 : BUFSIZE_DISP-1;
+	
+	for(i = 0; i < max && *sp; i++)
 	{
 		// line break
-		if(i < BUFSIZE_TOOLTIP-2 && *sp == '\\' && *(sp + 1) == 'n')
+		if(i < max-1 && *sp == '\\' && *(sp + 1) == 'n')
 		{
 			wvalue[i++] = 0x0d; wvalue[i] = 0x0a;
 			sp += 2;

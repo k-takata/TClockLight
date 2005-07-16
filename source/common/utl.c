@@ -9,7 +9,6 @@
 #include "common.h"
 
 extern HINSTANCE g_hInst;
-extern char g_mydir[];
 
 /*---------------------------------------------
    add a file name to a path
@@ -90,9 +89,8 @@ int ext_cmp(const char *fname, const char *ext)
 	if(sp == NULL) sp = p;
 	if(*sp == '.') sp++;
 	
-	while(1)
+	while(*sp || *ext)
 	{
-		if(*sp == 0 && *ext == 0) break;
 		if(toupper(*sp) != toupper(*ext))
 			return (toupper(*sp) - toupper(*ext));
 		sp++; ext++;
@@ -280,32 +278,32 @@ HWND GetTClockMainWindow(void)
 /*------------------------------------------------
   send a string to other module
 --------------------------------------------------*/
-void SendStringToOther(HWND hwnd, HWND hwndFrom,
-	const char *s, int type)
+void SendStringToOther(HWND hwnd, HWND hwndFrom, const char *s, int type)
 {
-	COPYDATASTRUCT cds;
-	
-	cds.dwData = type;
-	cds.cbData = strlen(s) + 1;
-	cds.lpData = (LPVOID)s;
-	
 	if(hwnd && IsWindow(hwnd))
-		SendMessage(hwnd, WM_COPYDATA, (WPARAM)hwndFrom,
-			(LPARAM)&cds);
+	{
+		COPYDATASTRUCT cds;
+		
+		cds.dwData = type;
+		cds.cbData = strlen(s) + 1;
+		cds.lpData = (LPVOID)s;
+		
+		SendMessage(hwnd, WM_COPYDATA, (WPARAM)hwndFrom, (LPARAM)&cds);
+	}
 }
 
-void SendStringToOtherW(HWND hwnd, HWND hwndFrom,
-	const wchar_t *s, int type)
+void SendStringToOtherW(HWND hwnd, HWND hwndFrom, const wchar_t *s, int type)
 {
-	COPYDATASTRUCT cds;
-	
-	cds.dwData = type;
-	cds.cbData = (wcslen(s) + 1) * sizeof(wchar_t);
-	cds.lpData = (LPVOID)s;
-	
 	if(hwnd && IsWindow(hwnd))
-		SendMessage(hwnd, WM_COPYDATA, (WPARAM)hwndFrom,
-			(LPARAM)&cds);
+	{
+		COPYDATASTRUCT cds;
+		
+		cds.dwData = type;
+		cds.cbData = (wcslen(s) + 1) * sizeof(wchar_t);
+		cds.lpData = (LPVOID)s;
+		
+		SendMessage(hwnd, WM_COPYDATA, (WPARAM)hwndFrom, (LPARAM)&cds);
+	}
 }
 
 /*------------------------------------------------
@@ -329,27 +327,34 @@ BOOL IsFile(const char* fname)
 ---------------------------------------------*/
 int CheckWinVersion(void)
 {
-	DWORD dw;
+	OSVERSIONINFO info;
 	int ret;
-	
-	dw = GetVersion();
-	ret = 0;
-	if(dw & 0x80000000)
+
+	info.dwOSVersionInfoSize = sizeof (info);
+	if (GetVersionEx(&info))
 	{
-		ret |= WIN95;
-		if(LOBYTE(LOWORD(dw)) >= 4 && HIBYTE(LOWORD(dw)) >= 10)
-			ret |= WIN98;
-		if(LOBYTE(LOWORD(dw)) >= 4 && HIBYTE(LOWORD(dw)) >= 90)
-			ret |= WINME;
+		if (info.dwPlatformId == VER_PLATFORM_WIN32_NT)
+		{
+			ret = WINNT;
+			if (info.dwMajorVersion == 5)
+			{
+				ret |= WIN2000;
+				if (info.dwMinorVersion == 1)
+					ret |= WINXP;
+			}
+		}
+		else
+		{
+			ret = WIN95;
+			if (info.dwMinorVersion == 10)
+				ret |= WIN98;
+			else if (info.dwMinorVersion == 90)
+				ret |= WIN98|WINME;
+		}
 	}
 	else
-	{
-		ret |= WINNT;
-		if(LOBYTE(LOWORD(dw)) >= 5) ret |= WIN2000;
-		if(LOBYTE(LOWORD(dw)) >= 5 && HIBYTE(LOWORD(dw)) >= 1)
-			ret |= WINXP;
-	}
-	
+		ret = 0;
+
 	return ret;
 }
 
@@ -366,10 +371,9 @@ BOOL IsIE4(void)
 		"ClassicShell", 0);
 	if(dw) return TRUE;
 	
-	hwnd = FindWindow("Shell_TrayWnd", NULL);
-	if(hwnd == NULL) return FALSE;
-	hwnd = FindWindowEx(hwnd, NULL, "ReBarWindow32", NULL);
-	if(hwnd != NULL) return TRUE;
+	hwnd = GetTaskbarWindow();
+	if(hwnd)
+		return (FindWindowEx(hwnd, NULL, "ReBarWindow32", NULL) != NULL);
 	return FALSE;
 }
 
@@ -394,22 +398,19 @@ BOOL IsXPVisualStyle(void)
 ---------------------------------------------*/
 void SetForegroundWindow98(HWND hwnd)
 {
-	DWORD dwVer;
+	int ver;
 	
-	dwVer = GetVersion();
-	if(((dwVer & 0x80000000) && 
-	       LOBYTE(LOWORD(dwVer)) >= 4 && HIBYTE(LOWORD(dwVer)) >= 10) ||
-	   (!(dwVer & 0x80000000) && LOBYTE(LOWORD(dwVer)) >= 5)) // Win98/2000
+	ver = CheckWinVersion();
+	if((ver&WIN2000) || (ver&WIN98))
 	{
 		DWORD thread1, thread2;
 		DWORD pid;
-		thread1 = GetWindowThreadProcessId(
-			GetForegroundWindow(), &pid);
+		thread1 = GetWindowThreadProcessId(GetForegroundWindow(), &pid);
 		thread2 = GetCurrentThreadId();
 		AttachThreadInput(thread2, thread1, TRUE);
 		SetForegroundWindow(hwnd);
 		AttachThreadInput(thread2, thread1, FALSE);
-		BringWindowToTop(hwnd);
+		// BringWindowToTop(hwnd);
 	}
 	else  // Win95/NT
 		SetForegroundWindow(hwnd);
@@ -432,7 +433,7 @@ void SetMyDialgPos(HWND hwnd, int xLen, int yLen)
 	wscreen = GetSystemMetrics(SM_CXSCREEN);
 	hscreen = GetSystemMetrics(SM_CYSCREEN);
 	
-	hwndTray = FindWindow("Shell_TrayWnd", NULL);
+	hwndTray = GetTaskbarWindow();
 	if(hwndTray == NULL) return;
 	GetWindowRect(hwndTray, &rcTray);
 	if(rcTray.right - rcTray.left > 
@@ -463,37 +464,31 @@ void SetMyDialgPos(HWND hwnd, int xLen, int yLen)
 ---------------------------------------------*/
 void WriteDebug(const char* s)
 {
-	HFILE hf;
+	HANDLE hf;
+	DWORD dwWritten;
 	char fname[MAX_PATH], *title = "DEBUG.TXT";
 
 	GetModuleFileName(g_hInst, fname, MAX_PATH);
 	del_title(fname);
 	add_title(fname, title);
-	hf = _lopen(fname, OF_WRITE);
-	if(hf == HFILE_ERROR)
-		hf = _lcreat(fname, 0);
-	if(hf == HFILE_ERROR) return;
-	_llseek(hf, 0, 2);
-	_lwrite(hf, s, strlen(s));
-	_lwrite(hf, "\x0d\x0a", 2);
-	_lclose(hf);
+	hf = CreateFile(fname, GENERIC_WRITE, 0,
+		NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if(hf == INVALID_HANDLE_VALUE)
+		return;
+	SetFilePointer(hf, 0, NULL, FILE_END);
+	WriteFile(hf, s, strlen(s), &dwWritten, NULL);
+	WriteFile(hf, "\x0d\x0a", 2, &dwWritten, NULL);
+	CloseHandle(hf);
 }
 
 void WriteDebugW(const wchar_t* s)
 {
-	HFILE hf;
-	char fname[MAX_PATH], *title = "DEBUG.TXT";
-
-	GetModuleFileName(g_hInst, fname, MAX_PATH);
-	del_title(fname);
-	add_title(fname, title);
-	hf = _lopen(fname, OF_WRITE);
-	if(hf == HFILE_ERROR)
-		hf = _lcreat(fname, 0);
-	if(hf == HFILE_ERROR) return;
-	_llseek(hf, 0, 2);
-	_lwrite(hf, (LPCSTR)s, wcslen(s)*sizeof(wchar_t));
-	_lwrite(hf, (LPCSTR)L"\x0d\x0a", wcslen(L"\x0d\x0a")*sizeof(wchar_t));
-	_lclose(hf);
+	char *temp;
+	int len;
+	len = WideCharToMultiByte(CP_ACP, 0, s, -1, NULL, 0, NULL, NULL);
+	temp = malloc(len);
+	WideCharToMultiByte(CP_ACP, 0, s, -1, temp, len, NULL, NULL);
+	WriteDebug(temp);
+	free(temp);
 }
 

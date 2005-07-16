@@ -14,13 +14,13 @@ BOOL SelectIconInDLL(HINSTANCE hInst, HWND hDlg, char* fname_index);
 
 /* Statics */
 
-BOOL CALLBACK DlgProcSelectIcon(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProcSelectIcon(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 static BOOL InitSelectIcon(HWND hDlg);
 static void EndSelectIcon(HWND hDlg);
 static void OnOK(HWND hDlg);
 static void OnMeasureItem(HWND hDlg, LPARAM lParam);
-static void OnDrawItem(LPARAM lParam);
+static void OnDrawItem(LPDRAWITEMSTRUCT pDis);
 static void OnBrowse(HWND hDlg);
 
 static char* m_fname_index;
@@ -37,15 +37,14 @@ BOOL SelectIconInDLL(HINSTANCE hInst, HWND hDlg, char* fname_index)
 {
 	m_hInst = hInst;
 	m_fname_index = fname_index;
-	if(DialogBox(hInst, MAKEINTRESOURCE(IDD_SELECTICON),
-		hDlg, DlgProcSelectIcon) != IDOK) return FALSE;
-	return TRUE;
+	return (DialogBox(hInst, MAKEINTRESOURCE(IDD_SELECTICON),
+		hDlg, DlgProcSelectIcon) == IDOK);
 }
 
 /*------------------------------------------------
   dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK DlgProcSelectIcon(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProcSelectIcon(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -58,7 +57,7 @@ BOOL CALLBACK DlgProcSelectIcon(HWND hDlg, UINT message,
 			OnMeasureItem(hDlg, lParam);
 			return TRUE;
 		case WM_DRAWITEM:
-			OnDrawItem(lParam);
+			OnDrawItem((LPDRAWITEMSTRUCT)lParam);
 			return TRUE;
 		case WM_COMMAND:
 		{
@@ -87,10 +86,9 @@ BOOL CALLBACK DlgProcSelectIcon(HWND hDlg, UINT message,
 --------------------------------------------------*/
 BOOL InitSelectIcon(HWND hDlg)
 {
+	char fname[MAX_PATH], num[10];
 	int i, count, index;
 	HICON hicon, hiconl;
-	char msg[MAX_PATH];
-	char fname[MAX_PATH], num[10];
 	
 	// common/tclang.c
 	SetDialogLanguage(hDlg, "SelectIcon", g_hfontDialog);
@@ -103,6 +101,7 @@ BOOL InitSelectIcon(HWND hDlg)
 	count = (int)ExtractIcon(m_hInst, fname, (UINT)-1);
 	if(count == 0)
 	{
+		char msg[MAX_PATH];
 		strcpy(msg, MyString(IDS_NOICON, "NoIcon"));
 		strcat(msg, "\n");
 		strcat(msg, fname);
@@ -118,12 +117,10 @@ BOOL InitSelectIcon(HWND hDlg)
 		hiconl = NULL; hicon = NULL;
 		ExtractIconEx(fname, i, &hiconl, &hicon, 1);
 		if(hiconl) DestroyIcon(hiconl);
-		SendDlgItemMessage(hDlg, IDC_LISTICON, LB_ADDSTRING, 0,
-			(LPARAM)hicon);
+		SendDlgItemMessage(hDlg, IDC_LISTICON, LB_ADDSTRING, 0, (LPARAM)hicon);
 	}
 	SetDlgItemText(hDlg, IDC_FNAMEICON, fname);
-	SendDlgItemMessage(hDlg, IDC_LISTICON, LB_SETCURSEL,
-		index, 0);
+	SendDlgItemMessage(hDlg, IDC_LISTICON, LB_SETCURSEL, index, 0);
 	strcpy(m_fname_index, fname);
 	return TRUE;
 }
@@ -175,15 +172,9 @@ void OnMeasureItem(HWND hDlg, LPARAM lParam)
 /*------------------------------------------------
   WM_DRAWITEM message
 --------------------------------------------------*/
-void OnDrawItem(LPARAM lParam)
+void OnDrawItem(LPDRAWITEMSTRUCT pDis)
 {
-	LPDRAWITEMSTRUCT pDis;
 	HBRUSH hbr;
-	COLORREF col;
-	RECT rc;
-	int cxicon, cyicon;
-	
-	pDis = (LPDRAWITEMSTRUCT)lParam;
 	
 	switch(pDis->itemAction)
 	{
@@ -191,37 +182,36 @@ void OnDrawItem(LPARAM lParam)
 		case ODA_SELECT:
 		{
 			if(pDis->itemState & ODS_SELECTED)
-				col = GetSysColor(COLOR_HIGHLIGHT);
-			else col = GetSysColor(COLOR_WINDOW);
-			hbr = CreateSolidBrush(col);
+				hbr = GetSysColorBrush(COLOR_HIGHLIGHT);
+			else
+				hbr = GetSysColorBrush(COLOR_WINDOW);
 			FillRect(pDis->hDC, &pDis->rcItem, hbr);
-			DeleteObject(hbr);
 			if(!(pDis->itemState & ODS_FOCUS)) break;
 		}
 		case ODA_FOCUS:
 		{
 			if(pDis->itemState & ODS_FOCUS)
-				col = GetSysColor(COLOR_WINDOWTEXT);
+				hbr = GetSysColorBrush(COLOR_WINDOWTEXT);
 			else
-				col = GetSysColor(COLOR_WINDOW);
-			hbr = CreateSolidBrush(col);
+				hbr = GetSysColorBrush(COLOR_WINDOW);
 			FrameRect(pDis->hDC, &pDis->rcItem, hbr);
-			DeleteObject(hbr);
 			break;
 		}
 	}
 	
-	if(pDis->itemData == 0) return;
-	
-	cxicon = GetSystemMetrics(SM_CXSMICON);
-	cyicon = GetSystemMetrics(SM_CYSMICON);
-	
-	CopyRect(&rc, &(pDis->rcItem));
-	DrawIconEx(pDis->hDC,
-		rc.left + (rc.right - rc.left - cxicon)/2,
-		rc.top + (rc.bottom - rc.top - cyicon)/2,
-		(HICON)pDis->itemData,
-		cxicon, cyicon, 0, NULL, DI_NORMAL);
+	if(pDis->itemData != 0)
+	{
+		RECT rc;
+		int cxicon = GetSystemMetrics(SM_CXSMICON);
+		int cyicon = GetSystemMetrics(SM_CYSMICON);
+		
+		CopyRect(&rc, &(pDis->rcItem));
+		DrawIconEx(pDis->hDC,
+			rc.left + (rc.right - rc.left - cxicon)/2,
+			rc.top + (rc.bottom - rc.top - cyicon)/2,
+			(HICON)pDis->itemData,
+			cxicon, cyicon, 0, NULL, DI_NORMAL);
+	}
 }
 
 /*------------------------------------------------
@@ -229,22 +219,24 @@ void OnDrawItem(LPARAM lParam)
 --------------------------------------------------*/
 void OnBrowse(HWND hDlg)
 {
-	char *filter = "Bitmap, Icon (*.bmp, *.ico)\0*.bmp;*.ico\0"
+	const char *filter = "Bitmap, Icon (*.bmp, *.ico)\0*.bmp;*.ico\0"
 		"Executable (*.exe, *.dll)\0*.exe;*.dll\0"
 		"All (*.*)\0*.*\0\0";
 	char deffile[MAX_PATH], fname[MAX_PATH];
-	HFILE hf;
+	HANDLE hf;
 	char head[2];
+	DWORD dwRead;
 	
 	GetDlgItemText(hDlg, IDC_FNAMEICON, deffile, MAX_PATH);
 	
 	if(!SelectMyFile(m_hInst, hDlg, filter, 2, deffile, fname))
 		return;
 	
-	hf = _lopen(fname, OF_READ);
-	if(hf == HFILE_ERROR) return;
-	_lread(hf, head, 2);
-	_lclose(hf);
+	hf = CreateFile(fname, GENERIC_READ, FILE_SHARE_READ,
+		NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if(hf == INVALID_HANDLE_VALUE) return;
+	ReadFile(hf, head, 2, &dwRead, NULL);
+	CloseHandle(hf);
 	strcpy(m_fname_index, fname);
 	
 	if(head[0] == 'M' && head[1] == 'Z') // Executable

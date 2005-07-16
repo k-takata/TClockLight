@@ -103,8 +103,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				case IDTIMER_MAIN:
 					OnTimerMain(hwnd); return 0;
-			/*	case IDTIMER_SYSINFO:
-					OnTimerSysInfo(hwnd); return 0; */
+				case IDTIMER_SYSINFO:
+					OnTimerSysInfo(); return 0;
 			}
 			if(g_bNoClock) break;
 			return 0;
@@ -209,15 +209,15 @@ void OnTimerMain(HWND hwnd)
 	if((t.wMilliseconds > 200 ||
 		((g_winver | WINNT) && t.wMilliseconds > 50)))
 	{
-		KillTimer(hwnd, IDTIMER_MAIN);
+		// KillTimer(hwnd, IDTIMER_MAIN);
 		SetTimer(hwnd, IDTIMER_MAIN, 1001 - t.wMilliseconds, NULL);
 		bTimerAdjusting = TRUE;
 	}
 	else if(bTimerAdjusting)
 	{
-		KillTimer(hwnd, IDTIMER_MAIN);
-		bTimerAdjusting = FALSE;
+		// KillTimer(hwnd, IDTIMER_MAIN);
 		SetTimer(hwnd, IDTIMER_MAIN, 1000, NULL);
+		bTimerAdjusting = FALSE;
 	}
 	
 	bRedraw = FALSE;
@@ -290,6 +290,9 @@ void OnRefreshClock(HWND hwnd)
 	
 	// InitUserStr(); // userstr.c
 	
+	EndSysInfo(hwnd);  // sysinfo.c
+	InitSysInfo(hwnd);  // sysinfo.c
+
 	PostMessage(GetParent(GetParent(hwnd)), WM_SIZE,
 		SIZE_RESTORED, 0);
 	PostMessage(GetParent(hwnd), WM_SIZE,
@@ -486,7 +489,7 @@ void OnCopy(HWND hwnd, const wchar_t* pfmt)
 	{
 		wchar_t *p;
 		
-		hg = GlobalAlloc(GMEM_DDESHARE, (wcslen(ws) + 1) * sizeof(wchar_t));
+		hg = GlobalAlloc(GHND, (wcslen(ws) + 1) * sizeof(wchar_t));
 		p = (wchar_t*)GlobalLock(hg);
 		wcscpy(p, ws);
 		GlobalUnlock(hg);
@@ -496,10 +499,9 @@ void OnCopy(HWND hwnd, const wchar_t* pfmt)
 	{
 		char s[BUFSIZE_FORMAT], *p;
 		
-		WideCharToMultiByte(CP_ACP, 0, ws, -1, s, BUFSIZE_FORMAT-1,
-			NULL, NULL);
+		WideCharToMultiByte(CP_ACP, 0, ws, -1, s, BUFSIZE_FORMAT, NULL, NULL);
 		
-		hg = GlobalAlloc(GMEM_DDESHARE, strlen(s) + 1);
+		hg = GlobalAlloc(GHND, strlen(s) + 1);
 		p = (char*)GlobalLock(hg);
 		strcpy(p, s);
 		GlobalUnlock(hg);

@@ -16,7 +16,6 @@ char g_mydir[MAX_PATH];     // path to tclock.exe
 BOOL g_bIniSetting = FALSE; // save setting to ini file?
 char g_inifile[MAX_PATH];   // ini file name
 int  g_winver;              // windows version
-UINT g_uTaskbarRestart;     // taskbar recreating message
 
 /* Statics */
 
@@ -24,6 +23,7 @@ static void InitTClockMain(void);
 static BOOL CheckTCDLL(void);
 static void InitTextColor(void);
 static void InitFormat(void);
+static void DisableIME(void);
 
 /*-------------------------------------------
    main routine
@@ -47,14 +47,15 @@ int TClockExeMain(void)
 	if(FindWindow("ObjectBar Toolbar", NULL))
 	{
 		MessageBox(NULL, "ObjectBar is running",
-			"Error", MB_OK|MB_ICONEXCLAMATION);
+			NULL, MB_OK|MB_ICONEXCLAMATION);
 		return 1;
 	}
 	
+	DisableIME();
 	InitTClockMain();
 	
 	// register a window class
-	wndclass.style         = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+	wndclass.style         = CS_HREDRAW | CS_VREDRAW;
 	wndclass.lpfnWndProc   = WndProc;
 	wndclass.cbClsExtra    = 0;
 	wndclass.cbWndExtra    = 0;
@@ -78,8 +79,7 @@ int TClockExeMain(void)
 	
 	while(GetMessage(&msg, NULL, 0, 0))
 	{
-		if(g_hDlgAbout && IsDialogMessage(g_hDlgAbout, &msg)) ;
-		else
+		if(!(g_hDlgAbout && IsDialogMessage(g_hDlgAbout, &msg)))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -111,10 +111,6 @@ void InitTClockMain(void)
 	
 	g_winver = CheckWinVersion();
 	
-	// Message of the taskbar recreating
-	// Special thanks to Mr.Inuya
-	g_uTaskbarRestart = RegisterWindowMessage("TaskbarCreated");
-	
 	DelMyRegKey("OnContextMenu"); // temporarily
 	
 	InitTextColor();
@@ -132,7 +128,7 @@ BOOL CheckTCDLL(void)
 	if(strcmp(str, TCLOCKVERSION) != 0)
 	{
 		MessageBox(NULL, "Invalid file version: tcdll.tclock",
-			"Error", MB_OK|MB_ICONEXCLAMATION);
+			NULL, MB_OK|MB_ICONEXCLAMATION);
 		return FALSE;
 	}
 	return TRUE;
@@ -173,12 +169,12 @@ void InitFormat(void)
 	int ilang;
 	int i;
 	
-	if(GetMyRegStr("", "Format", s, BUFSIZE_FORMAT, "") > 0)
+	if(GetMyRegStr(NULL, "Format", s, BUFSIZE_FORMAT, "") > 0)
 		return;
 	
-	ilang = GetMyRegLong("", "Locale", (int)GetUserDefaultLangID());
-	if(GetMyRegStr("", "Locale", s, 20, "") == 0)
-		SetMyRegLong("", "Locale", ilang);
+	ilang = GetMyRegLong(NULL, "Locale", (int)GetUserDefaultLangID());
+	if(GetMyRegStr(NULL, "Locale", s, 20, "") == 0)
+		SetMyRegLong(NULL, "Locale", ilang);
 	
 	InitAutoFormat(ilang); // common/autoformat.c
 	
@@ -217,8 +213,26 @@ void InitFormat(void)
 	
 	AutoFormat(s, parts);  // common/autoformat.c
 	
-	SetMyRegStr("", "Format", s);
+	SetMyRegStr(NULL, "Format", s);
 	
-	SetMyRegLong("", "Kaigyo", parts[PART_BREAK]);
+	SetMyRegLong(NULL, "Kaigyo", parts[PART_BREAK]);
+}
+
+/*-------------------------------------------
+  disables the IME
+---------------------------------------------*/
+void DisableIME(void)
+{
+	HMODULE hImm32;
+	BOOL (WINAPI *pImmDisableIME)(DWORD);
+
+	hImm32 = LoadLibrary("imm32.dll");
+	if(hImm32)
+	{
+		(FARPROC)pImmDisableIME = GetProcAddress(hImm32, "ImmDisableIME");
+		if (pImmDisableIME)
+			pImmDisableIME(0);
+		FreeLibrary(hImm32);
+	}
 }
 

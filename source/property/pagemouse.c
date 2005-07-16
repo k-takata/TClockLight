@@ -11,7 +11,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageMouseProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageMouseProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -31,10 +31,10 @@ static void GetMouseCommandFromDlg(HWND hDlg, PMOUSESTRUCT pMSS);
 static void EnableMousePageItems(HWND hDlg);
 static void InitFunction(HWND hDlg, int id);
 
-static BOOL  m_bInit = FALSE;
-static BOOL  m_bChanged = FALSE;
+static BOOL m_bInit = FALSE;
+static BOOL m_bChanged = FALSE;
 
-static char *m_section = "Mouse";
+static const char *m_section = "Mouse";
 static PMOUSESTRUCT m_pMouseCommand = NULL;
 static int m_nCurrent = -1;
 static int m_widthOpt = 0;
@@ -42,7 +42,7 @@ static int m_widthOpt = 0;
 /*------------------------------------------------
   Dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK PageMouseProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageMouseProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -395,13 +395,12 @@ void OnBrowse(HWND hDlg)
 	GetDlgItemText(hDlg, IDC_MOUSEOPT, deffile, MAX_PATH);
 	
 	// common/selectfile.c
-	if(!SelectMyFile(g_hInst, hDlg, "All (*.*)\0*.*\0\0",
-		0, deffile, fname))
-		return;
-	
-	SetDlgItemText(hDlg, IDC_MOUSEOPT, fname);
-	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
-	SendPSChanged(hDlg);
+	if(SelectMyFile(g_hInst, hDlg, "All (*.*)\0*.*\0\0", 0, deffile, fname))
+	{
+		SetDlgItemText(hDlg, IDC_MOUSEOPT, fname);
+		PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+		SendPSChanged(hDlg);
+	}
 }
 
 /*------------------------------------------------

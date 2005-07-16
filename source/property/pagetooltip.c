@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageTooltipProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageTooltipProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -27,12 +27,12 @@ static BOOL  m_bInit = FALSE;
 static BOOL  m_bChanged = FALSE;
 static HFONT m_hfontb, m_hfonti;
 
-static char *m_section = "Tooltip";
+static const char *m_section = "Tooltip";
 
 /*------------------------------------------------
   Dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK PageTooltipProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageTooltipProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -110,20 +110,16 @@ void OnInit(HWND hDlg)
 	char s[BUFSIZE_TOOLTIP];
 	BOOL b;
 	int n;
-	LOGFONT logfont;
 	
 	m_bInit = FALSE;
 	
 	// common/tclang.c
 	SetDialogLanguage(hDlg, "Tooltip", g_hfontDialog);
 	
-	UpDown_SetBuddy(hDlg, IDC_TOOLTIPTIMESPIN, IDC_TOOLTIPTIME);
-	
 	b = GetMyRegLong(m_section, "Tip1Use", TRUE);
 	CheckDlgButton(hDlg, IDC_USETOOLTIP1, b);
 	
-	GetMyRegStr(m_section, "Tooltip", s, BUFSIZE_TOOLTIP,
-		"\"TClock\" LDATE");
+	GetMyRegStr(m_section, "Tooltip", s, BUFSIZE_TOOLTIP, "\"TClock\" LDATE");
 	SetDlgItemText(hDlg, IDC_TOOLTIP, s);
 	
 	n = GetMyRegLong(NULL, "BalloonFlg", 0);
@@ -133,6 +129,7 @@ void OnInit(HWND hDlg)
 	
 	n = GetMyRegLong(NULL, "TipDispTime", 5);
 	n = GetMyRegLong(m_section, "DispTime", n);
+	UpDown_SetBuddy(hDlg, IDC_TOOLTIPTIMESPIN, IDC_TOOLTIPTIME);
 	UpDown_SetRange(hDlg, IDC_TOOLTIPTIMESPIN, 32, 0);
 	UpDown_SetPos(hDlg, IDC_TOOLTIPTIMESPIN, n);
 	
@@ -149,7 +146,9 @@ void OnInit(HWND hDlg)
 	m_hfontb = m_hfonti = NULL;
 	if(g_hfontDialog)
 	{
+		LOGFONT logfont;
 		GetObject(g_hfontDialog, sizeof(LOGFONT), &logfont);
+		
 		logfont.lfWeight = FW_BOLD;
 		m_hfontb = CreateFontIndirect(&logfont);
 		SendDlgItemMessage(hDlg, IDC_TOOLTIPBOLD,
@@ -220,13 +219,10 @@ void OnApply(HWND hDlg)
 void OnUseTip1(HWND hDlg)
 {
 	BOOL b = IsDlgButtonChecked(hDlg, IDC_USETOOLTIP1);
-	HWND hwnd = GetWindow(GetDlgItem(hDlg, IDC_USETOOLTIP1), GW_HWNDNEXT);
+	HWND hwnd = GetDlgItem(hDlg, IDC_USETOOLTIP1);
 	
-	while(hwnd)
-	{
+	while((hwnd = GetWindow(hwnd, GW_HWNDNEXT)) != NULL)
 		EnableWindow(hwnd, b);
-		hwnd = GetWindow(hwnd, GW_HWNDNEXT);
-	}
 }
 
 /*------------------------------------------------
@@ -283,7 +279,8 @@ void OnFont(HWND hDlg, BOOL bInit)
 	index = CBFindStringExact(hDlg, IDC_TOOLTIPFONTSIZE, size);
 	if(index == CB_ERR)
 		SetDlgItemText(hDlg, IDC_TOOLTIPFONTSIZE, size);
-	else CBSetCurSel(hDlg, IDC_TOOLTIPFONTSIZE, index);
+	else
+		CBSetCurSel(hDlg, IDC_TOOLTIPFONTSIZE, index);
 }
 
 /*------------------------------------------------
@@ -294,20 +291,20 @@ void OnBrowse(HWND hDlg)
 	char *filter = "text file (*.txt)\0*.txt\0\0";
 	char temp[MAX_PATH], deffile[MAX_PATH], fname[MAX_PATH+10];
 	
-	deffile[0] = 0;
 	GetDlgItemText(hDlg, IDC_TOOLTIP, temp, MAX_PATH);
 	if(strncmp(temp, "file:", 5) == 0)
 		strcpy(deffile, temp + 5);
+	else deffile[0] = 0;
 	
 	// select file : common/selectfile.c
-	if(!SelectMyFile(g_hInst, hDlg, filter, 0, deffile, fname))
-		return;
-	
-	strcpy(temp, "file:");
-	strcat(temp, fname);
-	SetDlgItemText(hDlg, IDC_TOOLTIP, temp);
-	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
-	SendPSChanged(hDlg);
+	if(SelectMyFile(g_hInst, hDlg, filter, 0, deffile, fname))
+	{
+		strcpy(temp, "file:");
+		strcat(temp, fname);
+		SetDlgItemText(hDlg, IDC_TOOLTIP, temp);
+		PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+		SendPSChanged(hDlg);
+	}
 }
 
 

@@ -21,7 +21,6 @@ COMMONH=$(COMMONDIR)\common.h
 
 OBJS=main2.obj wndproc.obj cmdopt.obj command.obj menu.obj\
 	alarm.obj mouse.obj mouse2.obj about.obj\
-	memreduce.obj\
 	langcode.obj utl.obj exec.obj reg.obj autoformat.obj localeinfo.obj\
 	playfile.obj list.obj alarmstruct.obj mousestruct.obj
 
@@ -61,16 +60,16 @@ $(EXEFILE): main.obj $(OBJS) $(RESFILE)  TCDLL.lib
 
 CC=bcc32
 LINK=ilink32
-RC=brc32
-RCOPT=-r -32 -fo
+RC=brcc32
+RCOPT=-32 -fo
 
 !IFDEF NODEFAULTLIB
 
 COPT=-c -w -w-8057 -O2 -Oi -d -DNODEFAULTLIB -tW -o
-LOPT=/c /C /Gn /x
+LOPT=/aa /Tpe /c /C /Gn /x
 
 $(EXEFILE): main.obj $(OBJS) nodeflib.obj bccexe.pat $(RESFILE) TCDLL.lib
-	$(LINK) $(LOPT) /Tpe /aa main.obj $(OBJS) nodeflib.obj bccexe.pat,$@,,$(LIBS) TCDLL.lib,,$(RESFILE)
+	$(LINK) $(LOPT) main.obj $(OBJS) nodeflib.obj bccexe.pat,$@,,$(LIBS) TCDLL.lib,,$(RESFILE)
 	del $(TDSFILE)
 
 bccexe.pat: $(COMMONDIR)\bccexe.nas
@@ -79,10 +78,10 @@ bccexe.pat: $(COMMONDIR)\bccexe.nas
 !ELSE
 
 COPT=-c -w -w-8057 -O2 -Oi -d -tW -o
-LOPT=/c /C /Gn /x
+LOPT=/aa /Tpe /c /C /Gn /x
 
 $(EXEFILE): main.obj $(OBJS) $(RESFILE) TCDLL.lib
-	$(LINK) $(LOPT) /Tpe /aa main.obj $(OBJS) c0w32.obj,$@,,$(LIBS) cw32.lib TCDLL.lib,,$(RESFILE)
+	$(LINK) $(LOPT) main.obj $(OBJS) c0w32.obj,$@,,$(LIBS) noeh32.lib cw32.lib TCDLL.lib,,$(RESFILE)
 	del $(TDSFILE)
 
 !ENDIF
@@ -113,8 +112,6 @@ sntp.obj: $(SRCDIR)\sntp.c $(TCLOCKH) $(COMMONDIR)\command.h
 	$(CC) $(COPT)$@ $(SRCDIR)\sntp.c
 about.obj: $(SRCDIR)\about.c $(TCLOCKH)
 	$(CC) $(COPT)$@ $(SRCDIR)\about.c
-memreduce.obj: $(SRCDIR)\memreduce.c $(TCLOCKH)
-	$(CC) $(COPT)$@ $(SRCDIR)\memreduce.c
 
 # common obj files
 

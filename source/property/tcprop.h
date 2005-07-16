@@ -31,42 +31,46 @@ extern BOOL  g_bApplyMain;
 extern HICON g_hIconPlay, g_hIconStop;
 
 /* ---------- pagecolor.c ---------- */
-BOOL CALLBACK PageColorProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageColorProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* ---------- pagesize.c ----------- */
-BOOL CALLBACK PageSizeProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageSizeProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* ---------- pageformat.c --------- */
-BOOL CALLBACK PageFormatProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageFormatProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* ---------- pageformat2.c -------- */
-BOOL CALLBACK DlgProcFormat2(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProcFormat2(HWND hDlg, UINT message,
+	WPARAM wParam, LPARAM lParam);
+
+/* ---------- pageanalog.c ---------- */
+INT_PTR CALLBACK PageAnalogClockProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* ---------- pagealarm.c ---------- */
-BOOL CALLBACK PageAlarmProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageAlarmProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* ---------- alarmday.c ----------- */
 int SetAlarmDay(HWND hDlg, PALARMSTRUCT pAS);
 
 /* ---------- pagecuckoo.c --------- */
-BOOL CALLBACK PageCuckooProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageCuckooProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* ---------- pagemouse.c ---------- */
-BOOL CALLBACK PageMouseProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageMouseProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* ---------- pagemouse2.c --------- */
-BOOL CALLBACK PageMouse2Proc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageMouse2Proc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* ---------- pagetooltip.c ----------- */
-BOOL CALLBACK PageTooltipProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageTooltipProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* ---------- pagesntp.c ----------- */
@@ -74,22 +78,22 @@ BOOL CALLBACK PageTooltipProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam); */
 
 /* ---------- pagestartbtn.c ------- */
-BOOL CALLBACK PageStartButtonProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageStartButtonProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* ---------- selecticon.c --------- */
 BOOL SelectIconInDLL(HINSTANCE hInst, HWND hDlg, char* fname_index);
 
 /* ---------- pagestartmenu.c ------- */
-BOOL CALLBACK PageStartMenuProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageStartMenuProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* ---------- pagetaskbar.c -------- */
-BOOL CALLBACK PageTaskbarProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageTaskbarProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* ---------- pagemisc.c ----------- */
-BOOL CALLBACK PageMiscProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageMiscProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 

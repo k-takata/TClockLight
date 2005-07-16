@@ -25,16 +25,13 @@ BOOL      g_bApplyTaskbar = FALSE; // refresh task bar
 BOOL      g_bApplyStartMenu = FALSE; // refresh Start menu
 BOOL      g_bApplyTip = FALSE;     // refresh tooltip
 BOOL      g_bApplyMain = FALSE;    // refresh TClock main window
-HICON     g_hIconPlay, g_hIconStop;
-                                   // icons to use frequently
+HICON     g_hIconPlay, g_hIconStop; // icons to use frequently
 
 /* Statics */
 
 static int TCPropMain(void);
 static void InitTCProp(void);
-static LRESULT CALLBACK WndProcProperty(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam);
-static BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
+static INT_PTR CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 static void OnInitDialog(HWND hDlg);
 static void OnOK(HWND hDlg);
 static void OnApply(HWND hDlg);
@@ -46,10 +43,10 @@ static int m_lastTreeItem;
 
 /* --------- Property pages -------------- */
 
-#define MAX_PAGE      12
+#define MAX_PAGE      13
 
 enum {
-	PAGE_COLOR, PAGE_SIZE, PAGE_FORMAT,
+	PAGE_COLOR, PAGE_SIZE, PAGE_FORMAT, PAGE_ANALOGCLOCK,
 	PAGE_ALARM, PAGE_CUCKOO,
 	PAGE_MOUSE, PAGE_MOUSE2,
 	PAGE_TOOLTIP,
@@ -66,6 +63,7 @@ static struct {
   { NULL, IDD_PAGECOLOR,       PageColorProc },  /* PAGE_COLOR */
   { NULL, IDD_PAGESIZE,        PageSizeProc },   /* PAGE_SIZE */
   { NULL, IDD_PAGEFORMAT,      PageFormatProc }, /* PAGE_FORMAT */
+  { NULL, IDD_PAGEANALOGCLOCK, PageAnalogClockProc }, /* PAGE_ANALOGCLOCK */
   { NULL, IDD_PAGEALARM,       PageAlarmProc },  /* PAGE_ALARM */
   { NULL, IDD_PAGECUCKOO,      PageCuckooProc }, /* PAGE_CUCKOO */
   { NULL, IDD_PAGEMOUSE,       PageMouseProc },  /* PAGE_MOUSE */
@@ -80,10 +78,10 @@ static struct {
 
 /* --------- TreeView items -------------- */
 
-#define MAX_TREEITEM 16
+#define MAX_TREEITEM 17
 
 enum {
-	ITEM_PARENTCLOCK, ITEM_COLOR, ITEM_SIZE, ITEM_FORMAT,
+	ITEM_PARENTCLOCK, ITEM_COLOR, ITEM_SIZE, ITEM_FORMAT,ITEM_ANALOGCLOCK,
 	ITEM_PARENTALARM, ITEM_ALARM, ITEM_CUCKOO,
 	ITEM_PARENTMOUSE, ITEM_CLICK, ITEM_MOUSEMISC,
 	ITEM_TOOLTIP,
@@ -107,6 +105,8 @@ static struct {
         IDS_SIZEPOS, "SizePos", PAGE_SIZE  },
   { ITEM_PARENTCLOCK,                              /* ITEM_FORMAT */
         IDS_FORMAT,  "Format",  PAGE_FORMAT },
+  { ITEM_PARENTCLOCK,                         /* ITEM_ANALOGCLOCK */
+        IDS_ANALOGCLOCK, "AnalogClock",  PAGE_ANALOGCLOCK },
   
   /* ITEM_PARENTALARM */
   { -1, IDS_ALARM,  "Alarm",  PAGE_ALARM },
@@ -180,7 +180,7 @@ int TCPropMain(void)
 	
 	// register a window class of dialog
 	wndclass.style         = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
-	wndclass.lpfnWndProc   = WndProcProperty;
+	wndclass.lpfnWndProc   = DefDlgProc;
 	wndclass.cbClsExtra    = 0;
 	wndclass.cbWndExtra    = DLGWINDOWEXTRA;
 	wndclass.hInstance     = g_hInst;
@@ -191,8 +191,7 @@ int TCPropMain(void)
 	wndclass.lpszClassName = CLASS_TCLOCKPROP;
 	RegisterClass(&wndclass);
 	
-	return DialogBox(g_hInst, MAKEINTRESOURCE(IDD_PROPERTY),
-		NULL, DlgProc);
+	return DialogBox(g_hInst, MAKEINTRESOURCE(IDD_PROPERTY), NULL, DlgProc);
 }
 
 /*-------------------------------------------
@@ -219,18 +218,9 @@ void InitTCProp(void)
 }
 
 /*-------------------------------------------
-  window procedure of CLASS_TCLOCKPROP
----------------------------------------------*/
-LRESULT CALLBACK WndProcProperty(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam)
-{
-	return DefDlgProc(hwnd, message, wParam, lParam);
-}
-
-/*-------------------------------------------
   dialog procedure
 ---------------------------------------------*/
-BOOL CALLBACK DlgProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 
 {
@@ -257,14 +247,14 @@ BOOL CALLBACK DlgProc(HWND hDlg, UINT message,
 					if(g_hfontDialog)
 						DeleteObject(g_hfontDialog);
 					SetMyRegLong(NULL, "LastTreeItem", m_lastTreeItem);
-					EndDialog(hDlg, LOWORD(wParam));
+					EndDialog(hDlg, id);
 					break;
 			}
 			return TRUE;
 		}
 		case WM_NOTIFY:
 		{
-			NM_TREEVIEW* pNMTV = (NM_TREEVIEW *)lParam;
+			NMTREEVIEW* pNMTV = (NMTREEVIEW *)lParam;
 			if(pNMTV->hdr.code == TVN_SELCHANGED)
 			{
 				OnTVChanged(hDlg, pNMTV->itemNew.lParam);
@@ -312,8 +302,6 @@ void OnApply(HWND hDlg)
 	NMHDR lp;
 	int i;
 	
-	hwndClock = GetClockWindow();
-	
 	lp.code = PSN_APPLY;
 	for(i = 0; i < MAX_PAGE; i++)
 	{
@@ -321,6 +309,7 @@ void OnApply(HWND hDlg)
 			SendMessage(g_dlgPage[i].hDlg, WM_NOTIFY, 0, (LPARAM)&lp);
 	}
 	
+	hwndClock = GetClockWindow();
 	if(hwndClock)
 	{
 		if(g_bApplyClock)
@@ -345,6 +334,7 @@ void OnApply(HWND hDlg)
 	}
 	
 	EnableDlgItem(hDlg, IDC_APPLY, FALSE);
+	PostMessage(hDlg, WM_NEXTDLGCTL, 0, FALSE);
 }
 
 /*-------------------------------------------
@@ -352,11 +342,11 @@ void OnApply(HWND hDlg)
 ---------------------------------------------*/
 void OnHelp(HWND hDlg)
 {
-	NMHDR lp;
-	int nPage;
-	
 	if(0 <= m_lastTreeItem && m_lastTreeItem < MAX_TREEITEM)
 	{
+		NMHDR lp;
+		int nPage;
+		
 		nPage = g_treeItem[m_lastTreeItem].nPage;
 		lp.code = PSN_HELP;
 		if(g_dlgPage[nPage].hDlg)
@@ -418,12 +408,12 @@ void OnTVChanged(HWND hDlg, int nItem)
 void InitTreeView(HWND hDlg)
 {
 	HWND hTree;
-	TV_INSERTSTRUCT tv;
+	TVINSERTSTRUCT tv;
 	HTREEITEM hTreeItem[MAX_TREEITEM];
 	int i;
 	
 	hTree = GetDlgItem(hDlg, IDC_TREE);
-	memset(&tv, 0, sizeof(TV_INSERTSTRUCT));
+	memset(&tv, 0, sizeof(TVINSERTSTRUCT));
 	
 	tv.hInsertAfter = TVI_LAST;
 	tv.item.mask = TVIF_TEXT | TVIF_STATE | TVIF_PARAM;
@@ -442,7 +432,7 @@ void InitTreeView(HWND hDlg)
 		hTreeItem[i] = TreeView_InsertItem(hTree, &tv);
 	}
 	
-	m_lastTreeItem = GetMyRegLong("", "LastTreeItem", 0);
+	m_lastTreeItem = GetMyRegLong(NULL, "LastTreeItem", 0);
 	if(m_lastTreeItem >= MAX_TREEITEM) m_lastTreeItem = 0;
 	TreeView_SelectItem(hTree, hTreeItem[m_lastTreeItem]);
 }
@@ -479,8 +469,7 @@ void MyHelp(HWND hwnd, const char *section)
 BOOL ExecCommandString(HWND hwnd, const char* command)
 {
 	/* ExecFile(hwnd, command); */
-	SendStringToOther(GetTClockMainWindow(), hwnd, command,
-		COPYDATA_EXEC);
+	SendStringToOther(GetTClockMainWindow(), hwnd, command, COPYDATA_EXEC);
 	
 	return FALSE;
 }

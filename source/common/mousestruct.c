@@ -61,6 +61,7 @@ PMOUSESTRUCT LoadMouseFunc(void)
 --------------------------------------------------*/
 void SaveMouseFunc(const PMOUSESTRUCT plist)
 {
+	const char *BtnStr[5] = { "left", "right", "middle", "x1", "x2" };
 	int oldcount, i;
 	char section[20];
 	PMOUSESTRUCT current;
@@ -75,16 +76,8 @@ void SaveMouseFunc(const PMOUSESTRUCT plist)
 		
 		SetMyRegStr(section, "Name", current->name);
 		
-		if(current->nButton == 0)
-			SetMyRegStr(section, "Button", "left");
-		else if(current->nButton == 1)
-			SetMyRegStr(section, "Button", "right");
-		else if(current->nButton == 2)
-			SetMyRegStr(section, "Button", "middle");
-		else if(current->nButton == 3)
-			SetMyRegStr(section, "Button", "x1");
-		else if(current->nButton == 4)
-			SetMyRegStr(section, "Button", "x2");
+		if(0 <= current->nButton && current->nButton <= 4)
+			SetMyRegStr(section, "Button", BtnStr[current->nButton]);
 		
 		SetMyRegLong(section, "Click", current->nClick);
 		SetMyRegLong(section, "Ctrl", current->bCtrl);
@@ -138,7 +131,7 @@ void SaveMouseFunc(const PMOUSESTRUCT plist)
 #define MOUSEFUNC_FILELIST    26
 #define MOUSEFUNC_OPENFILE    100
 
-static int oldToNew[] = {
+static const int oldToNew[] = {
 	IDC_DATETIME,
 	IDC_EXITWIN,
 	IDC_RUNAPP,
@@ -175,7 +168,7 @@ void ImportOldMouseFunc(void)
 {
 	char oldentry[20], newsection[20], s[MAX_PATH];
 	int i, j, k, count, nfunc;
-	char *oldoptions[] = { "%d%dFile", "%d%dClip",
+	const char *oldoptions[] = { "%d%dFile", "%d%dClip",
 		"%d%dVol", "%d%dDrv" , "%d%dDelay", NULL, };
 	
 	count = 0;

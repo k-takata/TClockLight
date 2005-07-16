@@ -83,17 +83,10 @@ BOOL BrowseSoundFile(HINSTANCE hInst, HWND hDlg,
 	
 	initdir[0] = 0;
 	
-	if(deffile[0])
+	if(deffile[0] && IsFile(deffile))
 	{
-		WIN32_FIND_DATA fd;
-		HANDLE hfind;
-		hfind = FindFirstFile(deffile, &fd);
-		if(hfind != INVALID_HANDLE_VALUE)
-		{
-			FindClose(hfind);
-			strcpy(initdir, deffile);
-			del_title(initdir);
-		}
+		strcpy(initdir, deffile);
+		del_title(initdir);
 	}
 	
 	fname[0] = 0;

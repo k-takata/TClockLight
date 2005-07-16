@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageTaskbarProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageTaskbarProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -20,13 +20,13 @@ static void OnInit(HWND hDlg);
 static void OnApply(HWND hDlg);
 static void OnTaskSwitchFlat(HWND hDlg);
 
-static BOOL  m_bInit = FALSE;
-static BOOL  m_bChanged = FALSE;
+static BOOL m_bInit = FALSE;
+static BOOL m_bChanged = FALSE;
 
 /*------------------------------------------------
    dialog procedure of this page
 --------------------------------------------------*/
-BOOL CALLBACK PageTaskbarProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageTaskbarProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

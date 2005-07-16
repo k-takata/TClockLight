@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageMiscProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageMiscProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -20,12 +20,12 @@ static void OnInit(HWND hDlg);
 static void OnApply(HWND hDlg);
 static void OnBrowse(HWND hDlg);
 
-static m_bInit = FALSE;
+static BOOL m_bInit = FALSE;
 
 /*------------------------------------------------
   dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK PageMiscProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageMiscProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -134,15 +134,15 @@ void OnApply(HWND hDlg)
 void OnBrowse(HWND hDlg)
 {
 	char deffile[MAX_PATH], fname[MAX_PATH];
-	char *filter = "HTML\0*.html;*.htm\0\0";
+	const char *filter = "HTML\0*.html;*.htm\0\0";
 	
 	GetDlgItemText(hDlg, IDC_HELPURL, deffile, MAX_PATH);
 	
-	if(!SelectMyFile(g_hInst, hDlg, filter, 0, deffile, fname))
-		return;
-	
-	SetDlgItemText(hDlg, IDC_HELPURL, fname);
-	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
-	SendPSChanged(hDlg);
+	if(SelectMyFile(g_hInst, hDlg, filter, 0, deffile, fname))
+	{
+		SetDlgItemText(hDlg, IDC_HELPURL, fname);
+		PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+		SendPSChanged(hDlg);
+	}
 }
 

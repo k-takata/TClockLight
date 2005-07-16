@@ -228,19 +228,20 @@ BOOL LangIDToLangCode(char *dst, int langid, BOOL bCountry)
 	}
 	if(m_langcode[i].primlang < 0) return FALSE;
 	
-	if(!bCountry) return TRUE;
-	
-	for(i = 0; m_countrycode[i].sublang >= 0; i++)
+	if(bCountry)
 	{
-		if(m_countrycode[i].primlang == prim &&
-			m_countrycode[i].sublang == sub)
+		for(i = 0; m_countrycode[i].sublang >= 0; i++)
 		{
-			if(m_countrycode[i].code)
+			if(m_countrycode[i].primlang == prim &&
+				m_countrycode[i].sublang == sub)
 			{
-				strcat(dst, "-");
-				strcat(dst, m_countrycode[i].code);
+				if(m_countrycode[i].code)
+				{
+					strcat(dst, "-");
+					strcat(dst, m_countrycode[i].code);
+				}
+				break;
 			}
-			break;
 		}
 	}
 	return TRUE;

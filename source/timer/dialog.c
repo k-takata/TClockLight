@@ -16,7 +16,7 @@ HWND g_hDlg = NULL;
 
 /* Statics */
 
-BOOL CALLBACK DlgProcTimer(HWND, UINT, WPARAM, LPARAM);
+static INT_PTR CALLBACK DlgProcTimer(HWND, UINT, WPARAM, LPARAM);
 static void OnInit(HWND hDlg);
 static void OnDestroy(HWND hDlg);
 static void OnOK(HWND hDlg);
@@ -43,8 +43,7 @@ static BOOL m_bPlaying = FALSE;  // sound is plaing
 ---------------------------------------------------------*/
 void OnShowDialog(HWND hwnd)
 {
-	if(g_hDlg && IsWindow(g_hDlg)) ;
-	else
+	if(!(g_hDlg && IsWindow(g_hDlg)))
 		g_hDlg = CreateDialog(g_hInst, MAKEINTRESOURCE(IDD_TIMER),
 			NULL, DlgProcTimer);
 	SetForegroundWindow98(g_hDlg);
@@ -53,7 +52,7 @@ void OnShowDialog(HWND hwnd)
 /*-------------------------------------------
   dialog procedure
 ---------------------------------------------*/
-BOOL CALLBACK DlgProcTimer(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProcTimer(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -413,11 +412,11 @@ void OnBrowse(HWND hDlg)
 	GetDlgItemText(hDlg, IDC_TIMERFILE, deffile, MAX_PATH);
 	
 	// ../common/soundselect.c
-	if(!BrowseSoundFile(g_hInst, hDlg, deffile, fname))
-		return;
-	
-	SetDlgItemText(hDlg, IDC_TIMERFILE, fname);
-	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+	if(BrowseSoundFile(g_hInst, hDlg, deffile, fname))
+	{
+		SetDlgItemText(hDlg, IDC_TIMERFILE, fname);
+		PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+	}
 }
 
 /*------------------------------------------------
@@ -430,8 +429,7 @@ void OnTest(HWND hDlg)
 	GetDlgItemText(hDlg, IDC_TIMERFILE, fname, MAX_PATH);
 	if(fname[0] == 0) return;
 	
-	if((HICON)SendDlgItemMessage(hDlg, IDC_TIMERTEST,
-		BM_GETIMAGE, IMAGE_ICON, 0) == g_hIconPlay)
+	if(!m_bPlaying)
 	{
 		if(PlayFile(hDlg, fname, 0))
 		{
@@ -456,8 +454,8 @@ void OnShowTime(HWND hDlg)
 	int i;
 	BOOL b;
 	
-	b = IsDlgButtonChecked(hDlg, IDC_SHOWTIME);
-	if(!m_pTimer) b = FALSE;
+	b = IsDlgButtonChecked(hDlg, IDC_SHOWTIME) && m_pTimer;
+	
 	for(i = IDC_SHOWWHOLE; i <= IDC_SHOWUSTRNUM; i++)
 		EnableDlgItem(hDlg, i, b);
 	
@@ -470,9 +468,9 @@ void OnShowTime(HWND hDlg)
 void OnUserStr(HWND hDlg)
 {
 	BOOL b;
-	b = IsDlgButtonChecked(hDlg, IDC_SHOWUSTR);
-	if(!IsDlgButtonChecked(hDlg, IDC_SHOWTIME)) b = FALSE;
-	if(!m_pTimer) b = FALSE;
+	b = IsDlgButtonChecked(hDlg, IDC_SHOWUSTR) &&
+		IsDlgButtonChecked(hDlg, IDC_SHOWTIME) &&
+		m_pTimer;
 	
 	EnableDlgItem(hDlg, IDC_SHOWUSTRNUM, b);
 }
@@ -485,8 +483,8 @@ void GetTimerFromDlg(HWND hDlg, PTIMERSTRUCT pitem)
 	if(!pitem) return;
 	
 	GetDlgItemText(hDlg, IDC_TIMERNAME, pitem->name, BUFSIZE_NAME);
-	pitem->minute = GetDlgItemInt(hDlg, IDC_TIMERMINUTE, NULL, FALSE);
-	pitem->second = GetDlgItemInt(hDlg, IDC_TIMERSECOND, NULL, FALSE);
+	pitem->minute = UpDown_GetPos(hDlg, IDC_TIMERSPIN1);
+	pitem->second = UpDown_GetPos(hDlg, IDC_TIMERSPIN2);
 	GetDlgItemText(hDlg, IDC_TIMERFILE, pitem->fname, MAX_PATH);
 	pitem->bRepeat = IsDlgButtonChecked(hDlg, IDC_TIMERREPEAT);
 	pitem->bBlink = IsDlgButtonChecked(hDlg, IDC_TIMERBLINK);
@@ -514,8 +512,8 @@ void SetTimerToDlg(HWND hDlg, const TIMERSTRUCT *pitem)
 	}
 	
 	SetDlgItemText(hDlg, IDC_TIMERNAME, pitem->name);
-	SetDlgItemInt(hDlg,  IDC_TIMERMINUTE, pitem->minute, FALSE);
-	SetDlgItemInt(hDlg,  IDC_TIMERSECOND, pitem->second, FALSE);
+	UpDown_SetPos(hDlg, IDC_TIMERSPIN1, pitem->minute);
+	UpDown_SetPos(hDlg, IDC_TIMERSPIN2, pitem->second);
 	SetDlgItemText(hDlg, IDC_TIMERFILE, pitem->fname);
 	CheckDlgButton(hDlg, IDC_TIMERREPEAT, pitem->bRepeat);
 	CheckDlgButton(hDlg, IDC_TIMERBLINK, pitem->bBlink);

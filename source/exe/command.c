@@ -25,7 +25,7 @@ typedef struct{
 static void ShowHelp(HWND hwnd);
 static void PostMessageCommand(const char *option);
 static void ExecHiddenCmdPrompt(HWND hwnd, const char *str);
-static BOOL CALLBACK doKyu(HWND hwnd, long height);
+static BOOL CALLBACK doKyu(HWND hwnd, LPARAM height);
 static void PushKeybd(LPKEYEVENT lpkey);
 
 /*------------------------------------------------
@@ -66,9 +66,8 @@ void OnTClockCommand(HWND hwnd, int id, int code)
 			break;
 		case IDC_TCLOCKMENU: // context menu
 		{
-			POINT pt;
-			GetCursorPos(&pt);
-			OnContextMenu(hwnd, NULL, pt.x, pt.y);
+			DWORD pos = GetMessagePos();
+			OnContextMenu(hwnd, NULL, GET_X_LPARAM(pos), GET_Y_LPARAM(pos));
 			break;
 		}
 		
@@ -134,8 +133,7 @@ void OnTClockCommand(HWND hwnd, int id, int code)
 			break;
 		}
 		case IDC_MONOFF:  // monitor off
-			SendMessage(GetDesktopWindow(), WM_SYSCOMMAND,
-				SC_MONITORPOWER, 2);
+			PostMessage(hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, 2);
 			break;
 	}
 	
@@ -149,8 +147,6 @@ void OnTClockCommand(HWND hwnd, int id, int code)
 	
 	// open file written in tcmenu.txt
 	else if(id < 100) ContextMenuCommand(hwnd, id); // menu.c
-	
-	MemReduce();
 }
 
 /*------------------------------------------------
@@ -221,11 +217,10 @@ BOOL ExecCommandString(HWND hwnd, const char *command)
 --------------------------------------------------*/
 void CopyToClipBoard(HWND hwnd, const char *pfmt)
 {
-	wchar_t ws[MAX_PATH];
-	
 	if(g_hwndClock)
 	{
-		MultiByteToWideChar(CP_ACP, 0, pfmt, -1, ws, MAX_PATH-1);
+		wchar_t ws[MAX_PATH];
+		MultiByteToWideChar(CP_ACP, 0, pfmt, -1, ws, MAX_PATH);
 		SendStringToOtherW(g_hwndClock, hwnd, ws, COPYDATA_COPY);
 	}
 }
@@ -333,7 +328,7 @@ void PushKeybd(LPKEYEVENT lpkey)
 /*------------------------------------------------
   Kyu!
 --------------------------------------------------*/
-BOOL CALLBACK doKyu(HWND hwnd, long height)
+BOOL CALLBACK doKyu(HWND hwnd, LPARAM height)
 {
 	RECT rc;
 	

@@ -27,8 +27,6 @@ int MyGetTimeFormatW(int ilang, int codepage,
 --------------------------------------------------*/
 int GetCodePage(int ilang)
 {
-	char buf[10];
-	WCHAR bufw[10];
 	int r;
 	int codepage = CP_ACP;
 	LCID locale;
@@ -37,11 +35,13 @@ int GetCodePage(int ilang)
 	
 	if(GetVersion() & 0x80000000) // 95/98/Me
 	{
+		char buf[10];
 		r = GetLocaleInfoA(locale, LOCALE_IDEFAULTANSICODEPAGE, buf, 10);
 		if(r) codepage = atoi(buf);
 	}
 	else  // NT4/2000/XP
 	{
+		WCHAR bufw[10];
 		r = GetLocaleInfoW(locale, LOCALE_IDEFAULTANSICODEPAGE, bufw, 10);
 		if(r) codepage = _wtoi(bufw);
 	}
@@ -94,11 +94,7 @@ int MyGetLocaleInfoA(int ilang, int codepage,
 		WCHAR buf[80];
 		r = GetLocaleInfoW(locale, lctype, buf, 80);
 		if(r)
-		{
-			int codepage = GetCodePage(GetUserDefaultLangID());
-			r = WideCharToMultiByte(codepage, 0, buf, -1, dst, n,
-				NULL, NULL);
-		}
+			r = WideCharToMultiByte(codepage, 0, buf, -1, dst, n, NULL, NULL);
 	}
 	
 	return r;

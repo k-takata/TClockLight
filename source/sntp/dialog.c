@@ -17,8 +17,9 @@ HWND g_hwndLog = NULL;
 
 /* Statics */
 
-BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
+static INT_PTR CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 static void OnInit(HWND hDlg);
+static void LoadLog(HWND hDlg);
 static void OnOK(HWND hDlg);
 static void OnCancel(HWND hDlg);
 static void OnHelp(HWND hDlg);
@@ -27,15 +28,16 @@ static void OnDelServer(HWND hDlg);
 static void OnBrowse(HWND hDlg);
 static void OnSyncNow(HWND hDlg);
 
-static char *m_section = "SNTP";
+static const char *m_section = "SNTP";
+
+#define LOG_BUF_SIZE 1024
 
 /*-------------------------------------------------------
   SNTPM_SHOWDLG message
 ---------------------------------------------------------*/
 void OnShowDialog(HWND hwnd)
 {
-	if(g_hDlg && IsWindow(g_hDlg)) ;
-	else
+	if(!g_hDlg || !IsWindow(g_hDlg))
 		g_hDlg = CreateDialog(g_hInst, MAKEINTRESOURCE(IDD_DIALOG),
 			NULL, DlgProc);
 	SetForegroundWindow98(g_hDlg);
@@ -44,7 +46,7 @@ void OnShowDialog(HWND hwnd)
 /*-------------------------------------------
   dialog procedure
 ---------------------------------------------*/
-BOOL CALLBACK DlgProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -59,8 +61,7 @@ BOOL CALLBACK DlgProc(HWND hDlg, UINT message,
 			switch(id)
 			{
 				case IDOK:
-					OnOK(hDlg);
-					break;
+					OnOK(hDlg); // fall
 				case IDCANCEL:
 					OnCancel(hDlg);
 					break;
@@ -69,7 +70,7 @@ BOOL CALLBACK DlgProc(HWND hDlg, UINT message,
 					break;
 				
 				case IDC_NTPSERVER:
-					if(code == CBN_EDITCHANGE)
+					if(code == CBN_EDITCHANGE || code == CBN_SELCHANGE)
 						OnNTPServer(hDlg);
 					break;
 				case IDC_DELSERVER:
@@ -109,14 +110,12 @@ void OnInit(HWND hDlg)
 	// common/dialog.c
 	SetMyDialgPos(hDlg, 32, 32);
 	
-	UpDown_SetBuddy(hDlg, IDC_TIMEOUTSPIN, IDC_TIMEOUT);
-	
 	GetMyRegStr(m_section, "Server", server, BUFSIZE_SERVER, "");
 	
 	count = GetMyRegLong(m_section, "ServerNum", 0);
 	
 	if(server[0] == 0 && count == 0)
-		strcpy(server, "ntp1.jst.mfeed.ad.jp");
+		strcpy(server, "ntp.jst.mfeed.ad.jp");
 	
 	for(i = 0; i < count; i++)
 	{
@@ -138,6 +137,8 @@ void OnInit(HWND hDlg)
 	
 	OnNTPServer(hDlg);
 	
+	UpDown_SetBuddy(hDlg, IDC_TIMEOUTSPIN, IDC_TIMEOUT);
+	
 	n = GetMyRegLong(m_section, "Timeout", 1000);
 	if(n < 1 || 30000 < n) n = 1000;
 	UpDown_SetRange(hDlg, IDC_TIMEOUTSPIN, 30000, 0);
@@ -152,6 +153,34 @@ void OnInit(HWND hDlg)
 	
 	GetMyRegStr(m_section, "Sound", s, MAX_PATH, "");
 	SetDlgItemText(hDlg, IDC_SYNCSOUND, s);
+
+	LoadLog(hDlg);
+}
+
+/*-------------------------------------------
+  load SNTP log
+---------------------------------------------*/
+void LoadLog(HWND hDlg)
+{
+	HANDLE hf;
+	DWORD dwRead;
+	char fname[MAX_PATH];
+	char buf[LOG_BUF_SIZE];
+	const char *p;
+	
+	strcpy(fname, g_mydir);
+	add_title(fname, SNTPLOG);
+	hf = CreateFile(fname, GENERIC_READ, FILE_SHARE_READ,
+		NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hf == INVALID_HANDLE_VALUE) return;
+	SetFilePointer(hf, -(LOG_BUF_SIZE-1), NULL, FILE_END);
+	ReadFile(hf, buf, LOG_BUF_SIZE-1, &dwRead, NULL);
+	CloseHandle(hf);
+	buf[dwRead] = '\0';
+	p = nextline(buf);
+	SetDlgItemText(hDlg, IDC_SNTPLOGRESULT, p);
+	SendMessage(g_hwndLog, EM_LINESCROLL, 0,
+		SendMessage(g_hwndLog, EM_GETLINECOUNT, 0, 0) - 1);
 }
 
 /*-------------------------------------------
@@ -183,7 +212,7 @@ void OnOK(HWND hDlg)
 	}
 	SetMyRegLong(m_section, "ServerNum", count);
 	
-	OnNTPServer(hDlg);
+//	OnNTPServer(hDlg);
 	
 	SetMyRegLong(m_section, "Timeout",
 		UpDown_GetPos(hDlg, IDC_TIMEOUTSPIN));
@@ -192,10 +221,6 @@ void OnOK(HWND hDlg)
 	
 	GetDlgItemText(hDlg, IDC_SYNCSOUND, s, MAX_PATH);
 	SetMyRegStr(m_section, "Sound", s);
-	
-	DestroyWindow(hDlg);
-	g_hDlg = g_hwndLog = FALSE;
-	PostMessage(g_hwndMain, WM_CLOSE, 0, 0);
 }
 
 /*-------------------------------------------
@@ -204,7 +229,7 @@ void OnOK(HWND hDlg)
 void OnCancel(HWND hDlg)
 {
 	DestroyWindow(hDlg);
-	g_hDlg = g_hwndLog = FALSE;
+	g_hDlg = g_hwndLog = NULL;
 	PostMessage(g_hwndMain, WM_CLOSE, 0, 0);
 }
 
@@ -279,11 +304,11 @@ void OnBrowse(HWND hDlg)
 	
 	GetDlgItemText(hDlg, IDC_SYNCSOUND, deffile, MAX_PATH);
 	
-	if(!BrowseSoundFile(g_hInst, hDlg, deffile, fname)) // soundselect.c
-		return;
-	
-	SetDlgItemText(hDlg, IDC_SYNCSOUND, fname);
-	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+	if(BrowseSoundFile(g_hInst, hDlg, deffile, fname)) // soundselect.c
+	{
+		SetDlgItemText(hDlg, IDC_SYNCSOUND, fname);
+		PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+	}
 }
 
 /*------------------------------------------------
@@ -307,7 +332,7 @@ void OnSyncNow(HWND hDlg)
 	GetDlgItemText(hDlg, IDC_SYNCSOUND, soundfile, MAX_PATH);
 	
 	SetSNTPParam(server, nTimeOut, bLog, soundfile);
-	StartSyncTime(g_hwndMain, server, FALSE);
+	StartSyncTime(g_hwndMain, FALSE);
 	
 	index = CBFindStringExact(hDlg, IDC_NTPSERVER, server);
 	if(index != LB_ERR)

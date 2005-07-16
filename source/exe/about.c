@@ -20,7 +20,7 @@ HWND g_hDlgAbout = NULL;      // dialog window handle, used in main2.c
 
 /* Statics */
 
-static BOOL CALLBACK DlgProcAbout(HWND, UINT, WPARAM, LPARAM);
+static INT_PTR CALLBACK DlgProcAbout(HWND, UINT, WPARAM, LPARAM);
 static void OnInit(HWND hDlg);
 static void OnLinkClicked(HWND hDlg, UINT id);
 static LRESULT CALLBACK LabLinkProc(HWND hwnd, UINT message,
@@ -35,17 +35,15 @@ static WNDPROC m_oldLabProc;
 ---------------------------------------------------------*/
 void ShowAboutBox(HWND hwnd)
 {
-	if(g_hDlgAbout && IsWindow(g_hDlgAbout)) ;
-	else
-		g_hDlgAbout = CreateDialog(g_hInst, "ABOUTBOX",
-			NULL, DlgProcAbout);
+	if(!(g_hDlgAbout && IsWindow(g_hDlgAbout)))
+		g_hDlgAbout = CreateDialog(g_hInst, "ABOUTBOX", NULL, DlgProcAbout);
 	SetForegroundWindow98(g_hDlgAbout);
 }
 
 /*-------------------------------------------
   dialog procedure
 ---------------------------------------------*/
-BOOL CALLBACK DlgProcAbout(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProcAbout(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -119,12 +117,12 @@ void OnInit(HWND hDlg)
 	if(m_hCurHand == NULL)
 		m_hCurHand = LoadCursor(NULL, IDC_HAND);
 	
-	m_oldLabProc = (WNDPROC)GetWindowLong(GetDlgItem(hDlg, IDC_MAILTO),
-		GWL_WNDPROC);
-	SetWindowLong(GetDlgItem(hDlg, IDC_MAILTO),
-		GWL_WNDPROC, (LONG)LabLinkProc);
-	SetWindowLong(GetDlgItem(hDlg, IDC_HOMEPAGE),
-		GWL_WNDPROC, (LONG)LabLinkProc);
+	m_oldLabProc = (WNDPROC)GetWindowLongPtr(GetDlgItem(hDlg, IDC_MAILTO),
+		GWLP_WNDPROC);
+	SetWindowLongPtr(GetDlgItem(hDlg, IDC_MAILTO),
+		GWLP_WNDPROC, (LONG_PTR)LabLinkProc);
+	SetWindowLongPtr(GetDlgItem(hDlg, IDC_HOMEPAGE),
+		GWLP_WNDPROC, (LONG_PTR)LabLinkProc);
 }
 
 /*------------------------------------------------
@@ -133,14 +131,14 @@ void OnInit(HWND hDlg)
 void OnLinkClicked(HWND hDlg, UINT id)
 {
 	char str[1024];
-	BOOL bOE = FALSE;
+	BOOL bOE;
 	
 	if(id == IDC_MAILTO)
 	{
 		// Outlook Express is default mailer ?
 		GetRegStr(HKEY_CLASSES_ROOT, "mailto\\shell\\open\\command", "",
 			str, 1024, "");
-		if(strstr(str, "msimn.exe")) bOE = TRUE;
+		bOE = (strstr(str, "msimn.exe")) ? TRUE : FALSE;
 		
 		strcpy(str, "mailto:");
 		if(bOE)

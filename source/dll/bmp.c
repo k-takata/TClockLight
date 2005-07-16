@@ -10,128 +10,87 @@
 
 /* Globals */
 
-HBITMAP ReadBitmap(HWND hwnd, const char* fname, BOOL b);
-
-/* Static */
-
-static int GetDibNumColors(const LPBITMAPINFOHEADER pbmih);
-static BYTE* GetDibBitsAddr(const BYTE* pDib);
+HBITMAP ReadBitmap(HWND hwnd, const char* fname, BOOL bTrans);
 
 /*--------------------------------------------------
   read BMP file and return bitmap handle
 ----------------------------------------------------*/
 HBITMAP ReadBitmap(HWND hwnd, const char* fname, BOOL bTrans)
 {
-	BITMAPFILEHEADER bmfh;
-	BYTE* pDib;
-	DWORD size;
-	HFILE hf;
-	BITMAPINFOHEADER* pbmih;
-	BYTE* pDIBits;
+	HANDLE hf;
+	DWORD size, dwRead;
+	BYTE *pBuf;
+	const BITMAPFILEHEADER *pbmfh;
+	const BITMAPINFOHEADER *pbmih;
+	const BYTE *pDIBits;
 	HDC hdc;
-	int index;
 	HBITMAP hBmp;
 	
-	hf = _lopen(fname, OF_READ);
-	if(hf == HFILE_ERROR) return NULL;
-	
-	size = _llseek(hf, 0, 2) - sizeof(BITMAPFILEHEADER);
-	_llseek(hf, 0, 0);
-	
-	if(_lread(hf, (LPSTR)&bmfh, sizeof(BITMAPFILEHEADER)) !=
-		sizeof(BITMAPFILEHEADER))
-	{
-		_lclose(hf); return NULL;
-	}
-	
-	if(bmfh.bfType != *(WORD *)"BM")
-	{
-		_lclose(hf); return NULL;
-	}
-	
-	pDib = malloc(size);
-	if(pDib == NULL)
-	{
-		_lclose (hf); return NULL;
-	}
-	
-	if(_lread(hf, pDib, size) != size)
-	{
-		_lclose(hf); free(pDib);
+	hf = CreateFile(fname, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+	if(hf == INVALID_HANDLE_VALUE)
 		return NULL;
-	}
-	_lclose(hf);
 	
-	pbmih = (BITMAPINFOHEADER*)pDib;
-	// don't support OS/2 format
-	if(pbmih->biSize != sizeof(BITMAPINFOHEADER))
+	size = GetFileSize(hf, NULL);
+	
+	pBuf = malloc(size);
+	if(pBuf == NULL)
 	{
-		free(pDib); return NULL;
+		CloseHandle(hf); return NULL;
+	}
+	
+	ReadFile(hf, pBuf, size, &dwRead, NULL);
+	CloseHandle(hf);
+	if(dwRead != size)
+	{
+		free(pBuf); return NULL;
+	}
+	
+	pbmfh = (BITMAPFILEHEADER*)pBuf;
+	if(pbmfh->bfType != *(WORD *)"BM")
+	{
+		free(pBuf); return NULL;
+	}
+	
+	pbmih = (BITMAPINFOHEADER*)(pBuf + sizeof(BITMAPFILEHEADER));
+	// don't support OS/2 format
+	if(pbmih->biSize < sizeof(BITMAPINFOHEADER))
+	{
+		free(pBuf); return NULL;
 	}
 	// don't support RLE compression
 	if(pbmih->biCompression != BI_RGB &&
 		pbmih->biCompression != BI_BITFIELDS)
 	{
-		free(pDib); return NULL;
+		free(pBuf); return NULL;
 	}
 	
-	if(pbmih->biCompression == BI_RGB)
-		pDIBits = GetDibBitsAddr(pDib);
-	else
-		pDIBits = pDib + sizeof(BITMAPINFOHEADER) + 3 * sizeof(DWORD);
+	pDIBits = pBuf + pbmfh->bfOffBits;
 	
 	if(bTrans) // pseudo transparency
 	{
-		if(pbmih->biBitCount == 1)
-			index = (*pDIBits & 0x80) >> 7;
-		else if(pbmih->biBitCount == 4)
-			index = (*pDIBits & 0xF0) >> 4;
-		else if(pbmih->biBitCount == 8)
-			index = *pDIBits;
 		if(pbmih->biBitCount <= 8)
 		{
+			int index;
+			RGBQUAD *pColor = (RGBQUAD*)((BYTE*)pbmih + pbmih->biSize);
 			COLORREF col = GetSysColor(COLOR_3DFACE);
-			((BITMAPINFO*)pDib)->bmiColors[index].rgbBlue = GetBValue(col);
-			((BITMAPINFO*)pDib)->bmiColors[index].rgbGreen = GetGValue(col);
-			((BITMAPINFO*)pDib)->bmiColors[index].rgbRed = GetRValue(col);
+			
+			if(pbmih->biBitCount == 1)
+				index = (*pDIBits & 0x80) >> 7;
+			else if(pbmih->biBitCount == 4)
+				index = (*pDIBits & 0xF0) >> 4;
+			else if(pbmih->biBitCount == 8)
+				index = *pDIBits;
+			pColor[index].rgbBlue = GetBValue(col);
+			pColor[index].rgbGreen = GetGValue(col);
+			pColor[index].rgbRed = GetRValue(col);
 		}
 	}
 	
 	hdc = GetDC(hwnd);
-	hBmp = CreateDIBitmap(hdc,
-		(LPBITMAPINFOHEADER)pDib, CBM_INIT,
-		(LPSTR)pDIBits, (LPBITMAPINFO)pDib, DIB_RGB_COLORS);
+	hBmp = CreateDIBitmap(hdc, pbmih,
+		CBM_INIT, pDIBits, (const BITMAPINFO*)pbmih, DIB_RGB_COLORS);
 	ReleaseDC(hwnd, hdc);
-	free(pDib);
+	free(pBuf);
 	return hBmp;
-}
-
-/*--------------------------------------------------
-  return palette color numbers
-----------------------------------------------------*/
-static int GetDibNumColors(const LPBITMAPINFOHEADER pbmih)
-{
-	int numColors;
-	int BitCount;
-	
-	BitCount = (int)pbmih->biBitCount;
-	numColors = (int)pbmih->biClrUsed;
-	if(numColors == 0)
-	{
-		if(BitCount <= 8) numColors = 1 << BitCount;
-		else numColors = 0;
-	}
-	return numColors;
-}
-
-/*--------------------------------------------------
-  return DIB bits address
-----------------------------------------------------*/
-static BYTE* GetDibBitsAddr(const BYTE* pDib)
-{
-	int numColors;
-	
-	numColors = GetDibNumColors((LPBITMAPINFOHEADER)pDib);
-	return (BYTE*)(pDib + sizeof(BITMAPINFOHEADER)
-		+ sizeof(RGBQUAD) * numColors);
 }

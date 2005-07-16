@@ -13,21 +13,21 @@
 --------------------------------------------------*/
 BOOL IsSubclassed(HWND hwnd)
 {
-	LONG wndproc1, wndproc2;
+	ULONG_PTR wndproc1;
+	LONG_PTR wndproc2;
 	
 	if(g_winver&WINNT)
 	{
-		wndproc1 = GetClassLongW(hwnd, GCL_WNDPROC);
-		wndproc2 = GetWindowLongW(hwnd, GWL_WNDPROC);
+		wndproc1 = GetClassLongPtrW(hwnd, GCLP_WNDPROC);
+		wndproc2 = GetWindowLongPtrW(hwnd, GWLP_WNDPROC);
 	}
 	else
 	{
-		wndproc1 = GetClassLongA(hwnd, GCL_WNDPROC);
-		wndproc2 = GetWindowLongA(hwnd, GWL_WNDPROC);
+		wndproc1 = GetClassLongPtrA(hwnd, GCLP_WNDPROC);
+		wndproc2 = GetWindowLongPtrA(hwnd, GWLP_WNDPROC);
 	}
 	
-	if(wndproc1 != wndproc2) return TRUE;
-	return FALSE;
+	return (wndproc1 != (ULONG_PTR)wndproc2) ? TRUE : FALSE;
 }
 
 /*------------------------------------------------
@@ -53,13 +53,13 @@ BOOL CreateOffScreenDC(HDC hdc, HDC *phdcMem, HBITMAP *phbmp,
 /*------------------------------------------------
   width and height of HBITMAP
 --------------------------------------------------*/
-BOOL GetBmpSize(HBITMAP hbmp, int* w, int* h)
+BOOL GetBmpSize(HBITMAP hbmp, SIZE *size)
 {
 	BITMAP bmp;
 	if(GetObject(hbmp, sizeof(BITMAP), (LPVOID)&bmp) == 0)
 		return FALSE;
-	*w = bmp.bmWidth;
-	*h = bmp.bmHeight;
+	size->cx = bmp.bmWidth;
+	size->cy = bmp.bmHeight;
 	return TRUE;
 }
 

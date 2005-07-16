@@ -32,8 +32,8 @@ static struct {
 	{ 0, 0}
 };
 
-static BOOL CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf, 
-	NEWTEXTMETRICEX* lpntm, int FontType, LPARAM fontname);
+static int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf,
+	NEWTEXTMETRICEX* lpntm, DWORD FontType, LPARAM fontname);
 
 /*------------------------------------------------
    create a font of the clock
@@ -42,7 +42,6 @@ HFONT CreateMyFont(const char *fontname, int size,
 	LONG weight, LONG italic, int codepage)
 {
 	LOGFONT lf;
-	POINT pt;
 	HDC hdc;
 	BYTE charset;
 	int i;
@@ -65,6 +64,7 @@ HFONT CreateMyFont(const char *fontname, int size,
 		charset = (BYTE)GetTextCharset(hdc);
 	
 	lf.lfCharSet = charset;
+	strcpy(lf.lfFaceName, fontname);
 	if(EnumFontFamiliesEx(hdc, &lf, (FONTENUMPROC)EnumFontFamExProc,
 		(LPARAM)fontname, 0))
 	{
@@ -73,15 +73,15 @@ HFONT CreateMyFont(const char *fontname, int size,
 			(LPARAM)fontname, 0))
 		{
 			lf.lfCharSet = ANSI_CHARSET;
-			EnumFontFamiliesEx(hdc, &lf, (FONTENUMPROC)EnumFontFamExProc,
-				(LPARAM)fontname, 0);
+			if(EnumFontFamiliesEx(hdc, &lf, (FONTENUMPROC)EnumFontFamExProc,
+				(LPARAM)fontname, 0))
+			{
+				lf.lfCharSet = DEFAULT_CHARSET;
+			}
 		}
 	}
 	
-	pt.x = 0;
-	pt.y = GetDeviceCaps(hdc, LOGPIXELSY) * size / 72;
-	DPtoLP(hdc, &pt, 1);
-	lf.lfHeight = -pt.y;
+	lf.lfHeight = -MulDiv(size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
 	
 	ReleaseDC(NULL, hdc);
 	
@@ -95,7 +95,6 @@ HFONT CreateMyFont(const char *fontname, int size,
 	lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
 	lf.lfQuality = DEFAULT_QUALITY;
 	lf.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
-	strcpy(lf.lfFaceName, fontname);
 	
 	return CreateFontIndirect(&lf);
 }
@@ -104,11 +103,10 @@ HFONT CreateMyFont(const char *fontname, int size,
    callback function for EnumFontFamiliesEx,
    to find a designated font
 --------------------------------------------------*/
-BOOL CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf, 
-	NEWTEXTMETRICEX* lpntm, int FontType, LPARAM fontname)
+int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf, 
+	NEWTEXTMETRICEX* lpntm, DWORD FontType, LPARAM fontname)
 {
-	if(strcmp((LPSTR)fontname, pelf->elfLogFont.lfFaceName) == 0)
-		return FALSE;
-	return TRUE;
+	return ((strcmp((LPCSTR)fontname, pelf->elfLogFont.lfFaceName) == 0)
+			? FALSE : TRUE);
 }
 

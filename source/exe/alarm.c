@@ -24,22 +24,19 @@ static BOOL m_bCheckEverySeconds = FALSE;
 --------------------------------------------------*/
 void InitAlarm(void)
 {
-	ALARMSTRUCT item;
 	PALARMSTRUCT pitem;
-	int jihou;
 	
 	clear_list(m_pAlarm);
 	m_pAlarm = NULL;
-	
-	jihou = 0;
-	if(GetMyRegLong("", "Jihou", FALSE)) jihou = 1;
 	
 	// read settings
 	m_pAlarm = LoadAlarm(); // common/alarmstruct.c
 	
 	// cuckoo clock
-	if(jihou)
+	if(GetMyRegLong(NULL, "Jihou", FALSE))
 	{
+		ALARMSTRUCT item;
+		
 		memset(&item, 0, sizeof(ALARMSTRUCT));
 		strcpy(item.name, "cuckoo");
 		strcpy(item.strHours, "*");
@@ -49,10 +46,9 @@ void InitAlarm(void)
 		
 		item.bEnable = TRUE;
 		item.bHour12 = TRUE;
-		GetMyRegStr("", "JihouFile", item.fname, MAX_PATH, "");
-		if(GetMyRegLong("", "JihouRepeat", FALSE))
-			item.bRepeatJihou = TRUE;
-		if(GetMyRegLong("", "JihouBlink", FALSE))
+		GetMyRegStr(NULL, "JihouFile", item.fname, MAX_PATH, "");
+		item.bRepeatJihou = GetMyRegLong(NULL, "JihouRepeat", FALSE);
+		if(GetMyRegLong(NULL, "JihouBlink", FALSE))
 		{
 			item.bBlink = TRUE; item.nBlinkSec = 60;
 		}
@@ -94,17 +90,17 @@ void EndAlarm(void)
 --------------------------------------------------*/
 void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason)
 {
-	PALARMSTRUCT pitem;
 	static int hourLast = 0, minuteLast = 0;
+	PALARMSTRUCT pitem;
 	int hour, loops;
 	
 	if(!m_pAlarm) return;
 	
 	// execute once a minute
-	if(reason == 0 && st && !m_bCheckEverySeconds)
+	if(!m_bCheckEverySeconds && reason == 0 && st)
 	{
-		if(hourLast == (int)st->wHour &&
-			minuteLast == (int)st->wMinute) return;
+		if(minuteLast == st->wMinute && hourLast == st->wHour)
+			return;
 		hourLast = st->wHour;
 		minuteLast = st->wMinute;
 	}
@@ -115,30 +111,35 @@ void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason)
 		
 		if(!pitem->bEnable) continue;
 		
-		// 12 hour
 		hour = 0;
 		if(st)
 		{
+			// 12 hour
 			hour = st->wHour;
 			if(pitem->bHour12)
 			{
-				if(hour == 0) hour = 12;
-				else if(hour >= 13) hour -= 12;
+				if(hour >= 13) hour -= 12;
+				else if(hour == 0) hour = 12;
 			}
-		}
-		
-		// compare time
-		if(reason == 0 && st)
-		{
-			if(pitem->hours[hour]
-				&& pitem->minutes[st->wMinute]
-				&& pitem->wdays[st->wDayOfWeek])
+			
+			// compare time
+			if(reason == 0)
 			{
-				if(pitem->second)
+				if(pitem->hours[hour]
+					&& pitem->minutes[st->wMinute]
+					&& pitem->wdays[st->wDayOfWeek]
+					&& pitem->second == st->wSecond)
+					bexec = TRUE;
+			}
+			
+			// At regular intervals
+			if(pitem->bInterval && pitem->nInterval > 0)
+			{
+				if(pitem->hours[hour] && pitem->wdays[st->wDayOfWeek])
 				{
-					if(pitem->second == st->wSecond) bexec = TRUE;
+					if(GetTickCount() - pitem->tickLast >
+						(DWORD)pitem->nInterval * 1000 * 60) bexec = TRUE;
 				}
-				else bexec = TRUE;
 			}
 		}
 		
@@ -148,39 +149,25 @@ void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason)
 			if(pitem->bBootExec) bexec = TRUE;
 		}
 		
-		// At regular intervals
-		if(st && pitem->bInterval && pitem->nInterval > 0)
-		{
-			if(pitem->hours[hour] && pitem->wdays[st->wDayOfWeek])
-			{
-				if(GetTickCount() - pitem->tickLast >
-					(DWORD)pitem->nInterval * 1000 * 60) bexec = TRUE;
-			}
-		}
-		
-		// not to execute an alarm twice within a minute
 		if(bexec)
 		{
 			DWORD tick = GetTickCount();
-			if(tick - pitem->tickLast < 60000 && reason == 0)
-				bexec = FALSE;
-			else pitem->tickLast = tick;
-		}
-		
-		if(bexec)
-		{
-			if(pitem->bBlink && g_hwndClock)
-				PostMessage(g_hwndClock, CLOCKM_BLINK, 0, pitem->nBlinkSec);
-			
-			if(pitem->fname[0])
+			// not to execute an alarm twice within a minute
+			if(tick - pitem->tickLast > 59840 || reason != 0)
 			{
-				if(pitem->bRepeat) loops = -1; else loops = 0;
-				if(pitem->bRepeatJihou) loops = hour;
+				pitem->tickLast = tick;
 				
-				// common/playfile.c
-				PlayFile(hwnd, pitem->fname, loops);
+				if(pitem->bBlink && g_hwndClock)
+					PostMessage(g_hwndClock, CLOCKM_BLINK, 0, pitem->nBlinkSec);
 				
-				MemReduce();
+				if(pitem->fname[0])
+				{
+					if(pitem->bRepeat) loops = -1; else loops = 0;
+					if(pitem->bRepeatJihou) loops = hour;
+					
+					// common/playfile.c
+					PlayFile(hwnd, pitem->fname, loops);
+				}
 			}
 		}
 	}

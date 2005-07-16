@@ -26,7 +26,7 @@ HWND  g_hwndClock = NULL;
 #endif
 
 /* Statics */
-LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam);
 
 static void Debug_ListChild(HWND hwndParent, int depth);
 
@@ -68,7 +68,7 @@ BOOL WINAPI HookStart(HWND hwndMain)
 		return FALSE;
 	}
 	// find the clock window
-	hwndTray = FindWindowEx(hwndTaskbar, NULL, "TrayNotifyWnd", "");
+	hwndTray = FindWindowEx(hwndTaskbar, NULL, "TrayNotifyWnd", NULL);
 	if(!hwndTray)
 	{
 		SendMessage(hwndMain, TCM_CLOCKERROR, 0, 2);

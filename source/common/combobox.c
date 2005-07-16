@@ -16,8 +16,7 @@ void InitColorCombo(HWND hDlg, int idCombo,
 	const COLORREF* pColAdd, int nAdd, COLORREF colDef);
 void OnMeasureItemColorCombo(LPMEASUREITEMSTRUCT pmis);
 void OnDrawItemColorCombo(LPDRAWITEMSTRUCT pdis, char (*pTexts)[80]);
-void ChooseColorWithCombo(HINSTANCE hInst, HWND hDlg,
-	int idCombo);
+BOOL ChooseColorWithCombo(HWND hDlg, int idCombo);
 
 /*------------------------------------------------
    initialize
@@ -25,28 +24,30 @@ void ChooseColorWithCombo(HINSTANCE hInst, HWND hDlg,
 void InitColorCombo(HWND hDlg, int idCombo,
 	const COLORREF *pColAdd, int nAdd, COLORREF colDef)
 {
-	int i;
+	int i, count;
 	
 	// Windows 16 colors 
-	int rgb[16][3] = {{0,0,0}, {128,0,0}, {0,128,0}, {128,128,0},
-		{0,0,128}, {128,0,128}, {0,128,128}, {192,192,192},
-		{128,128,128}, {255,0,0}, {0,255,0}, {255,255,0},
-		{0,0,255},{255,0,255}, {0,255,255}, {255,255,255}};
+	const COLORREF rgb[16] = {
+		RGB(0,0,0),       RGB(128,0,0),   RGB(0,128,0),   RGB(128,128,0),
+		RGB(0,0,128),     RGB(128,0,128), RGB(0,128,128), RGB(192,192,192),
+		RGB(128,128,128), RGB(255,0,0),   RGB(0,255,0),   RGB(255,255,0),
+		RGB(0,0,255),     RGB(255,0,255), RGB(0,255,255), RGB(255,255,255),
+	};
 	
 	for(i = 0; i < 16; i++) // 16 colors
-		CBAddString(hDlg, idCombo,
-			RGB(rgb[i][0], rgb[i][1], rgb[i][2]));
+		CBAddString(hDlg, idCombo, rgb[i]);
 	
 	for(i = 0; i < nAdd && pColAdd; i++)
 		CBAddString(hDlg, idCombo, pColAdd[i]);
 	
-	for(i = 0; i < CBGetCount(hDlg, idCombo); i++)
+	count = CBGetCount(hDlg, idCombo);
+	for(i = 0; i < count; i++)
 	{
 		if(colDef == (COLORREF)CBGetItemData(hDlg, idCombo, i))
 			break;
 	}
 	
-	if(i == CBGetCount(hDlg, idCombo))
+	if(i == count)
 		CBAddString(hDlg, idCombo, colDef);
 	
 	CBSetCurSel(hDlg, idCombo, i);
@@ -67,101 +68,104 @@ void OnDrawItemColorCombo(LPDRAWITEMSTRUCT pdis, char (*pTexts)[80])
 {
 	HBRUSH hbr;
 	COLORREF col;
-	TEXTMETRIC tm;
-	int y;
 	
-	if(IsWindowEnabled(pdis->hwndItem))
+	if(!(pdis->itemState & ODS_DISABLED))
 	{
 		col = pdis->itemData;
 		if(col & 0x80000000) col = GetSysColor(col & 0x00ffffff);
 	}
-	else col = col = GetSysColor(COLOR_3DFACE);
+	else col = GetSysColor(COLOR_3DFACE);
 	
-	switch(pdis->itemAction)
+	if(pdis->itemAction & (ODA_DRAWENTIRE | ODA_SELECT))
 	{
-		case ODA_DRAWENTIRE:
-		case ODA_SELECT:
+		hbr = CreateSolidBrush(col);
+		FillRect(pdis->hDC, &pdis->rcItem, hbr);
+		DeleteObject(hbr);
+		
+		if(pTexts)
 		{
 			char *p = NULL;
 			
-			if(pTexts)
-			{
-				if(pdis->itemData == (0x80000000|COLOR_3DFACE))
-					p = pTexts[0];
-				else if(pdis->itemData == (0x80000000|COLOR_3DSHADOW))
-					p = pTexts[1];
-				else if(pdis->itemData == (0x80000000|COLOR_3DHILIGHT))
-					p = pTexts[2];
-				else if(pdis->itemData == (0x80000000|COLOR_BTNTEXT))
-					p = pTexts[3];
-			}
-			
-			hbr = CreateSolidBrush(col);
-			FillRect(pdis->hDC, &pdis->rcItem, hbr);
-			DeleteObject(hbr);
+			if(pdis->itemData == (0x80000000|COLOR_3DFACE))
+				p = pTexts[0];
+			else if(pdis->itemData == (0x80000000|COLOR_3DSHADOW))
+				p = pTexts[1];
+			else if(pdis->itemData == (0x80000000|COLOR_3DHILIGHT))
+				p = pTexts[2];
+			else if(pdis->itemData == (0x80000000|COLOR_BTNTEXT))
+				p = pTexts[3];
 			
 			// print color names
 			if(p)
 			{
+				TEXTMETRIC tm;
+				int y;
+				
 				SetBkMode(pdis->hDC, TRANSPARENT);
-				GetTextMetrics(pdis->hDC, &tm);
-				if(pdis->itemID == 19)
-					SetTextColor(pdis->hDC, RGB(255,255,255));
+				if(!(pdis->itemState & ODS_DISABLED))
+				{
+					if(GetRValue(col) + GetGValue(col) + GetBValue(col) < 383)
+						SetTextColor(pdis->hDC, RGB(255,255,255));
+					else
+						SetTextColor(pdis->hDC, RGB(0,0,0));
+				}
 				else
-					SetTextColor(pdis->hDC, RGB(0,0,0));
-				y = (pdis->rcItem.bottom - pdis->rcItem.top - tm.tmHeight)/2;
+					SetTextColor(pdis->hDC, GetSysColor(COLOR_GRAYTEXT));
+				
+				GetTextMetrics(pdis->hDC, &tm);
+				y = (pdis->rcItem.bottom - pdis->rcItem.top - tm.tmHeight) / 2;
 				TextOut(pdis->hDC, pdis->rcItem.left + 4, pdis->rcItem.top + y,
 					p, strlen(p));
 			}
-			if(!(pdis->itemState & ODS_FOCUS)) break;
-		}
-		case ODA_FOCUS:
-		{
-			if(pdis->itemState & ODS_FOCUS)
-				hbr = CreateSolidBrush(0);
-			else
-				hbr = CreateSolidBrush(col);
-			FrameRect(pdis->hDC, &pdis->rcItem, hbr);
-			DeleteObject(hbr);
-			break;
 		}
 	}
+	
+	if(pdis->itemState & ODS_FOCUS)
+		hbr = CreateSolidBrush(0);
+	else if(pdis->itemAction & ODA_FOCUS)
+		hbr = CreateSolidBrush(col);
+	else
+		return;
+	FrameRect(pdis->hDC, &pdis->rcItem, hbr);
+	DeleteObject(hbr);
 }
 
 /*--------------------------------------------------------
   open a choose color dialog and set color to combobox
 ----------------------------------------------------------*/
-void ChooseColorWithCombo(HINSTANCE hInst, HWND hDlg,
-	int idCombo)
+BOOL ChooseColorWithCombo(HWND hDlg, int idCombo)
 {
+	static COLORREF colarray[16];
 	CHOOSECOLOR cc;
-	COLORREF col, colarray[16];
-	int i;
+	COLORREF col;
+	int i, count;
 	
 	col = CBGetItemData(hDlg, idCombo, CBGetCurSel(hDlg, idCombo));
 	if(col & 0x80000000) col = GetSysColor(col & 0x00ffffff);
 	
-	for(i = 0; i < 16; i++) colarray[i] = RGB(255,255,255);
+	// for(i = 0; i < 16; i++) colarray[i] = RGB(255,255,255);
 	
 	memset(&cc, 0, sizeof(CHOOSECOLOR));
 	cc.lStructSize = sizeof(CHOOSECOLOR);
 	cc.hwndOwner = hDlg;
-	cc.hInstance = (HWND)hInst;
 	cc.rgbResult = col;
 	cc.lpCustColors = colarray;
 	cc.Flags = CC_FULLOPEN | CC_RGBINIT;
 	
-	if(!ChooseColor(&cc)) return;
+	if(!ChooseColor(&cc)) return FALSE;
 	
-	for(i = 0; i < CBGetCount(hDlg, idCombo); i++)
+	count = CBGetCount(hDlg, idCombo);
+	for(i = 0; i < count; i++)
 	{
 		if(cc.rgbResult == (COLORREF)CBGetItemData(hDlg, idCombo, i))
 			break;
 	}
-	if(i == CBGetCount(hDlg, idCombo))
+	if(i == count)
 		CBAddString(hDlg, idCombo, cc.rgbResult);
 	
 	CBSetCurSel(hDlg, idCombo, i);
+	
+	return TRUE;
 }
 
 /* ---------------------- Font combobox -------------------------------*/
@@ -174,11 +178,11 @@ void InitFontSizeCombo(HWND hDlg, int idCombo,
 
 /* Statics */
 
-static BOOL CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf, 
-	NEWTEXTMETRICEX* lpntm, int FontType, LPARAM hCombo);
-static BOOL CALLBACK EnumSizeProcEx(ENUMLOGFONTEX* pelf, 
-	NEWTEXTMETRICEX* lpntm, int FontType, LPARAM hCombo);
-static int m_nFontSizes[] = 
+static int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf, 
+	NEWTEXTMETRICEX* lpntm, DWORD FontType, LPARAM hCombo);
+static int CALLBACK EnumSizeProcEx(ENUMLOGFONTEX* pelf, 
+	NEWTEXTMETRICEX* lpntm, DWORD FontType, LPARAM hCombo);
+static const int m_nFontSizes[] = 
 	{ 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72};
 static int m_logpixelsy;
 
@@ -194,18 +198,12 @@ void InitFontNameCombo(HWND hDlg, int idCombo, const char* deffont)
 	
 	CBResetContent(hDlg, idCombo);
 	
-	hdc = GetDC(NULL);
-	
 	// Enumerate fonts and set in the combo box
-	memset(&lf, 0, sizeof(LOGFONT));
 	hcombo = GetDlgItem(hDlg, idCombo);
-	lf.lfCharSet = (BYTE)GetTextCharset(hdc);  // MS UI Gothic, ...
-	EnumFontFamiliesEx(hdc, &lf,
-		(FONTENUMPROC)EnumFontFamExProc, (LPARAM)hcombo, 0);
-	lf.lfCharSet = OEM_CHARSET;   // Small Fonts, Terminal...
-	EnumFontFamiliesEx(hdc, &lf,
-		(FONTENUMPROC)EnumFontFamExProc, (LPARAM)hcombo, 0);
-	lf.lfCharSet = DEFAULT_CHARSET;  // Arial, Courier, Times New Roman, ...
+	memset(&lf, 0, sizeof(LOGFONT));
+	// enumerates all fonts in all character sets
+	lf.lfCharSet = DEFAULT_CHARSET;
+	hdc = GetDC(NULL);
 	EnumFontFamiliesEx(hdc, &lf,
 		(FONTENUMPROC)EnumFontFamExProc, (LPARAM)hcombo, 0);
 	ReleaseDC(NULL, hdc);
@@ -226,13 +224,13 @@ void InitFontSizeCombo(HWND hDlg, int idCombo,
 	
 	CBResetContent(hDlg, idCombo);
 	
-	hdc = GetDC(NULL);
-	m_logpixelsy = GetDeviceCaps(hdc, LOGPIXELSY);
-	
 	// enumerate font size
 	memset(&lf, 0, sizeof(LOGFONT));
 	strcpy(lf.lfFaceName, fontname);
 	lf.lfCharSet = (BYTE)charset;
+	hdc = GetDC(NULL);
+	m_logpixelsy = GetDeviceCaps(hdc, LOGPIXELSY);
+	
 	EnumFontFamiliesEx(hdc, &lf, (FONTENUMPROC)EnumSizeProcEx,
 		(LPARAM)GetDlgItem(hDlg, idCombo), 0);
 	
@@ -243,8 +241,8 @@ void InitFontSizeCombo(HWND hDlg, int idCombo,
   Callback function for enumerating fonts.
   To set a font name in the combo box.
 --------------------------------------------------*/
-BOOL CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf, 
-	NEWTEXTMETRICEX* lpntm, int FontType, LPARAM hCombo)
+int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf, 
+	NEWTEXTMETRICEX* lpntm, DWORD FontType, LPARAM hCombo)
 {
 	// if(FontType & RASTER_FONTTYPE) return 1;
 	if(pelf->elfLogFont.lfFaceName[0] != '@' && 
@@ -265,8 +263,8 @@ BOOL CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf,
   Callback function for enumerating fonts.
   To set a font size in the combo box.
 --------------------------------------------------*/
-BOOL CALLBACK EnumSizeProcEx(ENUMLOGFONTEX* pelf, 
-	NEWTEXTMETRICEX* lpntm, int FontType, LPARAM hCombo)
+int CALLBACK EnumSizeProcEx(ENUMLOGFONTEX* pelf, 
+	NEWTEXTMETRICEX* lpntm, DWORD FontType, LPARAM hCombo)
 {
 	char s[80];
 	int num, i, count;
@@ -284,8 +282,8 @@ BOOL CALLBACK EnumSizeProcEx(ENUMLOGFONTEX* pelf,
 	}
 	
 	// Other case
-	num = (lpntm->ntmTm.tmHeight - lpntm->ntmTm.tmInternalLeading) * 72
-			/ m_logpixelsy;
+	num = MulDiv((lpntm->ntmTm.tmHeight - lpntm->ntmTm.tmInternalLeading),
+		72, m_logpixelsy);
 	count = SendMessage((HWND)hCombo, CB_GETCOUNT, 0, 0);
 	for(i = 0; i < count; i++)
 	{

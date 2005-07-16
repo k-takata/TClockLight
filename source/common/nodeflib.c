@@ -113,9 +113,9 @@ int r__wtoi(const WCHAR *p)
 /*-------------------------------------------
   wcslen
 ---------------------------------------------*/
-int r_wcslen(const wchar_t *p)
+size_t r_wcslen(const wchar_t *p)
 {
-	int n = 0; while(*p) { n++; p++; } return n;
+	size_t n = 0; while(*p) { n++; p++; } return n;
 }
 
 /*-------------------------------------------
@@ -130,9 +130,9 @@ wchar_t *r_wcscpy(wchar_t *dp, const wchar_t *sp)
 /*-------------------------------------------
   wcsncmp
 ---------------------------------------------*/
-int r_wcsncmp(const wchar_t *p1, const wchar_t *p2, int count)
+int r_wcsncmp(const wchar_t *p1, const wchar_t *p2, size_t count)
 {
-	int i;
+	size_t i;
 	for(i = 0; i < count; i++)
 	{
 		if(*p1 == 0 && *p2 == 0) break;

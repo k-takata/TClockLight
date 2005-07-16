@@ -66,9 +66,8 @@ void InitTrayNotify(HWND hwndClock)
 	SetClassLong(m_hwndTrayNotify, GCL_STYLE,
 		m_oldClassStyle|CS_HREDRAW|CS_VREDRAW);
 	
-	m_oldWndProcTrayNotify = 
-		(WNDPROC)GetWindowLong(m_hwndTrayNotify, GWL_WNDPROC);
-	SetWindowLong(m_hwndTrayNotify, GWL_WNDPROC, (LONG)WndProcTrayNotify);
+	m_oldWndProcTrayNotify = (WNDPROC)SetWindowLongPtr(m_hwndTrayNotify,
+		GWLP_WNDPROC, (LONG_PTR)WndProcTrayNotify);
 	
 	m_oldStyle = GetWindowLong(m_hwndTrayNotify, GWL_STYLE);
 	SetWindowLong(m_hwndTrayNotify, GWL_STYLE,
@@ -95,8 +94,8 @@ void EndTrayNotify(void)
 		SetWindowLong(m_hwndTrayNotify, GWL_STYLE, m_oldStyle);
 		
 		if(m_oldWndProcTrayNotify)
-			SetWindowLong(m_hwndTrayNotify, GWL_WNDPROC,
-				(LONG)m_oldWndProcTrayNotify);
+			SetWindowLongPtr(m_hwndTrayNotify, GWLP_WNDPROC,
+				(LONG_PTR)m_oldWndProcTrayNotify);
 		
 		SetClassLong(m_hwndTrayNotify, GCL_STYLE, m_oldClassStyle);
 		

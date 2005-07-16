@@ -16,27 +16,50 @@
 
 BOOL InitSNTP(HWND hwndParent);
 void EndSNTP(HWND hwndParent);
-void SNTPCommand(HWND hwndMain, const char *pCommand);
+// void SNTPCommand(HWND hwndMain, const char *pCommand);
 void SetSNTPParam(const char *servername, int nTimeout, BOOL bLog,
 	const char *soundfile);
-BOOL StartSyncTime(HWND hwnd, const char *pServer, BOOL bRAS);
+BOOL StartSyncTime(HWND hwnd, BOOL bRAS);
 void OnTimerSNTP(HWND hwndMain);
 void OnGetHost(HWND hwnd, WPARAM wParam, LPARAM lParam);
 void OnReceive(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 /* Statics */
 
+typedef __int64 HOSTTIME;
+
+typedef struct _NTPTIME {
+	u_long seconds;
+	u_long fractions;
+} NTPTIME;
+
+struct NTP_Packet {          // NTP packet
+	u_char  Control_Byte;
+	u_char  stratum;
+	char    poll_interval;
+	char    precision;
+	long    root_delay;
+	u_long  root_dispersion;
+	u_long  reference_identifier;
+	NTPTIME reference_timestamp;
+	NTPTIME originate_timestamp;
+	NTPTIME receive_timestamp;
+	NTPTIME transmit_timestamp;
+};
+
 static BOOL IsRASConnection(void);
-static BOOL SNTPStart(HWND hwndSNTP, const char *pServer);
+static BOOL SNTPStart(HWND hwndSNTP);
 static void SNTPSend(HWND hwndSNTP, unsigned long serveraddr);
-static void SynchronizeSystemTime(HWND hwndSNTP,
-	DWORD seconds, DWORD fractions);
+static void SynchronizeSystemTime(HWND hwndSNTP, struct NTP_Packet *pnp);
 static void SocketClose(HWND hwndSNTP, const char *msgbuf);
 static int GetServerPort(const char *buf, char *server);
 static void Log(HWND hwndSNTP, const char *msg);
 static void time2int(int *ph, int *pm, const char *src);
+static void HostTimeToNTPTime(const HOSTTIME *pht, NTPTIME *pnt);
+static void NTPTimeToHostTime(const NTPTIME *pnt, HOSTTIME *pht);
+static void GetLocalClockOffset(const struct NTP_Packet *pnp, HOSTTIME *phtofs);
 
-static char *m_section = "SNTP";
+static const char *m_section = "SNTP";
 
 static char m_servername[BUFSIZE_SERVER] = { 0 }; // SNTP server's host name
 static int  m_nTimeOut = 1000;              // msec of time out
@@ -44,31 +67,19 @@ static BOOL m_bSaveLog = FALSE;             // save log ?
 static char m_soundfile[MAX_PATH] = { 0 };  // sound file 
 static int  m_nMinuteDif = 0;               // forcely time difference
 
-static BOOL  m_bSendingData = FALSE;     // now processing?
-static DWORD m_dwTickCountOnGetHost = 0; // starting time of getting IP address
 static DWORD m_dwTickCountOnSend = 0;    // starting time of sending data
 
 static char  *m_pGetHost = NULL; // buffer of host entry
 static HANDLE m_hGetHost;        // task handle of WSAAsyncGetHostByName()
-static int    m_socket;   // socket
+static SOCKET m_socket;   // socket
 static int    m_port;     // port
+
+static HOSTTIME T4; // Destination Timestamp
 
 // RASAPI32.dll
 static HMODULE m_hRASAPI = NULL;
 DWORD (WINAPI *m_pRasEnumConnections)(LPRASCONN, LPDWORD, LPDWORD);
 DWORD (WINAPI *m_pRasGetConnectStatus)(HRASCONN, LPRASCONNSTATUS);
-
-struct NTP_Packet {          // NTP packet
-	unsigned int Control_Word;
-	int root_delay;
-	int root_dispersion;
-	int reference_identifier;
-	__int64 reference_timestamp;
-	__int64 originate_timestamp;
-	__int64 receive_timestamp;
-	int transmit_timestamp_seconds;
-	int transmit_timestamp_fractions;
-};
 
 /*---------------------------------------------------
   initialize WinSock and read settings
@@ -79,7 +90,7 @@ BOOL InitSNTP(HWND hwndMain)
 	WSADATA wsaData;
 	char s[80];
 	
-	m_socket = -1;
+	m_socket = INVALID_SOCKET;
 	m_hGetHost = NULL;
 	
 	// initialize WinSock
@@ -92,7 +103,7 @@ BOOL InitSNTP(HWND hwndMain)
 	
 	GetMyRegStr(m_section, "Server", m_servername, 80, "");
 	m_nTimeOut = GetMyRegLong(m_section, "Timeout", 1000);
-	if(!(0 < m_nTimeOut && m_nTimeOut < 30000))
+	if(!(0 < m_nTimeOut && m_nTimeOut <= 30000))
 		m_nTimeOut = 1000;
 	m_bSaveLog = GetMyRegLong(m_section, "SaveLog", TRUE);
 	GetMyRegStr(m_section, "Sound", m_soundfile, MAX_PATH, "");
@@ -130,8 +141,7 @@ void SetSNTPParam(const char *servername, int nTimeOut, BOOL bLog,
 	const char *soundfile)
 {
 	if(servername) strcpy(m_servername, servername);
-	m_nTimeOut = nTimeOut;
-	if(0 < nTimeOut && nTimeOut < 30000)
+	if(0 < nTimeOut && nTimeOut <= 30000)
 		m_nTimeOut = nTimeOut;
 	m_bSaveLog = bLog;
 	if(soundfile) strcpy(m_soundfile, soundfile);
@@ -141,15 +151,13 @@ void SetSNTPParam(const char *servername, int nTimeOut, BOOL bLog,
   start SNTP session
   check RAS connection and call SNTPStart()
 ---------------------------------------------*/
-BOOL StartSyncTime(HWND hwnd, const char *servername, BOOL bRAS)
+BOOL StartSyncTime(HWND hwnd, BOOL bRAS)
 {
-	if(m_socket != -1 || m_hGetHost != NULL) return FALSE;
-	
-	if(servername) strcpy(m_servername, servername);
+	if(m_socket != INVALID_SOCKET || m_hGetHost != NULL) return FALSE;
 	
 	if(bRAS && !IsRASConnection()) return FALSE;
 	
-	return SNTPStart(hwnd, m_servername);
+	return SNTPStart(hwnd);
 }
 
 /*------------------------------------------------
@@ -157,19 +165,10 @@ BOOL StartSyncTime(HWND hwnd, const char *servername, BOOL bRAS)
 --------------------------------------------------*/
 void OnTimerSNTP(HWND hwnd)
 {
-	if(m_bSendingData) // while sending/receiving
-	{
-		char msg[80];
-		DWORD dif;
-		dif = GetTickCount() - m_dwTickCountOnSend;
-		if(dif >= (DWORD)m_nTimeOut)  // check timeout
-		{
-			wsprintf(msg, "timeout (%04d)", dif);
-			SocketClose(hwnd, msg);
-			PostMessage(hwnd, SNTPM_ERROR, 0, 0);
-			return;
-		}
-	}
+	char msg[80];
+	wsprintf(msg, "timeout (%04d)", GetTickCount() - m_dwTickCountOnSend);
+	SocketClose(hwnd, msg);
+	PostMessage(hwnd, SNTPM_ERROR, 0, 0);
 }
 
 /*---------------------------------------------------
@@ -218,15 +217,15 @@ BOOL IsRASConnection(void)
 /*---------------------------------------------------
   start SNTP session
 ---------------------------------------------------*/
-BOOL SNTPStart(HWND hwndSNTP, const char *pServer)
+BOOL SNTPStart(HWND hwndSNTP)
 {
 	char servername[BUFSIZE_SERVER];
 	unsigned long serveraddr;
 	
-	if(m_socket != -1 || m_hGetHost != NULL) return FALSE;
+	if(m_socket != INVALID_SOCKET || m_hGetHost != NULL) return FALSE;
 	
 	// get server name and port
-	m_port = GetServerPort(pServer, servername);
+	m_port = GetServerPort(m_servername, servername);
 	if(m_port == -1)
 	{
 		Log(hwndSNTP, "invalid server name"); return FALSE;
@@ -237,12 +236,12 @@ BOOL SNTPStart(HWND hwndSNTP, const char *pServer)
 	if(m_socket == INVALID_SOCKET)
 	{
 		Log(hwndSNTP, "socket() failed");
-		m_socket = -1; return FALSE;
+		return FALSE;
 	}
 	
 	serveraddr = inet_addr(servername);
 	// if server name is not "XXX.XXX.XXX.XXX"
-	if(serveraddr == (unsigned long)-1)
+	if(serveraddr == INADDR_NONE)
 	{
 		// request IP address
 		m_pGetHost = malloc(MAXGETHOSTSTRUCT);
@@ -254,7 +253,6 @@ BOOL SNTPStart(HWND hwndSNTP, const char *pServer)
 			SocketClose(hwndSNTP, "WSAAsyncGetHostByName() failed");
 			return FALSE;
 		}
-		m_dwTickCountOnGetHost = GetTickCount();
 		return TRUE;
 	}
 	
@@ -303,7 +301,7 @@ void SNTPSend(HWND hwndSNTP, unsigned long serveraddr)
 	struct sockaddr_in serversockaddr;
 	struct NTP_Packet NTP_Send;
 	unsigned int sntpver;
-	unsigned int Control_Word;
+	HOSTTIME ht;
 	
 	// request notification of events
 	if(WSAAsyncSelect(m_socket, hwndSNTP, WSOCK_SELECT, FD_READ)
@@ -330,8 +328,10 @@ void SNTPSend(HWND hwndSNTP, unsigned long serveraddr)
 	// |LI | VN  |Mode |    Stratum    |     Poll      |   Precision   |
 	// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 	sntpver = GetMyRegLong(m_section, "SNTPVer", 4);
-	Control_Word = (sntpver << 27) | (3 << 24);
-	NTP_Send.Control_Word = htonl(Control_Word);
+	NTP_Send.Control_Byte = (BYTE)(((sntpver&0x7) << 3) | 3);
+	
+	GetSystemTimeAsFileTime((FILETIME*)&ht);
+	HostTimeToNTPTime(&ht, &NTP_Send.transmit_timestamp);
 	
 	// send a packet
 	if(sendto(m_socket, (const char *)&NTP_Send, sizeof(NTP_Send), 0, 
@@ -345,7 +345,8 @@ void SNTPSend(HWND hwndSNTP, unsigned long serveraddr)
 	
 	// save tickcount
 	m_dwTickCountOnSend = GetTickCount();
-	m_bSendingData = TRUE;
+	
+	SetTimer(hwndSNTP, IDTIMER_MAIN, m_nTimeOut, NULL);
 }
 
 /*---------------------------------------------------
@@ -358,13 +359,13 @@ void OnReceive(HWND hwndSNTP, WPARAM wParam, LPARAM lParam)
 	struct NTP_Packet NTP_Recv;
 	int sockaddr_Size;
 	
-	if(m_socket == -1) return;
+	if(m_socket == INVALID_SOCKET) return;
 	if(WSAGETSELECTERROR(lParam))
 	{
 		SocketClose(hwndSNTP, "failed to receive");
 		return;
 	}
-	if(m_socket != (int)wParam ||
+	if(m_socket != (SOCKET)wParam ||
 		WSAGETSELECTEVENT(lParam) != FD_READ) return;
 	
 	// receive data
@@ -376,19 +377,17 @@ void OnReceive(HWND hwndSNTP, WPARAM wParam, LPARAM lParam)
 		return;
 	}
 	
+	GetSystemTimeAsFileTime((FILETIME*)&T4);
+	
 	// if Leap Indicator is 3
-	/*
-	if(ntohl(NTP_Recv.Control_Word) >> 30 == 3)
+	if((NTP_Recv.Control_Byte >> 6) == 3)
 	{
 		SocketClose(hwndSNTP, "server is unhealthy");
 		return;
 	}
-	*/
 	
 	// set system time
-	SynchronizeSystemTime(hwndSNTP,
-		ntohl(NTP_Recv.transmit_timestamp_seconds),
-		ntohl(NTP_Recv.transmit_timestamp_fractions));
+	SynchronizeSystemTime(hwndSNTP, &NTP_Recv);
 	
 	// close socket
 	SocketClose(hwndSNTP, NULL);
@@ -397,13 +396,12 @@ void OnReceive(HWND hwndSNTP, WPARAM wParam, LPARAM lParam)
 /*---------------------------------------------------
   set system time to received data
 ---------------------------------------------------*/
-void SynchronizeSystemTime(HWND hwndSNTP, DWORD seconds, DWORD fractions)
+void SynchronizeSystemTime(HWND hwndSNTP, struct NTP_Packet *pnp)
 {
-	FILETIME ft, ftold;
+	HOSTTIME ht, htofs;
 	SYSTEMTIME st, st_dif;
-	char s[MAX_PATH];
 	DWORD sr_time;
-	DWORDLONG dif;
+	char s[MAX_PATH];
 	BOOL b;
 	
 	// timeout ?
@@ -416,28 +414,22 @@ void SynchronizeSystemTime(HWND hwndSNTP, DWORD seconds, DWORD fractions)
 		return;
 	}
 	
-	// current time
-	GetSystemTimeAsFileTime(&ftold);
-	
-	// NTP data -> FILETIME
-	*(DWORDLONG*)&ft =
-		// seconds from 1900/01/01 ¨ 100 nano-seconds from 1601/01/01
-		M32x32to64(seconds, 10000000) + 94354848000000000i64;
+	GetLocalClockOffset(pnp, &htofs);
 	
 	// difference
 	if(m_nMinuteDif > 0)
-		*(DWORDLONG*)&ft += M32x32to64(m_nMinuteDif * 60, 10000000);
+		htofs += M32x32to64(m_nMinuteDif * 60, 10000000);
 	else if(m_nMinuteDif < 0)
-		*(DWORDLONG*)&ft -= M32x32to64(-m_nMinuteDif * 60, 10000000);
+		htofs -= M32x32to64(-m_nMinuteDif * 60, 10000000);
+	
+	// current time
+	GetSystemTimeAsFileTime((FILETIME*)&ht);
+	ht += htofs;
 	
 	// set system time
-	b = FileTimeToSystemTime(&ft, &st);
+	b = FileTimeToSystemTime((FILETIME*)&ht, &st);
 	if(b)
-	{
-		/* fractions: (2 ** 32 / 1000) */
-		st.wMilliseconds = (WORD)(fractions / 4294967);
 		b = SetSystemTime(&st);
-	}
 	if(!b)
 	{
 		Log(hwndSNTP, "failed to set time");
@@ -445,13 +437,11 @@ void SynchronizeSystemTime(HWND hwndSNTP, DWORD seconds, DWORD fractions)
 		return;
 	}
 	
-	SystemTimeToFileTime(&st, &ft);
 	// delayed or advanced
-	b = (*(DWORDLONG*)&ft > *(DWORDLONG*)&ftold);
-	// get difference
-	if(b) dif = *(DWORDLONG*)&ft - *(DWORDLONG*)&ftold;
-	else  dif = *(DWORDLONG*)&ftold - *(DWORDLONG*)&ft;
-	FileTimeToSystemTime((FILETIME*)&dif, &st_dif);
+	b = (htofs >= 0);
+	if(!b)
+		htofs = -htofs;
+	FileTimeToSystemTime((FILETIME*)&htofs, &st_dif);
 	
 	// save log
 	strcpy(s, "synchronized ");
@@ -484,6 +474,8 @@ void SocketClose(HWND hwndSNTP, const char *msgbuf)
 {
 	if(!hwndSNTP) return;
 	
+	KillTimer(hwndSNTP, IDTIMER_MAIN);
+	
 	// cancel task handle of WSAAsyncGetHostByName()
 	if(m_hGetHost != NULL) WSACancelAsyncRequest(m_hGetHost);
 	m_hGetHost = NULL;
@@ -491,15 +483,14 @@ void SocketClose(HWND hwndSNTP, const char *msgbuf)
 	if(m_pGetHost) free(m_pGetHost);
 	m_pGetHost = NULL;
 	
-	if(m_socket != -1)
+	if(m_socket != INVALID_SOCKET)
 	{
 		// cancel request of notification
 		WSAAsyncSelect(m_socket, hwndSNTP, 0, 0);
 		// close socket
 		closesocket(m_socket);
+		m_socket = INVALID_SOCKET;
 	}
-	m_socket = -1;
-	m_bSendingData = FALSE;
 	
 	if(msgbuf) Log(hwndSNTP, msgbuf);
 }
@@ -541,7 +532,6 @@ void Log(HWND hwndSNTP, const char *msg)
 {
 	SYSTEMTIME st;
 	char s[160];
-	int pos;
 	
 	GetLocalTime(&st);
 	wsprintf(s, "%02d/%02d %02d:%02d:%02d ",
@@ -552,7 +542,7 @@ void Log(HWND hwndSNTP, const char *msg)
 	// save to edit control
 	if(g_hwndLog)
 	{
-		pos = SendMessage(g_hwndLog, WM_GETTEXTLENGTH, 0, 0);
+		int pos = SendMessage(g_hwndLog, WM_GETTEXTLENGTH, 0, 0);
 		SendMessage(g_hwndLog, EM_SETSEL, pos, pos);
 		SendMessage(g_hwndLog, EM_REPLACESEL, 0, (LPARAM)s);
 	}
@@ -560,18 +550,19 @@ void Log(HWND hwndSNTP, const char *msg)
 	// save to file
 	if(m_bSaveLog)
 	{
-		HFILE hf;
+		HANDLE hf;
+		DWORD dwWritten;
 		char fname[MAX_PATH];
 		
 		strcpy(fname, g_mydir);
-		add_title(fname, "SNTP.txt");
-		hf = _lopen(fname, OF_WRITE);
-		if(hf == HFILE_ERROR)
-			hf = _lcreat(fname, 0);
-		if(hf == HFILE_ERROR) return;
-		_llseek(hf, 0, 2);
-		_lwrite(hf, s, strlen(s));
-		_lclose(hf);
+		add_title(fname, SNTPLOG);
+		hf = CreateFile(fname, GENERIC_WRITE, 0,
+			NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		if(hf == INVALID_HANDLE_VALUE)
+			return;
+		SetFilePointer(hf, 0, NULL, FILE_END);
+		WriteFile(hf, s, strlen(s), &dwWritten, NULL);
+		CloseHandle(hf);
 	}
 }
 
@@ -595,3 +586,40 @@ void time2int(int *ph, int *pm, const char *src)
 		*pm = *pm * 10 + *p++ - '0';
 	if(bminus) *pm *= -1;
 }
+
+static void HostTimeToNTPTime(const HOSTTIME *pht, NTPTIME *pnt)
+{
+	ULARGE_INTEGER uli;
+	int i;
+
+	uli.QuadPart = *pht - 94354848000000000i64;
+
+	for (i = 31; i >= 0; i--) {
+		uli.QuadPart <<= 1;
+		if (uli.HighPart >= 10000000) {
+			uli.HighPart -= 10000000;
+			uli.LowPart |= 1;
+		}
+	}
+
+	pnt->seconds = htonl(uli.LowPart);
+	pnt->fractions = htonl(uli.HighPart * 429); // (HighPart / 10000000) << 32
+}
+
+static void NTPTimeToHostTime(const NTPTIME *pnt, HOSTTIME *pht)
+{
+	*pht = M32x32to64(ntohl(pnt->seconds), 10000000)
+		+ ntohl(pnt->fractions) / 429 + 94354848000000000i64;
+}
+
+static void GetLocalClockOffset(const struct NTP_Packet *pnp, HOSTTIME *phtofs)
+{
+	HOSTTIME T1, T2, T3;
+
+	NTPTimeToHostTime(&pnp->originate_timestamp, &T1);
+	NTPTimeToHostTime(&pnp->receive_timestamp, &T2);
+	NTPTimeToHostTime(&pnp->transmit_timestamp, &T3);
+
+	*phtofs = ((T2 - T1) + (T3 - T4)) >> 1;
+}
+

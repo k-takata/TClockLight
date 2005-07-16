@@ -50,7 +50,7 @@ static HBITMAP m_hbmpMenu = NULL;  // offscreen BMP
 static COLORREF m_colMenu;         // color
 static BOOL m_bTile = FALSE;       // tile
 static int m_alpha = 255;          // transparency
-static char *m_section = "StartMenu";
+static const char *m_section = "StartMenu";
 
 /*--------------------------------------------------
   initialize
@@ -175,7 +175,7 @@ BOOL OnDrawItemStartMenu(HWND hwnd, DRAWITEMSTRUCT* pdis)
 	hdcMem = CreateCompatibleDC(hdc);
 	hbmpMem = CreateCompatibleBitmap(hdc, rcBox.right, rcBox.bottom);
 	SelectObject(hdcMem, hbmpMem);
-	hbr = CreateSolidBrush(GetSysColor(COLOR_MENU));
+	hbr = GetSysColorBrush(COLOR_MENU);
 	FillRect(hdcMem, &rcBox, hbr);
 	
 	SelectObject(hdcMem, (HFONT)GetCurrentObject(hdc, OBJ_FONT));
@@ -215,33 +215,33 @@ BOOL OnDrawItemStartMenu(HWND hwnd, DRAWITEMSTRUCT* pdis)
 		if(m_hdcMemMenu && m_hbmpMenu)
 		{
 			int i, j;
-			int wbmp, hbmp;
+			SIZE sz;
 			
-			GetBmpSize(m_hbmpMenu, &wbmp, &hbmp);
+			GetBmpSize(m_hbmpMenu, &sz);
 			
 			for(i = 0; ; i++)
 			{
 				int y, ysrc, h, x, w;
 				for(j = 0; ; j++)
 				{
-					y = rcBox.bottom - ((i + 1) * hbmp);
+					y = rcBox.bottom - ((i + 1) * sz.cy);
 					ysrc = 0;
-					h = hbmp;
+					h = sz.cy;
 					if(y < 0)
 					{
 						y = 0;
-						ysrc = ((i + 1) * hbmp) - rcBox.bottom;
+						ysrc = ((i + 1) * sz.cy) - rcBox.bottom;
 						h -= ysrc;
 					}
-					x = j * wbmp; w = wbmp;
+					x = j * sz.cx; w = sz.cx;
 					if(x + w > rcItem.right)
 					{
-						w -= ((j + 1) * wbmp) - rcItem.right;
+						w -= ((j + 1) * sz.cx) - rcItem.right;
 					}
 					if(w > 0 && h > 0)
 						BitBlt(hdcMem, x, y, w, h,
 							m_hdcMemMenu, 0, ysrc, SRCCOPY);
-					if(!m_bTile || w < wbmp) break;
+					if(!m_bTile || w < sz.cx) break;
 				}
 				if(!m_bTile || y == 0) break;
 			}
@@ -383,8 +383,8 @@ void SubclassBaseBar(void)
 	
 	// if(IsSubclassed(m_hwndBaseBar)) return;
 	
-	m_oldWndProcBaseBar = (WNDPROC)GetWindowLong(m_hwndBaseBar, GWL_WNDPROC);
-	SetWindowLong(m_hwndBaseBar, GWL_WNDPROC, (LONG)WndProcBaseBar);
+	m_oldWndProcBaseBar = (WNDPROC)SetWindowLongPtr(m_hwndBaseBar,
+		GWLP_WNDPROC, (LONG_PTR)WndProcBaseBar);
 }
 
 /*--------------------------------------------------
@@ -395,8 +395,8 @@ void UnSubclassBaseBar(void)
 	if(m_hwndBaseBar && IsWindow(m_hwndBaseBar))
 	{
 		if(m_oldWndProcBaseBar)
-			SetWindowLong(m_hwndBaseBar, GWL_WNDPROC,
-				(LONG)m_oldWndProcBaseBar);
+			SetWindowLongPtr(m_hwndBaseBar, GWLP_WNDPROC,
+				(LONG_PTR)m_oldWndProcBaseBar);
 	}
 	m_oldWndProcBaseBar = NULL;
 }
@@ -416,9 +416,8 @@ void SubclassUserPaneXP(void)
 	
 	if(IsSubclassed(m_hwndUserPaneXP)) return;
 	
-	m_oldWndProcUserPaneXP = (WNDPROC)GetWindowLong(m_hwndUserPaneXP,
-		GWL_WNDPROC);
-	SetWindowLong(m_hwndUserPaneXP, GWL_WNDPROC, (LONG)WndProcUserPaneXP);
+	m_oldWndProcUserPaneXP = (WNDPROC)SetWindowLongPtr(m_hwndUserPaneXP,
+		GWLP_WNDPROC, (LONG_PTR)WndProcUserPaneXP);
 }
 
 /*--------------------------------------------------
@@ -430,8 +429,8 @@ void UnSubclassUserPaneXP(void)
 	{
 		if(m_oldWndProcUserPaneXP)
 		{
-			SetWindowLong(m_hwndUserPaneXP, GWL_WNDPROC,
-				(LONG)m_oldWndProcUserPaneXP);
+			SetWindowLongPtr(m_hwndUserPaneXP, GWLP_WNDPROC,
+				(LONG_PTR)m_oldWndProcUserPaneXP);
 			SendMessage(GetParent(m_hwndUserPaneXP), WM_SYSCOLORCHANGE, 0, 0);
 		}
 	}
@@ -679,15 +678,15 @@ void OnPaintUserPaneXP(HWND hwnd, HDC hdc)
 	if(m_hbmpMenu)
 	{
 		int x, y;
-		int wbmp, hbmp;
+		SIZE sz;
 		
-		GetBmpSize(m_hbmpMenu, &wbmp, &hbmp);
+		GetBmpSize(m_hbmpMenu, &sz);
 		
-		for(y = 0; y < hClient; y += hbmp)
+		for(y = 0; y < hClient; y += sz.cy)
 		{
-			for(x = 0; x < wClient; x += wbmp)
+			for(x = 0; x < wClient; x += sz.cx)
 			{
-				BitBlt(hdc, x, y, wbmp, hbmp, m_hdcMemMenu, 0, 0, SRCCOPY);
+				BitBlt(hdc, x, y, sz.cx, sz.cy, m_hdcMemMenu, 0, 0, SRCCOPY);
 				if(!m_bTile) break;
 			}
 			if(!m_bTile) break;

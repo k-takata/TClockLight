@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageStartButtonProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageStartButtonProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -27,8 +27,9 @@ static void OnUseBack(HWND hDlg);
 static void OnSansho(HWND hDlg);
 static void OnChooseColor(HWND hDlg);
 static void OnSanshoBmp(HWND hDlg);
+static void OnHideStartBtn(HWND hDlg);
 
-static char *m_section = "StartButton";
+static const char *m_section = "StartButton";
 static BOOL m_bInit = FALSE;
 static BOOL m_bChanged = FALSE;
 static HFONT m_hfontb;
@@ -37,7 +38,7 @@ static HFONT m_hfonti;
 /*------------------------------------------------
    dialog procedure of this page
 --------------------------------------------------*/
-BOOL CALLBACK PageStartButtonProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageStartButtonProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -53,6 +54,7 @@ BOOL CALLBACK PageStartButtonProc(HWND hDlg, UINT message,
 			{
 				case IDC_STARTBTN:
 					OnStartBtn(hDlg);
+					SendPSChanged(hDlg);
 					break;
 				case IDC_FILESTART:
 				case IDC_CAPTIONSTART:
@@ -82,10 +84,13 @@ BOOL CALLBACK PageStartButtonProc(HWND hDlg, UINT message,
 					OnUseBack(hDlg);
 					SendPSChanged(hDlg);
 					break;
+				case IDC_STARTBTNHIDE:
+					OnHideStartBtn(hDlg);
+					SendPSChanged(hDlg);
+					break;
 				case IDC_STARTBTNBOLD:
 				case IDC_STARTBTNITALIC:
 				case IDC_STARTBTNFLAT:
-				case IDC_STARTBTNHIDE:
 				case IDC_STARTMENUCLOCK:
 					SendPSChanged(hDlg);
 					break;
@@ -134,7 +139,6 @@ void OnInit(HWND hDlg)
 {
 	BOOL b;
 	char s[MAX_PATH], s2[MAX_PATH];
-	LOGFONT logfont;
 	
 	m_bInit = FALSE;
 	
@@ -166,7 +170,9 @@ void OnInit(HWND hDlg)
 	m_hfontb = m_hfonti = NULL;
 	if(g_hfontDialog)
 	{
+		LOGFONT logfont;
 		GetObject(g_hfontDialog, sizeof(LOGFONT), &logfont);
+		
 		logfont.lfWeight = FW_BOLD;
 		m_hfontb = CreateFontIndirect(&logfont);
 		SendDlgItemMessage(hDlg, IDC_STARTBTNBOLD,
@@ -205,6 +211,7 @@ void OnInit(HWND hDlg)
 	CheckDlgButton(hDlg, IDC_STARTMENUCLOCK, b);
 	
 	OnStartBtn(hDlg);
+	OnHideStartBtn(hDlg);
 	
 	m_bInit = TRUE;
 }
@@ -343,7 +350,8 @@ void OnFont(HWND hDlg, BOOL bInit)
 	index = CBFindStringExact(hDlg, IDC_STARTBTNFONTSIZE, size);
 	if(index == CB_ERR)
 		SetDlgItemText(hDlg, IDC_STARTBTNFONTSIZE, size);
-	else CBSetCurSel(hDlg, IDC_STARTBTNFONTSIZE, index);
+	else
+		CBSetCurSel(hDlg, IDC_STARTBTNFONTSIZE, index);
 }
 
 /*------------------------------------------------
@@ -351,26 +359,16 @@ void OnFont(HWND hDlg, BOOL bInit)
 --------------------------------------------------*/
 void OnStartBtn(HWND hDlg)
 {
-	HWND hwnd;
-	BOOL b;
+	HWND hwnd = GetDlgItem(hDlg, IDC_STARTBTN);
+	BOOL b = IsDlgButtonChecked(hDlg, IDC_STARTBTN);
 	
-	b = IsDlgButtonChecked(hDlg, IDC_STARTBTN);
-	
-	if(!b) OnUseBack(hDlg);
-	
-	hwnd = GetDlgItem(hDlg, IDC_STARTBTN);
-	hwnd = GetWindow(hwnd, GW_HWNDNEXT);
-	while(hwnd)
+	while((hwnd = GetWindow(hwnd, GW_HWNDNEXT)) != NULL)
 	{
 		EnableWindow(hwnd, b);
 		if(GetDlgCtrlID(hwnd) == IDC_STARTBTNFLAT) break;
-		
-		hwnd = GetWindow(hwnd, GW_HWNDNEXT);
 	}
 	
 	if(b) OnUseBack(hDlg);
-	
-	SendPSChanged(hDlg);
 }
 
 /*------------------------------------------------
@@ -386,7 +384,8 @@ void OnUseBack(HWND hDlg)
 	
 	if(IsXPVisualStyle())
 		EnableDlgItem(hDlg, IDC_STARTBTNFLAT, FALSE);
-	else EnableDlgItem(hDlg, IDC_STARTBTNFLAT, !b);
+	else
+		EnableDlgItem(hDlg, IDC_STARTBTNFLAT, !b);
 }
 
 /*------------------------------------------------
@@ -394,37 +393,37 @@ void OnUseBack(HWND hDlg)
 --------------------------------------------------*/
 void OnSansho(HWND hDlg)
 {
-	char *filter = "Bitmap, Icon (*.bmp, *.ico)\0*.bmp;*.ico\0"
+	const char *filter = "Bitmap, Icon (*.bmp, *.ico)\0*.bmp;*.ico\0"
 		"Executable (*.exe, *.dll)\0*.exe;*.dll\0"
 		"All (*.*)\0*.*\0\0";
 	char deffile[MAX_PATH], fname[MAX_PATH+10];
-	char s[MAX_PATH+10], num[10];
-	HFILE hf = HFILE_ERROR;
+	HANDLE hf;
 	char head[2];
+	DWORD dwRead;
 	
 	deffile[0] = 0;
-	GetDlgItemText(hDlg, IDC_FILESTART, s, MAX_PATH);
-	if(s[0])
+	GetDlgItemText(hDlg, IDC_FILESTART, fname, MAX_PATH);
+	if(fname[0])
 	{
-		parse(deffile, s, 0, MAX_PATH);
-		parse(num, s, 1, 10);
-		hf = _lopen(deffile, OF_READ);
-	}
-	if(hf != HFILE_ERROR)
-	{
-		_lread(hf, head, 2);
-		_lclose(hf);
-		
-		if(head[0] == 'M' && head[1] == 'Z') // executable
+		parse(deffile, fname, 0, MAX_PATH);
+		hf = CreateFile(deffile, GENERIC_READ, FILE_SHARE_READ,
+			NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		if(hf != INVALID_HANDLE_VALUE)
 		{
-			// select icon : selecticon.c
-			if(SelectIconInDLL(g_hInst, hDlg, deffile))
+			ReadFile(hf, head, 2, &dwRead, NULL);
+			CloseHandle(hf);
+			
+			if(head[0] == 'M' && head[1] == 'Z') // executable
 			{
-				SetDlgItemText(hDlg, IDC_FILESTART, deffile);
-				PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
-				SendPSChanged(hDlg);
+				// select icon : selecticon.c
+				if(SelectIconInDLL(g_hInst, hDlg, fname))
+				{
+					SetDlgItemText(hDlg, IDC_FILESTART, fname);
+					PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+					SendPSChanged(hDlg);
+				}
+				return;
 			}
-			return;
 		}
 	}
 	
@@ -432,10 +431,11 @@ void OnSansho(HWND hDlg)
 	if(!SelectMyFile(g_hInst, hDlg, filter, 0, deffile, fname))
 		return;
 	
-	hf = _lopen(fname, OF_READ);
-	if(hf == HFILE_ERROR) return;
-	_lread(hf, head, 2);
-	_lclose(hf);
+	hf = CreateFile(fname, GENERIC_READ, FILE_SHARE_READ,
+		NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if(hf == INVALID_HANDLE_VALUE) return;
+	ReadFile(hf, head, 2, &dwRead, NULL);
+	CloseHandle(hf);
 	if(head[0] == 'M' && head[1] == 'Z') // executable
 	{
 		// select icon : selecticon.c
@@ -453,10 +453,11 @@ void OnSansho(HWND hDlg)
 void OnChooseColor(HWND hDlg)
 {
 	// common/combobox.c
-	ChooseColorWithCombo(g_hInst, hDlg, IDC_STARTBTNCOL);
-	
-	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
-	SendPSChanged(hDlg);
+	if(ChooseColorWithCombo(hDlg, IDC_STARTBTNCOL))
+	{
+		PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+		SendPSChanged(hDlg);
+	}
 }
 
 /*------------------------------------------------
@@ -464,18 +465,26 @@ void OnChooseColor(HWND hDlg)
 --------------------------------------------------*/
 void OnSanshoBmp(HWND hDlg)
 {
-	char *filter = "Bitmap (*.bmp)\0*.bmp\0\0";
+	const char *filter = "Bitmap (*.bmp)\0*.bmp\0\0";
 	char deffile[MAX_PATH], fname[MAX_PATH+10];
 	
 	deffile[0] = 0;
 	GetDlgItemText(hDlg, IDC_STARTBTNBACKBMP, deffile, MAX_PATH);
 	
 	// select file : common/selectfile.c
-	if(!SelectMyFile(g_hInst, hDlg, filter, 0, deffile, fname))
-		return;
-	
-	SetDlgItemText(hDlg, IDC_STARTBTNBACKBMP, fname);
-	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
-	SendPSChanged(hDlg);
+	if(SelectMyFile(g_hInst, hDlg, filter, 0, deffile, fname))
+	{
+		SetDlgItemText(hDlg, IDC_STARTBTNBACKBMP, fname);
+		PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+		SendPSChanged(hDlg);
+	}
 }
 
+/*------------------------------------------------
+  "Hide Start button" is checked
+--------------------------------------------------*/
+void OnHideStartBtn(HWND hDlg)
+{
+	EnableDlgItem(hDlg, IDC_STARTMENUCLOCK,
+		IsDlgButtonChecked(hDlg, IDC_STARTBTNHIDE));
+}
