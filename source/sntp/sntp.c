@@ -7,6 +7,11 @@
   Special thanks to Tomoaki Nakashima
 ---------------------------------------------------------------*/
 
+/*
+** 2004-11-12 - follow RFC-1769
+** by Distantland
+*/
+
 #include "tcsntp.h"
 
 #include <winsock.h>
@@ -29,8 +34,10 @@ void OnReceive(HWND hwnd, WPARAM wParam, LPARAM lParam);
 static BOOL IsRASConnection(void);
 static BOOL SNTPStart(HWND hwndSNTP, const char *pServer);
 static void SNTPSend(HWND hwndSNTP, unsigned long serveraddr);
+/*
 static void SynchronizeSystemTime(HWND hwndSNTP,
 	DWORD seconds, DWORD fractions);
+*/
 static void SocketClose(HWND hwndSNTP, const char *msgbuf);
 static int GetServerPort(const char *buf, char *server);
 static void Log(HWND hwndSNTP, const char *msg);
@@ -69,6 +76,142 @@ struct NTP_Packet {          // NTP packet
 	int transmit_timestamp_seconds;
 	int transmit_timestamp_fractions;
 };
+
+/*
+** NTP timestamp
+**  64bit unsigned  (big-endian)
+**  32bit seconds : 32bit fraction
+**  relative to 00:00:00 on 1900-01-01
+*/
+typedef __int64 NTPTIME;
+typedef NTPTIME* LPNTPTIME;
+
+/*
+** HOST timestamp (same as FILETIME)
+**  64bit signed (little-endian)
+**  100ns intervals
+**  relative to 00:00:00 on 1601-01-01
+*/
+typedef __int64 HOSTTIME;
+typedef HOSTTIME* LPHOSTTIME;
+
+static void SynchronizeSystemTime(HWND, struct NTP_Packet*);
+
+static HOSTTIME T4; /* time reply received at client */
+
+/*
+** 1900-01-01 - 1601-01-01 = 109207day = 9435484800sec
+** 100ns = 0.0000001sec
+*/
+#define HOSTTIME_TICK 10000000
+#define ORG_DIFF      94354848000000000i64
+#define ORG_DIFF_LOW  0xFDE04000
+#define ORG_DIFF_HIGH 0x014F373B
+
+static void
+hosttime_to_ntptime(LPHOSTTIME lpht, LPNTPTIME lpnt)
+{
+	_asm {
+		; edx:eax = *lpht - ORG_DIFF
+		mov     ebx,lpht
+		mov     edx,[ebx+4]
+		mov     eax,[ebx]
+		sub     eax,ORG_DIFF_LOW
+		sbb     edx,ORG_DIFF_HIGH
+
+		; *lpnt = edx:eax / HOSTTIME_TICK
+		mov     ecx,HOSTTIME_TICK
+		div     ecx
+		push    eax         ; seconds
+		xor     eax,eax
+		div     ecx
+		push    eax         ; fraction
+		xor     eax,eax
+		div     ecx
+		add     eax,eax     ; round off
+		pop     eax
+		adc     eax,0
+		pop     edx
+		adc     edx,0
+
+		mov     ebx,lpnt
+		xchg    ah,al
+		ror     eax,16
+		xchg    ah,al
+		mov     [ebx+4],eax
+		xchg    dh,dl
+		ror     edx,16
+		xchg    dh,dl
+		mov     [ebx],edx
+	}
+}
+
+static void
+ntptime_to_hosttime(LPNTPTIME lpnt, LPHOSTTIME lpht)
+{
+	_asm {
+		; edx:eax = *lpnt * HOSTTIME_TICK
+		mov     ebx,lpnt
+		mov     eax,[ebx+4] ; fraction (NTPTIME)
+		xchg    ah,al
+		ror     eax,16
+		xchg    ah,al
+		mov     ecx,HOSTTIME_TICK
+		mul     ecx
+		push    eax         ; fraction (HOSTTIME)
+		push    edx         ; low part
+
+		mov     eax,[ebx]   ; seconds
+		xchg    ah,al
+		ror     eax,16
+		xchg    ah,al
+		mul     ecx
+		pop     ecx
+		add     eax,ecx     ; low part
+		adc     edx,0       ; high part
+		pop     ecx
+		add     ecx,ecx     ; round off
+
+		; *lpht = edx:eax + ORG_DIFF
+		mov     ebx,lpht
+		adc     eax,ORG_DIFF_LOW
+		adc     edx,ORG_DIFF_HIGH
+		mov     [ebx],eax
+		mov     [ebx+4],edx
+	}
+}
+
+/* __int64 /= 2 */
+static void
+int64div2(__int64* lp64)
+{
+	_asm {
+		mov     ebx,lp64
+		xor     eax,eax
+		sar     dword ptr [ebx+4],1
+		rcr     dword ptr [ebx],1
+		js      short L01
+
+		adc     [ebx],eax   ; round off
+		adc     [ebx+4],eax
+	L01:
+	}
+}
+
+/* calculate offset, delay */
+static void
+local_clock_offset(struct NTP_Packet* lpnp, LPHOSTTIME lpofs, LPHOSTTIME lpdelay)
+{
+	HOSTTIME T1, T2, T3;
+
+	ntptime_to_hosttime((LPNTPTIME)&lpnp->originate_timestamp, &T1);
+	ntptime_to_hosttime((LPNTPTIME)&lpnp->receive_timestamp, &T2);
+	ntptime_to_hosttime((LPNTPTIME)&lpnp->transmit_timestamp_seconds, &T3);
+
+	*lpdelay = (T4 - T1) - (T3 - T2);
+	*lpofs = (T2 - T1) + (T3 - T4);
+	int64div2((__int64*)lpofs);
+}
 
 /*---------------------------------------------------
   initialize WinSock and read settings
@@ -332,7 +475,15 @@ void SNTPSend(HWND hwndSNTP, unsigned long serveraddr)
 	sntpver = GetMyRegLong(m_section, "SNTPVer", 4);
 	Control_Word = (sntpver << 27) | (3 << 24);
 	NTP_Send.Control_Word = htonl(Control_Word);
-	
+
+	/* set T1 */
+	{
+		HOSTTIME ht;
+
+		GetSystemTimeAsFileTime((LPFILETIME)&ht);
+		hosttime_to_ntptime(&ht, (LPNTPTIME)&NTP_Send.transmit_timestamp_seconds);
+	}
+
 	// send a packet
 	if(sendto(m_socket, (const char *)&NTP_Send, sizeof(NTP_Send), 0, 
 		(struct sockaddr *)&serversockaddr,
@@ -384,12 +535,12 @@ void OnReceive(HWND hwndSNTP, WPARAM wParam, LPARAM lParam)
 		return;
 	}
 	*/
-	
-	// set system time
-	SynchronizeSystemTime(hwndSNTP,
-		ntohl(NTP_Recv.transmit_timestamp_seconds),
-		ntohl(NTP_Recv.transmit_timestamp_fractions));
-	
+
+	/* get T4 */
+	GetSystemTimeAsFileTime((LPFILETIME)&T4);
+
+	SynchronizeSystemTime(hwndSNTP, &NTP_Recv);
+
 	// close socket
 	SocketClose(hwndSNTP, NULL);
 }
@@ -397,13 +548,12 @@ void OnReceive(HWND hwndSNTP, WPARAM wParam, LPARAM lParam)
 /*---------------------------------------------------
   set system time to received data
 ---------------------------------------------------*/
-void SynchronizeSystemTime(HWND hwndSNTP, DWORD seconds, DWORD fractions)
+void SynchronizeSystemTime(HWND hwndSNTP, struct NTP_Packet* lpnp)
 {
-	FILETIME ft, ftold;
-	SYSTEMTIME st, st_dif;
+	HOSTTIME ht, htold, htofs, htdelay;
+	SYSTEMTIME st, st_dif, st_delay;
 	char s[MAX_PATH];
 	DWORD sr_time;
-	DWORDLONG dif;
 	BOOL b;
 	
 	// timeout ?
@@ -415,63 +565,53 @@ void SynchronizeSystemTime(HWND hwndSNTP, DWORD seconds, DWORD fractions)
 		PostMessage(hwndSNTP, SNTPM_ERROR, 0, 0);
 		return;
 	}
-	
-	// current time
-	GetSystemTimeAsFileTime(&ftold);
-	
-	// NTP data -> FILETIME
-	*(DWORDLONG*)&ft =
-		// seconds from 1900/01/01 ¨ 100 nano-seconds from 1601/01/01
-		M32x32to64(seconds, 10000000) + 94354848000000000i64;
-	
-	// difference
-	if(m_nMinuteDif > 0)
-		*(DWORDLONG*)&ft += M32x32to64(m_nMinuteDif * 60, 10000000);
-	else if(m_nMinuteDif < 0)
-		*(DWORDLONG*)&ft -= M32x32to64(-m_nMinuteDif * 60, 10000000);
-	
-	// set system time
-	b = FileTimeToSystemTime(&ft, &st);
-	if(b)
-	{
-		/* fractions: (2 ** 32 / 1000) */
-		st.wMilliseconds = (WORD)(fractions / 4294967);
+
+	/* calc offset */
+	local_clock_offset(lpnp, &htofs, &htdelay);
+
+	/* set time */
+	GetSystemTimeAsFileTime((LPFILETIME)&htold);
+	ht = htold + htofs;
+
+	b = FileTimeToSystemTime((LPFILETIME)&ht, &st);
+	if (b)
 		b = SetSystemTime(&st);
-	}
-	if(!b)
+	if (!b)
 	{
 		Log(hwndSNTP, "failed to set time");
 		PostMessage(hwndSNTP, SNTPM_ERROR, 0, 0);
 		return;
 	}
 	
-	SystemTimeToFileTime(&st, &ft);
-	// delayed or advanced
-	b = (*(DWORDLONG*)&ft > *(DWORDLONG*)&ftold);
-	// get difference
-	if(b) dif = *(DWORDLONG*)&ft - *(DWORDLONG*)&ftold;
-	else  dif = *(DWORDLONG*)&ftold - *(DWORDLONG*)&ft;
-	FileTimeToSystemTime((FILETIME*)&dif, &st_dif);
-	
-	// save log
+	b = (htofs >= 0i64);
+	if (!b)
+		htofs = -htofs;
+	FileTimeToSystemTime((LPFILETIME)&htofs, &st_dif);
+
+	/* log */
 	strcpy(s, "synchronized ");
-	if(st_dif.wYear == 1601 && st_dif.wMonth == 1 &&
-		st_dif.wDay == 1 && st_dif.wHour == 0)
+	if (st_dif.wYear == 1601 && st_dif.wMonth == 1 &&
+	    st_dif.wDay == 1 && st_dif.wHour == 0)
 	{
-		strcat(s, b?"+":"-");
-		wsprintf(s + strlen(s), "%02d:%02d.%03d ",
-			st_dif.wMinute, st_dif.wSecond, st_dif.wMilliseconds);
+		strcat(s, b ? "+" : "-");
+		wsprintf(s + strlen(s), "%02d:%02d.%03d",
+		         st_dif.wMinute, st_dif.wSecond, st_dif.wMilliseconds);
 	}
-	wsprintf(s + strlen(s), "(%04d)", sr_time);
+
+	wsprintf(s + strlen(s), " (%04d)", sr_time);
+
+	FileTimeToSystemTime((LPFILETIME)&htdelay, &st_delay);
+	wsprintf(s + strlen(s), " [%04d]", st_delay.wSecond * 1000 + st_delay.wMilliseconds);
+
 	Log(hwndSNTP, s);
 	
-	if(m_soundfile[0])
+	if (m_soundfile[0])
 	{
 		HWND hwndTClockMain = GetTClockMainWindow();
-		
-		if(hwndTClockMain)
+
+		if (hwndTClockMain)
 			SendStringToOther(hwndTClockMain, hwndSNTP,
-				m_soundfile, COPYDATA_SOUND);
+			                  m_soundfile, COPYDATA_SOUND);
 	}
 	
 	PostMessage(hwndSNTP, SNTPM_SUCCESS, 0, 0);

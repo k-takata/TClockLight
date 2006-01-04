@@ -166,6 +166,7 @@ void OnInit(HWND hDlg)
 void LoadLog(HWND hDlg)
 {
 	HFILE hf;
+	DWORD dwRead;
 	char fname[MAX_PATH];
 	char buf[LOG_BUF_SIZE];
 	char *p = buf;
@@ -177,14 +178,16 @@ void LoadLog(HWND hDlg)
 	hf = _lopen(fname, OF_READ);
 	if(hf == HFILE_ERROR) return;
 	_llseek(hf, -(sizeof(buf) - 1), 2);
-	_lread(hf, buf, sizeof(buf) - 1);
+	dwRead = _lread(hf, buf, sizeof(buf) - 1);
 	_lclose(hf);
-	buf[sizeof(buf) - 1] = '\0';
+	buf[dwRead] = '\0';
 	while (*p && (*p != '\n'))
 		++p;
 	if (*p == '\n')
 		++p;
 	SetDlgItemText(hDlg, IDC_SNTPLOGRESULT, p);
+	SendMessage(g_hwndLog, EM_LINESCROLL, 0,
+		SendMessage(g_hwndLog, EM_GETLINECOUNT, 0, 0) - 1);
 }
 
 /*-------------------------------------------
