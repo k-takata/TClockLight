@@ -57,6 +57,10 @@ struct {
 	{ 'H', NULL, HDDHandler },
 	{ 0, L"CU", CPUHandler },
 	{ 0, L"BL", BatteryHandler },
+	{ 0, L"AD", ACStatusHandler },
+	{ 0, L"VL", VolumeMuteHandler },
+	{ 0, L"VOL", VolumeHandler },
+	{ 0, L"VMT", MuteHandler },
 };
 
 #define NUM_HANDLERS (sizeof(format_handers) / sizeof(format_handers[0])) 

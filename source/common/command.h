@@ -50,3 +50,4 @@
 #define IDC_CDCLOSE                     6
 #define IDC_FILELIST                    7
 #define IDC_COMMAND                     8
+#define IDC_MUTE                        9

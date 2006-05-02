@@ -7,13 +7,16 @@
 
 void GetDiskSpace(int nDrive, double *all, double *free)
 {
-	char szDrive[5];
+	char szDrive[] = "A:\\";
 	ULARGE_INTEGER useByte, allByte, freeByte;
-
-	wsprintf(szDrive, "%c:\\", nDrive + 'A');
-	GetDiskFreeSpaceEx(szDrive, &useByte, &allByte, &freeByte);
-
-	*all = allByte.QuadPart / 1048576.0;
-	*free = freeByte.QuadPart / 1048576.0;
+	
+	szDrive[0] += (char)nDrive;
+	
+	if ( GetDiskFreeSpaceEx(szDrive, &useByte, &allByte, &freeByte) ){
+		*all = allByte.QuadPart / 1048576.0;
+		*free = freeByte.QuadPart / 1048576.0;
+	}else{
+		*all = 0.0;
+		*free = 0.0;
+	}
 }
-

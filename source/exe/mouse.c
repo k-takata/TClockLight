@@ -16,6 +16,7 @@ void EndMouseFunction(HWND hwnd);
 void OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 void OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 void OnTimerMouse(HWND hwnd);
+void OnMouseWheel(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 /* Statics */
 
@@ -223,6 +224,33 @@ void OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 /*------------------------------------------------
+   when the mouse wheel is rotated
+--------------------------------------------------*/
+void OnMouseWheel(HWND hwnd, WPARAM wParam, LPARAM lParam)
+{
+	int zDelta, xPos, yPos, button;
+	RECT rcClock;
+	PMOUSESTRUCT pMSS;
+	
+	GetWindowRect(g_hwndClock, &rcClock);
+	xPos = GET_X_LPARAM(lParam); 
+	yPos = GET_Y_LPARAM(lParam);
+	if (!( xPos >= rcClock.left && xPos <= rcClock.right && yPos >= rcClock.top && yPos <= rcClock.bottom ))
+		return;
+	
+	zDelta = (short) HIWORD(wParam);
+	if (zDelta > 0)
+		button = 5;
+	else
+		button = 6;
+	
+	pMSS = GetMouseCommand(button, 1);
+	if(!pMSS) return;
+	
+	ExecuteMouseFunction(hwnd, pMSS);
+}
+
+/*------------------------------------------------
    execute mouse function
 --------------------------------------------------*/
 void OnTimerMouse(HWND hwnd)
@@ -276,6 +304,26 @@ void ExecuteMouseFunction(HWND hwnd, const PMOUSESTRUCT pMSS)
 		{
 			int nCmd = atoi(pMSS->option);
 			if(nCmd >= 100) PostMessage(hwnd, WM_COMMAND, nCmd, 0);
+			break;
+		}
+		case IDC_VOLSET:
+		{
+			int vol = atoi(pMSS->option);
+			SetMasterVolume(vol);
+			PostMessage(g_hwndClock, CLOCKM_VOLCHANGE, TRUE, TRUE);
+			break;
+		}
+		case IDC_VOLUD:
+		{
+			int vol = atoi(pMSS->option);
+			UpDownMasterVolume(vol);
+			PostMessage(g_hwndClock, CLOCKM_VOLCHANGE, TRUE, TRUE);
+			break;
+		}
+		case IDC_MUTE:
+		{
+			ReverseMasterMute();
+			PostMessage(g_hwndClock, CLOCKM_VOLCHANGE, TRUE, TRUE);
 			break;
 		}
 		case IDC_FILELIST:

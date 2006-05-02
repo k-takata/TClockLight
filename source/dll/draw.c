@@ -601,8 +601,8 @@ void LoadAnalogClockSetting(void)
 	m_bMinHandBold = GetMyRegLong(section, "MinHandBold", 0);
 
 	m_nAClockPos = GetMyRegLong(section, "AnalogClockPos", 0);
-	m_nAClockHPos = GetMyRegLong(section, "HorizontalPos", 0);
-	m_nAClockVPos = GetMyRegLong(section, "VerticalPos", 0);
+	m_nAClockHPos = (int)(short)GetMyRegLong(section, "HorizontalPos", 0);
+	m_nAClockVPos = (int)(short)GetMyRegLong(section, "VerticalPos", 0);
 	m_nAClockSize = GetMyRegLong(section, "Size", 0);
 
 	GetMyRegStr(section, "Bitmap", m_fname, MAX_PATH, "");

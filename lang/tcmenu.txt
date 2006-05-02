@@ -11,6 +11,8 @@ Timer                   103
 #Timer Begin
 #Timer End
 ---------------------------
+Alarm   tcprop.exe /page 6
+---------------------------
 "Synchronization Settings"   tcsntp.exe
 "Synchronize"             104
 ---------------------------

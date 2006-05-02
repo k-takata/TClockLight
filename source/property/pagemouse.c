@@ -25,6 +25,7 @@ static void OnNameDropDown(HWND hDlg);
 static void OnAdd(HWND hDlg);
 static void OnDelete(HWND hDlg);
 static void OnFunction(HWND hDlg, BOOL bInit);
+static void OnMouseButton(HWND hDlg);
 static void OnBrowse(HWND hDlg);
 static void SetMouseCommandToDlg(HWND hDlg, PMOUSESTRUCT pMSS);
 static void GetMouseCommandFromDlg(HWND hDlg, PMOUSESTRUCT pMSS);
@@ -79,7 +80,10 @@ INT_PTR CALLBACK PageMouseProc(HWND hDlg, UINT message,
 					break;
 				case IDC_MOUSEBUTTON:
 					if(code == CBN_SELCHANGE)
+					{
+						OnMouseButton(hDlg);
 						SendPSChanged(hDlg);
+					}
 					break;
 				case IDC_RADSINGLE:
 				case IDC_RADDOUBLE:
@@ -164,6 +168,10 @@ void OnInit(HWND hDlg)
 		(LPARAM)MyString(IDS_XBUTTON1, "XButton1"));
 	CBAddString(hDlg, IDC_MOUSEBUTTON,
 		(LPARAM)MyString(IDS_XBUTTON2, "XButton2"));
+	CBAddString(hDlg, IDC_MOUSEBUTTON,
+		(LPARAM)MyString(IDS_WHEELUP, "WheelUp"));
+	CBAddString(hDlg, IDC_MOUSEBUTTON,
+		(LPARAM)MyString(IDS_WHEELDOWN, "WheelDown"));
 	
 	InitFunction(hDlg, IDC_MOUSEFUNC);
 	
@@ -228,6 +236,7 @@ void OnName(HWND hDlg)
 	SetMouseCommandToDlg(hDlg, get_listitem(m_pMouseCommand, index));
 	
 	OnFunction(hDlg, TRUE);
+	OnMouseButton(hDlg);
 	m_nCurrent = index;
 }
 
@@ -285,6 +294,7 @@ void OnAdd(HWND hDlg)
 	
 	SetMouseCommandToDlg(hDlg, pitem);
 	OnFunction(hDlg, FALSE);
+	OnMouseButton(hDlg);
 	
 	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
 }
@@ -317,6 +327,7 @@ void OnDelete(HWND hDlg)
 		
 		SetMouseCommandToDlg(hDlg, get_listitem(m_pMouseCommand, index));
 		OnFunction(hDlg, TRUE);
+		OnMouseButton(hDlg);
 	}
 	else
 	{
@@ -325,6 +336,7 @@ void OnDelete(HWND hDlg)
 		EnableMousePageItems(hDlg);
 		SetMouseCommandToDlg(hDlg, NULL);
 		OnFunction(hDlg, FALSE);
+		OnMouseButton(hDlg);
 	}
 	m_nCurrent = index;
 	
@@ -343,7 +355,8 @@ void OnFunction(HWND hDlg, BOOL bInit)
 	if(!bInit) SetDlgItemText(hDlg, IDC_MOUSEOPT, "");
 	
 	if(command == IDC_OPENFILE || command == IDC_MOUSECOPY ||
-		command == IDC_MONOFF || command == IDC_COMMAND)
+		command == IDC_MONOFF || command == IDC_COMMAND ||
+		command == IDC_VOLUD || command == IDC_VOLSET )
 	{
 		if(command == IDC_OPENFILE)
 			SetDlgItemText(hDlg, IDC_LABMOUSEOPT,
@@ -357,6 +370,12 @@ void OnFunction(HWND hDlg, BOOL bInit)
 		else if(command == IDC_COMMAND)
 			SetDlgItemText(hDlg, IDC_LABMOUSEOPT,
 				MyString(IDS_NUMERO, "Numero"));
+		else if(command == IDC_VOLSET)
+			SetDlgItemText(hDlg, IDC_LABMOUSEOPT,
+				MyString(IDS_VOLVAL, "Volume"));
+		else if(command == IDC_VOLUD)
+			SetDlgItemText(hDlg, IDC_LABMOUSEOPT,
+				MyString(IDS_VOLDELTA, "Delta"));
 		
 		ShowDlgItem(hDlg, IDC_LABMOUSEOPT, TRUE);
 		
@@ -382,6 +401,31 @@ void OnFunction(HWND hDlg, BOOL bInit)
 		ShowDlgItem(hDlg, IDC_LABMOUSEOPT, FALSE);
 		ShowDlgItem(hDlg, IDC_MOUSEOPT, FALSE);
 		ShowDlgItem(hDlg, IDC_MOUSEOPTSANSHO, FALSE);
+	}
+}
+
+/*------------------------------------------------
+   "MouseButton" is selected
+--------------------------------------------------*/
+void OnMouseButton(HWND hDlg)
+{
+	int button = CBGetCurSel(hDlg, IDC_MOUSEBUTTON);
+	int i;
+	
+	if(button > 4)
+	{
+		CheckRadioButton(hDlg, IDC_RADSINGLE, IDC_RADQUADRUPLE, IDC_RADSINGLE);
+		for(i = 0; i < 4; i++)
+		{
+			ShowDlgItem(hDlg, IDC_RADSINGLE + i, FALSE);
+		}
+	}
+	else
+	{
+		for(i = 0; i < 4; i++)
+		{
+			ShowDlgItem(hDlg, IDC_RADSINGLE + i, TRUE);
+		}
 	}
 }
 
@@ -504,7 +548,7 @@ void EnableMousePageItems(HWND hDlg)
    initialize "Function" combobox
 --------------------------------------------------*/
 
-#define MAX_MOUSEFUNC 14
+#define MAX_MOUSEFUNC 17
 
 static struct {
 	int   idStr;
@@ -525,6 +569,9 @@ static struct {
 	{ IDS_MONOFF,      "MonOff",     IDC_MONOFF },
 	{ IDS_KYU,         "Kyu",        IDC_KYU },
 	{ IDS_TCCOMMAND,   "TCCmd",      IDC_COMMAND },
+	{ IDS_VOLSET,      "Volset",     IDC_VOLSET },
+	{ IDS_VOLUD,       "VolUD",      IDC_VOLUD },
+	{ IDS_MUTE,        "Mute",       IDC_MUTE },
 };
 
 void InitFunction(HWND hDlg, int id)

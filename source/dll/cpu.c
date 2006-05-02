@@ -115,15 +115,18 @@ int CpuMoni_get(void)
 		static TC_SINT64 liOldSystemTime;
 		LONG status;
 
-		if (pNtQuerySystemInformation == NULL) return -1;
+		if (pNtQuerySystemInformation == NULL)
+			return 255;
 
 		// get new system time
 		status = pNtQuerySystemInformation(SystemTimeInformation, &SysTimeInfo, sizeof(SysTimeInfo), 0);
-		if (status != NO_ERROR) return -1;
+		if (status != NO_ERROR)
+			return 255;
 
 		// get new CPU's idle time
 		status = pNtQuerySystemInformation(SystemPerformanceInformation, &SysPerfInfo, sizeof(SysPerfInfo), NULL);
-		if (status != NO_ERROR) return -1;
+		if (status != NO_ERROR)
+			return 255;
 
 		// if it's a first call - skip it
 		dbIdleTime = 0;
@@ -138,6 +141,7 @@ int CpuMoni_get(void)
 
 			// CurrentCpuUsage% = 100 - (CurrentCpuIdle * 100) / NumberOfProcessors
 			dbIdleTime = 100.0 - dbIdleTime * 100.0 / (double)SysBaseInfo.bKeNumberProcessors + 0.5;
+			if ( dbIdleTime < 0 ) dbIdleTime = 0;
 		}
 
 		// store new CPU's idle and system time

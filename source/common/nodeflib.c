@@ -64,6 +64,10 @@ int r_strncmp(const char* d, const char* s, size_t n)
 int r_atoi(const char *p)
 {
 	int r = 0;
+	int sign = 1;
+	
+	if ( p == NULL ) return 0;
+	if ( *p == '-' ){ sign = -1; p++; }
 	while(*p)
 	{
 		if('0' <= *p && *p <= '9')
@@ -71,7 +75,7 @@ int r_atoi(const char *p)
 		else break;
 		p++;
 	}
-	return r;
+	return r * sign;
 }
 
 /*-------------------------------------------

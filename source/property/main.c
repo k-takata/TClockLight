@@ -38,6 +38,8 @@ static void OnApply(HWND hDlg);
 static void OnHelp(HWND hDlg);
 static void OnTVChanged(HWND hDlg, int nItem);
 static void InitTreeView(HWND hDlg);
+static void CheckCommandLine(int *pageNum);
+
 
 static int m_lastTreeItem;
 
@@ -411,6 +413,7 @@ void InitTreeView(HWND hDlg)
 	TVINSERTSTRUCT tv;
 	HTREEITEM hTreeItem[MAX_TREEITEM];
 	int i;
+	int cmdItem = 0;
 	
 	hTree = GetDlgItem(hDlg, IDC_TREE);
 	memset(&tv, 0, sizeof(TVINSERTSTRUCT));
@@ -431,8 +434,11 @@ void InitTreeView(HWND hDlg)
 			MyString(g_treeItem[i].idStr, g_treeItem[i].entry);
 		hTreeItem[i] = TreeView_InsertItem(hTree, &tv);
 	}
-	
-	m_lastTreeItem = GetMyRegLong(NULL, "LastTreeItem", 0);
+	CheckCommandLine(&cmdItem);
+	if ( cmdItem > 0 )
+		m_lastTreeItem = cmdItem;
+	else
+		m_lastTreeItem = GetMyRegLong(NULL, "LastTreeItem", 0);
 	if(m_lastTreeItem >= MAX_TREEITEM) m_lastTreeItem = 0;
 	TreeView_SelectItem(hTree, hTreeItem[m_lastTreeItem]);
 }
@@ -472,4 +478,52 @@ BOOL ExecCommandString(HWND hwnd, const char* command)
 	SendStringToOther(GetTClockMainWindow(), hwnd, command, COPYDATA_EXEC);
 	
 	return FALSE;
+}
+
+/*-------------------------------------------
+   process command line option
+---------------------------------------------*/
+void CheckCommandLine(int *pageNum)
+{
+	char name[20], value[MAX_PATH];
+	BOOL bquot;
+	char *p;
+	int i;
+	
+	p = GetCommandLine();
+	
+	while(*p)
+	{
+		if(*p == '/')
+		{
+			p++;
+			for(i = 0; *p && *p != ' ' && *p != '\"' && i < 19; i++)
+			{
+				name[i] = *p++;
+			}
+			name[i] = 0;
+			while(*p == ' ') p++;
+			
+			value[0] = 0;
+			if(*p && *p != '/')
+			{
+				bquot = FALSE;
+				if(*p == '\"') { bquot = TRUE; p++; }
+				for(i = 0; *p && i < MAX_PATH-1; i++)
+				{
+					if(bquot) { if(*p == '\"') break; }
+					else { if(*p == ' ') break; }
+					value[i] = *p++;
+				}
+				value[i] = 0;
+				if(bquot && *p == '\"') p++;
+			}
+			
+			if(strncmp(name, "page", 4) == 0)
+			{
+				*pageNum = atoi(value);
+			}
+		}
+		else p++;
+	}
 }

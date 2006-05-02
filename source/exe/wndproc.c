@@ -203,6 +203,7 @@ void ClearTClockMain(HWND hwnd)
 	EndMouseFunction(hwnd);
 	EndAlarm();
 	EndMenu();
+	ReleaseMixer();
 	
 	KillTimer(hwnd, IDTIMER_MAIN);
 	

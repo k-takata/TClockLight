@@ -20,6 +20,7 @@ static void OnRefreshClock(HWND hwnd);
 static void OnRefreshTaskbar(HWND hwnd);
 static void OnRefreshStartMenu(HWND hwnd);
 static void OnRefreshTooltip(HWND hwnd);
+static void OnVolumeChange(HWND hwnd);
 static LRESULT OnMouseDown(HWND hwnd, UINT message,
 	WPARAM wParam, LPARAM lParam);
 static LRESULT OnMouseUp(HWND hwnd, UINT message,
@@ -83,6 +84,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CreateClockDC(hwnd);    // create offscreen DC
 			return 0;
 		case WM_SYSCOLORCHANGE:
+		case WM_THEMECHANGED:
 			if(g_bNoClock) break;
 			CreateClockDC(hwnd);   // create offscreen DC
 			InvalidateRect(hwnd, NULL, FALSE);
@@ -176,6 +178,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return 0;
 		case CLOCKM_COPY: // copy format to clipboard
 			OnCopy(hwnd, NULL);
+			return 0;
+		case CLOCKM_VOLCHANGE:
+			OnVolumeChange(hwnd);
 			return 0;
 		
 		case WM_COPYDATA:
@@ -274,7 +279,7 @@ void OnTimerMain(HWND hwnd)
 	
 	CheckStartMenu(); // startmenu.c
 	
-	OnTimerTooltip(hwnd); // tooltip.c
+	OnTimerTooltip(hwnd, FALSE); // tooltip.c
 }
 
 /*------------------------------------------------
@@ -333,6 +338,24 @@ void OnRefreshTooltip(HWND hwnd)
 {
 	EndTooltip(hwnd);
 	InitTooltip(hwnd);
+}
+
+/*------------------------------------------------
+  CLOCKM_VOLCHANGE message
+--------------------------------------------------*/
+void OnVolumeChange(HWND hwnd)
+{
+	RefreshVolume();
+	
+	PostMessage(GetParent(GetParent(hwnd)), WM_SIZE,
+		SIZE_RESTORED, 0);
+	PostMessage(GetParent(hwnd), WM_SIZE,
+		SIZE_RESTORED, 0);
+	
+	InvalidateRect(hwnd, NULL, FALSE);
+	InvalidateRect(GetParent(hwnd), NULL, TRUE);
+	
+	OnTimerTooltip(hwnd, TRUE);
 }
 
 /*------------------------------------------------

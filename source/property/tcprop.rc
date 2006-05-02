@@ -625,5 +625,9 @@ BEGIN
     IDS_MOVETO              "Move To..."
     IDS_APPLICATION         "Application"
     IDS_FOLDER              "Folder"
+    IDS_WHEELUP             "WheelUp"
+    IDS_WHEELDOWN           "WheelDown"
+    IDS_VOLVAL              "Volume"
+    IDS_VOLDELTA            "Delta"
 END
 

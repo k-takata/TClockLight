@@ -41,6 +41,8 @@ PMOUSESTRUCT LoadMouseFunc(void)
 		else if(strcmp(s, "middle") == 0) item.nButton = 2;
 		else if(strcmp(s, "x1") == 0) item.nButton = 3;
 		else if(strcmp(s, "x2") == 0) item.nButton = 4;
+		else if(strcmp(s, "wheelup") == 0) item.nButton = 5;
+		else if(strcmp(s, "wheeldown") == 0) item.nButton = 6;
 		
 		item.nClick = GetMyRegLong(section, "Click", 1);
 		item.bCtrl  = GetMyRegLong(section, "Ctrl", FALSE);
@@ -61,7 +63,7 @@ PMOUSESTRUCT LoadMouseFunc(void)
 --------------------------------------------------*/
 void SaveMouseFunc(const PMOUSESTRUCT plist)
 {
-	const char *BtnStr[5] = { "left", "right", "middle", "x1", "x2" };
+	const char *BtnStr[7] = { "left", "right", "middle", "x1", "x2", "wheelup", "wheeldown" };
 	int oldcount, i;
 	char section[20];
 	PMOUSESTRUCT current;
@@ -76,7 +78,7 @@ void SaveMouseFunc(const PMOUSESTRUCT plist)
 		
 		SetMyRegStr(section, "Name", current->name);
 		
-		if(0 <= current->nButton && current->nButton <= 4)
+		if(0 <= current->nButton && current->nButton <= 6)
 			SetMyRegStr(section, "Button", BtnStr[current->nButton]);
 		
 		SetMyRegLong(section, "Click", current->nClick);

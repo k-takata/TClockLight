@@ -23,10 +23,10 @@ OBJS=dllmain.obj dllmain2.obj dllwndproc.obj draw.obj\
 	format.obj formattime.obj tooltip.obj userstr.obj\
 	startbtn.obj startmenu.obj taskbar.obj taskswitch.obj traynotify.obj\
 	bmp.obj newapi.obj dllutl.obj\
-	sysinfo.obj net.obj hdd.obj cpu.obj battery.obj\
+	sysinfo.obj net.obj hdd.obj cpu.obj battery.obj mixer.obj\
 	dlexec.obj dlutl.obj dlreg.obj dlfont.obj dllocaleinfo.obj
 
-LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib
+LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib winmm.lib
 
 
 # Visual C++
@@ -145,6 +145,8 @@ dllocaleinfo.obj: $(COMMONDIR)\localeinfo.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\localeinfo.c
 nodeflib.obj: $(COMMONDIR)\nodeflib.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\nodeflib.c
+mixer.obj: $(COMMONDIR)\mixer.c $(COMMONH)
+	$(CC) $(COPT)$@ $(COMMONDIR)\mixer.c
 
 # res file
 

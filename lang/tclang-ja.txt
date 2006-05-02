@@ -1,6 +1,6 @@
 [Main]
 DialogFont=ＭＳ Ｐゴシック,9
-Version=TClock Light 050101
+Version=TClock Light Unofficial 060330
 HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/ja/
 
 [Property]
@@ -217,6 +217,8 @@ RButton=右ボタン
 MButton=中央ボタン
 XButton1=サイドボタン1
 XButton2=サイドボタン2
+WheelUp=ホイール＋方向
+WheelDown=ホイール－方向
 File=ファイル
 
 None=（なし）
@@ -237,6 +239,11 @@ TCCmd=TClockのコマンド
 FormatCopy=書式
 Numero=番号
 MonOffSec=秒数
+Volset=ボリューム設定
+VolUD=ボリューム増減
+Mute=ミュート
+Volume=設定値
+Delta=増分値
 
 Recycle=ごみ箱
 OpenBy=プログラムで開く

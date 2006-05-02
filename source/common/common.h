@@ -8,7 +8,7 @@
 
 #include <windows.h>
 
-#define TCLOCKVERSION     "TClock Light 050101"
+#define TCLOCKVERSION     "TClock Light Unofficial 060330"
 
 #define CLASS_TCLOCKMAIN   "TClockMainClass"
 #define CLASS_TCLOCKPROP   "TClockPropertyClass"
@@ -286,7 +286,7 @@ DWORDLONG r_M32x32to64(DWORD a, DWORD b);
 
 #define M32x32to64(a,b) r_M32x32to64(a,b)
 
-#ifdef __BORLANDC__
+//#ifdef __BORLANDC__
 
 #undef memcpy
 #define memcpy(d,s,l) r_memcpy(d,s,l)
@@ -300,7 +300,7 @@ DWORDLONG r_M32x32to64(DWORD a, DWORD b);
 #undef strcat
 #define strcat(d, s) lstrcat(d, s)
 
-#endif  // end of __BORLANDC__
+//#endif  // end of __BORLANDC__
 
 #else   // #ifndef NODEFAULTLIB
 
@@ -392,6 +392,14 @@ void SetForegroundWindow98(HWND hwnd);
 void SetMyDialgPos(HWND hwnd, int xLen, int yLen);
 void WriteDebug(const char* s);
 void WriteDebugW(const wchar_t* s);
+
+/* ---------- mixer.c ----------------- */
+BOOL GetMasterVolume(BOOL *Val);
+BOOL GetMasterMute(BOOL *Val);
+BOOL SetMasterVolume(int Val);
+BOOL UpDownMasterVolume(int dif);
+BOOL ReverseMasterMute(void);
+void ReleaseMixer(void);
 
 /* -- Macros ---------------------------------------- */
 

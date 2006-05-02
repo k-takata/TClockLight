@@ -110,6 +110,7 @@ void EndClock(HWND hwnd)
 	
 	EndNewAPI();      // newapi.c
 	EndSysInfo(hwnd); // sysinfo.c
+	ReleaseMixer();   // mixer.c
 	
 	// Stop timers
 	KillTimer(hwnd, IDTIMER_MAIN);

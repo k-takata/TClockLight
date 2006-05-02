@@ -24,7 +24,7 @@ static BOOL    m_bSeparator = FALSE;
 static HWND    m_hwndTab = NULL;
 static LONG    m_oldStyle;
 static DWORD   m_oldExStyle;
-// static DWORD   m_oldTBStyle;
+static DWORD   m_oldTBStyle;
 static DWORD   m_oldTaskWidth;
 static WNDPROC m_oldWndProcTab = NULL;
 
@@ -46,9 +46,7 @@ void InitTaskSwitch(HWND hwndClock)
 			m_bSeparator = GetMyRegLong(NULL, "TaskSwitchSeparators", FALSE);
 	}
 	
-	// Icons Only: not to support Windows XP
-	if(!(g_winver&WINXP))
-		m_bTaskSwitchIcons = GetMyRegLong(NULL, "TaskSwitchIconsOnly", FALSE);
+	m_bTaskSwitchIcons = GetMyRegLong(NULL, "TaskSwitchIconsOnly", FALSE);
 	
 	if(!m_bTaskSwitchFlat && !m_bTaskSwitchIcons)
 		return;
@@ -94,18 +92,18 @@ void InitTaskSwitch(HWND hwndClock)
 	
 	if(m_bTaskSwitchIcons)
 	{
-		/*if(g_winver&WINXP)
+		if(g_winver&WINXP)
 		{
 			m_oldTBStyle = SendMessage(m_hwndTab, TB_GETEXTENDEDSTYLE, 0, 0);
 			SendMessage(m_hwndTab, TB_SETEXTENDEDSTYLE,
 				0, m_oldTBStyle|TBSTYLE_EX_MIXEDBUTTONS);
 		}
 		else
-		{*/
+		{
 			m_oldTaskWidth = SendMessage(m_hwndTab, TCM_SETITEMSIZE,
 				0, 23 + (23<<16));
 			m_oldTaskWidth = LOWORD(m_oldTaskWidth);
-		/*}*/
+		}
 	}
 	
 	m_oldWndProcTab = (WNDPROC)SetWindowLongPtr(m_hwndTab,
@@ -135,9 +133,9 @@ void EndTaskSwitch(void)
 	
 	if(m_bTaskSwitchIcons)
 	{
-		/*if(g_winver&WINXP)
+		if(g_winver&WINXP)
 			SendMessage(m_hwndTab, TB_SETEXTENDEDSTYLE, 0, m_oldTBStyle);
-		else*/
+		else
 			SendMessage(m_hwndTab, TCM_SETITEMSIZE, 0,
 				m_oldTaskWidth + (23<<16));
 	}
@@ -173,7 +171,6 @@ LRESULT CALLBACK WndProcTab(HWND hwnd, UINT message,
 		case TCM_DELETEITEM:
 			PostMessage(GetParent(hwnd), WM_SIZE, SIZE_RESTORED, 0);
 			break;
-		/*
 		case TB_SETBUTTONSIZE:
 			if(m_bTaskSwitchIcons)
 			{
@@ -191,7 +188,6 @@ LRESULT CALLBACK WndProcTab(HWND hwnd, UINT message,
 		case TB_DELETEBUTTON:
 			PostMessage(hwnd, WM_SIZE, SIZE_RESTORED, 0);
 			break;
-		*/
 	}
 	return CallWindowProc(m_oldWndProcTab, hwnd, message, wParam, lParam);
 }

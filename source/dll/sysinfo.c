@@ -4,24 +4,13 @@
 
 #include "tcdll.h"
 
-/* Globals */
-void InitSysInfo(HWND hwnd);
-void EndSysInfo(HWND hwnd);
-void OnTimerSysInfo(void);
-void ElapsedTimeHandler(FORMATHANDLERSTRUCT* pstruc);
-void NetworkHandler(FORMATHANDLERSTRUCT* pstruc);
-void MemoryHandler(FORMATHANDLERSTRUCT* pstruc);
-void HDDHandler(FORMATHANDLERSTRUCT* pstruc);
-void CPUHandler(FORMATHANDLERSTRUCT* pstruc);
-void BatteryHandler(FORMATHANDLERSTRUCT* pstruc);
-
 /* Statics */
 static BOOL GetNumFormat(const wchar_t **sp, wchar_t x, wchar_t c,
 	int *len, int *slen, BOOL *bComma);
 static void SetNumFormat(wchar_t **dp, unsigned n,
 	int len, int slen, BOOL bComma);
 
-static BOOL m_bNet, m_bMem, m_bHDD, m_bCPU, m_bBattery;
+static BOOL m_bNet, m_bMem, m_bHDD, m_bCPU, m_bBattery, m_bVolume;
 static double net[4];
 static MEMORYSTATUS ms;
 static BOOL actdvl[26];
@@ -29,7 +18,10 @@ static double diskAll[26];
 static double diskFree[26];
 static int iCPUUsage;
 static int iBatteryLife;
+static int iBatteryMode;
+static int iVolume;
 static int m_sec;
+static BOOL bMuteFlg;
 
 void InitSysInfo(HWND hwnd)
 {
@@ -54,11 +46,14 @@ void EndSysInfo(HWND hwnd)
 		CpuMoni_end(); // cpu.c
 	}
 
-	m_bNet = m_bMem = m_bHDD = m_bCPU = m_bBattery = FALSE;
+	m_bNet = m_bMem = m_bHDD = m_bCPU = m_bBattery = m_bVolume = FALSE;
 }
 
 void OnTimerSysInfo(void)
 {
+	int vol;
+	BOOL bMute;
+	
 	if (m_bNet) {
 		double recv, send;
 		Net_get(&recv, &send); // net.c
@@ -81,7 +76,13 @@ void OnTimerSysInfo(void)
 		iCPUUsage = CpuMoni_get(); // cpu.c
 	}
 	if (m_bBattery) {
-		iBatteryLife = GetBatteryLifePercent(); // battery.c
+		GetBatteryLifePercent(&iBatteryLife, &iBatteryMode); // battery.c
+	}
+	if (m_bVolume) {
+		GetMasterVolume(&vol); // mixer.c
+		GetMasterMute(&bMute);
+		bMuteFlg = bMute;
+		iVolume = vol;
 	}
 }
 
@@ -408,13 +409,157 @@ void BatteryHandler(FORMATHANDLERSTRUCT* pstruc)
 	if(!m_bBattery)
 	{
 		m_bBattery = TRUE;
-		iBatteryLife = GetBatteryLifePercent(); // battery.c
+		GetBatteryLifePercent(&iBatteryLife, &iBatteryMode); // battery.c
 		g_bDispSecond = TRUE;
 	}
 
 	pstruc->sp += 2;
 	GetNumFormat(&pstruc->sp, 'x', ',', &len, &slen, &bComma);
 	SetNumFormat(&pstruc->dp, iBatteryLife, len, slen, bComma);
+}
+
+void ACStatusHandler(FORMATHANDLERSTRUCT* pstruc)
+{
+	int sl;
+	if(!m_bBattery)
+	{
+		m_bBattery = TRUE;
+		GetBatteryLifePercent(&iBatteryLife, &iBatteryMode); // battery.c
+		g_bDispSecond = TRUE;
+	}
+	
+	pstruc->sp += 2;
+	if ( *pstruc->sp++ != '(' )
+		return;
+	sl = iBatteryMode;
+	
+	while ( sl > 0 )
+	{
+		while ( *pstruc->sp != '|' )
+		{
+			pstruc->sp++;
+			if ( *pstruc->sp == '\0' )
+				return;
+		}
+		pstruc->sp++;
+		sl--;
+	}
+	
+	while ( *pstruc->sp != '|' && *pstruc->sp != ')' && *pstruc->sp != '\0' )
+	{
+		*pstruc->dp++ = *pstruc->sp++;
+	}
+	
+	while ( *pstruc->sp != ')' && *pstruc->sp != '\0' )
+	{
+		pstruc->sp++;
+	}
+	pstruc->sp++;
+}
+
+void VolumeMuteHandler(FORMATHANDLERSTRUCT* pstruc)
+{
+	int len, slen, vol;
+	BOOL bComma, bMute;
+
+	if(!m_bVolume)
+	{
+		m_bVolume = TRUE;
+		
+		GetMasterVolume(&vol); // mixer.c
+		GetMasterMute(&bMute);
+		iVolume = vol;
+		bMuteFlg = bMute;
+		g_bDispSecond = TRUE;
+	}
+	vol = iVolume;
+	if ( bMuteFlg )
+		vol = 0;
+	pstruc->sp += 2;
+	GetNumFormat(&pstruc->sp, 'x', ',', &len, &slen, &bComma);
+	SetNumFormat(&pstruc->dp, vol, len, slen, bComma);
+}
+
+void VolumeHandler(FORMATHANDLERSTRUCT* pstruc)
+{
+	int len, slen, vol;
+	BOOL bComma, bMute;
+
+	if(!m_bVolume)
+	{
+		m_bVolume = TRUE;
+		
+		GetMasterVolume(&vol); // mixer.c
+		GetMasterMute(&bMute);
+		iVolume = vol;
+		bMuteFlg = bMute;
+		g_bDispSecond = TRUE;
+	}
+
+	pstruc->sp += 3;
+	GetNumFormat(&pstruc->sp, 'x', ',', &len, &slen, &bComma);
+	SetNumFormat(&pstruc->dp, iVolume, len, slen, bComma);
+}
+
+void MuteHandler(FORMATHANDLERSTRUCT* pstruc)
+{
+	int vol;
+    int sl = 0;
+	BOOL bMute;
+	
+	if(!m_bVolume)
+	{
+		m_bVolume = TRUE;
+		
+		GetMasterVolume(&vol); // mixer.c
+		GetMasterMute(&bMute);
+		iVolume = vol;
+		bMuteFlg = bMute;
+		g_bDispSecond = TRUE;
+	}
+	
+	pstruc->sp += 3;
+	if ( *pstruc->sp++ != '(' )
+		return;
+	if ( bMuteFlg )
+		sl = 1;
+	
+	while ( sl > 0 )
+	{
+		while ( *pstruc->sp != '|' )
+		{
+			pstruc->sp++;
+			if ( *pstruc->sp == '\0' )
+				return;
+		}
+		pstruc->sp++;
+		sl--;
+	}
+	
+	while ( *pstruc->sp != '|' && *pstruc->sp != ')' && *pstruc->sp != '\0' )
+	{
+		*pstruc->dp++ = *pstruc->sp++;
+	}
+	
+	while ( *pstruc->sp != ')' && *pstruc->sp != '\0' )
+	{
+		pstruc->sp++;
+	}
+	pstruc->sp++;
+}
+
+void RefreshVolume(void)
+{
+	int vol;
+	BOOL bMute;
+	
+	if(m_bVolume)
+	{
+		GetMasterVolume(&vol); // mixer.c
+		GetMasterMute(&bMute);
+		iVolume = vol;
+		bMuteFlg = bMute;
+	}
 }
 
 BOOL GetNumFormat(const wchar_t **sp, wchar_t x, wchar_t c,

@@ -20,6 +20,11 @@
 #define WM_XBUTTONUP                    0x020C
 #endif
 
+// ThemeChanged Message
+#ifndef WM_THEMECHANGED
+#define WM_THEMECHANGED                 0x031A
+#endif
+
 // timer id
 #define IDTIMER_MAIN         1
 #define IDTIMER_SYSINFO      2
@@ -104,7 +109,7 @@ void EndTooltip(HWND hwndClock);
 void OnTooltipMouseMsg(HWND hwndClock,
 	UINT message, WPARAM wParam, LPARAM lParam);
 BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, LPNMHDR pnmh);
-void OnTimerTooltip(HWND hwndClock);
+void OnTimerTooltip(HWND hwndClock, BOOL forceFlg);
 void PopupTooltip(HWND hwndClock, const wchar_t *p);
 
 /* ---------- userstr.c ----------- */
@@ -169,6 +174,11 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc);
 void HDDHandler(FORMATHANDLERSTRUCT* pstruc);
 void CPUHandler(FORMATHANDLERSTRUCT* pstruc);
 void BatteryHandler(FORMATHANDLERSTRUCT* pstruc);
+void ACStatusHandler(FORMATHANDLERSTRUCT* pstruc);
+void VolumeHandler(FORMATHANDLERSTRUCT* pstruc);
+void VolumeMuteHandler(FORMATHANDLERSTRUCT* pstruc);
+void MuteHandler(FORMATHANDLERSTRUCT* pstruc);
+void RefreshVolume(void);
 
 /* ---------- net.c --------------- */
 void Net_start(void);
@@ -184,4 +194,5 @@ int CpuMoni_get(void);
 void CpuMoni_end(void);
 
 /* ---------- battery.c --------------- */
-int GetBatteryLifePercent(void);
+void GetBatteryLifePercent(int *batteryLife, int *batteryMode);
+

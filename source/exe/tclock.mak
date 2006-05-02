@@ -22,7 +22,7 @@ COMMONH=$(COMMONDIR)\common.h
 OBJS=main2.obj wndproc.obj cmdopt.obj command.obj menu.obj\
 	alarm.obj mouse.obj mouse2.obj about.obj\
 	langcode.obj utl.obj exec.obj reg.obj autoformat.obj localeinfo.obj\
-	playfile.obj list.obj alarmstruct.obj mousestruct.obj
+	playfile.obj list.obj alarmstruct.obj mousestruct.obj mixer_exe.obj
 
 LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib winmm.lib
 
@@ -137,6 +137,8 @@ autoformat.obj: $(COMMONDIR)\autoformat.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\autoformat.c
 localeinfo.obj: $(COMMONDIR)\localeinfo.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\localeinfo.c
+mixer_exe.obj: $(COMMONDIR)\mixer.c $(COMMONH)
+	$(CC) $(COPT)$@ $(COMMONDIR)\mixer.c
 
 # res file
 

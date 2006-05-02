@@ -22,7 +22,7 @@ void EndTooltip(HWND hwndClock);
 void OnTooltipMouseMsg(HWND hwndClock,
 	UINT message, WPARAM wParam, LPARAM lParam);
 BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, LPNMHDR pnmh);
-void OnTimerTooltip(HWND hwndClock);
+void OnTimerTooltip(HWND hwndClock, BOOL forceFlg);
 void PopupTooltip(HWND hwndClock, const wchar_t *p);
 
 /* Statics */
@@ -161,7 +161,12 @@ void ReadTooltipFormatFromFile(const char *fname, BOOL bInit)
 	s_lasttime = fd.ftLastWriteTime.dwLowDateTime;
 	
 	size1 = fd.nFileSizeLow;
-	if(size1 == 0) return;
+	if(size1 == 0)
+	{
+		m_format = malloc(sizeof(wchar_t) * 11);
+		MultiByteToWideChar(CP_ACP, 0, "Blank File", -1, m_format, 11);
+		return;
+	}
 	
 	hFile = CreateFile(fname, GENERIC_READ, FILE_SHARE_READ,
 		NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -334,7 +339,7 @@ BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, LPNMHDR pnmh)
 /*------------------------------------------------
   update tooltip
 --------------------------------------------------*/
-void OnTimerTooltip(HWND hwndClock)
+void OnTimerTooltip(HWND hwndClock, BOOL forceFlg)
 {
 	TOOLINFO ti;
 	RECT rc;
@@ -342,12 +347,12 @@ void OnTimerTooltip(HWND hwndClock)
 	
 	if(!m_hwndTip) return;
 	
-	if(m_bUpdate || IsWindowVisible(m_hwndTip)) return;
+	if((m_bUpdate || IsWindowVisible(m_hwndTip)) && !forceFlg ) return;
 	
 	GetWindowRect(hwndClock, &rc);
 	GetCursorPos(&pt);
 	
-	if(PtInRect(&rc, pt)) return;
+	if(PtInRect(&rc, pt) && !forceFlg) return;
 	
 	memset(&ti, 0, sizeof(TOOLINFO));
 	ti.cbSize = sizeof(TOOLINFO);
