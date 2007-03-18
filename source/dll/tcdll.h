@@ -20,6 +20,11 @@
 #define WM_XBUTTONUP                    0x020C
 #endif
 
+// ThemeChanged Message
+#ifndef WM_THEMECHANGED
+#define WM_THEMECHANGED                 0x031A
+#endif
+
 // timer id
 #define IDTIMER_MAIN         1
 #define IDTIMER_SYSINFO      2

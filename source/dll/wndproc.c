@@ -83,6 +83,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CreateClockDC(hwnd);    // create offscreen DC
 			return 0;
 		case WM_SYSCOLORCHANGE:
+		case WM_THEMECHANGED:
 			if(g_bNoClock) break;
 			CreateClockDC(hwnd);   // create offscreen DC
 			InvalidateRect(hwnd, NULL, FALSE);

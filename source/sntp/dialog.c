@@ -166,10 +166,11 @@ void OnInit(HWND hDlg)
 void LoadLog(HWND hDlg)
 {
 	HFILE hf;
-	DWORD dwRead;
 	char fname[MAX_PATH];
 	char buf[LOG_BUF_SIZE];
 	char *p = buf;
+	UINT len;
+	UINT readlen = sizeof(buf) - 1;
 	
 	if(!IsDlgButtonChecked(hDlg, IDC_SNTPLOG)) return;
 	
@@ -177,17 +178,21 @@ void LoadLog(HWND hDlg)
 	add_title(fname, SNTPLOG);
 	hf = _lopen(fname, OF_READ);
 	if(hf == HFILE_ERROR) return;
-	_llseek(hf, -(sizeof(buf) - 1), 2);
-	dwRead = _lread(hf, buf, sizeof(buf) - 1);
+	_llseek(hf, -readlen, 2);
+	len = _lread(hf, buf, readlen);
 	_lclose(hf);
-	buf[dwRead] = '\0';
-	while (*p && (*p != '\n'))
-		++p;
-	if (*p == '\n')
-		++p;
+	if(len == (UINT) -1) return;
+	buf[len] = '\0';
+	if(len == readlen)
+	{
+		while (*p && (*p != '\n'))
+			++p;
+		if (*p == '\n')
+			++p;
+	}
 	SetDlgItemText(hDlg, IDC_SNTPLOGRESULT, p);
 	SendMessage(g_hwndLog, EM_LINESCROLL, 0,
-		SendMessage(g_hwndLog, EM_GETLINECOUNT, 0, 0) - 1);
+			SendMessage(g_hwndLog, EM_GETLINECOUNT, 0, 0) - 1);
 }
 
 /*-------------------------------------------

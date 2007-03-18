@@ -330,23 +330,27 @@ BOOL IsFile(const char* fname)
 int CheckWinVersion(void)
 {
 	DWORD dw;
+	WORD ver, w;
 	int ret;
 	
 	dw = GetVersion();
+	w = LOWORD(dw);
+	ver = MAKEWORD(HIBYTE(w), LOBYTE(w));
 	ret = 0;
 	if(dw & 0x80000000)
 	{
 		ret |= WIN95;
-		if(LOBYTE(LOWORD(dw)) >= 4 && HIBYTE(LOWORD(dw)) >= 10)
+		if(ver >= MAKEWORD(10, 4))	// 4.10
 			ret |= WIN98;
-		if(LOBYTE(LOWORD(dw)) >= 4 && HIBYTE(LOWORD(dw)) >= 90)
+		if(ver >= MAKEWORD(90, 4))	// 4.90
 			ret |= WINME;
 	}
 	else
 	{
 		ret |= WINNT;
-		if(LOBYTE(LOWORD(dw)) >= 5) ret |= WIN2000;
-		if(LOBYTE(LOWORD(dw)) >= 5 && HIBYTE(LOWORD(dw)) >= 1)
+		if(ver >= MAKEWORD(0, 5))	// 5.0
+			ret |= WIN2000;
+		if(ver >= MAKEWORD(1, 5))	// 5.1
 			ret |= WINXP;
 	}
 	

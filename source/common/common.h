@@ -8,7 +8,7 @@
 
 #include <windows.h>
 
-#define TCLOCKVERSION     "TClock Light 040424"
+#define TCLOCKVERSION     "TClock Light kt070319"
 
 #define CLASS_TCLOCKMAIN   "TClockMainClass"
 #define CLASS_TCLOCKPROP   "TClockPropertyClass"

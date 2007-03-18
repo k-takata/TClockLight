@@ -111,11 +111,9 @@ void DisableIME(void)
 		return;
 	pImmDisableIME = (pfnImmDisableIME)
 			GetProcAddress(hImm32, "ImmDisableIME");
-	if (pImmDisableIME == NULL)
-		return;
-	
-	pImmDisableIME(0);
-	
+	if (pImmDisableIME != NULL) {
+		pImmDisableIME(0);
+	}
 	FreeLibrary(hImm32);
 }
 
