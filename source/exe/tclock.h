@@ -32,6 +32,12 @@
 #define XBUTTON2       0x0002
 #endif
 
+// Windows Vista UIPI definitions
+#ifndef MSGFLT_ADD
+#define MSGFLT_ADD    1
+#define MSGFLT_REMOVE 2
+#endif
+
 // SNTP window
 #define IDC_SNTP 1
 

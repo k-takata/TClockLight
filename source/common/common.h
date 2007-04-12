@@ -8,7 +8,7 @@
 
 #include <windows.h>
 
-#define TCLOCKVERSION     "TClock Light kt070319"
+#define TCLOCKVERSION     "TClock Light kt070321"
 
 #define CLASS_TCLOCKMAIN   "TClockMainClass"
 #define CLASS_TCLOCKPROP   "TClockPropertyClass"
@@ -346,12 +346,13 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont);
 /* -- utl.c ---------------------------------------- */
 
 // Windows version flag
-#define WIN95   0x01   // 95,98,Me
-#define WIN98   0x02   // 98,Me
-#define WINME   0x04   // Me
-#define WINNT   0x08   // NT4,2000,XP
-#define WIN2000 0x10   // 2000,XP
-#define WINXP   0x20   // XP
+#define WIN95    0x01   // 95,98,Me
+#define WIN98    0x02   // 98,Me
+#define WINME    0x04   // Me
+#define WINNT    0x08   // NT4,2000,XP,Vista
+#define WIN2000  0x10   // 2000,XP,Vista
+#define WINXP    0x20   // XP,Vista
+#define WINVISTA 0x40   // Vista
 
 void add_title(char *path, const char* titile);
 void del_title(char *path);

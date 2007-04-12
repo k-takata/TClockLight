@@ -352,6 +352,8 @@ int CheckWinVersion(void)
 			ret |= WIN2000;
 		if(ver >= MAKEWORD(1, 5))	// 5.1
 			ret |= WINXP;
+		if(ver >= MAKEWORD(0, 6))	// 6.0
+			ret |= WINVISTA;
 	}
 	
 	return ret;

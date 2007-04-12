@@ -20,13 +20,17 @@ UINT g_uTaskbarRestart;     // taskbar recreating message
 
 /* Statics */
 
-typedef BOOL (WINAPI *pfnImmDisableIME)(DWORD);
-
 static void DisableIME(void);
 static void InitTClockMain(void);
 static BOOL CheckTCDLL(void);
 static void InitTextColor(void);
 static void InitFormat(void);
+static void AddMessageFilters(void);
+
+/* typedefs */
+
+typedef BOOL (WINAPI *pfnImmDisableIME)(DWORD);
+typedef BOOL (WINAPI *pfnChangeWindowMessageFilter)(UINT, DWORD);
 
 /*-------------------------------------------
    main routine
@@ -57,6 +61,9 @@ int TClockExeMain(void)
 	}
 	
 	InitTClockMain();
+	
+	// Windows Vista UIPI filter
+	AddMessageFilters();
 	
 	// register a window class
 	wndclass.style         = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
@@ -99,7 +106,7 @@ int TClockExeMain(void)
 }
 
 /*-------------------------------------------
-  disable IME
+  disable the IME
 ---------------------------------------------*/
 void DisableIME(void)
 {
@@ -177,7 +184,8 @@ void InitTextColor(void)
 	
 	GetRegStr(HKEY_CURRENT_USER, themekey,
 		"DllName", s, 80, "");
-	if(strstr(s, "\\luna.msstyles") != NULL)
+	if(strstr(s, "\\luna.msstyles") != NULL
+		|| strstr(s, "\\Aero.msstyles") != NULL)
 	{
 		GetRegStr(HKEY_CURRENT_USER, themekey,
 			"ColorName", s, 80, "");
@@ -246,5 +254,58 @@ void InitFormat(void)
 	SetMyRegStr("", "Format", s);
 	
 	SetMyRegLong("", "Kaigyo", parts[PART_BREAK]);
+}
+
+/*------------------------------------------------
+  add the messages to the UIPI message filter
+--------------------------------------------------*/
+void AddMessageFilters(void)
+{
+	HMODULE hUser32;
+	pfnChangeWindowMessageFilter pChangeWindowMessageFilter;
+	int i;
+	UINT messages[] = {
+	//	WM_CREATE,
+		WM_CLOSE,
+		WM_DESTROY,
+	//	WM_ENDSESSION,
+	//	WM_POWERBROADCAST,
+	//	WM_TIMER,
+		WM_COMMAND,
+		WM_CONTEXTMENU,
+		WM_EXITMENULOOP,
+		
+		TCM_HWNDCLOCK,
+		TCM_CLOCKERROR,
+		TCM_EXIT,
+		TCM_RELOADSETTING,
+		WM_COPYDATA,
+		MM_MCINOTIFY,
+		MM_WOM_DONE,
+		TCM_STOPSOUND,
+		
+		WM_DROPFILES,
+		WM_MOUSEWHEEL,
+		WM_LBUTTONDOWN,
+		WM_RBUTTONDOWN,
+		WM_MBUTTONDOWN,
+		WM_XBUTTONDOWN,
+		WM_LBUTTONUP,
+		WM_RBUTTONUP,
+		WM_MBUTTONUP,
+		WM_XBUTTONUP,
+	};
+	
+	hUser32 = GetModuleHandle("user32.dll");
+	if (hUser32 == NULL)
+		return;
+	pChangeWindowMessageFilter = (pfnChangeWindowMessageFilter)
+			GetProcAddress(hUser32, "ChangeWindowMessageFilter");
+	if (pChangeWindowMessageFilter == NULL)
+		return;
+	
+	for (i = 0; i < sizeof(messages) / sizeof(UINT); i++) {
+		pChangeWindowMessageFilter(messages[i], MSGFLT_ADD);
+	}
 }
 

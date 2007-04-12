@@ -1,6 +1,6 @@
 [Main]
 DialogFont=ＭＳ Ｐゴシック,9
-Version=TClock Light 040424
+Version=TClock Light kt070321
 HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/ja/
 
 [Property]
@@ -57,7 +57,8 @@ Line05=" [    曜日][                       ][...]"
 Line06=" [ファイル][                                        ][...]"
 Line07="  [ テスト][   ]    [    繰り返す]  [    点滅する]"
 Line08="           [    TClockの起動時に実行 ]"
-Line09="           [   一定間隔で実行:] [      ][分]"
+Line09="           [   レジューム時に実行] [      ][秒]"
+Line10="           [   一定間隔で実行:] [      ][分]"
 
 [AlarmDay]
 Title=曜日
