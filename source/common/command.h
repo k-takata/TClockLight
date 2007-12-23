@@ -29,6 +29,9 @@
 #define IDC_NETINIT                     132
 #define IDC_DELUS                       133
 
+#define IDC_VISTACALENDAR               134
+#define IDC_VISTATOOLTIP                135
+
 // taskbar menu commands
 #define IDC_RUNAPP                      401
 #define IDC_LOGOFF                      402

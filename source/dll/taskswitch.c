@@ -108,8 +108,7 @@ void InitTaskSwitch(HWND hwndClock)
 		/*}*/
 	}
 	
-	m_oldWndProcTab = (WNDPROC)GetWindowLong(m_hwndTab, GWL_WNDPROC);
-	SetWindowLong(m_hwndTab, GWL_WNDPROC, (LONG)WndProcTab);
+	m_oldWndProcTab = SubclassWindow(m_hwndTab, WndProcTab);
 	
 	PostMessage(m_hwndTab, WM_SIZE, SIZE_RESTORED, 0);
 }
@@ -124,7 +123,7 @@ void EndTaskSwitch(void)
 	if(!m_hwndTab || !IsWindow(m_hwndTab)) return;
 	
 	if(m_oldWndProcTab)
-		SetWindowLong(m_hwndTab, GWL_WNDPROC, (LONG)m_oldWndProcTab);
+		SubclassWindow(m_hwndTab, m_oldWndProcTab);
 	m_oldWndProcTab = NULL;
 	
 	if(m_bTaskSwitchFlat)

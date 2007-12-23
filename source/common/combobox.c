@@ -75,7 +75,7 @@ void OnDrawItemColorCombo(LPDRAWITEMSTRUCT pdis, char (*pTexts)[80])
 		col = pdis->itemData;
 		if(col & 0x80000000) col = GetSysColor(col & 0x00ffffff);
 	}
-	else col = col = GetSysColor(COLOR_3DFACE);
+	else col = GetSysColor(COLOR_3DFACE);
 	
 	switch(pdis->itemAction)
 	{

@@ -178,7 +178,7 @@ void LoadLog(HWND hDlg)
 	add_title(fname, SNTPLOG);
 	hf = _lopen(fname, OF_READ);
 	if(hf == HFILE_ERROR) return;
-	_llseek(hf, -readlen, 2);
+	_llseek(hf, -(LONG)readlen, 2);
 	len = _lread(hf, buf, readlen);
 	_lclose(hf);
 	if(len == (UINT) -1) return;

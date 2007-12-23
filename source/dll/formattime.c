@@ -396,10 +396,7 @@ void AltYearHandler(FORMATHANDLERSTRUCT* pstruc)
 	int n = 1;
 	while(*pstruc->sp == 'Y') { n *= 10; pstruc->sp++; }
 	if(m_AltYear < 0) return;
-	if(n < m_AltYear)
-	{
-		n = 1; while(n < m_AltYear) n *= 10;
-	}
+	while(n <= m_AltYear) n *= 10;
 	while(1)
 	{
 		if(*pstruc->dp)
@@ -422,7 +419,7 @@ void EraHandler(FORMATHANDLERSTRUCT* pstruc)
 	while(*pstruc->sp == 'g') pstruc->sp++;
 }
 
-/* w[+/-]nn : time difference */
+/* td[+/-]nn : time difference */
 void TimeDifHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	int dif;

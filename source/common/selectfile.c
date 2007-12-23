@@ -7,7 +7,7 @@
 ---------------------------------------------------------------*/
 
 #include "common.h"
-#include <shlobj.h>
+//#include <shlobj.h>
 
 #ifndef BIF_NEWDIALOGSTYLE
 #define BIF_NEWDIALOGSTYLE     0x0040

@@ -132,8 +132,7 @@ void SubclassTaskbar(HWND hwndTaskbar)
 		
 		if(IsSubclassed(hwndTaskbar)) return;
 		
-		m_oldWndProcTaskBar = (WNDPROC)GetWindowLong(hwndTaskbar, GWL_WNDPROC);
-		SetWindowLong(hwndTaskbar, GWL_WNDPROC, (LONG)WndProcTaskBar);
+		m_oldWndProcTaskBar = SubclassWindow(hwndTaskbar, WndProcTaskBar);
 	}
 }
 
@@ -144,9 +143,8 @@ void UnSubclassTaskbar(HWND hwndTaskbar)
 {
 	if(hwndTaskbar && IsWindow(hwndTaskbar))
 	{
-		if (hwndTaskbar)
-			SetWindowLong(hwndTaskbar, GWL_WNDPROC,
-				(LONG)m_oldWndProcTaskBar);
+		if (m_oldWndProcTaskBar)
+			SubclassWindow(hwndTaskbar, m_oldWndProcTaskBar);
 	}
 	m_oldWndProcTaskBar = NULL;
 }

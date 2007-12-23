@@ -67,8 +67,7 @@ void InitTooltip(HWND hwndClock)
 	ti.rect.right = 480; 
 	ti.rect.bottom = 480;
 	
-	m_oldWndProc = (WNDPROC)SetWindowLong(m_hwndTip, GWL_WNDPROC,
-		(LONG)WndProcTip);
+	m_oldWndProc = SubclassWindow(m_hwndTip, WndProcTip);
 	
 	m_bTip1 = GetMyRegLong(m_section, "Tip1Use", TRUE);
 	

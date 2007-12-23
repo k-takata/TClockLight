@@ -144,7 +144,7 @@ void ParseAlarmFormat(char* dst, const char* src, int first, int last)
 			
 			if(asta)
 			{
-				if(n3 < 0) n3 = 1;
+				if(n3 <= 0) n3 = 1;
 				for(j = first; j <= last; j += n3)
 					dst[j - first] = 1;
 			}
@@ -155,7 +155,7 @@ void ParseAlarmFormat(char* dst, const char* src, int first, int last)
 			}
 			else if(n1 >= 0 && n2 >= 0)
 			{
-				if(n3 < 0) n3 = 1;
+				if(n3 <= 0) n3 = 1;
 				j = n1;
 				if(j < first) j = first;
 				for(; j <= n2 && j <= last; j += n3)

@@ -67,16 +67,15 @@ void InitClock(HWND hwnd)
 	InitUserStr();     // userstr.c
 	
 	// subclassfy the clock window !!
-	g_oldWndProc = (WNDPROC)GetWindowLong(hwnd, GWL_WNDPROC);
-	SetWindowLong(hwnd, GWL_WNDPROC, (LONG)WndProc);
+	g_oldWndProc = SubclassWindow(hwnd, WndProc);
 	
 	// don't accept double clicks
 	SetClassLong(hwnd, GCL_STYLE,
 		GetClassLong(hwnd, GCL_STYLE) & ~CS_DBLCLKS);
 	
-	InitStartButton(hwnd);  // startbtn.c
+	InitStartButton(hwnd); // startbtn.c
 	InitStartMenu(hwnd);   // startmenu.c
-	InitTaskbar(hwnd);      // taskbar.c
+	InitTaskbar(hwnd);     // taskbar.c
 	InitTaskSwitch(hwnd);  // taskswitch.c
 	InitTrayNotify(hwnd);  // traynotify.c
 	
@@ -114,7 +113,8 @@ void EndClock(HWND hwnd)
 	KillTimer(hwnd, IDTIMER_MAIN);
 	
 	// restore window procedure
-	SetWindowLong(hwnd, GWL_WNDPROC, (LONG)g_oldWndProc);
+	if(g_oldWndProc)
+		SubclassWindow(hwnd, g_oldWndProc);
 	g_oldWndProc = NULL;
 	
 	RefreshTaskbar(hwnd);  // taskbar.c

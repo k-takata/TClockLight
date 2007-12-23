@@ -347,7 +347,7 @@ void CheckCommandLine(HWND hwnd, BOOL bPrev)
 			}
 		}
 		else
-			PostMessage(hwnd, TIMERM_SHOWDLG, 0, 0);
+			PostMessage(hwnd, PLAYERM_SHOWDLG, 0, 0);
 	}
 }
 

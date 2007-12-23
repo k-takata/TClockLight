@@ -119,12 +119,9 @@ void OnInit(HWND hDlg)
 	if(m_hCurHand == NULL)
 		m_hCurHand = LoadCursor(NULL, IDC_HAND);
 	
-	m_oldLabProc = (WNDPROC)GetWindowLong(GetDlgItem(hDlg, IDC_MAILTO),
-		GWL_WNDPROC);
-	SetWindowLong(GetDlgItem(hDlg, IDC_MAILTO),
-		GWL_WNDPROC, (LONG)LabLinkProc);
-	SetWindowLong(GetDlgItem(hDlg, IDC_HOMEPAGE),
-		GWL_WNDPROC, (LONG)LabLinkProc);
+	m_oldLabProc = GetWndProc(GetDlgItem(hDlg, IDC_MAILTO));
+	SubclassWindow(GetDlgItem(hDlg, IDC_MAILTO), LabLinkProc);
+	SubclassWindow(GetDlgItem(hDlg, IDC_HOMEPAGE), LabLinkProc);
 }
 
 /*------------------------------------------------

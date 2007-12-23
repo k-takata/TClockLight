@@ -74,10 +74,9 @@ void OnInit(HWND hDlg)
 	for(i = 0; i < 7; i++)
 	{
 		if(m_pAS->wdays[i])
-		{
 			CheckDlgButton(hDlg, IDC_ALARMDAY1+i, TRUE);
+		else
 			bAll = FALSE;
-		}
 	}
 	
 	if(bAll)

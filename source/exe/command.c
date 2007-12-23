@@ -64,6 +64,12 @@ void OnTClockCommand(HWND hwnd, int id, int code)
 			PostMessage(g_hwndClock, CLOCKM_DELUSRSTR, 0, 0);
 			PostMessage(g_hwndClock, CLOCKM_REFRESHCLOCK, 0, 0);
 			break;
+		case IDC_VISTACALENDAR:
+			PostMessage(g_hwndClock, CLOCKM_VISTACALENDAR, 1, 0);
+			break;
+		case IDC_VISTATOOLTIP:
+			PostMessage(g_hwndClock, CLOCKM_VISTATOOLTIP, 1, 0);
+			break;
 		case IDC_TCLOCKMENU: // context menu
 		{
 			POINT pt;

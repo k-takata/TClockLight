@@ -13,17 +13,17 @@
 --------------------------------------------------*/
 BOOL IsSubclassed(HWND hwnd)
 {
-	LONG wndproc1, wndproc2;
+	LONG_PTR wndproc1, wndproc2;
 	
 	if(g_winver&WINNT)
 	{
-		wndproc1 = GetClassLongW(hwnd, GCL_WNDPROC);
-		wndproc2 = GetWindowLongW(hwnd, GWL_WNDPROC);
+		wndproc1 = GetClassLongPtrW(hwnd, GCLP_WNDPROC);
+		wndproc2 = GetWindowLongPtrW(hwnd, GWLP_WNDPROC);
 	}
 	else
 	{
-		wndproc1 = GetClassLongA(hwnd, GCL_WNDPROC);
-		wndproc2 = GetWindowLongA(hwnd, GWL_WNDPROC);
+		wndproc1 = GetClassLongPtrA(hwnd, GCLP_WNDPROC);
+		wndproc2 = GetWindowLongPtrA(hwnd, GWLP_WNDPROC);
 	}
 	
 	if(wndproc1 != wndproc2) return TRUE;

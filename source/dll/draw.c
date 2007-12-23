@@ -52,7 +52,7 @@ static int      m_ClockWidth = -1;      // to save clock width
 --------------------------------------------------*/
 void LoadDrawingSetting(HWND hwnd)
 {
-	char fontname[80];
+	char fontname[LF_FACESIZE];
 	int size, langid, codepage;
 	LONG weight, italic;
 	
@@ -64,7 +64,7 @@ void LoadDrawingSetting(HWND hwnd)
 	m_colback = GetMyRegLong(NULL, "BackColor",
 		0x80000000 | COLOR_3DFACE);
 	
-	if((!g_winver&WINXP) && m_fillbackcolor == FALSE)
+	if(!(g_winver&WINXP) && m_fillbackcolor == FALSE)
 	{
 		m_fillbackcolor = TRUE;
 		m_colback = 0x80000000 | COLOR_3DFACE;
@@ -87,7 +87,7 @@ void LoadDrawingSetting(HWND hwnd)
 	
 	/* ------- font ------------- */
 	
-	GetMyRegStr(NULL, "Font", fontname, 80, "");
+	GetMyRegStr(NULL, "Font", fontname, LF_FACESIZE, "");
 	
 	if(fontname[0] == 0)
 	{

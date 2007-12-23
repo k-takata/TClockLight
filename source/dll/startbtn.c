@@ -245,10 +245,8 @@ BOOL SubClassStartButton(void)
 			m_oldClassStyle & ~(CS_HREDRAW|CS_VREDRAW));
 	}
 	
-	m_oldWndProcStart = (WNDPROC)GetWindowLong(m_hwndStart, GWL_WNDPROC);
-	SetWindowLong(m_hwndStart, GWL_WNDPROC, (LONG)WndProcStart);
-	m_oldWndProcTask = (WNDPROC)GetWindowLong(m_hwndTask, GWL_WNDPROC);
-	SetWindowLong(m_hwndTask, GWL_WNDPROC, (LONG)WndProcTask);
+	m_oldWndProcStart = SubclassWindow(m_hwndStart, WndProcStart);
+	m_oldWndProcTask = SubclassWindow(m_hwndTask, WndProcTask);
 	
 	return TRUE;
 }
@@ -263,7 +261,7 @@ void UnSubclassStartButton(void)
 		if(g_winver&WINXP)
 			SetClassLong(m_hwndStart, GCL_STYLE, m_oldClassStyle);
 		
-		SetWindowLong(m_hwndStart, GWL_WNDPROC, (LONG)m_oldWndProcStart);
+		SubclassWindow(m_hwndStart, m_oldWndProcStart);
 		
 		SetWindowPos(m_hwndStart, NULL, 0, 0, 0, 0,
 			SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE|SWP_SHOWWINDOW);
@@ -272,7 +270,7 @@ void UnSubclassStartButton(void)
 	
 	if(m_hwndTask && IsWindow(m_hwndTask) && m_oldWndProcTask)
 	{
-		SetWindowLong(m_hwndTask, GWL_WNDPROC, (LONG)m_oldWndProcTask);
+		SubclassWindow(m_hwndTask, m_oldWndProcTask);
 	}
 	m_oldWndProcTask = NULL;
 }
@@ -517,10 +515,10 @@ void ReadStartButtonIcon(HWND hwnd,
 ----------------------------------------------------*/
 HFONT GetStartButtonFont(void)
 {
-	char name[80];
+	char name[LF_FACESIZE];
 	int size, weight, italic;
 	
-	GetMyRegStr(m_section, "Font", name, 80, "");
+	GetMyRegStr(m_section, "Font", name, LF_FACESIZE, "");
 	
 	if(name[0] == 0)
 	{
@@ -620,7 +618,7 @@ void DrawIconAndCaption(HDC hdc, HDC hdcMem, HBITMAP hbmp, HICON hicon,
 			HDC hdcTemp = CreateCompatibleDC(hdc);
 			SelectObject(hdcTemp, hbmp);
 			
-			if((g_winver&WIN98)||(g_winver&WIN2000))
+			if((g_winver&WINME)||(g_winver&WIN2000))
 				MyTransparentBlt(hdcMem, x + d, y + d, w, h,
 					hdcTemp, 0, 0, w, h, GetSysColor(COLOR_3DFACE));
 			else
@@ -665,9 +663,8 @@ void DrawStartButtonBack(HWND hwnd, HDC hdc, HDC hdcMem,
 		HBRUSH hbr;
 		
 		SetRect(&rc, 0, 0, w, h*3);
-		hbr = CreateSolidBrush(GetSysColor(COLOR_3DFACE));
+		hbr = GetSysColorBrush(COLOR_3DFACE);
 		FillRect(hdcMem, &rc, hbr);
-		DeleteObject(hbr);
 		
 		if(!hbmpBack)
 		{
@@ -685,7 +682,7 @@ void DrawStartButtonBack(HWND hwnd, HDC hdc, HDC hdcMem,
 		HDC hdcTemp = CreateCompatibleDC(hdc);
 		SelectObject(hdcTemp, hbmpBack);
 		
-		if((g_winver&WIN98)||(g_winver&WIN2000))
+		if((g_winver&WINME)||(g_winver&WIN2000))
 			MyTransparentBlt(hdcMem, 0, 0, w, h*3,
 				hdcTemp, 0, 0, w, h*3, GetSysColor(COLOR_3DFACE));
 		else BitBlt(hdcMem, 0, 0, w, h*3, hdcTemp, 0, 0, SRCCOPY);

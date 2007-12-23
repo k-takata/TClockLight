@@ -6,7 +6,13 @@
 #define _WIN32_WINNT 0x0400
 #define WINVER       0x0400
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <windowsx.h>
+#include <commdlg.h>
+#include <mmsystem.h>
+#include <shellapi.h>
+#include <shlobj.h>
 
 #define TCLOCKVERSION     "TClock Light kt070321"
 
@@ -36,6 +42,9 @@
 #define CLOCKM_EXIT             (WM_USER+9)
 #define CLOCKM_REFRESHSTARTMENU (WM_USER+10)
 #define CLOCKM_REFRESHTOOLTIP   (WM_USER+11)
+
+#define CLOCKM_VISTACALENDAR    (WM_USER+102)
+#define CLOCKM_VISTATOOLTIP     (WM_USER+103)
 
 /* -- messages to send to tclock.exe ------------------ */
 
@@ -408,4 +417,46 @@ void WriteDebugW(const wchar_t* s);
 		(WPARAM)GetDlgItem((hDlg),(idBuddy)),0)
 #define UpDown_SetPos(hDlg,id,nPos) \
 	SendDlgItemMessage((hDlg),(id),UDM_SETPOS,0,nPos)
+
+#define GetWndProc(hwnd) ((WNDPROC)GetWindowLongPtr((hwnd), GWLP_WNDPROC))
+
+/* -- for VC6 compatibility ---------------------------------------- */
+
+#ifndef _W64
+typedef unsigned long DWORD_PTR;
+typedef long LONG_PTR;
+typedef unsigned long ULONG_PTR;
+#endif
+
+#ifndef SetWindowLongPtr
+#define SetWindowLongPtr	SetWindowLong
+#define SetWindowLongPtrA	SetWindowLongA
+#define SetWindowLongPtrW	SetWindowLongW
+#define GetWindowLongPtr	GetWindowLong
+#define GetWindowLongPtrA	GetWindowLongA
+#define GetWindowLongPtrW	GetWindowLongW
+#define SetClassLongPtr		SetClassLong
+#define SetClassLongPtrA	SetClassLongA
+#define SetClassLongPtrW	SetClassLongW
+#define GetClassLongPtr		GetClassLong
+#define GetClassLongPtrA	GetClassLongA
+#define GetClassLongPtrW	GetClassLongW
+
+#define GWLP_WNDPROC		GWL_WNDPROC
+#define GWLP_HINSTANCE		GWL_HINSTANCE
+#define GWLP_ID				GWL_ID
+#define GWLP_USERDATA		GWL_USERDATA
+
+#define DWLP_DLGPROC		DWL_DLGPROC
+#define DWLP_MSGRESULT		DWL_MSGRESULT
+#define DWLP_USER			DWL_USER
+
+#define GCLP_MENUNAME		GCL_MENUNAME
+#define GCLP_HBRBACKGROUND	GCL_HBRBACKGROUND
+#define GCLP_HCURSOR		GCL_HCURSOR
+#define GCLP_HICON			GCL_HICON
+#define GCLP_HMODULE		GCL_HMODULE
+#define GCLP_WNDPROC		GCL_WNDPROC
+#define GCLP_HICONSM		GCL_HICONSM
+#endif
 

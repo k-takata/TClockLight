@@ -175,7 +175,7 @@ BOOL OnDrawItemStartMenu(HWND hwnd, DRAWITEMSTRUCT* pdis)
 	hdcMem = CreateCompatibleDC(hdc);
 	hbmpMem = CreateCompatibleBitmap(hdc, rcBox.right, rcBox.bottom);
 	SelectObject(hdcMem, hbmpMem);
-	hbr = CreateSolidBrush(GetSysColor(COLOR_MENU));
+	hbr = GetSysColorBrush(COLOR_MENU);
 	FillRect(hdcMem, &rcBox, hbr);
 	
 	SelectObject(hdcMem, (HFONT)GetCurrentObject(hdc, OBJ_FONT));
@@ -383,8 +383,7 @@ void SubclassBaseBar(void)
 	
 	// if(IsSubclassed(m_hwndBaseBar)) return;
 	
-	m_oldWndProcBaseBar = (WNDPROC)GetWindowLong(m_hwndBaseBar, GWL_WNDPROC);
-	SetWindowLong(m_hwndBaseBar, GWL_WNDPROC, (LONG)WndProcBaseBar);
+	m_oldWndProcBaseBar = SubclassWindow(m_hwndBaseBar, WndProcBaseBar);
 }
 
 /*--------------------------------------------------
@@ -395,8 +394,7 @@ void UnSubclassBaseBar(void)
 	if(m_hwndBaseBar && IsWindow(m_hwndBaseBar))
 	{
 		if(m_oldWndProcBaseBar)
-			SetWindowLong(m_hwndBaseBar, GWL_WNDPROC,
-				(LONG)m_oldWndProcBaseBar);
+			SubclassWindow(m_hwndBaseBar, m_oldWndProcBaseBar);
 	}
 	m_oldWndProcBaseBar = NULL;
 }
@@ -416,9 +414,8 @@ void SubclassUserPaneXP(void)
 	
 	if(IsSubclassed(m_hwndUserPaneXP)) return;
 	
-	m_oldWndProcUserPaneXP = (WNDPROC)GetWindowLong(m_hwndUserPaneXP,
-		GWL_WNDPROC);
-	SetWindowLong(m_hwndUserPaneXP, GWL_WNDPROC, (LONG)WndProcUserPaneXP);
+	m_oldWndProcUserPaneXP = SubclassWindow(m_hwndUserPaneXP,
+		WndProcUserPaneXP);
 }
 
 /*--------------------------------------------------
@@ -430,8 +427,7 @@ void UnSubclassUserPaneXP(void)
 	{
 		if(m_oldWndProcUserPaneXP)
 		{
-			SetWindowLong(m_hwndUserPaneXP, GWL_WNDPROC,
-				(LONG)m_oldWndProcUserPaneXP);
+			SubclassWindow(m_hwndUserPaneXP, m_oldWndProcUserPaneXP);
 			SendMessage(GetParent(m_hwndUserPaneXP), WM_SYSCOLORCHANGE, 0, 0);
 		}
 	}
