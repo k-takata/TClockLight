@@ -17,7 +17,7 @@ HWND g_hwndLog = NULL;
 
 /* Statics */
 
-BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 static void OnInit(HWND hDlg);
 static void LoadLog(HWND hDlg);
 static void OnOK(HWND hDlg);
@@ -48,7 +48,7 @@ void OnShowDialog(HWND hwnd)
 /*-------------------------------------------
   dialog procedure
 ---------------------------------------------*/
-BOOL CALLBACK DlgProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

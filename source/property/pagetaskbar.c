@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageTaskbarProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageTaskbarProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -26,7 +26,7 @@ static BOOL  m_bChanged = FALSE;
 /*------------------------------------------------
    dialog procedure of this page
 --------------------------------------------------*/
-BOOL CALLBACK PageTaskbarProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageTaskbarProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageColorProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageColorProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -33,7 +33,7 @@ static BOOL  m_bChanged = FALSE;
 /*------------------------------------------------
   Dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK PageColorProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageColorProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

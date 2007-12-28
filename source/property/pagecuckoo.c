@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageCuckooProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageCuckooProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -32,7 +32,7 @@ static BOOL m_bPlaying = FALSE;
 /*------------------------------------------------
   Dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK PageCuckooProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageCuckooProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

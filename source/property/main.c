@@ -34,7 +34,7 @@ static int TCPropMain(void);
 static void InitTCProp(void);
 static LRESULT CALLBACK WndProcProperty(HWND hwnd, UINT message,
 	WPARAM wParam, LPARAM lParam);
-static BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
+static INT_PTR CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 static void OnInitDialog(HWND hDlg);
 static void OnOK(HWND hDlg);
 static void OnApply(HWND hDlg);
@@ -230,7 +230,7 @@ LRESULT CALLBACK WndProcProperty(HWND hwnd, UINT message,
 /*-------------------------------------------
   dialog procedure
 ---------------------------------------------*/
-BOOL CALLBACK DlgProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 
 {

@@ -16,7 +16,7 @@ HWND g_hDlg = NULL;
 
 /* Statics */
 
-BOOL CALLBACK DlgProcPlayer(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK DlgProcPlayer(HWND, UINT, WPARAM, LPARAM);
 static void OnInit(HWND hDlg);
 static void OnOK(HWND hDlg);
 static void OnCancel(HWND hDlg);
@@ -41,7 +41,7 @@ void OnShowDialog(HWND hwnd)
 /*-------------------------------------------
   dialog procedure
 ---------------------------------------------*/
-BOOL CALLBACK DlgProcPlayer(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProcPlayer(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

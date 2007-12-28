@@ -14,7 +14,7 @@ BOOL SelectIconInDLL(HINSTANCE hInst, HWND hDlg, char* fname_index);
 
 /* Statics */
 
-BOOL CALLBACK DlgProcSelectIcon(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProcSelectIcon(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 static BOOL InitSelectIcon(HWND hDlg);
 static void EndSelectIcon(HWND hDlg);
@@ -45,7 +45,7 @@ BOOL SelectIconInDLL(HINSTANCE hInst, HWND hDlg, char* fname_index)
 /*------------------------------------------------
   dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK DlgProcSelectIcon(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProcSelectIcon(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

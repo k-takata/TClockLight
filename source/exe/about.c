@@ -20,7 +20,7 @@ HWND g_hDlgAbout = NULL;      // dialog window handle, used in main2.c
 
 /* Statics */
 
-static BOOL CALLBACK DlgProcAbout(HWND, UINT, WPARAM, LPARAM);
+static INT_PTR CALLBACK DlgProcAbout(HWND, UINT, WPARAM, LPARAM);
 static void OnInit(HWND hDlg);
 static void OnLinkClicked(HWND hDlg, UINT id);
 static LRESULT CALLBACK LabLinkProc(HWND hwnd, UINT message,
@@ -45,7 +45,7 @@ void ShowAboutBox(HWND hwnd)
 /*-------------------------------------------
   dialog procedure
 ---------------------------------------------*/
-BOOL CALLBACK DlgProcAbout(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProcAbout(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

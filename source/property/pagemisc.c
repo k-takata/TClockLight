@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageMiscProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageMiscProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -25,7 +25,7 @@ static m_bInit = FALSE;
 /*------------------------------------------------
   dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK PageMiscProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageMiscProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageAlarmProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageAlarmProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -45,7 +45,7 @@ static BOOL m_bPlaying = FALSE;
 /*------------------------------------------------
   Dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK PageAlarmProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageAlarmProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

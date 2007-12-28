@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageStartButtonProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageStartButtonProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -37,7 +37,7 @@ static HFONT m_hfonti;
 /*------------------------------------------------
    dialog procedure of this page
 --------------------------------------------------*/
-BOOL CALLBACK PageStartButtonProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageStartButtonProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

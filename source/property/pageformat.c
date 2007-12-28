@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageFormatProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageFormatProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -36,7 +36,7 @@ static char *m_entrydate[] = { "Year4", "Year", "Month", "MonthS",
 /*------------------------------------------------
    Dialog Procedure for the "Format" page
 --------------------------------------------------*/
-BOOL CALLBACK PageFormatProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageFormatProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

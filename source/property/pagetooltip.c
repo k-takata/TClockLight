@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageTooltipProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageTooltipProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -28,7 +28,7 @@ static char *m_section = "Tooltip";
 /*------------------------------------------------
   Dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK PageTooltipProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageTooltipProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

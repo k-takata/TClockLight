@@ -11,7 +11,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageMouseProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageMouseProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -44,7 +44,7 @@ static int m_widthOpt = 0;
 /*------------------------------------------------
   Dialog procedure
 --------------------------------------------------*/
-BOOL CALLBACK PageMouseProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageMouseProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

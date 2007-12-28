@@ -18,7 +18,7 @@ BOOL BrowseSoundFile(HINSTANCE hInst, HWND hDlg,
 #define IDC_LABTESTSOUND                1
 #define IDC_TESTSOUND                   2
 
-static BOOL CALLBACK HookProcSound(HWND hDlg, UINT message,
+static UINT_PTR CALLBACK HookProcSound(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 static void OnInitDialog(HWND hDlg);
 static void OnFileNameChanged(HWND hDlg);
@@ -122,7 +122,7 @@ BOOL BrowseSoundFile(HINSTANCE hInst, HWND hDlg,
 /*------------------------------------------------
   hook procedure of common dialog
 --------------------------------------------------*/
-BOOL CALLBACK HookProcSound(HWND hDlg, UINT message,
+UINT_PTR CALLBACK HookProcSound(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

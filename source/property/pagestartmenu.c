@@ -10,7 +10,7 @@
 
 /* Globals */
 
-BOOL CALLBACK PageStartMenuProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageStartMenuProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
 /* Statics */
@@ -32,7 +32,7 @@ static BOOL m_bChanged = FALSE;
 /*------------------------------------------------
    dialog procedure of this page
 --------------------------------------------------*/
-BOOL CALLBACK PageStartMenuProc(HWND hDlg, UINT message,
+INT_PTR CALLBACK PageStartMenuProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

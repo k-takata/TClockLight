@@ -16,7 +16,7 @@ HWND g_hDlg = NULL;
 
 /* Statics */
 
-BOOL CALLBACK DlgProcTimer(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK DlgProcTimer(HWND, UINT, WPARAM, LPARAM);
 static void OnInit(HWND hDlg);
 static void OnDestroy(HWND hDlg);
 static void OnOK(HWND hDlg);
@@ -54,7 +54,7 @@ void OnShowDialog(HWND hwnd)
 /*-------------------------------------------
   dialog procedure
 ---------------------------------------------*/
-BOOL CALLBACK DlgProcTimer(HWND hDlg, UINT message,
+INT_PTR CALLBACK DlgProcTimer(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
