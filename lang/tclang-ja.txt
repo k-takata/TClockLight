@@ -1,6 +1,6 @@
 [Main]
 DialogFont=ＭＳ Ｐゴシック,9
-Version=TClock Light kt070321
+Version=TClock Light-
 HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/ja/
 
 [Property]
@@ -36,9 +36,10 @@ Line02="  [   年]         [   年(2桁)]"
 Line03="  [   月]         [   月(数字)]"
 Line04="  [   日]         [   曜日]         [   改行]"
 Line05="  [   時]         [   分]           [   秒]"
-Line06="  [   12時間制 ]  [   午前/午後]    [  詳細...   ]"
+Line06="  [   12時間制 ]  [   午前/午後 ]   [  詳細...   ]"
 Line07="  [  書式を自分で入力する  ]"
 Line08="  [                                                           ]"
+Line09="  [システム情報の更新間隔 ][        ][][秒]"
 
 [Format2]
 Title=詳細
@@ -141,6 +142,8 @@ Line03=" [起動してから][      ][秒後に改造開始  ]"
 Line04=" [   Explorerのクラッシュ後に改造し直す]"
 Line05=" [ヘルプのURL ]"
 Line06=" [                                              ][...]"
+Line07=" [   デスクトップSmallアイコン表示]"
+Line08=" [   デスクトップSmallアイコンメニュー背景透明化]"
 
 [Timer]
 HelpURL=timer.html
@@ -149,7 +152,7 @@ Line01="     [ 名前][                                 ] [ 追加  ] [ 削除  ]"
 Line02="     [ 時間][       ][][:][       ][] [(分:秒)]"
 Line03="  [ファイル][                                               ][...]"
 Line04="    [テスト][   ]    [    繰り返す]   [    点滅する]"
-Line05="            [   時計に残り時間を表示]"
+Line05="            [   時計に残り時間を表示 ]"
 Line06="              [   全体]   [   追加]"
 Line07="              [   ユーザー文字列(0-9)  ][     ]"
 Line08="          [開始         ]   [キャンセル   ]   [ヘルプ       ]"
@@ -201,6 +204,8 @@ RButton=右ボタン
 MButton=中央ボタン
 XButton1=サイドボタン1
 XButton2=サイドボタン2
+WheelUp=ホイール＋方向
+WheelDown=ホイール－方向
 File=ファイル
 
 None=（なし）
@@ -221,6 +226,11 @@ TCCmd=TClockのコマンド
 FormatCopy=書式
 Numero=番号
 MonOffSec=秒数
+Volset=ボリューム設定
+VolUD=ボリューム増減
+Mute=ミュート
+Volume=設定値
+Delta=増分値
 
 Recycle=ごみ箱
 OpenBy=プログラムで開く

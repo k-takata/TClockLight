@@ -153,6 +153,7 @@ LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
 /*---------------------------------------------------------
   for Debug
 ----------------------------------------------------------*/
+#if defined(_DEBUG) || defined(DEBUG)
 void Debug_ListChild(HWND hwndParent, int depth)
 {
 	HWND hwnd;
@@ -171,4 +172,4 @@ void Debug_ListChild(HWND hwndParent, int depth)
 		hwnd = GetWindow(hwnd, GW_HWNDNEXT);
 	}
 }
-
+#endif

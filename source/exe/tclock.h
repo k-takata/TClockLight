@@ -1,5 +1,7 @@
 /*-------------------------------------------
   tclock.h
+  
+  $Id: tclock.h,v 6d6ada219c32 2008/04/08 19:42:57 slic $
 ---------------------------------------------*/
 
 #define _WIN32_IE    0x0200
@@ -61,6 +63,15 @@ extern char  g_inifile[MAX_PATH];
 extern int   g_winver;
 extern UINT  g_uTaskbarRestart;
 
+#ifdef NODEFAULTLIB
+// common/nodeflib.c
+void r_memset(void *d, int c, size_t l);
+void r_memcpy(void *d, const void *s, size_t l);
+#else
+void *memset(void *buf, int ch, size_t n);
+void *memcpy(void *dest, const void *src, size_t n);
+#endif
+
 /* ---------- wndproc.c ------------- */
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -86,11 +97,11 @@ void InitMouseFunction(HWND hwnd);
 void EndMouseFunction(HWND hwnd);
 void OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 void OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+void OnMouseWheel(HWND hwnd, WPARAM wParam, LPARAM lParam);
 void OnTimerMouse(HWND hwnd);
 
 /* ---------- mouse2.c -------------- */
 void OnDropFiles(HWND hwnd, HDROP hdrop);
-void OnMouseWheel(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 /* ---------- alarm.c --------------- */
 void InitAlarm(void);

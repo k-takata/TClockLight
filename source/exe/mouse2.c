@@ -10,7 +10,7 @@
 
 /* Globals */
 void OnDropFiles(HWND hwnd, HDROP hdrop);
-void OnMouseWheel(HWND hwnd, WPARAM wParam, LPARAM lParam);
+
 
 /* Statics */
 static char *m_section = "Mouse";
@@ -97,19 +97,5 @@ void OnDropFiles(HWND hwnd, HDROP hdrop)
 	}
 	
 	free(buf);
-}
-
-/*------------------------------------------------
-   when the mouse wheel is rotated
---------------------------------------------------*/
-void OnMouseWheel(HWND hwnd, WPARAM wParam, LPARAM lParam)
-{
-	/*
-	int delta = (short)(wParam >> 16);
-	
-	char s[40];
-	wsprintf(s, "%d", delta);
-	WriteDebug(s);
-	*/
 }
 

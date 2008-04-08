@@ -4,6 +4,8 @@
   For the license, please read readme.txt.
   
   Written by Kazubon, Nanashi-san
+  
+  $Id: pagetaskbar.c,v dae7b9af9a27 2008/03/20 17:37:47 slic $
 ---------------------------------------------------------------*/
 
 #include "tcprop.h"
@@ -20,8 +22,8 @@ static void OnInit(HWND hDlg);
 static void OnApply(HWND hDlg);
 static void OnTaskSwitchFlat(HWND hDlg);
 
-static BOOL  m_bInit = FALSE;
-static BOOL  m_bChanged = FALSE;
+static BOOL m_bInit = FALSE;
+static BOOL m_bChanged = FALSE;
 
 /*------------------------------------------------
    dialog procedure of this page
@@ -132,7 +134,7 @@ void OnInit(HWND hDlg)
 		for(i = IDC_TASKBARCLASSIC; i <= IDC_TBBORDER; i++)
 			EnableDlgItem(hDlg, i, FALSE);
 	}
-	
+
 	if(g_winver&WINXP)
 	{
 		EnableDlgItem(hDlg, IDC_TASKSWITCH_SEPARAT, FALSE);

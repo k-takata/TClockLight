@@ -77,7 +77,6 @@ void OnTClockCommand(HWND hwnd, int id, int code)
 			OnContextMenu(hwnd, NULL, pt.x, pt.y);
 			break;
 		}
-		
 		case IDC_SCREENSAVER: // screen saver
 			SendMessage(GetDesktopWindow(), WM_SYSCOMMAND, SC_SCREENSAVE, 0);
 			break;
@@ -140,11 +139,10 @@ void OnTClockCommand(HWND hwnd, int id, int code)
 			break;
 		}
 		case IDC_MONOFF:  // monitor off
-			SendMessage(GetDesktopWindow(), WM_SYSCOMMAND,
-				SC_MONITORPOWER, 2);
+			PostMessage(hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, 2); // SendMessage(GetDesktopWindow(), WM_SYSCOMMAND,SC_MONITORPOWER, 2);
 			break;
 	}
-	
+
 	// commands of task bar
 	if(400 < id && id <= 510)
 	{
@@ -152,7 +150,7 @@ void OnTClockCommand(HWND hwnd, int id, int code)
 		if(hwndBar)
 			PostMessage(hwndBar, WM_COMMAND, id, 0);
 	}
-	
+
 	// open file written in tcmenu.txt
 	else if(id < 100) ContextMenuCommand(hwnd, id); // menu.c
 }
@@ -294,6 +292,7 @@ void PostMessageCommand(const char *option)
 /*------------------------------------------------
   execute cmd.exe /c ... , hiding prompt window
 --------------------------------------------------*/
+
 void ExecHiddenCmdPrompt(HWND hwnd, const char *str)
 {
 	SHELLEXECUTEINFO sei;

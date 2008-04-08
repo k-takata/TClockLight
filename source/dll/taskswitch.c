@@ -123,7 +123,7 @@ void EndTaskSwitch(void)
 	if(!m_hwndTab || !IsWindow(m_hwndTab)) return;
 	
 	if(m_oldWndProcTab)
-		SubclassWindow(m_hwndTab, m_oldWndProcTab);
+		(void) SubclassWindow(m_hwndTab, m_oldWndProcTab);
 	m_oldWndProcTab = NULL;
 	
 	if(m_bTaskSwitchFlat)

@@ -10,6 +10,12 @@ SRCDIR=.
 COMMONDIR=..\common
 !ENDIF
 
+!IFNDEF CLDBG
+CLOPT=/W3 /O2
+!ELSE
+CLOPT=/W3 /Od /Zi /FA /D "_DEBUG"
+!ENDIF
+
 EXEFILE=..\out\tcprop.exe
 RCFILE=$(SRCDIR)\tcprop.rc
 RESFILE=tcprop.res
@@ -25,7 +31,8 @@ OBJS=pagecolor.obj pagesize.obj pageformat.obj pageformat2.obj\
 	tclang.obj langcode.obj\
 	combobox.obj autoformat.obj localeinfo.obj selectfile.obj \
 	playfile.obj soundselect.obj alarmstruct.obj mousestruct.obj\
-	utl.obj exec.obj reg.obj font.obj
+	utl.obj exec.obj reg.obj font.obj \
+	desktop.obj
 
 LIBS=kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib\
 	shell32.lib winmm.lib comctl32.lib
@@ -42,7 +49,7 @@ RCOPT=/fo
 
 !IFDEF NODEFAULTLIB
 
-COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /nologo /Fo
+COPT=/c $(CLOPT) /Oi /DNODEFAULTLIB /nologo /Fo
 LOPT=/SUBSYSTEM:WINDOWS /NODEFAULTLIB /OPT:NOWIN98 /nologo
 
 $(EXEFILE): propmain.obj $(OBJS) nodeflib.obj $(RESFILE)
@@ -50,7 +57,7 @@ $(EXEFILE): propmain.obj $(OBJS) nodeflib.obj $(RESFILE)
 
 !ELSE
 
-COPT=/c /W3 /O2 /Oi /nologo /Fo
+COPT=/c $(CLOPT) /Oi /nologo /Fo
 LOPT=/SUBSYSTEM:WINDOWS /OPT:NOWIN98 /nologo
 
 $(EXEFILE): propmain.obj $(OBJS) $(RESFILE)
@@ -158,6 +165,8 @@ font.obj: $(COMMONDIR)\font.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\font.c
 nodeflib.obj: $(COMMONDIR)\nodeflib.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\nodeflib.c
+desktop.obj: $(COMMONDIR)\desktop.c $(COMMONH)
+	$(CC) $(COPT)$@ $(COMMONDIR)\desktop.c
 
 # res file
 

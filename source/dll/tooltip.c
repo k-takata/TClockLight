@@ -4,6 +4,7 @@
   Please read readme.txt about the license.
   
   Written by Kazubon, Nanashi-san
+  $Id: tooltip.c,v 694c31bbf7aa 2008/03/16 10:31:11 slic $
 ---------------------------------------------------------------*/
 
 #include "tcdll.h"
@@ -214,7 +215,7 @@ BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh)
 /*------------------------------------------------
   update tooltip
 --------------------------------------------------*/
-void OnTimerTooltip(HWND hwndClock)
+void OnTimerTooltip(HWND hwndClock, BOOL forceFlg)
 {
 	TOOLINFO ti;
 	RECT rc;
@@ -222,12 +223,12 @@ void OnTimerTooltip(HWND hwndClock)
 	
 	if(!m_hwndTip) return;
 	
-	if(m_bUpdate || IsWindowVisible(m_hwndTip)) return;
+	if((m_bUpdate || IsWindowVisible(m_hwndTip)) && !forceFlg ) return;
 	
 	GetWindowRect(hwndClock, &rc);
 	GetCursorPos(&pt);
 	
-	if(PtInRect(&rc, pt)) return;
+	if(PtInRect(&rc, pt) && !forceFlg) return;
 	
 	memset(&ti, 0, sizeof(TOOLINFO));
 	ti.cbSize = sizeof(TOOLINFO);

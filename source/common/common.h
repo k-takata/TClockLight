@@ -1,7 +1,8 @@
 /*-------------------------------------------
   common.h
----------------------------------------------*/
 
+  $Id: common.h,v f440a7bc5198 2008/04/03 05:58:27 slic $
+---------------------------------------------*/
 #define _WIN32_IE    0x0200
 #define _WIN32_WINNT 0x0400
 #define WINVER       0x0400
@@ -14,7 +15,7 @@
 #include <shellapi.h>
 #include <shlobj.h>
 
-#define TCLOCKVERSION     "TClock Light kt070321"
+#define TCLOCKVERSION     "TClock Light-"
 
 #define CLASS_TCLOCKMAIN   "TClockMainClass"
 #define CLASS_TCLOCKPROP   "TClockPropertyClass"
@@ -352,6 +353,10 @@ char* MyString(UINT uID, const char *entry);
 HFONT CreateDialogFont(void);
 void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont);
 
+/* ---------- desktop.c  ---------- */
+void SetDesktopIcons(void);
+void EndDesktopIcons(void);
+
 /* -- utl.c ---------------------------------------- */
 
 // Windows version flag
@@ -386,6 +391,14 @@ void SetForegroundWindow98(HWND hwnd);
 void SetMyDialgPos(HWND hwnd, int xLen, int yLen);
 void WriteDebug(const char* s);
 void WriteDebugW(const wchar_t* s);
+
+/* ---------- mixer.c ----------------- */
+BOOL GetMasterVolume(BOOL *Val);
+BOOL GetMasterMute(BOOL *Val);
+BOOL SetMasterVolume(int Val);
+BOOL UpDownMasterVolume(int dif);
+BOOL ReverseMasterMute(void);
+void ReleaseMixer(void);
 
 /* -- Macros ---------------------------------------- */
 
@@ -460,3 +473,25 @@ typedef unsigned long ULONG_PTR;
 #define GCLP_HICONSM		GCL_HICONSM
 #endif
 
+#if defined(_DEBUG) || defined(DEBUG)
+
+#include <stdio.h>
+#include <stdarg.h>
+int vsprintf_s( char *buffer, size_t numberOfElements, const char *format, va_list argptr ); 
+__inline void r_dbg_printf(char *fmt, ...)
+{
+	char buf[512]="";
+	va_list args;
+
+	va_start(args, fmt);
+	vsprintf_s(buf,511, fmt, args);
+	va_end(args);
+ 	OutputDebugString(buf);
+}
+#define TRACE r_dbg_printf
+#define TRACEH() TRACE("%s(%d) : ", __FILE__, __LINE__ )
+#else
+// Release
+#define TRACE
+#define TRACEH
+#endif

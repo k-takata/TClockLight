@@ -120,8 +120,8 @@ void OnInit(HWND hDlg)
 		m_hCurHand = LoadCursor(NULL, IDC_HAND);
 	
 	m_oldLabProc = GetWndProc(GetDlgItem(hDlg, IDC_MAILTO));
-	SubclassWindow(GetDlgItem(hDlg, IDC_MAILTO), LabLinkProc);
-	SubclassWindow(GetDlgItem(hDlg, IDC_HOMEPAGE), LabLinkProc);
+	(void) SubclassWindow(GetDlgItem(hDlg, IDC_MAILTO), LabLinkProc);
+	(void) SubclassWindow(GetDlgItem(hDlg, IDC_HOMEPAGE), LabLinkProc);
 }
 
 /*------------------------------------------------

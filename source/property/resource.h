@@ -1,3 +1,5 @@
+//  $Id: resource.h,v e4eaa4f77596 2008/04/08 15:44:21 slic $
+
 // icons
 #define IDI_TCPROP                      101
 #define IDI_TCLOCK                      102
@@ -221,7 +223,8 @@
 #define IDC_MOVESETTING                 1605
 #define IDC_HELPURL                     1606
 #define IDC_BROWSEHELP                  1607
-
+#define IDC_DESKTOPICON                 1608
+#define IDC_TRANSDESKTOPICONBK			1609
 // strings
 #define IDS_BTNFACE                     1
 #define IDS_BTNSHADOW                   2
@@ -251,6 +254,8 @@
 #define IDS_MIDDLEBUTTONM               24
 #define IDS_XBUTTON1                    25
 #define IDS_XBUTTON2                    26
+#define IDS_WHEELUP                     53
+#define IDS_WHEELDOWN                   54
 #define IDS_FILE                        27
 
 #define IDS_NONE                        28
@@ -271,6 +276,11 @@
 #define IDS_FORMATCOPY                  43
 #define IDS_NUMERO                      44
 #define IDS_MONOFFSEC                   45
+#define IDS_VOLSET                      55
+#define IDS_VOLUD                       56
+#define IDS_MUTE                        57
+#define IDS_VOLVAL                      58
+#define IDS_VOLDELTA                    59
 
 #define IDS_RECYCLE                     46
 #define IDS_OPENBY                      47

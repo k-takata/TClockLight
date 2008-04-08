@@ -261,7 +261,7 @@ void UnSubclassStartButton(void)
 		if(g_winver&WINXP)
 			SetClassLong(m_hwndStart, GCL_STYLE, m_oldClassStyle);
 		
-		SubclassWindow(m_hwndStart, m_oldWndProcStart);
+		(void) SubclassWindow(m_hwndStart, m_oldWndProcStart);
 		
 		SetWindowPos(m_hwndStart, NULL, 0, 0, 0, 0,
 			SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE|SWP_SHOWWINDOW);
@@ -270,7 +270,7 @@ void UnSubclassStartButton(void)
 	
 	if(m_hwndTask && IsWindow(m_hwndTask) && m_oldWndProcTask)
 	{
-		SubclassWindow(m_hwndTask, m_oldWndProcTask);
+		(void) SubclassWindow(m_hwndTask, m_oldWndProcTask);
 	}
 	m_oldWndProcTask = NULL;
 }

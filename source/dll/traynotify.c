@@ -93,7 +93,7 @@ void EndTrayNotify(void)
 		SetWindowLong(m_hwndTrayNotify, GWL_STYLE, m_oldStyle);
 		
 		if(m_oldWndProcTrayNotify)
-			SubclassWindow(m_hwndTrayNotify, m_oldWndProcTrayNotify);
+			(void) SubclassWindow(m_hwndTrayNotify, m_oldWndProcTrayNotify);
 		
 		SetClassLong(m_hwndTrayNotify, GCL_STYLE, m_oldClassStyle);
 		

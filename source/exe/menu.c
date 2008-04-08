@@ -4,6 +4,7 @@
   Please read readme.txt about the license.
   
   Written by Kazubon, Nanashi-san
+  $Id: menu.c,v f1e67c0c093e 2008/03/15 15:04:55 slic $
 ---------------------------------------------------------------*/
 
 #include "tclock.h"

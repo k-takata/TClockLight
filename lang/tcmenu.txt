@@ -2,7 +2,8 @@
 # TClock context menu
 #
 
-"&Adjust Date/Time"      408
+"TClock &Help"           101
+"A&bout TClock"          108
 "&Minimize All Windows"  415
 "Tas&k Manager..."       420
 "Taskbar P&roperties"    413
@@ -13,8 +14,8 @@
 ---------------------------
 "Synchronization S&ettings"   tcsntp.exe
 "&Synchronize"             104
+"&Adjust Date/Time"      408
 ---------------------------
 "TClock &Properties"     100
-"TClock &Help"           101
-"A&bout TClock"          108
+"Control Panel"          505
 "E&xit TClock"           102

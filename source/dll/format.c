@@ -4,6 +4,8 @@
   Please read readme.txt about the license.
   
   Written by Kazubon, Nanashi-san
+  
+  $Id: format.c,v 71761d96e5da 2008/03/20 19:53:38 slic $
 ---------------------------------------------------------------*/
 
 #include "tcdll.h"
@@ -51,6 +53,12 @@ struct {
 	
 	{ 0, L"USTR", UStrHandler },
 	// add your functions
+	{ 'M', NULL, MemoryHandler },
+	{ 0, L"BL", BatteryHandler },
+	{ 0, L"AD", ACStatusHandler },
+	{ 0, L"VL", VolumeMuteHandler },
+	{ 0, L"VOL", VolumeHandler },
+	{ 0, L"VMT", MuteHandler },
 };
 
 #define NUM_HANDLERS (sizeof(format_handers) / sizeof(format_handers[0])) 

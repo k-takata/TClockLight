@@ -4,6 +4,7 @@
   For the license, please read readme.txt.
   
   Written by Kazubon, Nanashi-san
+  $Id: pagemisc.c,v e4eaa4f77596 2008/04/08 15:44:21 slic $
 ---------------------------------------------------------------*/
 
 #include "tcprop.h"
@@ -45,6 +46,8 @@ INT_PTR CALLBACK PageMiscProc(HWND hDlg, UINT message,
 					break;
 				case IDC_MCIWAVE:
 				case IDC_TASKBARRESTART:
+				case IDC_DESKTOPICON:
+				case IDC_TRANSDESKTOPICONBK:
 					SendPSChanged(hDlg);
 					break;
 				case IDC_DELAYSTART:
@@ -98,12 +101,19 @@ void OnInit(HWND hDlg)
 	
 	CheckDlgButton(hDlg, IDC_TASKBARRESTART,
 		GetMyRegLong(NULL, "TaskbarRestart", FALSE));
-	
+
+	CheckDlgButton(hDlg, IDC_DESKTOPICON,
+		GetMyRegLong(NULL, "DeskTopIcon", FALSE));
+		
+	CheckDlgButton(hDlg, IDC_TRANSDESKTOPICONBK,
+		GetMyRegLong(NULL, "TransDeskTopIconBK", FALSE));
+
 	GetMyRegStr(NULL, "HelpURL", s, MAX_PATH, "");
 	SetDlgItemText(hDlg, IDC_HELPURL, s);
 	
 	m_bInit = TRUE;
 }
+
 
 /*------------------------------------------------
   apply
@@ -111,7 +121,6 @@ void OnInit(HWND hDlg)
 void OnApply(HWND hDlg)
 {
 	char s[MAX_PATH];
-	
 	SetMyRegLong(NULL, "NoClock",
 		IsDlgButtonChecked(hDlg, IDC_NOCLOCK));
 	
@@ -123,9 +132,17 @@ void OnApply(HWND hDlg)
 	
 	SetMyRegLong(NULL, "TaskbarRestart",
 		IsDlgButtonChecked(hDlg, IDC_TASKBARRESTART));
-	
+
+	SetMyRegLong(NULL, "DeskTopIcon",
+		IsDlgButtonChecked(hDlg, IDC_DESKTOPICON));
+
+	SetMyRegLong(NULL, "TransDeskTopIconBK",
+		IsDlgButtonChecked(hDlg, IDC_TRANSDESKTOPICONBK));
+		
 	GetDlgItemText(hDlg, IDC_HELPURL, s, MAX_PATH);
 	SetMyRegStr(NULL, "HelpURL", s);
+	
+	SetDesktopIcons();
 }
 
 /*------------------------------------------------

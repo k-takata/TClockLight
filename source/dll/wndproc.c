@@ -2,8 +2,10 @@
   wndproc.c : subclassified window procedure of clock
   (C) 1997-2003 Kazuto Sato
   Please read readme.txt about the license.
-  
+
   Written by Kazubon, Nanashi-san
+
+  $Id: wndproc.c,v a6d056957048 2008/03/19 05:52:24 slic $
 ---------------------------------------------------------------*/
 
 #include "tcdll.h"
@@ -20,6 +22,7 @@ static void OnRefreshClock(HWND hwnd);
 static void OnRefreshTaskbar(HWND hwnd);
 static void OnRefreshStartMenu(HWND hwnd);
 static void OnRefreshTooltip(HWND hwnd);
+static void OnVolumeChange(HWND hwnd);
 static LRESULT OnMouseDown(HWND hwnd, UINT message,
 	WPARAM wParam, LPARAM lParam);
 static LRESULT OnMouseUp(HWND hwnd, UINT message,
@@ -48,6 +51,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_LBUTTONUP:
 		case WM_RBUTTONUP:
 		case WM_MBUTTONUP:
+		case WM_MOUSEWHEEL:
 			OnTooltipMouseMsg(hwnd, message, wParam, lParam);
 			break;
 	}
@@ -77,7 +81,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if(g_bNoClock) break;
 			OnWindowPosChanging(hwnd, (LPWINDOWPOS)lParam);
 			break;
-		
 		case WM_SIZE:
 			if(g_bNoClock) break;
 			CreateClockDC(hwnd);    // create offscreen DC
@@ -85,8 +88,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_SYSCOLORCHANGE:
 		case WM_THEMECHANGED:
 			if(g_bNoClock) break;
-			CreateClockDC(hwnd);   // create offscreen DC
+			CreateClockDC(hwnd);	// create offscreen DC
 			InvalidateRect(hwnd, NULL, FALSE);
+			SetDesktopIcons();		// desktop.c
 			return 0;
 		case WM_WININICHANGE:
 		case WM_TIMECHANGE:
@@ -96,7 +100,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if(g_bNoClock) break;
 			InvalidateRect(hwnd, NULL, FALSE);
 			return 0;
-		
+
 		/* -------- Timers ------------- */
 		
 		case WM_TIMER:
@@ -104,8 +108,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				case IDTIMER_MAIN:
 					OnTimerMain(hwnd); return 0;
-			/*	case IDTIMER_SYSINFO:
-					OnTimerSysInfo(hwnd); return 0; */
+				case IDTIMER_SYSINFO:
+					OnTimerSysInfo();		// sysinfo.c
+					SetDesktopIcons();		// desktop.c
+					return 0;
 			}
 			if(g_bNoClock) break;
 			return 0;
@@ -177,6 +183,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return 0;
 		case CLOCKM_COPY: // copy format to clipboard
 			OnCopy(hwnd, NULL);
+			return 0;
+		case CLOCKM_VOLCHANGE:
+			OnVolumeChange(hwnd);
 			return 0;
 		
 		case WM_COPYDATA:
@@ -275,7 +284,7 @@ void OnTimerMain(HWND hwnd)
 	
 	CheckStartMenu(); // startmenu.c
 	
-	OnTimerTooltip(hwnd); // tooltip.c
+	OnTimerTooltip(hwnd, FALSE); // tooltip.c
 }
 
 /*------------------------------------------------
@@ -291,6 +300,9 @@ void OnRefreshClock(HWND hwnd)
 	
 	// InitUserStr(); // userstr.c
 	
+	EndSysInfo(hwnd);  // sysinfo.c
+	InitSysInfo(hwnd);  // sysinfo.c
+
 	PostMessage(GetParent(GetParent(hwnd)), WM_SIZE,
 		SIZE_RESTORED, 0);
 	PostMessage(GetParent(hwnd), WM_SIZE,
@@ -331,6 +343,24 @@ void OnRefreshTooltip(HWND hwnd)
 {
 	EndTooltip(hwnd);
 	InitTooltip(hwnd);
+}
+
+/*------------------------------------------------
+  CLOCKM_VOLCHANGE message
+--------------------------------------------------*/
+void OnVolumeChange(HWND hwnd)
+{
+	RefreshVolume();
+	
+	PostMessage(GetParent(GetParent(hwnd)), WM_SIZE,
+		SIZE_RESTORED, 0);
+	PostMessage(GetParent(hwnd), WM_SIZE,
+		SIZE_RESTORED, 0);
+	
+	InvalidateRect(hwnd, NULL, FALSE);
+	InvalidateRect(GetParent(hwnd), NULL, TRUE);
+	
+	OnTimerTooltip(hwnd, TRUE);
 }
 
 /*------------------------------------------------

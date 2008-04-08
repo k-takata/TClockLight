@@ -4,6 +4,7 @@
   Please read readme.txt about the license.
   
   Written by Kazubon, Nanashi-san
+  $Id: nodeflib.c,v e4eaa4f77596 2008/04/08 15:44:21 slic $
 ---------------------------------------------------------------*/
 
 #include "common.h"
@@ -58,12 +59,17 @@ int r_strncmp(const char* d, const char* s, size_t n)
 	return 0;
 }
 
+
 /*-------------------------------------------
   atoi
 ---------------------------------------------*/
 int r_atoi(const char *p)
 {
 	int r = 0;
+	BOOL sign = ( *p == '-' )? TRUE: FALSE;
+	if (*p =='+' || sign)
+		p++;
+
 	while(*p)
 	{
 		if('0' <= *p && *p <= '9')
@@ -71,9 +77,10 @@ int r_atoi(const char *p)
 		else break;
 		p++;
 	}
+	if (sign)
+    	r = -r;
 	return r;
 }
-
 /*-------------------------------------------
   convert a string (hexadecimal) to int
 ---------------------------------------------*/

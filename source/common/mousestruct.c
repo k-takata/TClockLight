@@ -2,8 +2,10 @@
   mousestruct.c : load and save MOUSESTRUCT
   (C) 1997-2003 Kazuto Sato
   Please read readme.txt about the license.
-  
+
   Written by Kazubon, Nanashi-san
+
+  $Id: mousestruct.c,v e4eaa4f77596 2008/04/08 15:44:21 slic $
 ---------------------------------------------------------------*/
 
 #include "common.h"
@@ -37,6 +39,9 @@ void LoadMouseFunc(PMOUSESTRUCT pMSS, int count)
 		else if(strcmp(s, "middle") == 0) pMSS[i].nButton = 2;
 		else if(strcmp(s, "x1") == 0) pMSS[i].nButton = 3;
 		else if(strcmp(s, "x2") == 0) pMSS[i].nButton = 4;
+		else if(strcmp(s, "wheelup") == 0) pMSS[i].nButton = 5;
+		else if(strcmp(s, "wheeldown") == 0) pMSS[i].nButton = 6;
+
 		
 		pMSS[i].nClick = GetMyRegLong(section, "Click", 1);
 		pMSS[i].bCtrl  = GetMyRegLong(section, "Ctrl", FALSE);
@@ -72,6 +77,10 @@ void SaveMouseFunc(PMOUSESTRUCT pMSS, int count)
 			SetMyRegStr(section, "Button", "x1");
 		else if(pMSS[i].nButton == 4)
 			SetMyRegStr(section, "Button", "x2");
+		else if(pMSS[i].nButton == 5)
+			SetMyRegStr(section, "Button", "wheelup");
+		else if(pMSS[i].nButton == 6)
+			SetMyRegStr(section, "Button", "wheeldown");
 		
 		SetMyRegLong(section, "Click", pMSS[i].nClick);
 		SetMyRegLong(section, "Ctrl", pMSS[i].bCtrl);

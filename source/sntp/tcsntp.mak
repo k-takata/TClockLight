@@ -23,7 +23,7 @@ OBJS=sntpmain.obj sntpdlg.obj sntp.obj\
 	playfile.obj soundselect.obj\
 	utl.obj exec.obj reg.obj font.obj
 
-LIBS=kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib\
+LIBS=kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib \
 	shell32.lib winmm.lib wsock32.lib
 
 all: $(EXEFILE)

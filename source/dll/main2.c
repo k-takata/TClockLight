@@ -2,8 +2,10 @@
   main2.c : initialize and clear up
   (C) 1997-2003 Kazuto Sato
   Please read readme.txt about the license.
-  
+
   Written by Kazubon, Nanashi-san
+ 
+  $Id: main2.c,v a6d056957048 2008/03/19 05:52:24 slic $
 ---------------------------------------------------------------*/
 
 #include "tcdll.h"
@@ -34,6 +36,7 @@ void InitClock(HWND hwnd)
 {
 	if(g_bInitClock) return;
 	g_bInitClock = TRUE;
+
 	
 	g_hInst = GetModuleHandle(DLLFILENAME);
 	
@@ -62,7 +65,7 @@ void InitClock(HWND hwnd)
 	
 	// read settings
 	LoadSetting(hwnd);
-	
+
 	InitTooltip(hwnd); // tooltip.c
 	InitUserStr();     // userstr.c
 	
@@ -73,16 +76,17 @@ void InitClock(HWND hwnd)
 	SetClassLong(hwnd, GCL_STYLE,
 		GetClassLong(hwnd, GCL_STYLE) & ~CS_DBLCLKS);
 	
-	InitStartButton(hwnd); // startbtn.c
-	InitStartMenu(hwnd);   // startmenu.c
-	InitTaskbar(hwnd);     // taskbar.c
-	InitTaskSwitch(hwnd);  // taskswitch.c
-	InitTrayNotify(hwnd);  // traynotify.c
+	InitStartButton(hwnd);	// startbtn.c
+	InitStartMenu(hwnd);	// startmenu.c
+	InitTaskbar(hwnd);		// taskbar.c
+	InitTaskSwitch(hwnd);	// taskswitch.c
+	InitTrayNotify(hwnd);	// traynotify.c
+	InitSysInfo(hwnd);		// sysinfo.c
 	
-	RefreshTaskbar(hwnd);  // taskbar.c
+	RefreshTaskbar(hwnd);	// taskbar.c
 	
 	SetTimer(hwnd, IDTIMER_MAIN, 1000, NULL);
-	
+	SetDesktopIcons();		// desktop.c
 }
 
 /*------------------------------------------------
@@ -91,7 +95,8 @@ void InitClock(HWND hwnd)
 void EndClock(HWND hwnd)
 {
 	static BOOL bEndClock = FALSE;
-	
+
+
 	if(bEndClock) return; // avoid to be called twice
 	bEndClock = TRUE;
 	
@@ -107,14 +112,18 @@ void EndClock(HWND hwnd)
 	ClearDrawing();     // drawing.c
 	EndTooltip(hwnd);   // tooltip.c
 	
-	EndNewAPI();      // newapi.c
+	EndNewAPI();		// newapi.c
+	EndSysInfo(hwnd);	// sysinfo.c
+	ReleaseMixer();		// mixer.c
+	EndDesktopIcons();	// desktop.c
 	
 	// Stop timers
 	KillTimer(hwnd, IDTIMER_MAIN);
 	
 	// restore window procedure
-	if(g_oldWndProc)
-		SubclassWindow(hwnd, g_oldWndProc);
+	if (g_oldWndProc) {
+		(void) SubclassWindow(hwnd, g_oldWndProc);
+	}
 	g_oldWndProc = NULL;
 	
 	RefreshTaskbar(hwnd);  // taskbar.c

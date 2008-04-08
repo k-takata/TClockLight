@@ -335,7 +335,7 @@ int CheckWinVersion(void)
 	
 	dw = GetVersion();
 	w = LOWORD(dw);
-	ver = MAKEWORD(HIBYTE(w), LOBYTE(w));
+	ver = (MAKEWORD(HIBYTE(w), LOBYTE(w)));
 	ret = 0;
 	if(dw & 0x80000000)
 	{
@@ -467,10 +467,13 @@ void SetMyDialgPos(HWND hwnd, int xLen, int yLen)
 /*-------------------------------------------
   for debugging
 ---------------------------------------------*/
+#if defined(_DEBUG) || defined(DEBUG)
+#define	DEBUG_TXT "DEBUG.TXT"
+
 void WriteDebug(const char* s)
 {
 	HFILE hf;
-	char fname[MAX_PATH], *title = "DEBUG.TXT";
+	char fname[MAX_PATH], *title = DEBUG_TXT;
 
 	GetModuleFileName(g_hInst, fname, MAX_PATH);
 	del_title(fname);
@@ -488,7 +491,7 @@ void WriteDebug(const char* s)
 void WriteDebugW(const wchar_t* s)
 {
 	HFILE hf;
-	char fname[MAX_PATH], *title = "DEBUG.TXT";
+	char fname[MAX_PATH], *title =  DEBUG_TXT;
 
 	GetModuleFileName(g_hInst, fname, MAX_PATH);
 	del_title(fname);
@@ -502,4 +505,4 @@ void WriteDebugW(const wchar_t* s)
 	_lwrite(hf, (LPCSTR)L"\x0d\x0a", wcslen(L"\x0d\x0a")*sizeof(wchar_t));
 	_lclose(hf);
 }
-
+#endif

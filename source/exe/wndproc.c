@@ -4,6 +4,7 @@
   Please read readme.txt about the license.
   
   Written by Kazubon, Nanashi-san
+  $Id: wndproc.c,v 6d6ada219c32 2008/04/08 19:42:57 slic $
 ---------------------------------------------------------------*/
 
 #include "tclock.h"
@@ -67,8 +68,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 					OnTimerMouse(hwnd); break;
 				case IDTIMER_MONOFF:
 					KillTimer(hwnd, wParam);
-					SendMessage(GetDesktopWindow(), WM_SYSCOMMAND,
-						SC_MONITORPOWER, 2);
+					PostMessage(hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, 2); 
+					// SendMessage(GetDesktopWindow(), WM_SYSCOMMAND,SC_MONITORPOWER, 2);
 					break;
 			}
 			return 0;
@@ -127,7 +128,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return 0;
 		
 		case WM_MOUSEWHEEL:
-			OnMouseWheel(hwnd, wParam, lParam); // mouse2.c
+			OnMouseWheel(hwnd, wParam, lParam); // mouse.c
 			return 0;
 		
 		case WM_LBUTTONDOWN:
@@ -204,6 +205,7 @@ void ClearTClockMain(HWND hwnd)
 	EndMouseFunction(hwnd);
 	EndAlarm();
 	EndMenu();
+	ReleaseMixer();
 	
 	KillTimer(hwnd, IDTIMER_MAIN);
 	

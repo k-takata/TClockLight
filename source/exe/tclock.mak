@@ -10,6 +10,12 @@ SRCDIR=.
 COMMONDIR=..\common
 !ENDIF
 
+!IFNDEF CLDBG
+CLOPT=/W3 /O2
+!ELSE
+CLOPT=/W3 /Od /Zi /FA /D "_DEBUG"
+!ENDIF
+
 EXEFILE=..\out\tclock.exe
 DLLFILE=..\out\tclock.dll
 DEFFILE=
@@ -22,9 +28,11 @@ COMMONH=$(COMMONDIR)\common.h
 OBJS=main2.obj wndproc.obj cmdopt.obj command.obj menu.obj\
 	alarm.obj mouse.obj mouse2.obj about.obj\
 	langcode.obj utl.obj exec.obj reg.obj autoformat.obj localeinfo.obj\
-	playfile.obj alarmstruct.obj mousestruct.obj
+	playfile.obj alarmstruct.obj mousestruct.obj  mixer_exe.obj
+#	memset.obj
 
 LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib winmm.lib
+#	"C:\Program Files\Microsoft SDKs\Windows\v5.0\Lib\IA64\bufferoverflowu.lib"
 
 all: $(EXEFILE)
 
@@ -40,15 +48,17 @@ RCOPT=/fo
 
 !IFDEF NODEFAULTLIB
 
-COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /NODEFAULTLIB /OPT:NOWIN98 /nologo /WS:AGGRESSIVE
+COPT=/c $(CLOPT) /Oi /DNODEFAULTLIB /nologo /Fo 
+LOPT=/SUBSYSTEM:WINDOWS /NODEFAULTLIB /nologo
+# /WS:AGGRESSIVE /OPT:NOWIN98
 $(EXEFILE): main.obj $(OBJS) nodeflib.obj $(RESFILE) TCDLL.lib
 	$(LINK) $(LOPT) main.obj nodeflib.obj $(OBJS) $(RESFILE) TCDLL.lib $(LIBS) /OUT:$@
 
 !ELSE
 
-COPT=/c /W3 /O2 /Oi /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /OPT:NOWIN98 /nologo /WS:AGGRESSIVE
+COPT=/c /W3 $(CLOPT) /Oi /nologo /Fo
+LOPT=/SUBSYSTEM:WINDOWS /nologo 
+# /WS:AGGRESSIVE /OPT:NOWIN98
 
 $(EXEFILE): main.obj $(OBJS) $(RESFILE)  TCDLL.lib
 	$(LINK) $(LOPT) main.obj $(OBJS) $(RESFILE) TCDLL.lib $(LIBS) /OUT:$@
@@ -135,6 +145,8 @@ autoformat.obj: $(COMMONDIR)\autoformat.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\autoformat.c
 localeinfo.obj: $(COMMONDIR)\localeinfo.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\localeinfo.c
+mixer_exe.obj: $(COMMONDIR)\mixer.c $(COMMONH)
+	$(CC) $(COPT)$@ $(COMMONDIR)\mixer.c
 
 # res file
 

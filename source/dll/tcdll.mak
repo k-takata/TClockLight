@@ -1,5 +1,7 @@
 # -------------------------------------------
 # tcdll.mak
+#
+# $Id: tcdll.mak,v 71761d96e5da 2008/03/20 19:53:38 slic $
 #--------------------------------------------
 
 !IFNDEF SRCDIR
@@ -8,6 +10,12 @@ SRCDIR=.
 
 !IFNDEF COMMONDIR
 COMMONDIR=..\common
+!ENDIF
+
+!IFNDEF CLDBG
+CLOPT=/W3 /O2
+!ELSE
+CLOPT=/W3 /Od /Zi /FA /D "_DEBUG"
 !ENDIF
 
 DLLFILE=..\out\tcdll.tclock
@@ -23,9 +31,10 @@ OBJS=dllmain.obj dllmain2.obj dllwndproc.obj draw.obj\
 	format.obj formattime.obj tooltip.obj userstr.obj\
 	startbtn.obj startmenu.obj taskbar.obj taskswitch.obj traynotify.obj\
 	bmp.obj newapi.obj dllutl.obj\
-	exec.obj utl.obj reg.obj font.obj localeinfo.obj
+	exec.obj utl.obj reg.obj font.obj localeinfo.obj \
+	desktop.obj sysinfo.obj mixer.obj battery.obj
 
-LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib
+LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib winmm.lib
 
 
 # Visual C++
@@ -37,16 +46,16 @@ RCOPT=/fo
 
 !IFDEF NODEFAULTLIB
 
-COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /DLL /OPT:NOWIN98 /nologo
+COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /nologo /Fo 
+LOPT=/SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /DLL /OPT:NOWIN98 /nologo
 
 $(DLLFILE): $(OBJS) nodeflib.obj $(RESFILE)
 	$(LINK) $(LOPT) $(OBJS) nodeflib.obj $(RESFILE) $(LIBS) /DEF:$(DEFFILE) /IMPLIB:$(LIBFILE) /OUT:$@
 
 !ELSE
 
-COPT=/c /W3 /O2 /Oi /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /DLL /OPT:NOWIN98 /nologo
+COPT=/c /W3 $(CLOPT) /Oi /nologo /Fo 
+LOPT=/SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /DLL /OPT:NOWIN98 /nologo
 
 $(DLLFILE): $(OBJS) $(RESFILE)
 	$(LINK) $(LOPT) $(OBJS) $(RESFILE) $(LIBS) /DEF:$(DEFFILE) /IMPLIB:$(LIBFILE) /OUT:$@
@@ -119,6 +128,10 @@ dllutl.obj: $(SRCDIR)\dllutl.c $(TCDLLH)
 	$(CC) $(COPT)$@ $(SRCDIR)\dllutl.c
 newapi.obj: $(SRCDIR)\newapi.c $(TCDLLH)
 	$(CC) $(COPT)$@ $(SRCDIR)\newapi.c
+sysinfo.obj: $(SRCDIR)\sysinfo.c $(TCDLLH)
+	$(CC) $(COPT)$@ $(SRCDIR)\sysinfo.c
+battery.obj: $(SRCDIR)\battery.c $(TCDLLH)
+	$(CC) $(COPT)$@ $(SRCDIR)\battery.c
 
 # common obj files
 
@@ -134,6 +147,10 @@ localeinfo.obj: $(COMMONDIR)\localeinfo.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\localeinfo.c
 nodeflib.obj: $(COMMONDIR)\nodeflib.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\nodeflib.c
+mixer.obj: $(COMMONDIR)\mixer.c $(COMMONH)
+	$(CC) $(COPT)$@ $(COMMONDIR)\mixer.c
+desktop.obj: $(COMMONDIR)\desktop.c $(COMMONH)
+	$(CC) $(COPT)$@ $(COMMONDIR)\desktop.c
 
 # res file
 

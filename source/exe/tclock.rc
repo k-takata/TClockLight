@@ -4,6 +4,10 @@
 //
 // Dialog
 //
+//
+// $Id$
+//
+
 
 
 ABOUTBOX DIALOG DISCARDABLE  0, 0, 232, 124
@@ -11,16 +15,17 @@ STYLE DS_MODALFRAME | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
 FONT 9, "MS Sans Serif"
 BEGIN
-    ICON            "MYICON",-1,11,10,20,20
-    LTEXT           "TClock Light      (C) 1997-2003 Kazuto Sato", -1,40,17,
-                    200,11
-    LTEXT           "This program is free software; you can redistribute it and/or modify it under the terms of the GNU GPL.",-1,20,42,200,40
-    LTEXT           "E-mail",-1,20,68,30,11
-    LTEXT           "kazuto.sato@nifty.com",100,55,68,80,11,SS_NOTIFY
-    LTEXT           "WWW",-1,20,80,30,11
-    LTEXT           "http://homepage1.nifty.com/kazubon/",101,55,80,
-                    133,11,SS_NOTIFY
-    DEFPUSHBUTTON   "OK", IDOK, 100, 100, 32, 14, WS_GROUP
+
+	ICON	"MYICON",-1,11,10, 20, 20
+	LTEXT	"TTClock (C) 1997-2003 Kazuto Sato", -1,42, 10, 200, 10
+	LTEXT	"(last modification) Light- 080409 slic", -1,42, 20, 200, 10
+	LTEXT	"This program is free software; you can redistribute it and/or modify it under the terms of the GNU GPL.",-1,10, 46, 200, 40
+	LTEXT	"E-mail",-1,10, 75, 30, 10
+	LTEXT	"kazuto.sato@nifty.com",100, 55, 75, 80, 10,SS_NOTIFY
+	LTEXT	"WWW",-1,55, 85, 133, 10
+	LTEXT	"http://homepage1.nifty.com/kazubon/",101,55, 85, 133, 10,SS_NOTIFY
+	DEFPUSHBUTTON   "OK", IDOK, 100, 100, 32, 14, WS_GROUP
+
 END
 
 /////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,6 @@
 [Main]
 DialogFont=MS Sans Serif, 8
-Version=TClock Light kt070321
+Version=TClock Light-
 HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/en/
 
 [Property]
@@ -141,6 +141,8 @@ Line03=" [Start to customize after][      ][seconds]"
 Line04=" [  Customize again after Explorer crushes]"
 Line05=" [Help URL ]"
 Line06=" [                                          ][...]"
+Line07=" [  Desktop Small Icon View]"
+Line08=" [  Small Icon Menu Background in Transparence]"
 
 [Timer]
 HelpURL=timer.html

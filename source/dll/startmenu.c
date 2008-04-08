@@ -394,7 +394,7 @@ void UnSubclassBaseBar(void)
 	if(m_hwndBaseBar && IsWindow(m_hwndBaseBar))
 	{
 		if(m_oldWndProcBaseBar)
-			SubclassWindow(m_hwndBaseBar, m_oldWndProcBaseBar);
+			(void) SubclassWindow(m_hwndBaseBar, m_oldWndProcBaseBar);
 	}
 	m_oldWndProcBaseBar = NULL;
 }
@@ -427,7 +427,7 @@ void UnSubclassUserPaneXP(void)
 	{
 		if(m_oldWndProcUserPaneXP)
 		{
-			SubclassWindow(m_hwndUserPaneXP, m_oldWndProcUserPaneXP);
+			(void) SubclassWindow(m_hwndUserPaneXP, m_oldWndProcUserPaneXP);
 			SendMessage(GetParent(m_hwndUserPaneXP), WM_SYSCOLORCHANGE, 0, 0);
 		}
 	}

@@ -1,5 +1,7 @@
 /*-------------------------------------------
   tcdll.h
+  
+  $Id: tcdll.h,v 71761d96e5da 2008/03/20 19:53:38 slic $
 ---------------------------------------------*/
 
 #define _WIN32_IE    0x0200
@@ -112,7 +114,7 @@ void EndTooltip(HWND hwndClock);
 void OnTooltipMouseMsg(HWND hwndClock,
 	UINT message, WPARAM wParam, LPARAM lParam);
 BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh);
-void OnTimerTooltip(HWND hwndClock);
+void OnTimerTooltip(HWND hwndClock, BOOL forceFlg);
 
 /* ---------- userstr.c ----------- */
 void InitUserStr(void);
@@ -165,4 +167,19 @@ BOOL CreateOffScreenDC(HDC hdc, HDC *phdcMem, HBITMAP *phbmp,
 BOOL GetBmpSize(HBITMAP hbmp, int* w, int* h);
 void CopyParentSurface(HWND hwnd, HDC hdcDest, int xdst, int ydst,
 	int w, int h, int xsrc, int ysrc);
+
+/* ---------- sysinfo.c --------------- */
+void InitSysInfo(HWND hwnd);
+void EndSysInfo(HWND hwnd);
+void OnTimerSysInfo(void);
+void MemoryHandler(FORMATHANDLERSTRUCT* pstruc);
+
+void BatteryHandler(FORMATHANDLERSTRUCT* pstruc);
+void ACStatusHandler(FORMATHANDLERSTRUCT* pstruc);
+void VolumeHandler(FORMATHANDLERSTRUCT* pstruc);
+void VolumeMuteHandler(FORMATHANDLERSTRUCT* pstruc);
+void MuteHandler(FORMATHANDLERSTRUCT* pstruc);
+void RefreshVolume(void);
+/* ---------- battery.c --------------- */
+void GetBatteryLifePercent(int *batteryLife, int *batteryMode);
 

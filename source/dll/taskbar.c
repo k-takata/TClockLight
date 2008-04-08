@@ -144,7 +144,7 @@ void UnSubclassTaskbar(HWND hwndTaskbar)
 	if(hwndTaskbar && IsWindow(hwndTaskbar))
 	{
 		if (m_oldWndProcTaskBar)
-			SubclassWindow(hwndTaskbar, m_oldWndProcTaskBar);
+			(void) SubclassWindow(hwndTaskbar, m_oldWndProcTaskBar);
 	}
 	m_oldWndProcTaskBar = NULL;
 }

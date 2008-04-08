@@ -4,6 +4,7 @@
   Please read readme.txt about the license.
   
   Written by Kazubon, Nanashi-san
+  $Id: mouse.c,v 6d6ada219c32 2008/04/08 19:42:57 slic $
 ---------------------------------------------------------------*/
 
 #include "tclock.h"
@@ -16,6 +17,7 @@ void EndMouseFunction(HWND hwnd);
 void OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 void OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 void OnTimerMouse(HWND hwnd);
+void OnMouseWheel(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 /* Statics */
 
@@ -85,7 +87,7 @@ void EndMouseFunction(HWND hwnd)
 {
 	if(m_bTimer) KillTimer(hwnd, IDTIMER_MOUSE);
 	m_bTimer = FALSE;
-	
+		
 	if(m_pMouseCommand) free(m_pMouseCommand);
 	m_pMouseCommand = NULL;
 }
@@ -129,7 +131,7 @@ void OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else return;
 	}
 	else return;
-	
+
 	if(m_nButton != button || m_bUpDown != FALSE)
 		m_nClick = 0;
 	
@@ -139,6 +141,7 @@ void OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	if(GetTickCount() - m_tickLast > m_msecDoubleClick)
 		m_nClick = 0;
 	m_tickLast = GetTickCount();
+
 	
 	pMSS = GetMouseCommand(button, m_nClick + 1);
 	if(!pMSS || pMSS->nCommand == IDC_SCREENSAVER
@@ -171,23 +174,29 @@ void OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PMOUSESTRUCT pMSS;
 	BOOL bMoreClick;
 	
-	if(m_bTimer) KillTimer(hwnd, IDTIMER_MOUSE);
+	if(m_bTimer)
+		KillTimer(hwnd, IDTIMER_MOUSE);
 	m_bTimer = FALSE;
 	
-	if(message == WM_RBUTTONUP &&
-		(!m_pMouseCommand || m_bRClickMenu))
+	if((message == WM_RBUTTONUP) && 
+		(!m_pMouseCommand || m_bRClickMenu) )
 	{
-		POINT pt = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+		// POINT pt= { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+		POINT pt;
+		pt.x = GET_X_LPARAM(lParam);
+		pt.y = GET_Y_LPARAM(lParam);
+
 		ClientToScreen(GetClockWindow(), &pt);
 		ScreenToClient(hwnd, &pt);
-		DefWindowProc(hwnd, message, wParam, MAKELPARAM(pt.x, pt.y));
+		DefWindowProc(hwnd, message, wParam, MAKELPARAM(pt.x,pt.y) );
 		return;
 	}
 	
-	if(!m_pMouseCommand) return;
+	if(!m_pMouseCommand) { return; }
 	
-	if(message == WM_LBUTTONUP && m_bStartMenuFromClock)
+	if(message == WM_LBUTTONUP && m_bStartMenuFromClock) {
 		return;
+	}
 	
 	if(message == WM_LBUTTONUP)      button = 0;
 	else if(message == WM_RBUTTONUP) button = 1;
@@ -199,7 +208,7 @@ void OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else return;
 	}
 	else return;
-	
+
 	if((m_nClick > 0 && m_nButton != button) || m_bUpDown != TRUE)
 	{
 		m_nClick = 0; m_nButton = -1; m_bUpDown = FALSE;
@@ -237,6 +246,33 @@ void OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 /*------------------------------------------------
+   when the mouse wheel is rotated
+--------------------------------------------------*/
+void OnMouseWheel(HWND hwnd, WPARAM wParam, LPARAM lParam)
+{
+	int zDelta, xPos, yPos, button;
+	RECT rcClock;
+	PMOUSESTRUCT pMSS;
+	
+	GetWindowRect(g_hwndClock, &rcClock);
+	xPos = GET_X_LPARAM(lParam); 
+	yPos = GET_Y_LPARAM(lParam);
+	if (!( (xPos >= rcClock.left) && (xPos <= rcClock.right) && (yPos >= rcClock.top) && (yPos <= rcClock.bottom) ))
+		return;
+
+	zDelta = (short) HIWORD(wParam);
+	if (zDelta > 0)
+		button = 5;
+	else
+		button = 6;
+	
+	pMSS = GetMouseCommand(button, 1);
+	if(!pMSS) return;
+	
+	ExecuteMouseFunction(hwnd, pMSS);
+}
+
+/*------------------------------------------------
    execute mouse function
 --------------------------------------------------*/
 void OnTimerMouse(HWND hwnd)
@@ -257,8 +293,20 @@ void OnTimerMouse(HWND hwnd)
 --------------------------------------------------*/
 void ExecuteMouseFunction(HWND hwnd, const PMOUSESTRUCT pMSS)
 {
-	m_nClick = 0; m_nButton = -1; m_bUpDown = FALSE;
-	
+	switch (pMSS->nCommand)
+	{
+		case IDC_OPENFILE:
+		case IDC_MOUSECOPY:
+		case IDC_MONOFF:
+		case IDC_SCREENSAVER:
+		case IDC_COMMAND:
+		case IDC_VOLSET:
+		case IDC_VOLUD:
+		case IDC_MUTE:
+		case IDC_FILELIST:
+			m_nClick = 0; m_nButton = -1; m_bUpDown = FALSE;
+	}
+
 	switch (pMSS->nCommand)
 	{
 		case IDC_OPENFILE:
@@ -274,17 +322,40 @@ void ExecuteMouseFunction(HWND hwnd, const PMOUSESTRUCT pMSS)
 		case IDC_MONOFF:
 		{
 			int delay = atoi(pMSS->option);
-			if (delay == 0)
-				SendMessage(GetDesktopWindow(), WM_SYSCOMMAND,
-					SC_MONITORPOWER, 2);
-			else
-				SetTimer(hwnd, IDTIMER_MONOFF, delay * 1000, NULL);
+			if (delay < 1)
+					delay = 1;
+			SetTimer(hwnd, IDTIMER_MONOFF, delay * 1000, NULL);
+			break;
+		}
+		case  IDC_SCREENSAVER:
+		{
+			SendMessage(GetDesktopWindow(), WM_SYSCOMMAND, SC_SCREENSAVE, 0);
 			break;
 		}
 		case IDC_COMMAND:
 		{
 			int nCmd = atoi(pMSS->option);
-			if(nCmd > 100) PostMessage(hwnd, WM_COMMAND, nCmd, 0);
+			if(nCmd >= 100) PostMessage(hwnd, WM_COMMAND, nCmd, 0);
+			break;
+		}
+		case IDC_VOLSET:
+		{
+			int vol = atoi(pMSS->option);
+			SetMasterVolume(vol);
+			PostMessage(g_hwndClock, CLOCKM_VOLCHANGE, TRUE, TRUE);
+			break;
+		}
+		case IDC_VOLUD:
+		{
+			int vol = atoi(pMSS->option);
+			UpDownMasterVolume(vol);
+			PostMessage(g_hwndClock, CLOCKM_VOLCHANGE, TRUE, TRUE);
+			break;
+		}
+		case IDC_MUTE:
+		{
+			ReverseMasterMute();
+			PostMessage(g_hwndClock, CLOCKM_VOLCHANGE, TRUE, TRUE);
 			break;
 		}
 		case IDC_FILELIST:

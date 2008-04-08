@@ -4,6 +4,7 @@
   Please read readme.txt about the license.
   
   Written by Kazubon, Nanashi-san
+  $Id: main2.c,v a6d056957048 2008/03/19 05:52:24 slic $
 ---------------------------------------------------------------*/
 
 #include "tclock.h"
@@ -64,7 +65,7 @@ int TClockExeMain(void)
 	
 	// Windows Vista UIPI filter
 	AddMessageFilters();
-	
+
 	// register a window class
 	wndclass.style         = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
 	wndclass.lpfnWndProc   = WndProc;
@@ -85,6 +86,7 @@ int TClockExeMain(void)
 		NULL, NULL, g_hInst, NULL);
 	ShowWindow(hwnd, SW_MINIMIZE);
 	ShowWindow(hwnd, SW_HIDE);
+
 	// ShowWindow(hwnd, SW_SHOW);
 	// UpdateWindow(hwnd);
 	
@@ -101,7 +103,6 @@ int TClockExeMain(void)
 	}
 	
 	UnregisterClass(CLASS_TCLOCKMAIN, g_hInst);
-	
 	return msg.wParam;
 }
 
@@ -274,7 +275,7 @@ void AddMessageFilters(void)
 		WM_COMMAND,
 		WM_CONTEXTMENU,
 		WM_EXITMENULOOP,
-		
+
 		TCM_HWNDCLOCK,
 		TCM_CLOCKERROR,
 		TCM_EXIT,
