@@ -176,6 +176,7 @@ BOOL ExecFile(HWND hwnd, const char* command);
 
 HFONT CreateMyFont(const char *fontname, int size,
 	LONG weight, LONG italic, int codepage);
+void GetDefaultFontName(char *fontname, const char *defaultfontname);
 
 /* -- langcode.c ---------------------------------------- */
 
@@ -358,10 +359,11 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont);
 #define WIN95    0x01   // 95,98,Me
 #define WIN98    0x02   // 98,Me
 #define WINME    0x04   // Me
-#define WINNT    0x08   // NT4,2000,XP,Vista
-#define WIN2000  0x10   // 2000,XP,Vista
-#define WINXP    0x20   // XP,Vista
-#define WINVISTA 0x40   // Vista
+#define WINNT    0x08   // NT4,2000,XP,Vista,Win7
+#define WIN2000  0x10   // 2000,XP,Vista,Win7
+#define WINXP    0x20   // XP,Vista,Win7
+#define WINVISTA 0x40   // Vista,Win7
+#define WIN7     0x80   // Win7
 
 void add_title(char *path, const char* titile);
 void del_title(char *path);
@@ -382,6 +384,7 @@ BOOL IsFile(const char* fname);
 int CheckWinVersion(void);
 BOOL IsIE4(void);
 BOOL IsXPVisualStyle(void);
+BOOL IsVistaAero(void);
 void SetForegroundWindow98(HWND hwnd);
 void SetMyDialgPos(HWND hwnd, int xLen, int yLen);
 void WriteDebug(const char* s);

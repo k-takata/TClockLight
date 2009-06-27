@@ -10,12 +10,16 @@ SRCDIR=.
 COMMONDIR=..\common
 !ENDIF
 
-EXEFILE=..\out\tclock.exe
-DLLFILE=..\out\tclock.dll
+!IFNDEF OUTDIR
+OUTDIR=..\out
+!ENDIF
+
+EXEFILE=$(OUTDIR)\tclock.exe
+DLLFILE=$(OUTDIR)\tclock.dll
 DEFFILE=
 RCFILE=$(SRCDIR)\tclock.rc
 RESFILE=tclock.res
-TDSFILE=..\out\tclock.tds
+TDSFILE=$(OUTDIR)\tclock.tds
 TCLOCKH=$(SRCDIR)\tclock.h $(COMMONDIR)\common.h
 COMMONH=$(COMMONDIR)\common.h
 
@@ -40,15 +44,25 @@ RCOPT=/fo
 
 !IFDEF NODEFAULTLIB
 
-COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /NODEFAULTLIB /OPT:NOWIN98 /nologo /WS:AGGRESSIVE
+COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /D_CRT_SECURE_NO_WARNINGS /nologo /Fo
+LOPT=/SUBSYSTEM:WINDOWS /NODEFAULTLIB /merge:.rdata=.text /nologo
+!IFDEF WIN64
+COPT=/GS- $(COPT)
+LIBS=$(LIBS) libcmt.lib
+!ELSE
+LOPT=$(LOPT) /OPT:NOWIN98 /WS:AGGRESSIVE
+!ENDIF
+
 $(EXEFILE): main.obj $(OBJS) nodeflib.obj $(RESFILE) TCDLL.lib
 	$(LINK) $(LOPT) main.obj nodeflib.obj $(OBJS) $(RESFILE) TCDLL.lib $(LIBS) /OUT:$@
 
 !ELSE
 
-COPT=/c /W3 /O2 /Oi /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /OPT:NOWIN98 /nologo /WS:AGGRESSIVE
+COPT=/c /W3 /O2 /Oi /D_CRT_SECURE_NO_WARNINGS /nologo /Fo
+LOPT=/SUBSYSTEM:WINDOWS /merge:.rdata=.text /nologo
+!IFNDEF WIN64
+LOPT=$(LOPT) /OPT:NOWIN98 /WS:AGGRESSIVE
+!ENDIF
 
 $(EXEFILE): main.obj $(OBJS) $(RESFILE)  TCDLL.lib
 	$(LINK) $(LOPT) main.obj $(OBJS) $(RESFILE) TCDLL.lib $(LIBS) /OUT:$@

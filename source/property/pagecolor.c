@@ -316,20 +316,12 @@ void OnChooseColor(HWND hDlg, int id)
 --------------------------------------------------*/
 void InitFont(HWND hDlg)
 {
-	char s[80];
+	char s[LF_FACESIZE];
 	
-	GetMyRegStr("", "Font", s, 80, "");
+	GetMyRegStr("", "Font", s, LF_FACESIZE, "");
 	if(s[0] == 0)
 	{
-		HFONT hfont;
-		LOGFONT lf;
-		hfont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-		if(hfont)
-		{
-			GetObject(hfont, sizeof(lf), (LPVOID)&lf);
-			strcpy(s, lf.lfFaceName);
-		}
-		else strcpy(s, "System");
+		GetDefaultFontName(s, "System");
 	}
 	
 	// common/combobox.c

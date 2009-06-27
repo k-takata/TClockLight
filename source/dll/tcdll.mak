@@ -10,12 +10,16 @@ SRCDIR=.
 COMMONDIR=..\common
 !ENDIF
 
-DLLFILE=..\out\tcdll.tclock
+!IFNDEF OUTDIR
+OUTDIR=..\out
+!ENDIF
+
+DLLFILE=$(OUTDIR)\tcdll.tclock
 RCFILE=$(SRCDIR)\tcdll.rc
 RESFILE=tcdll.res
 LIBFILE=tcdll.lib
 DEFFILE=$(SRCDIR)\tcdll.def
-TDSFILE=..\out\tcdll.tds
+TDSFILE=$(OUTDIR)\tcdll.tds
 TCDLLH=$(SRCDIR)\tcdll.h $(COMMONDIR)\common.h
 COMMONH=$(COMMONDIR)\common.h
 
@@ -27,9 +31,16 @@ OBJS=dllmain.obj dllmain2.obj dllwndproc.obj draw.obj\
 
 LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib
 
+!IFDEF WIN64
+DLLBASE=0x60066040000
+!ELSE
+DLLBASE=0x66040000
+!ENDIF
+
 
 # Visual C++
 !IFDEF _NMAKE_VER
+
 CC=cl
 LINK=link
 RC=rc
@@ -37,16 +48,24 @@ RCOPT=/fo
 
 !IFDEF NODEFAULTLIB
 
-COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /DLL /OPT:NOWIN98 /nologo
+COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /D_CRT_SECURE_NO_WARNINGS /nologo /Fo
+LOPT=/SUBSYSTEM:WINDOWS /DLL /merge:.rdata=.text /nologo /BASE:$(DLLBASE)
+!IFDEF WIN64
+COPT=/GS- $(COPT)
+!ELSE
+LOPT=$(LOPT) /OPT:NOWIN98
+!ENDIF
 
 $(DLLFILE): $(OBJS) nodeflib.obj $(RESFILE)
 	$(LINK) $(LOPT) $(OBJS) nodeflib.obj $(RESFILE) $(LIBS) /DEF:$(DEFFILE) /IMPLIB:$(LIBFILE) /OUT:$@
 
 !ELSE
 
-COPT=/c /W3 /O2 /Oi /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /DLL /OPT:NOWIN98 /nologo
+COPT=/c /W3 /O2 /Oi /D_CRT_SECURE_NO_WARNINGS /nologo /Fo
+LOPT=/SUBSYSTEM:WINDOWS /DLL /merge:.rdata=.text /nologo /BASE:$(DLLBASE)
+!IFNDEF WIN64
+LOPT=$(LOPT) /OPT:NOWIN98
+!ENDIF
 
 $(DLLFILE): $(OBJS) $(RESFILE)
 	$(LINK) $(LOPT) $(OBJS) $(RESFILE) $(LIBS) /DEF:$(DEFFILE) /IMPLIB:$(LIBFILE) /OUT:$@
@@ -62,7 +81,7 @@ RCOPT=-r -32 -fo
 
 !IFDEF NODEFAULTLIB
 COPT=-c -w -w-8057 -O2 -Oi -d -DNODEFAULTLIB -tWD -tWM -o
-LOPT=/c /C /Gn /Tpd /x
+LOPT=/c /C /Gn /Tpd /x /b:$(DLLBASE)
 
 $(DLLFILE): $(OBJS) nodeflib.obj bccdll.pat $(RESFILE)
 	IMPLIB $(LIBFILE) $(DEFFILE)
@@ -71,7 +90,7 @@ $(DLLFILE): $(OBJS) nodeflib.obj bccdll.pat $(RESFILE)
 
 !ELSE
 COPT=-c -w -w-8057 -O2 -Oi -d -tWD -tWM -o
-LOPT=/c /C /Gn /Tpd /x
+LOPT=/c /C /Gn /Tpd /x /b:$(DLLBASE)
 
 $(DLLFILE): $(OBJS) bccdll.pat $(RESFILE)
 	IMPLIB $(LIBFILE) $(DEFFILE)

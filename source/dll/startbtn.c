@@ -522,14 +522,7 @@ HFONT GetStartButtonFont(void)
 	
 	if(name[0] == 0)
 	{
-		HFONT hfont;
-		LOGFONT lf;
-		hfont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-		if(hfont)
-		{
-			GetObject(hfont, sizeof(lf),(LPVOID)&lf);
-			strcpy(name, lf.lfFaceName);
-		}
+		GetDefaultFontName(name, NULL);
 	}
 	
 	size = GetMyRegLong(m_section, "FontSize", 9);

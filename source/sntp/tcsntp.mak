@@ -10,11 +10,15 @@ SRCDIR=.
 COMMONDIR=..\common
 !ENDIF
 
-EXEFILE=..\out\tcsntp.exe
+!IFNDEF OUTDIR
+OUTDIR=..\out
+!ENDIF
+
+EXEFILE=$(OUTDIR)\tcsntp.exe
 LANGID=0x411
 RCFILE=$(SRCDIR)\tcsntp.rc
 RESFILE=tcsntp.res
-TDSFILE=..\out\tcsntp.tds
+TDSFILE=$(OUTDIR)\tcsntp.tds
 TCLOCKH=$(SRCDIR)\tcsntp.h $(SRCDIR)\resource.h $(COMMONDIR)\common.h
 COMMONH=$(COMMONDIR)\common.h
 
@@ -38,16 +42,25 @@ RCOPT=/l $(LANGID) /fo
 
 !IFDEF NODEFAULTLIB
 
-COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /NODEFAULTLIB /OPT:NOWIN98 /nologo
+COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /D_CRT_SECURE_NO_WARNINGS /nologo /Fo
+LOPT=/SUBSYSTEM:WINDOWS /NODEFAULTLIB /merge:.rdata=.text /nologo
+!IFDEF WIN64
+COPT=/GS- $(COPT)
+LIBS=$(LIBS) libcmt.lib
+!ELSE
+LOPT=$(LOPT) /OPT:NOWIN98
+!ENDIF
 
 $(EXEFILE): $(OBJS) nodeflib.obj $(RESFILE)
 	$(LINK) $(LOPT) $(OBJS) nodeflib.obj $(RESFILE) $(LIBS) /OUT:$@
 
 !ELSE
 
-COPT=/c /W3 /O2 /Oi /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /OPT:NOWIN98 /nologo
+COPT=/c /W3 /O2 /Oi /D_CRT_SECURE_NO_WARNINGS /nologo /Fo
+LOPT=/SUBSYSTEM:WINDOWS /merge:.rdata=.text /nologo
+!IFNDEF WIN64
+LOPT=$(LOPT) /OPT:NOWIN98
+!ENDIF
 
 $(EXEFILE): $(OBJS) $(RESFILE)
 	$(LINK) $(LOPT) $(OBJS) $(RESFILE) $(LIBS) /OUT:$@

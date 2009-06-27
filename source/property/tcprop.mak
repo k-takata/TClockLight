@@ -10,10 +10,14 @@ SRCDIR=.
 COMMONDIR=..\common
 !ENDIF
 
-EXEFILE=..\out\tcprop.exe
+!IFNDEF OUTDIR
+OUTDIR=..\out
+!ENDIF
+
+EXEFILE=$(OUTDIR)\tcprop.exe
 RCFILE=$(SRCDIR)\tcprop.rc
 RESFILE=tcprop.res
-TDSFILE=..\out\tcprop.tds
+TDSFILE=$(OUTDIR)\tcprop.tds
 TCPROPH=$(SRCDIR)\tcprop.h $(SRCDIR)\resource.h $(COMMONDIR)\common.h
 COMMONH=$(COMMONDIR)\common.h
 
@@ -42,16 +46,25 @@ RCOPT=/fo
 
 !IFDEF NODEFAULTLIB
 
-COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /NODEFAULTLIB /OPT:NOWIN98 /nologo
+COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /D_CRT_SECURE_NO_WARNINGS /nologo /Fo
+LOPT=/SUBSYSTEM:WINDOWS /NODEFAULTLIB /merge:.rdata=.text /nologo
+!IFDEF WIN64
+COPT=/GS- $(COPT)
+LIBS=$(LIBS) libcmt.lib
+!ELSE
+LOPT=$(LOPT) /OPT:NOWIN98
+!ENDIF
 
 $(EXEFILE): propmain.obj $(OBJS) nodeflib.obj $(RESFILE)
 	$(LINK) $(LOPT) propmain.obj nodeflib.obj $(OBJS) $(RESFILE) $(LIBS) /OUT:$@
 
 !ELSE
 
-COPT=/c /W3 /O2 /Oi /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /OPT:NOWIN98 /nologo
+COPT=/c /W3 /O2 /Oi /D_CRT_SECURE_NO_WARNINGS /nologo /Fo
+LOPT=/SUBSYSTEM:WINDOWS /merge:.rdata=.text /nologo
+!IFNDEF WIN64
+LOPT=$(LOPT) /OPT:NOWIN98
+!ENDIF
 
 $(EXEFILE): propmain.obj $(OBJS) $(RESFILE)
 	$(LINK) $(LOPT) propmain.obj $(OBJS) $(RESFILE) $(LIBS) /OUT:$@

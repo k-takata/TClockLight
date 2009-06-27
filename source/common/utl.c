@@ -325,7 +325,7 @@ BOOL IsFile(const char* fname)
 }
 
 /*-------------------------------------------
-  check Windows 95/98/Me/NT4/2000/XP
+  check Windows 95/98/Me/NT4/2000/XP/Vista
 ---------------------------------------------*/
 int CheckWinVersion(void)
 {
@@ -354,6 +354,8 @@ int CheckWinVersion(void)
 			ret |= WINXP;
 		if(ver >= MAKEWORD(0, 6))	// 6.0
 			ret |= WINVISTA;
+	//	if(ver >= MAKEWORD(1, 6))	// 6.1
+	//		ret |= WIN7;
 	}
 	
 	return ret;
@@ -394,6 +396,33 @@ BOOL IsXPVisualStyle(void)
 	}
 	return FALSE;
 }
+
+/*-------------------------------------------
+  using Vista Aero ?
+---------------------------------------------*/
+#if 0
+typedef HRESULT (WINAPI *pfnDwmIsCompositionEnabled)(BOOL *);
+BOOL IsVistaAero(void)
+{
+	HMODULE hDwmApi;
+	pfnDwmIsCompositionEnabled pDwmIsCompositionEnabled;
+	BOOL ret = FALSE;
+	
+	hDwmApi = LoadLibrary("dwmapi.dll");
+	if (hDwmApi == NULL)
+		return FALSE;
+	pDwmIsCompositionEnabled = (pfnDwmIsCompositionEnabled)
+			GetProcAddress(hDwmApi, "DwmIsCompositionEnabled");
+	if (pDwmIsCompositionEnabled != NULL) {
+		BOOL enabled;
+		if (pDwmIsCompositionEnabled(&enabled) == S_OK) {
+			ret = enabled;
+		}
+	}
+	FreeLibrary(hDwmApi);
+	return ret;
+}
+#endif
 
 /*-------------------------------------------
   SetForegroundWindow for Windows98

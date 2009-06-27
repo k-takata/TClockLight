@@ -37,7 +37,7 @@ static void EnableTimerDlgItems(HWND hDlg);
 static PTIMERSTRUCT m_pTimer = NULL;
 static int m_numTimer = 0;
 static int m_nCurrent = -1;
-static BOOL m_bPlaying = FALSE;  // sound is plaing
+static BOOL m_bPlaying = FALSE;  // sound is playing
 
 /*-------------------------------------------------------
   TIMERM_SHOWDLG message

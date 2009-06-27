@@ -41,6 +41,10 @@ typedef struct _BLENDFUNCTION
 
 #endif
 
+#ifndef AC_SRC_ALPHA
+#define AC_SRC_ALPHA                0x01
+#endif
+
 BOOL MyGradientFill(HDC hdc, PTRIVERTEX pVertex, ULONG dwNumVertex,
 	PVOID pMesh, ULONG dwNumMesh, ULONG dwMode);
 

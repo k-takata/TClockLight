@@ -91,15 +91,7 @@ void LoadDrawingSetting(HWND hwnd)
 	
 	if(fontname[0] == 0)
 	{
-		HFONT hfont;
-		LOGFONT lf;
-		hfont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-		if(hfont)
-		{
-			GetObject(hfont, sizeof(lf), (LPVOID)&lf);
-			strcpy(fontname, lf.lfFaceName);
-		}
-		else strcpy(fontname, "System");
+		GetDefaultFontName(fontname, "System");
 	}
 	
 	size = GetMyRegLong(NULL, "FontSize", 9);
@@ -337,6 +329,7 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	wchar_t s[BUFSIZE_FORMAT+BUFSIZE_DISP*2],
 		*p, *sp, *ep;
 	DWORD dwRop = SRCCOPY;
+	COLORREF textcolor = 0;
 	
 	if(!m_hdcClock) CreateClockDC(hwnd);
 	
@@ -346,8 +339,18 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	wclock = rcClock.right;
 	hclock = rcClock.bottom;
 	
-	// copy m_hdcClockBack to m_hdcClock
-	CopyClockBack(hwnd, m_hdcClock, m_hdcClockBack, wclock, hclock);
+	if(g_nBlink > 0 && (g_nBlink % 2) == 0) dwRop = NOTSRCCOPY;
+	
+	if(!m_fillbackcolor && (dwRop == SRCCOPY))
+	{
+		HBRUSH hbr = GetStockBrush(BLACK_BRUSH);
+		FillRect(m_hdcClock, &rcClock, hbr);
+	}
+	else
+	{
+		// copy m_hdcClockBack to m_hdcClock
+		CopyClockBack(hwnd, m_hdcClock, m_hdcClockBack, wclock, hclock);
+	}
 	
 	if(GetFocus() == hwnd)
 		DrawFocusRect(m_hdcClock, &rcClock);
@@ -397,9 +400,19 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 					+ 2 + m_dlineheight;
 	}
 	
-	if(g_nBlink > 0 && (g_nBlink % 2) == 0) dwRop = NOTSRCCOPY;
+//	if(g_nBlink > 0 && (g_nBlink % 2) == 0) dwRop = NOTSRCCOPY;
 	
-	BitBlt(hdc, 0, 0, wclock, hclock, m_hdcClock, 0, 0, dwRop);
+	if(!m_fillbackcolor && (dwRop == SRCCOPY))
+	{
+		BLENDFUNCTION bf = {AC_SRC_OVER, 0, 0xff, AC_SRC_ALPHA};
+		CopyClockBack(hwnd, hdc, m_hdcClockBack, wclock, hclock);
+	//	MyAlphaBlend(hdc, 0, 0, wclock, hclock, m_hdcClock, 0, 0, wclock, hclock, bf);
+		BitBlt(hdc, 0, 0, wclock, hclock, m_hdcClock, 0, 0, SRCPAINT);
+	}
+	else
+	{
+		BitBlt(hdc, 0, 0, wclock, hclock, m_hdcClock, 0, 0, dwRop);
+	}
 	
 	if(wtext + tm.tmAveCharWidth * 2 + m_dwidth > m_ClockWidth)
 	{

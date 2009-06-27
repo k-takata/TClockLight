@@ -299,19 +299,12 @@ void OnDrawItem(HWND hDlg, LPDRAWITEMSTRUCT pdis)
 --------------------------------------------------*/
 void InitFont(HWND hDlg)
 {
-	char s[80];
+	char s[LF_FACESIZE];
 	
-	GetMyRegStr(m_section, "Font", s, 80, "");
+	GetMyRegStr(m_section, "Font", s, LF_FACESIZE, "");
 	if(s[0] == 0)
 	{
-		HFONT hfont;
-		hfont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-		if(hfont)
-		{
-			LOGFONT lf;
-			GetObject(hfont, sizeof(lf), (LPVOID)&lf);
-			strcpy(s, lf.lfFaceName);
-		}
+		GetDefaultFontName(s, NULL);
 	}
 	
 	// common/combobox.c

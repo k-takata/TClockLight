@@ -50,7 +50,7 @@ static DWORD m_dwTickCountOnSend = 0;    // starting time of sending data
 
 static char  *m_pGetHost = NULL; // buffer of host entry
 static HANDLE m_hGetHost;        // task handle of WSAAsyncGetHostByName()
-static int    m_socket;   // socket
+static SOCKET m_socket;   // socket
 static int    m_port;     // port
 
 // RASAPI32.dll

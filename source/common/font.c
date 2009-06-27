@@ -8,14 +8,15 @@
 
 #include "common.h"
 
-/* Globas */
+/* Globals */
 
 HFONT CreateMyFont(const char *fontname, int size,
 	LONG weight, LONG italic, int codepage);
+void GetDefaultFontName(char *fontname, const char *defaultfontname);
 
 /* Statics */
 
-static struct {
+static const struct {
 	int cp;
 	BYTE charset;
 } m_codepage_charset[] = {
@@ -112,3 +113,26 @@ BOOL CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf,
 	return TRUE;
 }
 
+/*------------------------------------------------
+   get the default UI fontname
+--------------------------------------------------*/
+void GetDefaultFontName(char *fontname, const char *defaultfontname)
+{
+/*
+	HFONT hfont;
+	LOGFONT lf;
+	hfont = GetStockFont(DEFAULT_GUI_FONT);
+	if(hfont)
+	{
+		GetObject(hfont, sizeof(lf), (LPVOID)&lf);
+		strcpy(fontname, lf.lfFaceName);
+	}
+	else if(defaultfontname != NULL)
+		strcpy(fontname, defaultfontname);
+*/
+	NONCLIENTMETRICS ncm = {sizeof(ncm)};
+	if(SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, FALSE))
+		strcpy(fontname, ncm.lfMenuFont.lfFaceName);
+	else if(defaultfontname != NULL)
+		strcpy(fontname, defaultfontname);
+}
