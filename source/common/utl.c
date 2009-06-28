@@ -400,10 +400,10 @@ BOOL IsXPVisualStyle(void)
 /*-------------------------------------------
   using Vista Aero ?
 ---------------------------------------------*/
-#if 0
 typedef HRESULT (WINAPI *pfnDwmIsCompositionEnabled)(BOOL *);
 BOOL IsVistaAero(void)
 {
+#if 0
 	HMODULE hDwmApi;
 	pfnDwmIsCompositionEnabled pDwmIsCompositionEnabled;
 	BOOL ret = FALSE;
@@ -421,8 +421,16 @@ BOOL IsVistaAero(void)
 	}
 	FreeLibrary(hDwmApi);
 	return ret;
-}
+#else
+	if(GetRegLong(HKEY_CURRENT_USER,
+		"Software\\Microsoft\\Windows\\DWM",
+		"Composition", 0))
+	{
+		return TRUE;
+	}
+	return FALSE;
 #endif
+}
 
 /*-------------------------------------------
   SetForegroundWindow for Windows98

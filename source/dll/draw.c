@@ -330,6 +330,7 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 		*p, *sp, *ep;
 	DWORD dwRop = SRCCOPY;
 	COLORREF textcolor = 0;
+	BOOL aero = FALSE;
 	
 	if(!m_hdcClock) CreateClockDC(hwnd);
 	
@@ -341,7 +342,8 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	
 	if(g_nBlink > 0 && (g_nBlink % 2) == 0) dwRop = NOTSRCCOPY;
 	
-	if(!m_fillbackcolor && (dwRop == SRCCOPY))
+	if(!m_fillbackcolor && (dwRop == SRCCOPY)
+		&& ((aero = IsVistaAero()) != FALSE))
 	{
 		HBRUSH hbr = GetStockBrush(BLACK_BRUSH);
 		FillRect(m_hdcClock, &rcClock, hbr);
@@ -402,7 +404,7 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	
 //	if(g_nBlink > 0 && (g_nBlink % 2) == 0) dwRop = NOTSRCCOPY;
 	
-	if(!m_fillbackcolor && (dwRop == SRCCOPY))
+	if(!m_fillbackcolor && (dwRop == SRCCOPY) && aero)
 	{
 		BLENDFUNCTION bf = {AC_SRC_OVER, 0, 0xff, AC_SRC_ALPHA};
 		CopyClockBack(hwnd, hdc, m_hdcClockBack, wclock, hclock);
