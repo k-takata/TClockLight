@@ -27,9 +27,11 @@ OBJS=dllmain.obj dllmain2.obj dllwndproc.obj draw.obj\
 	format.obj formattime.obj tooltip.obj userstr.obj\
 	startbtn.obj startmenu.obj taskbar.obj taskswitch.obj traynotify.obj\
 	bmp.obj newapi.obj dllutl.obj\
+	sysinfo.obj net.obj hdd.obj cpu.obj battery.obj mixer.obj \
+	desktop.obj \
 	exec.obj utl.obj reg.obj font.obj localeinfo.obj
 
-LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib
+LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib winmm.lib
 
 !IFDEF WIN64
 DLLBASE=0x60066040000
@@ -49,7 +51,7 @@ RCOPT=/fo
 !IFDEF NODEFAULTLIB
 
 COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /D_CRT_SECURE_NO_WARNINGS /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /DLL /merge:.rdata=.text /nologo /BASE:$(DLLBASE)
+LOPT=/SUBSYSTEM:WINDOWS /DLL /merge:.rdata=.text /nologo /BASE:$(DLLBASE) /MAP
 !IFDEF WIN64
 COPT=/GS- $(COPT)
 !ELSE
@@ -62,7 +64,7 @@ $(DLLFILE): $(OBJS) nodeflib.obj $(RESFILE)
 !ELSE
 
 COPT=/c /W3 /O2 /Oi /D_CRT_SECURE_NO_WARNINGS /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /DLL /merge:.rdata=.text /nologo /BASE:$(DLLBASE)
+LOPT=/SUBSYSTEM:WINDOWS /DLL /merge:.rdata=.text /nologo /BASE:$(DLLBASE) /MAP
 !IFNDEF WIN64
 LOPT=$(LOPT) /OPT:NOWIN98
 !ENDIF
@@ -108,11 +110,11 @@ bccdll.pat: $(SRCDIR)\bccdll.nas
 
 dllmain.obj: $(SRCDIR)\main.c $(TCDLLH)
 	$(CC) $(COPT)$@ $(SRCDIR)\main.c
-dllmain2.obj: $(SRCDIR)\main2.c $(TCDLLH)
+dllmain2.obj: $(SRCDIR)\main2.c $(TCDLLH) ..\config.h
 	$(CC) $(COPT)$@ $(SRCDIR)\main2.c
-dllwndproc.obj: $(SRCDIR)\wndproc.c $(TCDLLH)
+dllwndproc.obj: $(SRCDIR)\wndproc.c $(TCDLLH) ..\config.h
 	$(CC) $(COPT)$@ $(SRCDIR)\wndproc.c
-format.obj: $(SRCDIR)\format.c $(TCDLLH)
+format.obj: $(SRCDIR)\format.c $(TCDLLH) ..\config.h
 	$(CC) $(COPT)$@ $(SRCDIR)\format.c
 formattime.obj: $(SRCDIR)\formattime.c $(TCDLLH)
 	$(CC) $(COPT)$@ $(SRCDIR)\formattime.c
@@ -122,15 +124,15 @@ userstr.obj: $(SRCDIR)\userstr.c $(TCDLLH)
 	$(CC) $(COPT)$@ $(SRCDIR)\userstr.c
 draw.obj: $(SRCDIR)\draw.c $(TCDLLH)
 	$(CC) $(COPT)$@ $(SRCDIR)\draw.c
-startbtn.obj: $(SRCDIR)\startbtn.c $(TCDLLH)
+startbtn.obj: $(SRCDIR)\startbtn.c $(TCDLLH) ..\config.h
 	$(CC) $(COPT)$@ $(SRCDIR)\startbtn.c
-startmenu.obj: $(SRCDIR)\startmenu.c $(TCDLLH)
+startmenu.obj: $(SRCDIR)\startmenu.c $(TCDLLH) ..\config.h
 	$(CC) $(COPT)$@ $(SRCDIR)\startmenu.c
-taskbar.obj: $(SRCDIR)\taskbar.c $(TCDLLH)
+taskbar.obj: $(SRCDIR)\taskbar.c $(TCDLLH) ..\config.h
 	$(CC) $(COPT)$@ $(SRCDIR)\taskbar.c
-taskswitch.obj: $(SRCDIR)\taskswitch.c $(TCDLLH)
+taskswitch.obj: $(SRCDIR)\taskswitch.c $(TCDLLH) ..\config.h
 	$(CC) $(COPT)$@ $(SRCDIR)\taskswitch.c
-traynotify.obj: $(SRCDIR)\traynotify.c $(TCDLLH)
+traynotify.obj: $(SRCDIR)\traynotify.c $(TCDLLH) ..\config.h
 	$(CC) $(COPT)$@ $(SRCDIR)\traynotify.c
 bmp.obj: $(SRCDIR)\bmp.c $(TCDLLH)
 	$(CC) $(COPT)$@ $(SRCDIR)\bmp.c
@@ -138,6 +140,16 @@ dllutl.obj: $(SRCDIR)\dllutl.c $(TCDLLH)
 	$(CC) $(COPT)$@ $(SRCDIR)\dllutl.c
 newapi.obj: $(SRCDIR)\newapi.c $(TCDLLH)
 	$(CC) $(COPT)$@ $(SRCDIR)\newapi.c
+sysinfo.obj: $(SRCDIR)\sysinfo.c $(TCDLLH) ..\config.h
+	$(CC) $(COPT)$@ $(SRCDIR)\sysinfo.c
+net.obj: $(SRCDIR)\net.c $(TCDLLH) ..\config.h
+	$(CC) $(COPT)$@ $(SRCDIR)\net.c
+hdd.obj: $(SRCDIR)\hdd.c $(TCDLLH) ..\config.h
+	$(CC) $(COPT)$@ $(SRCDIR)\hdd.c
+cpu.obj: $(SRCDIR)\cpu.c $(TCDLLH) ..\config.h
+	$(CC) $(COPT)$@ $(SRCDIR)\cpu.c
+battery.obj: $(SRCDIR)\battery.c $(TCDLLH) ..\config.h
+	$(CC) $(COPT)$@ $(SRCDIR)\battery.c
 
 # common obj files
 
@@ -153,6 +165,10 @@ localeinfo.obj: $(COMMONDIR)\localeinfo.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\localeinfo.c
 nodeflib.obj: $(COMMONDIR)\nodeflib.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\nodeflib.c
+mixer.obj: $(COMMONDIR)\mixer.c $(COMMONH) ..\config.h
+	$(CC) $(COPT)$@ $(COMMONDIR)\mixer.c
+desktop.obj: $(COMMONDIR)\desktop.c $(COMMONH) ..\config.h
+	$(CC) $(COPT)$@ $(COMMONDIR)\desktop.c
 
 # res file
 

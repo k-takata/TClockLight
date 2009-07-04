@@ -78,6 +78,8 @@
 #define IDC_CUSTOM                      1213
 #define IDC_FORMAT                      1214
 #define IDC_FORMATDETAIL                1215
+#define IDC_SYSII                       1216
+#define IDC_SYSIISPIN                   1217
 
 #define IDC_AMSYMBOL                    1251
 #define IDC_PMSYMBOL                    1252
@@ -221,6 +223,8 @@
 #define IDC_MOVESETTING                 1605
 #define IDC_HELPURL                     1606
 #define IDC_BROWSEHELP                  1607
+#define IDC_DESKTOPICON                 1608
+#define IDC_TRANSDESKTOPICONBK          1609
 
 // strings
 #define IDS_BTNFACE                     1
@@ -251,6 +255,8 @@
 #define IDS_MIDDLEBUTTONM               24
 #define IDS_XBUTTON1                    25
 #define IDS_XBUTTON2                    26
+#define IDS_WHEELUP                     53
+#define IDS_WHEELDOWN                   54
 #define IDS_FILE                        27
 
 #define IDS_NONE                        28
@@ -271,6 +277,11 @@
 #define IDS_FORMATCOPY                  43
 #define IDS_NUMERO                      44
 #define IDS_MONOFFSEC                   45
+#define IDS_VOLSET                      55
+#define IDS_VOLUD                       56
+#define IDS_MUTE                        57
+#define IDS_VOLVAL                      58
+#define IDS_VOLDELTA                    59
 
 #define IDS_RECYCLE                     46
 #define IDS_OPENBY                      47

@@ -9,6 +9,8 @@
 #include "tcdll.h"
 #include "newapi.h"
 
+#if TC_ENABLE_TRAYNOTIFY
+
 /* Globals */
 
 void InitTrayNotify(HWND hwnd);
@@ -197,3 +199,5 @@ void OnCustomDraw(HWND hwnd, HWND hwndFrom, const LPNMCUSTOMDRAW pnmcd)
 		hdcClockBack, x + pnmcd->rc.left, y + pnmcd->rc.top,
 		SRCCOPY);
 }
+
+#endif	/* TC_ENABLE_TRAYNOTIFY */

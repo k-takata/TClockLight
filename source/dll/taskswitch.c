@@ -9,6 +9,8 @@
 #include "tcdll.h"
 #include "newapi.h"
 
+#if TC_ENABLE_TASKSWITCH
+
 /* Globals */
 
 void InitTaskSwitch(HWND hwndClock);
@@ -194,3 +196,5 @@ LRESULT CALLBACK WndProcTab(HWND hwnd, UINT message,
 	}
 	return CallWindowProc(m_oldWndProcTab, hwnd, message, wParam, lParam);
 }
+
+#endif	/* TC_ENABLE_TASKSWITCH */

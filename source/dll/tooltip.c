@@ -214,7 +214,7 @@ BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh)
 /*------------------------------------------------
   update tooltip
 --------------------------------------------------*/
-void OnTimerTooltip(HWND hwndClock)
+void OnTimerTooltip(HWND hwndClock, BOOL forceFlg)
 {
 	TOOLINFO ti;
 	RECT rc;
@@ -222,12 +222,12 @@ void OnTimerTooltip(HWND hwndClock)
 	
 	if(!m_hwndTip) return;
 	
-	if(m_bUpdate || IsWindowVisible(m_hwndTip)) return;
+	if((m_bUpdate || IsWindowVisible(m_hwndTip)) && !forceFlg ) return;
 	
 	GetWindowRect(hwndClock, &rc);
 	GetCursorPos(&pt);
 	
-	if(PtInRect(&rc, pt)) return;
+	if(PtInRect(&rc, pt) && !forceFlg) return;
 	
 	memset(&ti, 0, sizeof(TOOLINFO));
 	ti.cbSize = sizeof(TOOLINFO);

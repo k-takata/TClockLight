@@ -37,6 +37,10 @@ void LoadMouseFunc(PMOUSESTRUCT pMSS, int count)
 		else if(strcmp(s, "middle") == 0) pMSS[i].nButton = 2;
 		else if(strcmp(s, "x1") == 0) pMSS[i].nButton = 3;
 		else if(strcmp(s, "x2") == 0) pMSS[i].nButton = 4;
+#if TC_ENABLE_WHEEL
+		else if(strcmp(s, "wheelup") == 0) pMSS[i].nButton = 5;
+		else if(strcmp(s, "wheeldown") == 0) pMSS[i].nButton = 6;
+#endif
 		
 		pMSS[i].nClick = GetMyRegLong(section, "Click", 1);
 		pMSS[i].bCtrl  = GetMyRegLong(section, "Ctrl", FALSE);
@@ -72,6 +76,12 @@ void SaveMouseFunc(PMOUSESTRUCT pMSS, int count)
 			SetMyRegStr(section, "Button", "x1");
 		else if(pMSS[i].nButton == 4)
 			SetMyRegStr(section, "Button", "x2");
+#if TC_ENABLE_WHEEL
+		else if(pMSS[i].nButton == 5)
+			SetMyRegStr(section, "Button", "wheelup");
+		else if(pMSS[i].nButton == 6)
+			SetMyRegStr(section, "Button", "wheeldown");
+#endif
 		
 		SetMyRegLong(section, "Click", pMSS[i].nClick);
 		SetMyRegLong(section, "Ctrl", pMSS[i].bCtrl);

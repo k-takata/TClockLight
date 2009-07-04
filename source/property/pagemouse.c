@@ -25,6 +25,7 @@ static void OnNameDropDown(HWND hDlg);
 static void OnAdd(HWND hDlg);
 static void OnDelete(HWND hDlg);
 static void OnFunction(HWND hDlg, BOOL bInit);
+static void OnMouseButton(HWND hDlg);
 static void OnBrowse(HWND hDlg);
 static void SetMouseCommandToDlg(HWND hDlg, PMOUSESTRUCT pMSS);
 static void GetMouseCommandFromDlg(HWND hDlg, PMOUSESTRUCT pMSS);
@@ -81,7 +82,12 @@ INT_PTR CALLBACK PageMouseProc(HWND hDlg, UINT message,
 					break;
 				case IDC_MOUSEBUTTON:
 					if(code == CBN_SELCHANGE)
+					{
+#if TC_ENABLE_WHEEL
+						OnMouseButton(hDlg);
+#endif
 						SendPSChanged(hDlg);
+					}
 					break;
 				case IDC_RADSINGLE:
 				case IDC_RADDOUBLE:
@@ -173,6 +179,12 @@ void OnInit(HWND hDlg)
 		(LPARAM)MyString(IDS_XBUTTON1, "XButton1"));
 	CBAddString(hDlg, IDC_MOUSEBUTTON,
 		(LPARAM)MyString(IDS_XBUTTON2, "XButton2"));
+#if TC_ENABLE_WHEEL
+	CBAddString(hDlg, IDC_MOUSEBUTTON,
+		(LPARAM)MyString(IDS_WHEELUP, "WheelUp"));
+	CBAddString(hDlg, IDC_MOUSEBUTTON,
+		(LPARAM)MyString(IDS_WHEELDOWN, "WheelDown"));
+#endif
 	
 	InitFunction(hDlg, IDC_MOUSEFUNC);
 	
@@ -255,6 +267,9 @@ void OnName(HWND hDlg)
 	{
 		SetMouseCommandToDlg(hDlg, m_pMouseCommand + index);
 		OnFunction(hDlg, TRUE);
+#if TC_ENABLE_WHEEL
+		OnMouseButton(hDlg);
+#endif
 		m_nCurrent = index;
 	}
 }
@@ -317,6 +332,9 @@ void OnAdd(HWND hDlg)
 	
 	SetMouseCommandToDlg(hDlg, pMSS);
 	OnFunction(hDlg, FALSE);
+#if TC_ENABLE_WHEEL
+	OnMouseButton(hDlg);
+#endif
 	
 	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
 }
@@ -365,6 +383,9 @@ void OnDelete(HWND hDlg)
 		EnableMousePageItems(hDlg);
 		SetMouseCommandToDlg(hDlg, NULL);
 		OnFunction(hDlg, FALSE);
+#if TC_ENABLE_WHEEL
+		OnMouseButton(hDlg);
+#endif
 	}
 	
 	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
@@ -381,8 +402,12 @@ void OnFunction(HWND hDlg, BOOL bInit)
 	
 	if(!bInit) SetDlgItemText(hDlg, IDC_MOUSEOPT, "");
 	
-	if(command == IDC_OPENFILE || command == IDC_MOUSECOPY ||
-		command == IDC_MONOFF || command == IDC_COMMAND)
+	if(command == IDC_OPENFILE || command == IDC_MOUSECOPY
+		|| command == IDC_MONOFF || command == IDC_COMMAND
+#if TC_ENABLE_VOLUME
+		|| command == IDC_VOLUD || command == IDC_VOLSET
+#endif
+		)
 	{
 		if(command == IDC_OPENFILE)
 			SetDlgItemText(hDlg, IDC_LABMOUSEOPT,
@@ -396,6 +421,14 @@ void OnFunction(HWND hDlg, BOOL bInit)
 		else if(command == IDC_COMMAND)
 			SetDlgItemText(hDlg, IDC_LABMOUSEOPT,
 				MyString(IDS_NUMERO, "Numero"));
+#if TC_ENABLE_VOLUME
+		else if(command == IDC_VOLSET)
+			SetDlgItemText(hDlg, IDC_LABMOUSEOPT,
+				MyString(IDS_VOLVAL, "Volume"));
+		else if(command == IDC_VOLUD)
+			SetDlgItemText(hDlg, IDC_LABMOUSEOPT,
+				MyString(IDS_VOLDELTA, "Delta"));
+#endif
 		
 		ShowDlgItem(hDlg, IDC_LABMOUSEOPT, TRUE);
 		
@@ -423,6 +456,33 @@ void OnFunction(HWND hDlg, BOOL bInit)
 		ShowDlgItem(hDlg, IDC_MOUSEOPTSANSHO, FALSE);
 	}
 }
+
+#if TC_ENABLE_WHEEL
+/*------------------------------------------------
+   "MouseButton" is selected
+--------------------------------------------------*/
+void OnMouseButton(HWND hDlg)
+{
+	int button = CBGetCurSel(hDlg, IDC_MOUSEBUTTON);
+	int i;
+	
+	if(button > 4)
+	{
+		CheckRadioButton(hDlg, IDC_RADSINGLE, IDC_RADQUADRUPLE, IDC_RADSINGLE);
+		for(i = 0; i < 4; i++)
+		{
+			ShowDlgItem(hDlg, IDC_RADSINGLE + i, FALSE);
+		}
+	}
+	else
+	{
+		for(i = 0; i < 4; i++)
+		{
+			ShowDlgItem(hDlg, IDC_RADSINGLE + i, TRUE);
+		}
+	}
+}
+#endif
 
 /*------------------------------------------------
   select file
@@ -553,13 +613,11 @@ void EnableMousePageItems(HWND hDlg)
    initialize "Function" combobox
 --------------------------------------------------*/
 
-#define MAX_MOUSEFUNC 14
-
 static struct {
 	int   idStr;
 	char *entry;
 	int   nCommand;
-} m_mousefunc[MAX_MOUSEFUNC] = {
+} m_mousefunc[] = {
 	{ IDS_NONE,        "None",       0 },
 	{ IDS_OPENFILE,    "OpenFile",   IDC_OPENFILE  },
 	{ IDS_MOUSECOPY,   "MouseCopy",  IDC_MOUSECOPY },
@@ -574,7 +632,14 @@ static struct {
 	{ IDS_MONOFF,      "MonOff",     IDC_MONOFF },
 	{ IDS_KYU,         "Kyu",        IDC_KYU },
 	{ IDS_TCCOMMAND,   "TCCmd",      IDC_COMMAND },
+#if TC_ENABLE_VOLUME
+	{ IDS_VOLSET,      "Volset",     IDC_VOLSET },
+	{ IDS_VOLUD,       "VolUD",      IDC_VOLUD },
+	{ IDS_MUTE,        "Mute",       IDC_MUTE },
+#endif
 };
+
+#define MAX_MOUSEFUNC	(sizeof(m_mousefunc) / sizeof(m_mousefunc[0]))
 
 void InitFunction(HWND hDlg, int id)
 {

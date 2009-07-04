@@ -55,6 +55,9 @@ INT_PTR CALLBACK PageFormatProc(HWND hDlg, UINT message,
 						OnLocale(hDlg);
 					break;
 				case IDC_FORMAT:
+#if TC_ENABLE_SYSINFO
+				case IDC_SYSII:
+#endif
 					if(code == EN_CHANGE)
 						SendPSChanged(hDlg);
 					break;
@@ -150,6 +153,15 @@ void OnInit(HWND hDlg)
 	On12Hour(hDlg);
 	OnCustom(hDlg, FALSE);
 	
+#if TC_ENABLE_SYSINFO
+	// "Update interval"
+	UpDown_SetBuddy(hDlg, IDC_SYSIISPIN, IDC_SYSII);
+	UpDown_SetRange(hDlg, IDC_SYSIISPIN, 60, 1);
+	i = GetMyRegLong(NULL, "IntervalSysInfo", 4);
+	if (i < 1 || 60 < i) i = 4;
+	UpDown_SetPos(hDlg, IDC_SYSIISPIN, i);
+#endif
+	
 	m_bInit = TRUE;
 }
 
@@ -180,6 +192,11 @@ void OnApply(HWND hDlg)
 		strcpy(m_CustomFormat, s);
 		SetMyRegStr("", "CustomFormat", m_CustomFormat);
 	}
+	
+#if TC_ENABLE_SYSINFO
+	SetMyRegLong(NULL, "IntervalSysInfo",
+		UpDown_GetPos(hDlg,IDC_SYSIISPIN));
+#endif
 }
 
 /*------------------------------------------------

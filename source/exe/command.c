@@ -140,8 +140,7 @@ void OnTClockCommand(HWND hwnd, int id, int code)
 			break;
 		}
 		case IDC_MONOFF:  // monitor off
-			SendMessage(GetDesktopWindow(), WM_SYSCOMMAND,
-				SC_MONITORPOWER, 2);
+			PostMessage(hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, 2); // SendMessage(GetDesktopWindow(), WM_SYSCOMMAND,SC_MONITORPOWER, 2);
 			break;
 	}
 	

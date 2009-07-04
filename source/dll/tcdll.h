@@ -112,7 +112,7 @@ void EndTooltip(HWND hwndClock);
 void OnTooltipMouseMsg(HWND hwndClock,
 	UINT message, WPARAM wParam, LPARAM lParam);
 BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh);
-void OnTimerTooltip(HWND hwndClock);
+void OnTimerTooltip(HWND hwndClock, BOOL forceFlg);
 
 /* ---------- userstr.c ----------- */
 void InitUserStr(void);
@@ -165,4 +165,36 @@ BOOL CreateOffScreenDC(HDC hdc, HDC *phdcMem, HBITMAP *phbmp,
 BOOL GetBmpSize(HBITMAP hbmp, int* w, int* h);
 void CopyParentSurface(HWND hwnd, HDC hdcDest, int xdst, int ydst,
 	int w, int h, int xsrc, int ysrc);
+
+/* ---------- sysinfo.c --------------- */
+void InitSysInfo(HWND hwnd);
+void EndSysInfo(HWND hwnd);
+void OnTimerSysInfo(void);
+void ElapsedTimeHandler(FORMATHANDLERSTRUCT* pstruc);
+void NetworkHandler(FORMATHANDLERSTRUCT* pstruc);
+void MemoryHandler(FORMATHANDLERSTRUCT* pstruc);
+void HDDHandler(FORMATHANDLERSTRUCT* pstruc);
+void CPUHandler(FORMATHANDLERSTRUCT* pstruc);
+void BatteryHandler(FORMATHANDLERSTRUCT* pstruc);
+void ACStatusHandler(FORMATHANDLERSTRUCT* pstruc);
+void VolumeHandler(FORMATHANDLERSTRUCT* pstruc);
+void VolumeMuteHandler(FORMATHANDLERSTRUCT* pstruc);
+void MuteHandler(FORMATHANDLERSTRUCT* pstruc);
+void RefreshVolume(void);
+
+/* ---------- net.c --------------- */
+void Net_start(void);
+void Net_get(ULONGLONG *recv, ULONGLONG *send);
+void Net_end(void);
+
+/* ---------- hdd.c --------------- */
+void GetDiskSpace(int nDrive, ULONGLONG *all, ULONGLONG *free);
+
+/* ---------- cpu.c --------------- */
+void CpuMoni_start(void);
+int CpuMoni_get(void);
+void CpuMoni_end(void);
+
+/* ---------- battery.c --------------- */
+void GetBatteryLifePercent(int *batteryLife, int *batteryMode);
 

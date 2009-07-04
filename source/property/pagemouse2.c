@@ -8,6 +8,8 @@
 
 #include "tcprop.h"
 
+#if TC_ENABLE_MOUSEDROP
+
 /* Globals */
 
 INT_PTR CALLBACK PageMouse2Proc(HWND hDlg, UINT message,
@@ -192,3 +194,4 @@ void OnBrowse(HWND hDlg)
 	SendPSChanged(hDlg);
 }
 
+#endif	/* TC_ENABLE_MOUSEDROP */

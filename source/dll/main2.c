@@ -73,16 +73,37 @@ void InitClock(HWND hwnd)
 	SetClassLong(hwnd, GCL_STYLE,
 		GetClassLong(hwnd, GCL_STYLE) & ~CS_DBLCLKS);
 	
+#if TC_ENABLE_STARTBUTTON
 	InitStartButton(hwnd); // startbtn.c
+#endif
+#if TC_ENABLE_STARTMENU
 	InitStartMenu(hwnd);   // startmenu.c
+#endif
+#if TC_ENABLE_TASKBAR
 	InitTaskbar(hwnd);     // taskbar.c
+#endif
+#if TC_ENABLE_TASKSWITCH
 	InitTaskSwitch(hwnd);  // taskswitch.c
+#endif
+#if TC_ENABLE_TRAYNOTIFY
 	InitTrayNotify(hwnd);  // traynotify.c
+#endif
+#if TC_ENABLE_SYSINFO
+	InitSysInfo(hwnd);     // sysinfo.c
+#endif
 	
+#if TC_ENABLE_TASKBAR
 	RefreshTaskbar(hwnd);  // taskbar.c
+#else
+	PostMessage(GetParent(GetParent(hwnd)), WM_SIZE, SIZE_RESTORED, 0);
+	InvalidateRect(GetParent(GetParent(hwnd)), NULL, TRUE);
+#endif
 	
 	SetTimer(hwnd, IDTIMER_MAIN, 1000, NULL);
 	
+#if TC_ENABLE_DESKTOPICON
+	SetDesktopIcons();     // desktop.c
+#endif
 }
 
 /*------------------------------------------------
@@ -99,15 +120,34 @@ void EndClock(HWND hwnd)
 	
 	DragAcceptFiles(hwnd, FALSE);
 	
+#if TC_ENABLE_TRAYNOTIFY
 	EndTrayNotify();    // traynotify.c
+#endif
+#if TC_ENABLE_TASKSWITCH
 	EndTaskSwitch();    // taskswitch.c
+#endif
+#if TC_ENABLE_TASKBAR
 	EndTaskbar(hwnd);   // taskbar.c
+#endif
+#if TC_ENABLE_STARTMENU
 	EndStartMenu();     // startmenu.c
+#endif
+#if TC_ENABLE_STARTBUTTON
 	EndStartButton();   // startbtn.c
+#endif
 	ClearDrawing();     // drawing.c
 	EndTooltip(hwnd);   // tooltip.c
 	
-	EndNewAPI();      // newapi.c
+	EndNewAPI();		// newapi.c
+#if TC_ENABLE_SYSINFO
+	EndSysInfo(hwnd);	// sysinfo.c
+#endif
+#if TC_ENABLE_VOLUME
+	ReleaseMixer();		// mixer.c
+#endif
+#if TC_ENABLE_DESKTOPICON
+	EndDesktopIcons();	// desktop.c
+#endif
 	
 	// Stop timers
 	KillTimer(hwnd, IDTIMER_MAIN);
@@ -117,7 +157,12 @@ void EndClock(HWND hwnd)
 		SubclassWindow(hwnd, g_oldWndProc);
 	g_oldWndProc = NULL;
 	
+#if TC_ENABLE_TASKBAR
 	RefreshTaskbar(hwnd);  // taskbar.c
+#else
+	PostMessage(GetParent(GetParent(hwnd)), WM_SIZE, SIZE_RESTORED, 0);
+	InvalidateRect(GetParent(GetParent(hwnd)), NULL, TRUE);
+#endif
 	
 	// close window of tclock.exe
 	PostMessage(g_hwndTClockMain, WM_CLOSE, 0, 0);
@@ -130,8 +175,12 @@ void EndClock(HWND hwnd)
 ---------------------------------------------------------------*/
 void OnDestroy(HWND hwnd)
 {
+#if TC_ENABLE_STARTMENU
 	ClearStartMenuResource();   // startmenu.c
+#endif
+#if TC_ENABLE_STARTBUTTON
 	ClearStartButtonResource(); // startbtn.c
+#endif
 	ClearDrawing();             // drawing.c
 }
 

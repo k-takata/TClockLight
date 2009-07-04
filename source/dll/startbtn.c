@@ -9,6 +9,8 @@
 #include "tcdll.h"
 #include "newapi.h"
 
+#if TC_ENABLE_STARTBUTTON
+
 /* Globals */
 
 void InitStartButton(HWND hwndClock);
@@ -881,3 +883,4 @@ void DrawStartButtonFrame(HDC hdc, const RECT* prc, BOOL bOver, BOOL bPushed)
 	DeleteObject(hpen);
 }
 
+#endif	/* TC_ENABLE_STARTBUTTON */

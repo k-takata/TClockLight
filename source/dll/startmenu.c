@@ -9,6 +9,8 @@
 #include "tcdll.h"
 #include "newapi.h"
 
+#if TC_ENABLE_STARTMENU
+
 /* Globals */
 
 void InitStartMenu(HWND hwndClock);
@@ -691,3 +693,4 @@ void OnPaintUserPaneXP(HWND hwnd, HDC hdc)
 	}
 }
 
+#endif	/* TC_ENABLE_STARTMENU */

@@ -1,4 +1,5 @@
 #include <windows.h>
+#include "../config.h"
 #include "resource.h"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -125,13 +126,22 @@ BEGIN
     CONTROL         "Second",IDC_SECOND,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,126,91,42,11
     CONTROL         "12H",IDC_12HOUR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,9,
-                    122,33,13
+                    112,33,13
     CONTROL         "AM/PM",IDC_AMPM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    58,122,49,12
-    PUSHBUTTON      "Details...",IDC_FORMATDETAIL,129,119,50,15
+                    58,112,49,12
+    PUSHBUTTON      "Details...",IDC_FORMATDETAIL,129,110,50,15
     CONTROL         "Customize format",IDC_CUSTOM,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,10,145,80,12
-    EDITTEXT        IDC_FORMAT,10,160,185,18,ES_AUTOHSCROLL
+                    WS_TABSTOP,10,135,80,12
+    EDITTEXT        IDC_FORMAT,10,150,185,18,ES_AUTOHSCROLL
+#if TC_ENABLE_SYSINFO
+    RTEXT           "Update interval of system information",IDC_STATIC,
+                    5,174,120,11
+    EDITTEXT        IDC_SYSII,130,171,35,13,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "",IDC_SYSIISPIN,"msctls_updown32",UDS_WRAP | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,150,171,9,13
+    LTEXT           "seconds",IDC_STATIC,160,174,42,11
+#endif
 END
 
 IDD_FORMAT2 DIALOG DISCARDABLE  0, 0, 162, 107
@@ -420,9 +430,24 @@ BEGIN
     CONTROL         "Customize again after Explorer crushes",
                     IDC_TASKBARRESTART,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     6,65,145,12
-    LTEXT           "Help URL",IDC_STATIC,8,87,51,11
-    EDITTEXT        IDC_HELPURL,7,99,160,13,ES_AUTOHSCROLL
-    PUSHBUTTON      "...",IDC_BROWSEHELP,172,99,15,13
+#if TC_ENABLE_DESKTOPICON
+    CONTROL         "Use small desktop icon view",IDC_DESKTOPICON,"Button",
+                    BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP,
+                    6,81,94,12
+    CONTROL         "Make the background of desktop icons text transparent",
+                    IDC_TRANSDESKTOPICONBK, BUTTON, BS_AUTOCHECKBOX | 
+                    WS_CHILD | WS_VISIBLE | WS_TABSTOP,6,97,171,12
+#else
+    CONTROL         "Use small desktop icon view",IDC_DESKTOPICON,"Button",
+                    BS_AUTOCHECKBOX | WS_CHILD | NOT WS_VISIBLE | WS_TABSTOP,
+                    6,80,94,12
+    CONTROL         "Make the background of desktop icons text transparent",
+                    IDC_TRANSDESKTOPICONBK, BUTTON, BS_AUTOCHECKBOX | 
+                    WS_CHILD | NOT WS_VISIBLE | WS_TABSTOP,6,95,171,12
+#endif
+    LTEXT           "Help URL",IDC_STATIC,8,116,51,11
+    EDITTEXT        IDC_HELPURL,7,128,160,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BROWSEHELP,172,128,15,13
 END
 
 TESTSOUNDLG DIALOG DISCARDABLE  0, 0, 183, 64
@@ -563,5 +588,9 @@ BEGIN
     IDS_MOVETO              "Move To..."
     IDS_APPLICATION         "Application"
     IDS_FOLDER              "Folder"
+    IDS_WHEELUP             "WheelUp"
+    IDS_WHEELDOWN           "WheelDown"
+    IDS_VOLVAL              "Volume"
+    IDS_VOLDELTA            "Delta"
 END
 

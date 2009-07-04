@@ -45,6 +45,10 @@ INT_PTR CALLBACK PageMiscProc(HWND hDlg, UINT message,
 					break;
 				case IDC_MCIWAVE:
 				case IDC_TASKBARRESTART:
+#if TC_ENABLE_DESKTOPICON
+				case IDC_DESKTOPICON:
+				case IDC_TRANSDESKTOPICONBK:
+#endif
 					SendPSChanged(hDlg);
 					break;
 				case IDC_DELAYSTART:
@@ -99,6 +103,14 @@ void OnInit(HWND hDlg)
 	CheckDlgButton(hDlg, IDC_TASKBARRESTART,
 		GetMyRegLong(NULL, "TaskbarRestart", FALSE));
 	
+#if TC_ENABLE_DESKTOPICON
+	CheckDlgButton(hDlg, IDC_DESKTOPICON,
+		GetMyRegLong(NULL, "DeskTopIcon", FALSE));
+	
+	CheckDlgButton(hDlg, IDC_TRANSDESKTOPICONBK,
+		GetMyRegLong(NULL, "TransDeskTopIconBK", FALSE));
+#endif
+	
 	GetMyRegStr(NULL, "HelpURL", s, MAX_PATH, "");
 	SetDlgItemText(hDlg, IDC_HELPURL, s);
 	
@@ -124,8 +136,20 @@ void OnApply(HWND hDlg)
 	SetMyRegLong(NULL, "TaskbarRestart",
 		IsDlgButtonChecked(hDlg, IDC_TASKBARRESTART));
 	
+#if TC_ENABLE_DESKTOPICON
+	SetMyRegLong(NULL, "DeskTopIcon",
+		IsDlgButtonChecked(hDlg, IDC_DESKTOPICON));
+	
+	SetMyRegLong(NULL, "TransDeskTopIconBK",
+		IsDlgButtonChecked(hDlg, IDC_TRANSDESKTOPICONBK));
+#endif
+	
 	GetDlgItemText(hDlg, IDC_HELPURL, s, MAX_PATH);
 	SetMyRegStr(NULL, "HelpURL", s);
+	
+#if TC_ENABLE_DESKTOPICON
+	SetDesktopIcons();
+#endif
 }
 
 /*------------------------------------------------

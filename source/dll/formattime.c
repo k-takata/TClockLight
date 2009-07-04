@@ -419,7 +419,7 @@ void EraHandler(FORMATHANDLERSTRUCT* pstruc)
 	while(*pstruc->sp == 'g') pstruc->sp++;
 }
 
-/* td[+/-]nn : time difference */
+/* td[+/-]hh:nn : time difference */
 void TimeDifHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	int dif;

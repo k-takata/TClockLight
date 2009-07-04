@@ -46,16 +46,29 @@ static int m_lastTreeItem;
 
 /* --------- Property pages -------------- */
 
-#define MAX_PAGE      12
-
 enum {
 	PAGE_COLOR, PAGE_SIZE, PAGE_FORMAT,
 	PAGE_ALARM, PAGE_CUCKOO,
-	PAGE_MOUSE, PAGE_MOUSE2,
+	PAGE_MOUSE,
+#if TC_ENABLE_MOUSEDROP
+	PAGE_MOUSE2,
+#endif
 	PAGE_TOOLTIP,
 	/* PAGE_SNTP, */
-	PAGE_STARTBUTTON, PAGE_STARTMENU, PAGE_TASKBAR,
-	PAGE_MISC
+	
+#if TC_ENABLE_TASKBAR
+	PAGE_TASKBAR,
+#if TC_ENABLE_STARTBUTTON
+	PAGE_STARTBUTTON,
+#endif
+#if TC_ENABLE_STARTMENU
+	PAGE_STARTMENU,
+#endif
+#endif	/* TC_ENABLE_TASKBAR */
+	
+	PAGE_MISC,
+	
+	MAX_PAGE
 };
 
 static struct {
@@ -69,27 +82,51 @@ static struct {
   { NULL, IDD_PAGEALARM,       PageAlarmProc },  /* PAGE_ALARM */
   { NULL, IDD_PAGECUCKOO,      PageCuckooProc }, /* PAGE_CUCKOO */
   { NULL, IDD_PAGEMOUSE,       PageMouseProc },  /* PAGE_MOUSE */
+#if TC_ENABLE_MOUSEDROP
   { NULL, IDD_PAGEMOUSE2,      PageMouse2Proc }, /* PAGE_MOUSE2 */
+#endif
   { NULL, IDD_PAGETOOLTIP,     PageTooltipProc }, /* PAGE_TOOLTIP */
 /*  { NULL, IDD_PAGESNTP,        PageSNTPProc }, */  /* PAGE_SNTP */
-  { NULL, IDD_PAGESTARTBUTTON, PageStartButtonProc }, /* PAGE_STARTBUTTON */
-  { NULL, IDD_PAGESTARTMENU,   PageStartMenuProc }, /* PAGE_STARTMENU */
+
+#if TC_ENABLE_TASKBAR
   { NULL, IDD_PAGETASKBAR,     PageTaskbarProc }, /* PAGE_TASKBAR */
+#if TC_ENABLE_STARTBUTTON
+  { NULL, IDD_PAGESTARTBUTTON, PageStartButtonProc }, /* PAGE_STARTBUTTON */
+#endif
+#if TC_ENABLE_STARTMENU
+  { NULL, IDD_PAGESTARTMENU,   PageStartMenuProc }, /* PAGE_STARTMENU */
+#endif
+#endif	/* TC_ENABLE_TASKBAR */
+
   { NULL, IDD_PAGEMISC,        PageMiscProc },   /* PAGE_MISC */
 };
 
 /* --------- TreeView items -------------- */
 
-#define MAX_TREEITEM 16
-
 enum {
 	ITEM_PARENTCLOCK, ITEM_COLOR, ITEM_SIZE, ITEM_FORMAT,
 	ITEM_PARENTALARM, ITEM_ALARM, ITEM_CUCKOO,
-	ITEM_PARENTMOUSE, ITEM_CLICK, ITEM_MOUSEMISC,
+	ITEM_PARENTMOUSE, ITEM_CLICK,
+#if TC_ENABLE_MOUSEDROP
+	ITEM_MOUSEMISC,
+#endif
 	ITEM_TOOLTIP,
 	/* ITEM_SNTP, */
-	ITEM_PARENTTASKBAR, ITEM_STARTBUTTON, ITEM_STARTMENU, ITEM_TASKBAR,
-	ITEM_MISC
+	
+#if TC_ENABLE_TASKBAR
+	ITEM_PARENTTASKBAR,
+	ITEM_TASKBAR,
+#if TC_ENABLE_STARTBUTTON
+	ITEM_STARTBUTTON,
+#endif
+#if TC_ENABLE_STARTMENU
+	ITEM_STARTMENU,
+#endif
+#endif	/* TC_ENABLE_TASKBAR */
+	
+	ITEM_MISC,
+	
+	MAX_TREEITEM
 };
 
 static struct {
@@ -119,8 +156,10 @@ static struct {
   { -1, IDS_MOUSE, "Mouse", PAGE_MOUSE }, 
   { ITEM_PARENTMOUSE,                                /* ITEM_CLICK */
         IDS_CLICK, "Click", PAGE_MOUSE },
+#if TC_ENABLE_MOUSEDROP
   { ITEM_PARENTMOUSE,                            /* ITEM_MOUSEMISC */
         IDS_MOUSE2, "Mouse2",  PAGE_MOUSE2 },
+#endif
   
   /* ITEM_TOOLTIP */
   { -1, IDS_TOOLTIP, "Tooltip", PAGE_TOOLTIP },
@@ -128,14 +167,20 @@ static struct {
   /* ITEM_SNTP */
   /* { -1, IDS_SYNC, "Sync", PAGE_SNTP }, */
   
+#if TC_ENABLE_TASKBAR
   /* ITEM_PARENTTASKBAR */
-  { -1, IDS_TASKBAR,     "Taskbar",     PAGE_STARTBUTTON },
-  { ITEM_PARENTTASKBAR,                         /* ITEM_STARTBUTTON */
-        IDS_STARTBUTTON, "Startbutton", PAGE_STARTBUTTON },
-  { ITEM_PARENTTASKBAR,                         /* ITEM_STARTMENU */
-        IDS_STARTMENU,   "Startmenu",   PAGE_STARTMENU },
+  { -1, IDS_TASKBAR,     "Taskbar",     PAGE_TASKBAR },
   { ITEM_PARENTTASKBAR,                             /* ITEM_TASKBAR */
         IDS_TASKBAR,     "Taskbar",     PAGE_TASKBAR },
+#if TC_ENABLE_STARTBUTTON
+  { ITEM_PARENTTASKBAR,                         /* ITEM_STARTBUTTON */
+        IDS_STARTBUTTON, "Startbutton", PAGE_STARTBUTTON },
+#endif
+#if TC_ENABLE_STARTMENU
+  { ITEM_PARENTTASKBAR,                         /* ITEM_STARTMENU */
+        IDS_STARTMENU,   "Startmenu",   PAGE_STARTMENU },
+#endif
+#endif	/* TC_ENABLE_TASKBAR */
   
   /* ITEM_MISC */
   { -1, IDS_MISC, "Misc", PAGE_MISC }, 

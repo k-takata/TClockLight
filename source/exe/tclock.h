@@ -86,11 +86,11 @@ void InitMouseFunction(HWND hwnd);
 void EndMouseFunction(HWND hwnd);
 void OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 void OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+void OnMouseWheel(HWND hwnd, WPARAM wParam, LPARAM lParam);
 void OnTimerMouse(HWND hwnd);
 
 /* ---------- mouse2.c -------------- */
 void OnDropFiles(HWND hwnd, HDROP hdrop);
-void OnMouseWheel(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 /* ---------- alarm.c --------------- */
 void InitAlarm(void);

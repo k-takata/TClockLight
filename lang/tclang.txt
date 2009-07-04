@@ -1,12 +1,12 @@
 [Main]
 DialogFont=MS Sans Serif, 8
-Version=TClock Light kt070321
+Version=TClock Light kt090704
 HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/en/
 
 [Property]
 Title=TClock Properties
 Line01=" [Treeview                  ] [Dialog Pane                                                       ]"
-Line02="                              [OK           ] [Cancel       ] [Apply        ] [Help         ]"
+Line02="                              [OK           ] [Cancel       ] [&Apply        ] [Help         ]"
 
 [Color]
 HelpURL=color.html
@@ -39,6 +39,7 @@ Line05=" [   Hour  ]   [   Minute ]         [   Second ]"
 Line06=" [   12H   ]   [   AM/PM  ]         [  Details...  ]"
 Line07=" [   Customize format ]"
 Line08=" [                                                           ]"
+Line09="[Update interval of system information ][        ][][seconds]"
 
 [Format2]
 Title=Details
@@ -139,8 +140,10 @@ Line01=" [    Do not customize clock ]"
 Line02=" [    Play WAVE by using MCI  ]"
 Line03=" [Start to customize after][      ][seconds]"
 Line04=" [  Customize again after Explorer crushes]"
-Line05=" [Help URL ]"
-Line06=" [                                          ][...]"
+Line05=" [  Use small desktop icon view]"
+Line06=" [  Make the background of desktop icons text transparent]"
+Line07=" [Help URL ]"
+Line08=" [                                          ][...]"
 
 [Timer]
 HelpURL=timer.html
@@ -208,6 +211,8 @@ RButton=Right button
 MButton=Middle button
 XButton1=Side button 1
 XButton2=Side button 2
+WheelUp=Wheel Up
+WheelDown=Wheel Down
 File=File
 
 None=(none)
@@ -229,6 +234,9 @@ TCCmd=TClock Command
 FormatCopy=Format
 Numero=No.
 MonOffSec=Seconds
+Volset=Volume Setting
+VolUD=Volume Up/Down
+Mute=Mute
 
 Recycle=Recycle Bin
 OpenBy=Open with...

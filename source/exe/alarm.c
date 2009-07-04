@@ -180,7 +180,7 @@ void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason)
 		}
 		if(reason == 0 && pAS->bResumeTimer)
 		{
-			if(GetTickCount() - resumeTick > pAS->nResumeDelay * 1000)
+			if(GetTickCount() - resumeTick > (DWORD)(pAS->nResumeDelay * 1000))
 			{
 				bexec = TRUE;
 				pAS->bResumeTimer = FALSE;

@@ -67,8 +67,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 					OnTimerMouse(hwnd); break;
 				case IDTIMER_MONOFF:
 					KillTimer(hwnd, wParam);
-					SendMessage(GetDesktopWindow(), WM_SYSCOMMAND,
-						SC_MONITORPOWER, 2);
+					PostMessage(hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, 2); 
+					// SendMessage(GetDesktopWindow(), WM_SYSCOMMAND,SC_MONITORPOWER, 2);
 					break;
 			}
 			return 0;
@@ -122,12 +122,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		
 		/* -------- mouse ---------- */
 		
+#if TC_ENABLE_MOUSEDROP
 		case WM_DROPFILES:
 			OnDropFiles(hwnd, (HDROP)wParam); // mouse2.c
 			return 0;
+#endif
 		
 		case WM_MOUSEWHEEL:
-			OnMouseWheel(hwnd, wParam, lParam); // mouse2.c
+			OnMouseWheel(hwnd, wParam, lParam); // mouse.c
 			return 0;
 		
 		case WM_LBUTTONDOWN:
@@ -204,6 +206,9 @@ void ClearTClockMain(HWND hwnd)
 	EndMouseFunction(hwnd);
 	EndAlarm();
 	EndMenu();
+#if TC_ENABLE_VOLUME
+	ReleaseMixer();
+#endif
 	
 	KillTimer(hwnd, IDTIMER_MAIN);
 	

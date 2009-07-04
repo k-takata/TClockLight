@@ -32,6 +32,10 @@ static void AddMessageFilters(void);
 typedef BOOL (WINAPI *pfnImmDisableIME)(DWORD);
 typedef BOOL (WINAPI *pfnChangeWindowMessageFilter)(UINT, DWORD);
 
+/* imm.h */
+
+BOOL WINAPI ImmDisableIME(DWORD);
+
 /*-------------------------------------------
    main routine
 ---------------------------------------------*/
@@ -110,6 +114,7 @@ int TClockExeMain(void)
 ---------------------------------------------*/
 void DisableIME(void)
 {
+#if TC_SUPPORT_WIN95 || TC_SUPPORT_NT4
 	HMODULE hImm32;
 	pfnImmDisableIME pImmDisableIME;
 	
@@ -122,6 +127,9 @@ void DisableIME(void)
 		pImmDisableIME(0);
 	}
 	FreeLibrary(hImm32);
+#else
+	ImmDisableIME(0);
+#endif
 }
 
 /*-------------------------------------------

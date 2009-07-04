@@ -9,6 +9,8 @@
 #include "tcdll.h"
 #include "newapi.h"
 
+#if TC_ENABLE_TASKBAR
+
 /* Globals */
 void RefreshTaskbar(HWND hwndClock);
 void InitTaskbar(HWND hwndClock);
@@ -30,7 +32,9 @@ static void SetLayeredTaskbar(HWND hwndTaskbar);
 static void EndLayeredTaskbar(HWND hwndTaskbar);
 static void RefreshRebar(HWND hwndRebar);
 
+#if TC_ENABLE_STARTMENU
 static WNDPROC m_oldWndProcTaskBar = NULL;
+#endif
 static BOOL m_bHiddenGrippers = FALSE;
 static BOOL m_bFlatTaskbar = FALSE;
 static BOOL m_bFlatTray = FALSE;
@@ -47,7 +51,9 @@ void InitTaskbar(HWND hwndClock)
 	hwndTaskbar = GetParent(hwndTray);
 	hwndRebar = FindWindowEx(hwndTaskbar, NULL, "ReBarWindow32", NULL);
 	
+#if TC_ENABLE_STARTMENU
 	SubclassTaskbar(hwndTaskbar);
+#endif
 	
 	SetFlatTray(hwndTray);       // flat tray
 	
@@ -69,7 +75,9 @@ void EndTaskbar(HWND hwndClock)
 	hwndTaskbar = GetParent(hwndTray);
 	hwndRebar = FindWindowEx(hwndTaskbar, NULL, "ReBarWindow32", NULL);
 	
+#if TC_ENABLE_STARTMENU
 	UnSubclassTaskbar(hwndTaskbar);
+#endif
 	
 	EndLayeredTaskbar(hwndTaskbar);
 	
@@ -103,6 +111,7 @@ void RefreshTaskbar(HWND hwndClock)
 	PostMessage(hwndTaskbar, WM_SIZE, SIZE_RESTORED, 0);
 }
 
+#if TC_ENABLE_STARTMENU
 /*--------------------------------------------------
   call default window procedure of task bar
   this is called in startmenu.c
@@ -175,6 +184,7 @@ LRESULT CALLBACK WndProcTaskBar(HWND hwnd, UINT message,
 	}
 	return CallWindowProc(m_oldWndProcTaskBar, hwnd, message, wParam, lParam);
 }
+#endif	/* TC_ENABLE_STARTMENU */
 
 /*--------------------------------------------------
   hide grippers
@@ -385,3 +395,4 @@ void RefreshRebar(HWND hwndRebar)
 	}
 }
 
+#endif	/* TC_ENABLE_TASKBAR */

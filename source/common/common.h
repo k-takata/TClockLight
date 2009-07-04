@@ -13,8 +13,9 @@
 #include <mmsystem.h>
 #include <shellapi.h>
 #include <shlobj.h>
+#include "../config.h"
 
-#define TCLOCKVERSION     "TClock Light kt070321"
+#define TCLOCKVERSION     "TClock Light kt090704"
 
 #define CLASS_TCLOCKMAIN   "TClockMainClass"
 #define CLASS_TCLOCKPROP   "TClockPropertyClass"
@@ -168,6 +169,7 @@ void InitFontSizeCombo(HWND hDlg, int idCombo,
 void InitLocaleCombo(HWND hDlg, int idCombo, int deflang);
 
 /* -- exec.c -------------------------------------------- */
+
 void RelToAbs(char *dst, const char *src);
 void GetFileAndOption(const char* command, char* fname, char* option);
 BOOL ExecFile(HWND hwnd, const char* command);
@@ -353,6 +355,11 @@ char* MyString(UINT uID, const char *entry);
 HFONT CreateDialogFont(void);
 void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont);
 
+/* ---------- desktop.c  ---------- */
+
+void SetDesktopIcons(void);
+void EndDesktopIcons(void);
+
 /* -- utl.c ---------------------------------------- */
 
 // Windows version flag
@@ -389,6 +396,15 @@ void SetForegroundWindow98(HWND hwnd);
 void SetMyDialgPos(HWND hwnd, int xLen, int yLen);
 void WriteDebug(const char* s);
 void WriteDebugW(const wchar_t* s);
+
+/* ---------- mixer.c ----------------- */
+
+BOOL GetMasterVolume(BOOL *Val);
+BOOL GetMasterMute(BOOL *Val);
+BOOL SetMasterVolume(int Val);
+BOOL UpDownMasterVolume(int dif);
+BOOL ReverseMasterMute(void);
+void ReleaseMixer(void);
 
 /* -- Macros ---------------------------------------- */
 

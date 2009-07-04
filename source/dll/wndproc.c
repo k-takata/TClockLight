@@ -20,6 +20,7 @@ static void OnRefreshClock(HWND hwnd);
 static void OnRefreshTaskbar(HWND hwnd);
 static void OnRefreshStartMenu(HWND hwnd);
 static void OnRefreshTooltip(HWND hwnd);
+static void OnVolumeChange(HWND hwnd);
 static LRESULT OnMouseDown(HWND hwnd, UINT message,
 	WPARAM wParam, LPARAM lParam);
 static LRESULT OnMouseUp(HWND hwnd, UINT message,
@@ -48,6 +49,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_LBUTTONUP:
 		case WM_RBUTTONUP:
 		case WM_MBUTTONUP:
+#if TC_ENABLE_WHEEL
+		case WM_MOUSEWHEEL:
+#endif
 			OnTooltipMouseMsg(hwnd, message, wParam, lParam);
 			break;
 	}
@@ -87,6 +91,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if(g_bNoClock) break;
 			CreateClockDC(hwnd);   // create offscreen DC
 			InvalidateRect(hwnd, NULL, FALSE);
+#if TC_ENABLE_DESKTOPICON
+			SetDesktopIcons();		// desktop.c
+#endif
 			return 0;
 		case WM_WININICHANGE:
 		case WM_TIMECHANGE:
@@ -104,8 +111,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				case IDTIMER_MAIN:
 					OnTimerMain(hwnd); return 0;
-			/*	case IDTIMER_SYSINFO:
-					OnTimerSysInfo(hwnd); return 0; */
+#if TC_ENABLE_SYSINFO
+				case IDTIMER_SYSINFO:
+					OnTimerSysInfo();		// sysinfo.c
+#if TC_ENABLE_DESKTOPICON
+					SetDesktopIcons();		// desktop.c
+#endif
+					return 0;
+#endif
 			}
 			if(g_bNoClock) break;
 			return 0;
@@ -161,12 +174,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case CLOCKM_DELUSRSTR:    // clear user strings
 			InitUserStr();
 			return 0;
+#if TC_ENABLE_TASKBAR
 		case CLOCKM_REFRESHTASKBAR: // refresh other elements than clock
 			OnRefreshTaskbar(hwnd);
 			return 0;
+#endif
+#if TC_ENABLE_STARTMENU
 		case CLOCKM_REFRESHSTARTMENU: // refresh Start menu
 			OnRefreshStartMenu(hwnd);
 			return 0;
+#endif
 		case CLOCKM_REFRESHTOOLTIP: // refresh tooltip
 			OnRefreshTooltip(hwnd);
 			return 0;
@@ -178,6 +195,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case CLOCKM_COPY: // copy format to clipboard
 			OnCopy(hwnd, NULL);
 			return 0;
+#if TC_ENABLE_VOLUME
+		case CLOCKM_VOLCHANGE:
+			OnVolumeChange(hwnd);
+			return 0;
+#endif
 		
 		case WM_COPYDATA:
 			OnCopyData(hwnd, (HWND)wParam, (COPYDATASTRUCT*)lParam);
@@ -271,11 +293,15 @@ void OnTimerMain(HWND hwnd)
 	
 	memcpy(&LastTime, &t, sizeof(t));
 	
+#if TC_ENABLE_STARTBUTTON
 	CheckCursorOnStartButton(); // startbtn.c
+#endif
 	
+#if TC_ENABLE_STARTMENU
 	CheckStartMenu(); // startmenu.c
+#endif
 	
-	OnTimerTooltip(hwnd); // tooltip.c
+	OnTimerTooltip(hwnd, FALSE); // tooltip.c
 }
 
 /*------------------------------------------------
@@ -287,9 +313,16 @@ void OnRefreshClock(HWND hwnd)
 	
 	CreateClockDC(hwnd); // draw.c
 	
+#if TC_ENABLE_TRAYNOTIFY
 	InitTrayNotify(hwnd); // traynotify.c
+#endif
 	
 	// InitUserStr(); // userstr.c
+	
+#if TC_ENABLE_SYSINFO
+	EndSysInfo(hwnd);  // sysinfo.c
+	InitSysInfo(hwnd);  // sysinfo.c
+#endif
 	
 	PostMessage(GetParent(GetParent(hwnd)), WM_SIZE,
 		SIZE_RESTORED, 0);
@@ -300,6 +333,7 @@ void OnRefreshClock(HWND hwnd)
 	InvalidateRect(GetParent(hwnd), NULL, TRUE);
 }
 
+#if TC_ENABLE_TASKBAR
 /*------------------------------------------------
   CLOCKM_REFRESHTASKBAR message
 --------------------------------------------------*/
@@ -307,13 +341,19 @@ void OnRefreshTaskbar(HWND hwnd)
 {
 	g_bVisualStyle = IsXPVisualStyle();
 	
+#if TC_ENABLE_STARTBUTTON
 	ResetStartButton(hwnd); // startbtn.c
+#endif
 	InitTaskbar(hwnd);      // taskbar.c
+#if TC_ENABLE_TASKSWITCH
 	InitTaskSwitch(hwnd);   // taskswitch.c
+#endif
 	
 	RefreshTaskbar(hwnd); // taskbar.c
 }
+#endif	/* TC_ENABLE_TASKBAR */
 
+#if TC_ENABLE_STARTMENU
 /*------------------------------------------------
   CLOCKM_REFRESHSTARTMENU message
 --------------------------------------------------*/
@@ -323,6 +363,7 @@ void OnRefreshStartMenu(HWND hwnd)
 	
 	if(!g_bIE4) InitTaskbar(hwnd);
 }
+#endif
 
 /*------------------------------------------------
   CLOCKM_REFRESHTOOLTIP message
@@ -332,6 +373,26 @@ void OnRefreshTooltip(HWND hwnd)
 	EndTooltip(hwnd);
 	InitTooltip(hwnd);
 }
+
+#if TC_ENABLE_VOLUME
+/*------------------------------------------------
+  CLOCKM_VOLCHANGE message
+--------------------------------------------------*/
+void OnVolumeChange(HWND hwnd)
+{
+	RefreshVolume();
+	
+	PostMessage(GetParent(GetParent(hwnd)), WM_SIZE,
+		SIZE_RESTORED, 0);
+	PostMessage(GetParent(hwnd), WM_SIZE,
+		SIZE_RESTORED, 0);
+	
+	InvalidateRect(hwnd, NULL, FALSE);
+	InvalidateRect(GetParent(hwnd), NULL, TRUE);
+	
+	OnTimerTooltip(hwnd, TRUE);
+}
+#endif
 
 /*------------------------------------------------
   WM_xxBUTTONDOWN message
@@ -353,8 +414,10 @@ LRESULT OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		g_nBlink = 0; InvalidateRect(hwnd, NULL, FALSE);
 	}
 	
+#if TC_ENABLE_STARTBUTTON
 	if(StartMenuFromClock(message, wParam, lParam))  // startbtn.c
 		return 0;
+#endif
 	
 	PostMessage(g_hwndTClockMain, message, wParam, lParam);
 	return 0;

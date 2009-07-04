@@ -58,3 +58,7 @@ all:
 	cd ..
 
 !ENDIF
+
+clean:
+	-del $(OUTDIR)\*.exe $(OUTDIR)\tcdll.tclock $(OUTDIR)\*.map
+	-del /Q $(WORKDIR)\*
