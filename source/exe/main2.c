@@ -184,16 +184,19 @@ BOOL CheckTCDLL(void)
 --------------------------------------------------*/
 void InitTextColor(void)
 {
+	int len;
 	char s[80];
 	char themekey[] =
 		"Software\\Microsoft\\Windows\\CurrentVersion\\ThemeManager";
 	
 	if(GetMyRegStr(NULL, "ForeColor", s, 20, "") > 0) return;
 	
-	GetRegStr(HKEY_CURRENT_USER, themekey,
+	len = GetRegStr(HKEY_CURRENT_USER, themekey,
 		"DllName", s, 80, "");
-	if(strstr(s, "\\luna.msstyles") != NULL
-		|| strstr(s, "\\Aero.msstyles") != NULL)
+	while((len > 0) && (s[len] != '\\'))
+		len--;
+	if(lstrcmpi(s + len, "\\luna.msstyles") == 0
+		|| lstrcmpi(s + len, "\\Aero.msstyles") == 0)
 	{
 		GetRegStr(HKEY_CURRENT_USER, themekey,
 			"ColorName", s, 80, "");

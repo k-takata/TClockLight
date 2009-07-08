@@ -399,11 +399,12 @@ void WriteDebugW(const wchar_t* s);
 
 /* ---------- mixer.c ----------------- */
 
-BOOL GetMasterVolume(BOOL *Val);
+BOOL GetMasterVolume(int *Val);
 BOOL GetMasterMute(BOOL *Val);
 BOOL SetMasterVolume(int Val);
 BOOL UpDownMasterVolume(int dif);
 BOOL ReverseMasterMute(void);
+BOOL InitMixer(void);
 void ReleaseMixer(void);
 
 /* -- Macros ---------------------------------------- */

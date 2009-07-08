@@ -165,6 +165,9 @@ void OnCreate(HWND hwnd)
 	InitAlarm();  // alarm.c
 	InitMouseFunction(hwnd); // mouse.c
 	// InitSNTP(hwnd); // sntp.c
+#if TC_ENABLE_VOLUME
+	InitMixer(); // mixer.c
+#endif
 	
 	// delay starting
 	nDelay = GetMyRegLong(NULL, "DelayStart", 0);

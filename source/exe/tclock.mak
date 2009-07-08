@@ -26,10 +26,10 @@ COMMONH=$(COMMONDIR)\common.h
 OBJS=main2.obj wndproc.obj cmdopt.obj command.obj menu.obj\
 	alarm.obj mouse.obj mouse2.obj about.obj\
 	langcode.obj utl.obj exec.obj reg.obj autoformat.obj localeinfo.obj\
-	playfile.obj alarmstruct.obj mousestruct.obj mixer.obj
+	playfile.obj alarmstruct.obj mousestruct.obj mixer.obj vistavol.obj
 
 LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib winmm.lib\
-	imm32.lib
+	imm32.lib ole32.lib
 
 all: $(EXEFILE)
 
@@ -46,10 +46,10 @@ RCOPT=/fo
 !IFDEF NODEFAULTLIB
 
 COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /D_CRT_SECURE_NO_WARNINGS /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /NODEFAULTLIB /merge:.rdata=.text /nologo
+#LOPT=/SUBSYSTEM:WINDOWS /NODEFAULTLIB /merge:.rdata=.text /nologo /MAP
+LOPT=/SUBSYSTEM:WINDOWS /merge:.rdata=.text /nologo /MAP
 !IFDEF WIN64
 COPT=/GS- $(COPT)
-LIBS=$(LIBS) libcmt.lib
 !ELSE
 LOPT=$(LOPT) /OPT:NOWIN98 /WS:AGGRESSIVE
 !ENDIF
@@ -152,6 +152,8 @@ localeinfo.obj: $(COMMONDIR)\localeinfo.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\localeinfo.c
 mixer.obj: $(COMMONDIR)\mixer.c $(COMMONH) ..\config.h
 	$(CC) $(COPT)$@ $(COMMONDIR)\mixer.c
+vistavol.obj: $(COMMONDIR)\vistavol.cpp ..\config.h
+	$(CC) $(COPT)$@ $(COMMONDIR)\vistavol.cpp
 
 # res file
 

@@ -88,6 +88,9 @@ void InitClock(HWND hwnd)
 #if TC_ENABLE_TRAYNOTIFY
 	InitTrayNotify(hwnd);  // traynotify.c
 #endif
+#if TC_ENABLE_VOLUME
+	InitMixer();           // mixer.c
+#endif
 #if TC_ENABLE_SYSINFO
 	InitSysInfo(hwnd);     // sysinfo.c
 #endif
@@ -120,6 +123,15 @@ void EndClock(HWND hwnd)
 	
 	DragAcceptFiles(hwnd, FALSE);
 	
+#if TC_ENABLE_DESKTOPICON
+	EndDesktopIcons();	// desktop.c
+#endif
+#if TC_ENABLE_SYSINFO
+	EndSysInfo(hwnd);	// sysinfo.c
+#endif
+#if TC_ENABLE_VOLUME
+	ReleaseMixer();		// mixer.c
+#endif
 #if TC_ENABLE_TRAYNOTIFY
 	EndTrayNotify();    // traynotify.c
 #endif
@@ -139,15 +151,6 @@ void EndClock(HWND hwnd)
 	EndTooltip(hwnd);   // tooltip.c
 	
 	EndNewAPI();		// newapi.c
-#if TC_ENABLE_SYSINFO
-	EndSysInfo(hwnd);	// sysinfo.c
-#endif
-#if TC_ENABLE_VOLUME
-	ReleaseMixer();		// mixer.c
-#endif
-#if TC_ENABLE_DESKTOPICON
-	EndDesktopIcons();	// desktop.c
-#endif
 	
 	// Stop timers
 	KillTimer(hwnd, IDTIMER_MAIN);

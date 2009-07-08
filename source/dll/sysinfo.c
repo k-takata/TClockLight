@@ -44,7 +44,7 @@ static BOOL WINAPI GlobalMemoryStatusEx9x(LPMYMEMORYSTATUSEX lpBuffer);
 #if TC_SUPPORT_NT4 || TC_SUPPORT_WIN9X
 static pfnGlobalMemoryStatusEx pGlobalMemoryStatusEx = GlobalMemoryStatusExStub;
 #else
-static pfnGlobalMemoryStatusEx pGlobalMemoryStatusEx = GlobalMemoryStatus;
+static pfnGlobalMemoryStatusEx pGlobalMemoryStatusEx = GlobalMemoryStatusEx;
 #endif
 static BOOL m_bMem;
 static MYMEMORYSTATUSEX ms;
@@ -256,10 +256,10 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 	BOOL bValid = TRUE;
 
 	if (!m_bMem) {
-		if (*(pstruc->sp + 1) == 'K' || *(pstruc->sp + 1) == 'M' || (
+		if (*(pstruc->sp+1) == 'K' || *(pstruc->sp+1) == 'M' || *(pstruc->sp+1) == 'G' || (
 			(*(pstruc->sp+1)=='T'||*(pstruc->sp+1)=='A'||*(pstruc->sp+1)=='U')&&
 			(*(pstruc->sp+2)=='P'||*(pstruc->sp+2)=='F'||*(pstruc->sp+2)=='V')&&
-			(*(pstruc->sp+3)=='K'||*(pstruc->sp+3)=='M'||*(pstruc->sp+3)=='P')))
+			(*(pstruc->sp+3)=='K'||*(pstruc->sp+3)=='M'||*(pstruc->sp+3)=='G'||*(pstruc->sp+3)=='P')))
 		{
 			m_bMem = TRUE;
 			ms.dwLength = sizeof(ms);
@@ -271,104 +271,98 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 		}
 	}
 
-	if (*(pstruc->sp + 1) == 'K')
+	if (*(pstruc->sp + 1) == 'K')				// MK
 	{
-		m = ms.ullAvailPhys >> 10;
+		m = (1000 * ms.ullAvailPhys) >> 10;
 		pstruc->sp -= 2;
 	}
-	else if (*(pstruc->sp + 1) == 'M')
+	else if (*(pstruc->sp + 1) == 'M')			// MM
 	{
-		m = ms.ullAvailPhys >> 20;
+		m = (1000 * ms.ullAvailPhys) >> 20;
 		pstruc->sp -= 2;
 	}
-	else if (*(pstruc->sp + 1) == 'T')
+	else if (*(pstruc->sp + 1) == 'G')			// MG
 	{
-		if (*(pstruc->sp + 2) == 'P')
-			m = ms.ullTotalPhys;
-		else if (*(pstruc->sp + 2) == 'F')
-			m = ms.ullTotalPageFile;
-		else if (*(pstruc->sp + 2) == 'V')
-			m = ms.ullTotalVirtual;
-		else
-			bValid = FALSE;
-		if (bValid)
-		{
-			if (*(pstruc->sp + 3) == 'K')
-				m >>= 10;
-			else if (*(pstruc->sp + 3) == 'M')
-				m >>= 20;
-			else
-				bValid = FALSE;
-		}
-	}
-	else if (*(pstruc->sp + 1) == 'A')
-	{
-		if (*(pstruc->sp + 2) == 'P')
-		{
-			m = ms.ullAvailPhys;
-			t = ms.ullTotalPhys;
-		}
-		else if (*(pstruc->sp + 2) == 'F')
-		{
-			m = ms.ullAvailPageFile;
-			t = ms.ullTotalPageFile;
-		}
-		else if (*(pstruc->sp + 2) == 'V')
-		{
-			m = ms.ullAvailVirtual;
-			t = ms.ullTotalVirtual;
-		}
-		else
-			bValid = FALSE;
-		if (bValid)
-		{
-			if (*(pstruc->sp + 3) == 'K')
-				m >>= 10;
-			else if (*(pstruc->sp + 3) == 'M')
-				m >>= 20;
-			else if (*(pstruc->sp + 3) == 'P')
-				m = MulDiv((int)m, 100, (int)t);
-			else
-				bValid = FALSE;
-		}
-	}
-	else if (*(pstruc->sp + 1) == 'U')
-	{
-		if (*(pstruc->sp + 2) == 'P')
-		{
-			m = ms.ullTotalPhys - ms.ullAvailPhys;
-			t = ms.ullTotalPhys;
-		}
-		else if (*(pstruc->sp + 2) == 'F')
-		{
-			m = ms.ullTotalPageFile - ms.ullAvailPageFile;
-			t = ms.ullTotalPageFile;
-		}
-		else if (*(pstruc->sp + 2) == 'V')
-		{
-			m = ms.ullTotalVirtual - ms.ullAvailVirtual;
-			t = ms.ullTotalVirtual;
-		}
-		else
-			bValid = FALSE;
-		if (bValid)
-		{
-			if (*(pstruc->sp + 3) == 'K')
-				m >>= 10;
-			else if (*(pstruc->sp + 3) == 'M')
-				m >>= 20;
-			else if (*(pstruc->sp + 3) == 'P')
-				m = MulDiv((int) m, 100,(int) t);
-			else
-				bValid = FALSE;
-		}
+		m = (1000 * ms.ullAvailPhys) >> 30;
+		pstruc->sp -= 2;
 	}
 	else
-		bValid = FALSE;
+	{
+		if (*(pstruc->sp + 1) == 'T')				// MT**
+		{
+			t = 0;
+			if (*(pstruc->sp + 2) == 'P')			// MTP*
+				m = ms.ullTotalPhys;
+			else if (*(pstruc->sp + 2) == 'F')		// MTF*
+				m = ms.ullTotalPageFile;
+			else if (*(pstruc->sp + 2) == 'V')		// MTV*
+				m = ms.ullTotalVirtual;
+			else
+				bValid = FALSE;
+		}
+		else if (*(pstruc->sp + 1) == 'A')			// MA**
+		{
+			if (*(pstruc->sp + 2) == 'P')			// MAP*
+			{
+				m = ms.ullAvailPhys;
+				t = ms.ullTotalPhys;
+			}
+			else if (*(pstruc->sp + 2) == 'F')		// MAF*
+			{
+				m = ms.ullAvailPageFile;
+				t = ms.ullTotalPageFile;
+			}
+			else if (*(pstruc->sp + 2) == 'V')		// MAV*
+			{
+				m = ms.ullAvailVirtual;
+				t = ms.ullTotalVirtual;
+			}
+			else
+				bValid = FALSE;
+		}
+		else if (*(pstruc->sp + 1) == 'U')			// MU**
+		{
+			if (*(pstruc->sp + 2) == 'P')			// MUP*
+			{
+				m = ms.ullTotalPhys - ms.ullAvailPhys;
+				t = ms.ullTotalPhys;
+			}
+			else if (*(pstruc->sp + 2) == 'F')		// MUF*
+			{
+				m = ms.ullTotalPageFile - ms.ullAvailPageFile;
+				t = ms.ullTotalPageFile;
+			}
+			else if (*(pstruc->sp + 2) == 'V')		// MUV*
+			{
+				m = ms.ullTotalVirtual - ms.ullAvailVirtual;
+				t = ms.ullTotalVirtual;
+			}
+			else
+				bValid = FALSE;
+		}
+		else
+		{
+			bValid = FALSE;
+		}
+		if (bValid)
+		{
+			if (*(pstruc->sp + 3) == 'K')		// M**K
+				m = (1000 * m) >> 10;
+			else if (*(pstruc->sp + 3) == 'M')	// M**M
+				m = (1000 * m) >> 20;
+			else if (*(pstruc->sp + 3) == 'G')	// M**G
+				m = (1000 * m) >> 30;
+			else if ((*(pstruc->sp + 3) == 'P') && (t != 0))	// M**P
+				m = 1000 * m * 100 / t;
+			else
+				bValid = FALSE;
+		}
+	}
 
 	if (bValid) {
 		pstruc->sp += 4;
-		FormatNum(&pstruc->sp, &pstruc->dp, (unsigned)(int) m);
+	//	FormatNum(&pstruc->sp, &pstruc->dp, (unsigned)(int) m);
+		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, m, 1000);
 	} else
 		*pstruc->dp++ = *pstruc->sp++;
 }

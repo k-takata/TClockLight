@@ -28,10 +28,11 @@ OBJS=dllmain.obj dllmain2.obj dllwndproc.obj draw.obj\
 	startbtn.obj startmenu.obj taskbar.obj taskswitch.obj traynotify.obj\
 	bmp.obj newapi.obj dllutl.obj\
 	sysinfo.obj net.obj hdd.obj cpu.obj battery.obj mixer.obj \
-	desktop.obj \
+	vistavol.obj desktop.obj \
 	exec.obj utl.obj reg.obj font.obj localeinfo.obj
 
-LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib winmm.lib
+LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib winmm.lib\
+	ole32.lib
 
 !IFDEF WIN64
 DLLBASE=0x60066040000
@@ -167,6 +168,8 @@ nodeflib.obj: $(COMMONDIR)\nodeflib.c $(COMMONH)
 	$(CC) $(COPT)$@ $(COMMONDIR)\nodeflib.c
 mixer.obj: $(COMMONDIR)\mixer.c $(COMMONH) ..\config.h
 	$(CC) $(COPT)$@ $(COMMONDIR)\mixer.c
+vistavol.obj: $(COMMONDIR)\vistavol.cpp ..\config.h
+	$(CC) $(COPT)$@ $(COMMONDIR)\vistavol.cpp
 desktop.obj: $(COMMONDIR)\desktop.c $(COMMONH) ..\config.h
 	$(CC) $(COPT)$@ $(COMMONDIR)\desktop.c
 

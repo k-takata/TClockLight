@@ -11,6 +11,18 @@
 
 #if TC_ENABLE_VOLUME
 
+/* vistavol.cpp */
+
+BOOL SetMasterVolumeVista(int iLevel);
+BOOL GetMasterVolumeVista(int *piLevel);
+BOOL SetMasterMuteVista(BOOL mute);
+BOOL GetMasterMuteVista(BOOL *pmute);
+BOOL InitVolumeVista(void);
+void ReleaseVolumeVista(void);
+
+
+/* Globals */
+
 BOOL InitMasterVolumeControl(void);
 BOOL InitMasterMuteControl(void);
 
@@ -30,6 +42,9 @@ typedef struct{
 } LASTVOLINFO,*LPLASTVOLINFO;
 
 LASTVOLINFO	g_LastVolInfo;
+
+
+static BOOL m_isVista = FALSE;
 
 /*-----------------------------------------------------------------------------
 //   Mixer Device Open/Close
@@ -66,6 +81,11 @@ MIXERLINE_COMPONENTTYPE_SRC_WAVEOUT     17  //WAVE‰¹—Ê‚ç‚µ‚¢
 MIXERLINE_COMPONENTTYPE_SRC_AUXILIARY   18
 MIXERLINE_COMPONENTTYPE_SRC_ANALOG      19
 */
+	m_isVista = (CheckWinVersion() & WINVISTA) ? TRUE : FALSE;
+	if (m_isVista) {
+		return InitVolumeVista();
+	}
+
 	volComponentType = GetMyRegLong(NULL, "VolComponentType", 4);
 	if ( volComponentType >= 0 && volComponentType <= 8 )
 		g_dwVolComponentType = MIXERLINE_COMPONENTTYPE_DST_FIRST + volComponentType;
@@ -82,6 +102,11 @@ MIXERLINE_COMPONENTTYPE_SRC_ANALOG      19
 
 void ReleaseMixer(void)
 {
+	if (m_isVista) {
+		ReleaseVolumeVista();
+		return;
+	}
+
 	if(g_hMixer) mixerClose(g_hMixer);
 	g_hMixer=NULL;
 	g_dwVolumeControlID=-1;
@@ -132,6 +157,9 @@ BOOL GetMasterVolume(int *Val)
 	MIXERCONTROLDETAILS_UNSIGNED mxcdVolume;
 	MIXERCONTROLDETAILS mxcd;
 
+	if (m_isVista) {
+		return GetMasterVolumeVista(Val);
+	}
 
 	if(InitMasterVolumeControl() == FALSE){
 		*Val = -1;
@@ -158,6 +186,10 @@ BOOL SetMasterVolume(int Val)
 	MIXERCONTROLDETAILS				mxcd;
 	DWORD							dwVal,dwMaxVal;
 	DWORD							i;
+
+	if (m_isVista) {
+		return SetMasterVolumeVista(Val);
+	}
 
 	if(InitMasterVolumeControl() == FALSE) return FALSE;
 	
@@ -249,6 +281,10 @@ BOOL GetMasterMute(BOOL *Val)
 	MIXERCONTROLDETAILS_BOOLEAN mxcdMute;
 	MIXERCONTROLDETAILS mxcd;
 
+	if (m_isVista) {
+		return GetMasterMuteVista(Val);
+	}
+
 	*Val = FALSE;
 	if(InitMasterMuteControl() == FALSE) return FALSE;
 
@@ -270,6 +306,10 @@ BOOL SetMasterMute(BOOL Val)
 {
 	MIXERCONTROLDETAILS_BOOLEAN mxcdMute;
 	MIXERCONTROLDETAILS mxcd;
+
+	if (m_isVista) {
+		return SetMasterMuteVista(Val);
+	}
 
 	if(InitMasterMuteControl() == FALSE) return FALSE;
 
