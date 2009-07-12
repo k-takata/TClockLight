@@ -254,7 +254,7 @@ void OnMouseWheel(HWND hwnd, WPARAM wParam, LPARAM lParam)
 			&& (yPos >= rcClock.top) && (yPos <= rcClock.bottom) ))
 		return;
 	
-	zDelta = (short) HIWORD(wParam);
+	zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
 	if (zDelta > 0)
 		button = 5;
 	else

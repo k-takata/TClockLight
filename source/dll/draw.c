@@ -342,8 +342,9 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	
 	if(g_nBlink > 0 && (g_nBlink % 2) == 0) dwRop = NOTSRCCOPY;
 	
-	if(!m_fillbackcolor && (dwRop == SRCCOPY)
-		&& ((aero = IsVistaAero()) != FALSE))
+	if(g_winver&WINVISTA)
+		aero = IsVistaAero();
+	if(!m_fillbackcolor && (dwRop == SRCCOPY) && aero)
 	{
 		HBRUSH hbr = GetStockBrush(BLACK_BRUSH);
 		FillRect(m_hdcClock, &rcClock, hbr);

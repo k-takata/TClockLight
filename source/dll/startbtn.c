@@ -85,6 +85,16 @@ void InitStartButton(HWND hwndClock)
 	if(m_hwndTask == NULL)
 		m_hwndTask = FindWindowEx(hwndTaskbar, NULL, "MSTaskSwWClass", NULL);
 	
+	if((m_hwndStart == NULL) && (g_winver&WINVISTA))
+	{
+		DWORD dwThID1, dwThID2;
+		m_hwndStart = FindWindowEx(GetParent(hwndTaskbar), NULL, "Button", NULL);
+		dwThID1 = GetWindowThreadProcessId(hwndTaskbar, NULL);
+		dwThID2 = GetWindowThreadProcessId(m_hwndStart, NULL);
+		if(dwThID1 != dwThID2)	// Created by Explorer?
+			m_hwndStart = NULL;
+	}
+	
 	if(m_hwndStart == NULL || m_hwndTask == NULL)
 		return;
 	

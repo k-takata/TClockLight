@@ -392,6 +392,7 @@ int CheckWinVersion(void);
 BOOL IsIE4(void);
 BOOL IsXPVisualStyle(void);
 BOOL IsVistaAero(void);
+BOOL IsTaskbarGlomming(void);
 void SetForegroundWindow98(HWND hwnd);
 void SetMyDialgPos(HWND hwnd, int xLen, int yLen);
 void WriteDebug(const char* s);
@@ -439,6 +440,14 @@ void ReleaseMixer(void);
 	SendDlgItemMessage((hDlg),(id),UDM_SETPOS,0,nPos)
 
 #define GetWndProc(hwnd) ((WNDPROC)GetWindowLongPtr((hwnd), GWLP_WNDPROC))
+
+#ifndef HWND_MESSAGE
+#define HWND_MESSAGE	((HWND)-3)
+#endif
+
+#ifndef GET_WHEEL_DELTA_WPARAM
+#define GET_WHEEL_DELTA_WPARAM(wParam)	((short)HIWORD(wParam))
+#endif
 
 /* -- for VC6 compatibility ---------------------------------------- */
 

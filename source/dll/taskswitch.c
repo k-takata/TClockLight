@@ -26,7 +26,7 @@ static BOOL    m_bSeparator = FALSE;
 static HWND    m_hwndTab = NULL;
 static LONG    m_oldStyle;
 static DWORD   m_oldExStyle;
-// static DWORD   m_oldTBStyle;
+static DWORD   m_oldTBStyle;
 static LONG    m_oldTaskWidth;
 static WNDPROC m_oldWndProcTab = NULL;
 
@@ -48,8 +48,8 @@ void InitTaskSwitch(HWND hwndClock)
 			m_bSeparator = GetMyRegLong(NULL, "TaskSwitchSeparators", FALSE);
 	}
 	
-	// Icons Only: not to support Windows XP
-	if(!(g_winver&WINXP))
+	// Icons Only
+	if(!(g_winver&WINXP) || !IsTaskbarGlomming())
 		m_bTaskSwitchIcons = GetMyRegLong(NULL, "TaskSwitchIconsOnly", FALSE);
 	
 	if(!m_bTaskSwitchFlat && !m_bTaskSwitchIcons)
@@ -96,18 +96,18 @@ void InitTaskSwitch(HWND hwndClock)
 	
 	if(m_bTaskSwitchIcons)
 	{
-		/*if(g_winver&WINXP)
+		if(g_winver&WINXP)
 		{
 			m_oldTBStyle = SendMessage(m_hwndTab, TB_GETEXTENDEDSTYLE, 0, 0);
 			SendMessage(m_hwndTab, TB_SETEXTENDEDSTYLE,
 				0, m_oldTBStyle|TBSTYLE_EX_MIXEDBUTTONS);
 		}
 		else
-		{*/
+		{
 			m_oldTaskWidth = SendMessage(m_hwndTab, TCM_SETITEMSIZE,
 				0, 23 + (23<<16));
 			m_oldTaskWidth = LOWORD(m_oldTaskWidth);
-		/*}*/
+		}
 	}
 	
 	m_oldWndProcTab = SubclassWindow(m_hwndTab, WndProcTab);
@@ -136,9 +136,9 @@ void EndTaskSwitch(void)
 	
 	if(m_bTaskSwitchIcons)
 	{
-		/*if(g_winver&WINXP)
+		if(g_winver&WINXP)
 			SendMessage(m_hwndTab, TB_SETEXTENDEDSTYLE, 0, m_oldTBStyle);
-		else*/
+		else
 			SendMessage(m_hwndTab, TCM_SETITEMSIZE, 0,
 				m_oldTaskWidth + (23<<16));
 	}

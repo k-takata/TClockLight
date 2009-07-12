@@ -43,7 +43,7 @@ int TClockExeMain(void)
 {
 	MSG msg;
 	WNDCLASS wndclass;
-	HWND hwnd;
+	HWND hwnd, hwndParent;
 	
 	// not to execute the program twice
 	hwnd = GetTClockMainWindow();
@@ -82,11 +82,16 @@ int TClockExeMain(void)
 	wndclass.lpszClassName = CLASS_TCLOCKMAIN;
 	RegisterClass(&wndclass);
 	
+	if(g_winver&WIN2000)
+		hwndParent = HWND_MESSAGE;	// message-only window
+	else
+		hwndParent = NULL;
+	
 	// create a hidden window
 	hwnd = CreateWindowEx(0,
 		CLASS_TCLOCKMAIN, TITLE_TCLOCKMAIN, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,
-		NULL, NULL, g_hInst, NULL);
+		hwndParent, NULL, g_hInst, NULL);
 	ShowWindow(hwnd, SW_MINIMIZE);
 	ShowWindow(hwnd, SW_HIDE);
 	// ShowWindow(hwnd, SW_SHOW);
@@ -275,7 +280,7 @@ void AddMessageFilters(void)
 	HMODULE hUser32;
 	pfnChangeWindowMessageFilter pChangeWindowMessageFilter;
 	int i;
-	UINT messages[] = {
+	const UINT messages[] = {
 	//	WM_CREATE,
 		WM_CLOSE,
 		WM_DESTROY,

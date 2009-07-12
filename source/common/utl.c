@@ -433,6 +433,20 @@ BOOL IsVistaAero(void)
 }
 
 /*-------------------------------------------
+  Taskbar Grouped ?
+---------------------------------------------*/
+BOOL IsTaskbarGlomming(void)
+{
+	if(GetRegLong(HKEY_CURRENT_USER,
+		"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+		"TaskbarGlomming", 0))
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+/*-------------------------------------------
   SetForegroundWindow for Windows98
 ---------------------------------------------*/
 void SetForegroundWindow98(HWND hwnd)
