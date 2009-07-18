@@ -148,13 +148,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return DefWindowProc(hwnd, message, wParam, lParam);
 		case WM_MOUSEACTIVATE:
 			return MA_ACTIVATE;
+#if TC_ENABLE_MOUSEDROP
 		case WM_DROPFILES:     // files are dropped
 			PostMessage(g_hwndTClockMain, WM_DROPFILES, wParam, lParam);
 			return 0;
-		
+#endif
+#if TC_ENABLE_WHEEL
 		case WM_MOUSEWHEEL:  // the mouse wheel is rotated
 			PostMessage(g_hwndTClockMain, WM_MOUSEWHEEL, wParam, lParam);
 			return 0;
+#endif
 		
 		case WM_NOTIFY: // tooltip
 		{

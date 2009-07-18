@@ -19,8 +19,8 @@ char      g_inifile[MAX_PATH];     // ini file name
 char      g_langfile[MAX_PATH];    // tclang.txt
 HFONT     g_hfontDialog = NULL;    // dialog font
 HWND      g_hwndMain  = NULL;      // main window
-HICON     g_hIconPlay, g_hIconStop;
-                                   // icons to use frequently
+HICON     g_hIconPlay, g_hIconStop; // icons to use frequently
+
 /* Statics */
 
 static int TCSNTPMain(void);
@@ -35,7 +35,7 @@ static void CheckCommandLine(HWND hwnd, BOOL bPrev);
   WinMain
 ---------------------------------------------*/
 #ifdef NODEFAULTLIB
-void WINAPI WinMainCRTStartup(void)
+void /*WINAPI*/ WinMainCRTStartup(void)
 {
 	g_hInst = GetModuleHandle(NULL);
 	ExitProcess(TCSNTPMain());
@@ -56,7 +56,7 @@ int TCSNTPMain(void)
 {
 	MSG msg;
 	WNDCLASS wndclass;
-	HWND hwnd;
+	HWND hwnd, hwndParent;
 	
 	// not to execute the program twice
 	hwnd = FindWindow(CLASS_TCLOCKSNTP, NULL);
@@ -67,6 +67,7 @@ int TCSNTPMain(void)
 	}
 	
 	InitApp();
+	timeBeginPeriod(1);
 	
 	// register a window class
 	wndclass.style         = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
@@ -81,24 +82,29 @@ int TCSNTPMain(void)
 	wndclass.lpszClassName = CLASS_TCLOCKSNTP;
 	RegisterClass(&wndclass);
 	
+	if(CheckWinVersion()&WIN2000)
+		hwndParent = HWND_MESSAGE;
+	else
+		hwndParent = NULL;
+	
 	// create a hidden window
 	g_hwndMain = CreateWindowEx(0,
 		CLASS_TCLOCKSNTP, "TClock SNTP", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,
-		NULL, NULL, g_hInst, NULL);
+		hwndParent, NULL, g_hInst, NULL);
 	// ShowWindow(g_hwndMain, SW_SHOW);
 	// UpdateWindow(g_hwndMain);
 	
 	while(GetMessage(&msg, NULL, 0, 0))
 	{
-		if(g_hDlg && IsWindow(g_hDlg) && IsDialogMessage(g_hDlg, &msg)) ;
-		else
+		if(!(g_hDlg && IsWindow(g_hDlg) && IsDialogMessage(g_hDlg, &msg)))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 	}
 	
+	timeEndPeriod(1);
 	return msg.wParam;
 }
 
@@ -181,8 +187,6 @@ void OnCreate(HWND hwnd)
 	}
 	
 	CheckCommandLine(hwnd, FALSE);
-	
-	SetTimer(hwnd, IDTIMER_MAIN, 1000, NULL);
 }
 
 /*-------------------------------------------------------
@@ -191,8 +195,6 @@ void OnCreate(HWND hwnd)
 void OnDestroy(HWND hwnd)
 {
 	EndSNTP(hwnd); // sntp.c
-	
-	KillTimer(hwnd, IDTIMER_MAIN);
 	
 	if(g_hfontDialog) DeleteObject(g_hfontDialog);
 	
@@ -256,7 +258,7 @@ void CheckCommandLine(HWND hwnd, BOOL bPrev)
 	
 	if(bSilent)
 	{
-		if(StartSyncTime(hwnd, NULL, bOnlyRas) == FALSE)
+		if(StartSyncTime(hwnd, bOnlyRas) == FALSE)
 			PostMessage(hwnd, WM_CLOSE, 0, 0);
 	}
 	else
@@ -270,8 +272,7 @@ void CheckCommandLine(HWND hwnd, BOOL bPrev)
 ---------------------------------------------*/
 BOOL ExecCommandString(HWND hwnd, const char *command)
 {
-	SendStringToOther(GetTClockMainWindow(), hwnd, command,
-		COPYDATA_EXEC);
+	SendStringToOther(GetTClockMainWindow(), hwnd, command, COPYDATA_EXEC);
 	
 	return FALSE;
 }

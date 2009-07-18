@@ -121,7 +121,9 @@ void EndClock(HWND hwnd)
 	
 	g_bVisualStyle = IsXPVisualStyle();
 	
+#if TC_ENABLE_MOUSEDROP
 	DragAcceptFiles(hwnd, FALSE);
+#endif
 	
 #if TC_ENABLE_DESKTOPICON
 	EndDesktopIcons();	// desktop.c
@@ -196,7 +198,9 @@ void LoadSetting(HWND hwnd)
 {
 	g_bNoClock = GetMyRegLong(NULL, "NoClock", FALSE);
 	
+#if TC_ENABLE_MOUSEDROP
 	DragAcceptFiles(hwnd, GetMyRegLong(NULL, "DropFiles", FALSE));
+#endif
 	
 	LoadFormatSetting(hwnd);   // format.c
 	LoadDrawingSetting(hwnd);  // drawing.c
