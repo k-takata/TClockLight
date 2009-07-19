@@ -82,10 +82,16 @@ int TClockExeMain(void)
 	wndclass.lpszClassName = CLASS_TCLOCKMAIN;
 	RegisterClass(&wndclass);
 	
+#if 0
+	// use message-only window to reduse memory consumption
 	if(g_winver&WIN2000)
 		hwndParent = HWND_MESSAGE;	// message-only window
 	else
 		hwndParent = NULL;
+#else
+	// message-only window can't receive WM_POWERBROADCAST
+	hwndParent = NULL;
+#endif
 	
 	// create a hidden window
 	hwnd = CreateWindowEx(0,

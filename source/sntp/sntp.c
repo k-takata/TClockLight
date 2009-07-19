@@ -666,7 +666,8 @@ static void GetRealSystemTimeAsFileTime(FILETIME *pft)
 	FILETIME ft;
 	GetSystemTimeAsFileTime(pft);
 	ft = *pft;
-	while (*(DWORDLONG*)&ft == *(DWORDLONG*)pft) {
+	while ((ft.dwLowDateTime == pft->dwLowDateTime)
+			&& (ft.dwHighDateTime == pft->dwHighDateTime)) {
 		Sleep(0);
 		GetSystemTimeAsFileTime(pft);
 	}
