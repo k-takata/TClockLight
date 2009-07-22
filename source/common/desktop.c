@@ -15,13 +15,13 @@
 #define LVS_SMALLICON           0x0002
 #endif
 
-static HWND hwndDesktop = 0;
+static HWND hwndDesktop = NULL;
 
 void GetDesktopIcons(void)
 {
 HWND hwnd;
 
-	if (hwndDesktop == 0) {
+	if (hwndDesktop == NULL) {
 		hwnd = FindWindow("Progman", "Program Manager");
 		hwnd = FindWindowEx(hwnd, NULL, "SHELLDLL_DefView", NULL);
 		hwnd = FindWindowEx(hwnd, NULL, "SysListView32", NULL);
@@ -45,14 +45,14 @@ void SetDesktopIcons(void)
 	LONG s;
 	BOOL c;
 
+	if (!GetMyRegLong(NULL, "DeskTopIcon", FALSE)) {
+		EndDesktopIcons();
+		return;
+	}
+
 	GetDesktopIcons();
 	if(hwndDesktop)
 	{
-		if (!GetMyRegLong(NULL, "DeskTopIcon", FALSE)) {
-			EndDesktopIcons();
-			return;
-		}
-
 	// small icon
 		s = GetWindowLong(hwndDesktop, GWL_STYLE);
 		if ((s & LVS_SMALLICON) == 0){
@@ -80,12 +80,12 @@ void EndDesktopIcons(void)
 {
 	LONG s;
 
-	GetDesktopIcons();
+//	GetDesktopIcons();
 	if (hwndDesktop)
 	{
 		// normal icon
 		s = GetWindowLong(hwndDesktop, GWL_STYLE);
-			SetWindowLong(hwndDesktop, GWL_STYLE, s & 0xfffffffc);
+			SetWindowLong(hwndDesktop, GWL_STYLE, s & ~LVS_SMALLICON);
 
 		DesktopIconsTransparentSetReset(FALSE);
 	hwndDesktop = NULL;
