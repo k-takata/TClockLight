@@ -70,7 +70,7 @@ static char m_soundfile[MAX_PATH] = { 0 };  // sound file
 static int  m_nMinuteDif = 0;               // forcely time difference
 
 static DWORD m_dwTickCountOnSend = 0;    // starting time of sending data
-static DWORD m_dwTickCountOnRecv = 0;    // starting time of sending data
+static DWORD m_dwTickCountOnRecv = 0;    // ending time of receiving data
 
 static char  *m_pGetHost = NULL; // buffer of host entry
 static HANDLE m_hGetHost;        // task handle of WSAAsyncGetHostByName()

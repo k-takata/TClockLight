@@ -133,10 +133,11 @@ void OnInit(HWND hDlg)
 			EnableDlgItem(hDlg, i, FALSE);
 	}
 	
-	if((g_winver&WINXP) && IsTaskbarGlomming())
+	if(g_winver&WINXP)
 	{
 		EnableDlgItem(hDlg, IDC_TASKSWITCH_SEPARAT, FALSE);
-		EnableDlgItem(hDlg, IDC_TASKSWITCHICON, FALSE);
+		if(IsTaskbarAnimation())
+			EnableDlgItem(hDlg, IDC_TASKSWITCHICON, FALSE);
 	}
 	
 	if(!(g_winver&WIN2000))

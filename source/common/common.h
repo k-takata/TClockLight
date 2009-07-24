@@ -392,7 +392,7 @@ int CheckWinVersion(void);
 BOOL IsIE4(void);
 BOOL IsXPVisualStyle(void);
 BOOL IsVistaAero(void);
-BOOL IsTaskbarGlomming(void);
+BOOL IsTaskbarAnimation(void);
 void SetForegroundWindow98(HWND hwnd);
 void SetMyDialgPos(HWND hwnd, int xLen, int yLen);
 void WriteDebug(const char* s);

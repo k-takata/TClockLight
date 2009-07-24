@@ -433,13 +433,13 @@ BOOL IsVistaAero(void)
 }
 
 /*-------------------------------------------
-  Taskbar Grouped ?
+  using Taskbar Animations ?
 ---------------------------------------------*/
-BOOL IsTaskbarGlomming(void)
+BOOL IsTaskbarAnimation(void)
 {
 	if(GetRegLong(HKEY_CURRENT_USER,
 		"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
-		"TaskbarGlomming", 0))
+		"TaskbarAnimations", 0))
 	{
 		return TRUE;
 	}
