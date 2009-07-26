@@ -401,25 +401,27 @@ BOOL IsXPVisualStyle(void)
   using Vista Aero ?
 ---------------------------------------------*/
 typedef HRESULT (WINAPI *pfnDwmIsCompositionEnabled)(BOOL *);
+static HRESULT WINAPI DwmIsCompositionEnabledStub(BOOL *pfEnabled);
+
 BOOL IsVistaAero(void)
 {
-#if 0
-	HMODULE hDwmApi;
-	pfnDwmIsCompositionEnabled pDwmIsCompositionEnabled;
+#if 1
+	static pfnDwmIsCompositionEnabled pDwmIsCompositionEnabled = NULL;
 	BOOL ret = FALSE;
 	
-	hDwmApi = LoadLibrary("dwmapi.dll");
-	if (hDwmApi == NULL)
-		return FALSE;
-	pDwmIsCompositionEnabled = (pfnDwmIsCompositionEnabled)
-			GetProcAddress(hDwmApi, "DwmIsCompositionEnabled");
-	if (pDwmIsCompositionEnabled != NULL) {
-		BOOL enabled;
-		if (pDwmIsCompositionEnabled(&enabled) == S_OK) {
-			ret = enabled;
+	if (pDwmIsCompositionEnabled == NULL) {
+	//	HMODULE hDwmApi = LoadLibrary("dwmapi.dll");
+		HMODULE hDwmApi = GetModuleHandle("dwmapi.dll");
+		if (hDwmApi != NULL) {
+			pDwmIsCompositionEnabled = (pfnDwmIsCompositionEnabled)
+					GetProcAddress(hDwmApi, "DwmIsCompositionEnabled");
+		}
+		if (pDwmIsCompositionEnabled == NULL) {
+			pDwmIsCompositionEnabled = DwmIsCompositionEnabledStub;
 		}
 	}
-	FreeLibrary(hDwmApi);
+	
+	pDwmIsCompositionEnabled(&ret);
 	return ret;
 #else
 	if(GetRegLong(HKEY_CURRENT_USER,
@@ -431,6 +433,15 @@ BOOL IsVistaAero(void)
 	return FALSE;
 #endif
 }
+
+static HRESULT WINAPI DwmIsCompositionEnabledStub(BOOL *pfEnabled)
+{
+	if (pfEnabled != NULL) {
+		*pfEnabled = FALSE;
+	}
+	return S_OK;
+}
+
 
 /*-------------------------------------------
   using Taskbar Animations ?
