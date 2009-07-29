@@ -20,6 +20,7 @@ char      g_langfile[MAX_PATH];    // tclang.txt
 HFONT     g_hfontDialog = NULL;    // dialog font
 HWND      g_hwndMain  = NULL;      // main window
 HICON     g_hIconPlay, g_hIconStop; // icons to use frequently
+int       g_winver;                // Windows version flags
 
 /* Statics */
 
@@ -29,7 +30,9 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 static void InitApp(void);
 static void OnCreate(HWND hwnd);
 static void OnDestroy(HWND hwnd);
-static void CheckCommandLine(HWND hwnd, BOOL bPrev);
+static BOOL CheckCommandLine(HWND hwnd, HWND hwndDlg);
+
+BOOL m_bSilent = FALSE, m_bOnlyRas = FALSE;
 
 /*-------------------------------------------
   WinMain
@@ -56,15 +59,23 @@ int TCSNTPMain(void)
 {
 	MSG msg;
 	WNDCLASS wndclass;
-	HWND hwnd, hwndParent;
+	HWND hwnd, hwndDlg = NULL;
 	
 	// not to execute the program twice
-	hwnd = FindWindow(CLASS_TCLOCKSNTP, NULL);
+	hwnd = FindWindowEx(NULL, NULL, CLASS_TCLOCKSNTP, NULL);
 	if(hwnd != NULL)
 	{
-		CheckCommandLine(hwnd, TRUE);
-		return 1;
+		DWORD dwTID1, dwTID2;
+		dwTID1 = GetWindowThreadProcessId(hwnd, NULL);
+		do {
+			hwndDlg = FindWindowEx(NULL, hwndDlg, WC_DIALOG, NULL);
+			if(hwndDlg == NULL)
+				break;
+			dwTID2 = GetWindowThreadProcessId(hwndDlg, NULL);
+		} while(dwTID1 != dwTID2);
 	}
+	if(CheckCommandLine(hwnd, hwndDlg))
+		return 1;
 	
 	InitApp();
 	timeBeginPeriod(1);
@@ -82,16 +93,11 @@ int TCSNTPMain(void)
 	wndclass.lpszClassName = CLASS_TCLOCKSNTP;
 	RegisterClass(&wndclass);
 	
-	if(CheckWinVersion()&WIN2000)
-		hwndParent = HWND_MESSAGE;
-	else
-		hwndParent = NULL;
-	
 	// create a hidden window
 	g_hwndMain = CreateWindowEx(0,
 		CLASS_TCLOCKSNTP, "TClock SNTP", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,
-		hwndParent, NULL, g_hInst, NULL);
+		NULL, NULL, g_hInst, NULL);
 	// ShowWindow(g_hwndMain, SW_SHOW);
 	// UpdateWindow(g_hwndMain);
 	
@@ -122,6 +128,8 @@ void InitApp(void)
 	// common/langcode.c
 	FindFileWithLangCode(g_langfile, GetUserDefaultLangID(), TCLANGTXT);
 	g_hfontDialog = CreateDialogFont();
+	
+	g_winver = CheckWinVersion();
 	
 	g_hIconPlay = LoadImage(g_hInst, MAKEINTRESOURCE(IDI_PLAY), IMAGE_ICON,
 		16, 16, LR_DEFAULTCOLOR|LR_SHARED);
@@ -171,6 +179,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 			if(!g_hDlg)
 				PostMessage(hwnd, WM_CLOSE, 0, 0);
 			return 0;
+		
+		case SNTPM_LOADLOG:
+			if(g_hDlg)
+				PostMessage(g_hDlg, SNTPM_LOADLOG, 0, 0);
+			return 0;
 	}
 	return DefWindowProc(hwnd, message, wParam, lParam);
 }
@@ -186,7 +199,13 @@ void OnCreate(HWND hwnd)
 		return;
 	}
 	
-	CheckCommandLine(hwnd, FALSE);
+	if(m_bSilent)
+	{
+		if(StartSyncTime(hwnd, m_bOnlyRas) == FALSE)
+			PostMessage(hwnd, WM_CLOSE, 0, 0);
+	}
+	else
+		PostMessage(hwnd, SNTPM_SHOWDLG, 0, 0);
 }
 
 /*-------------------------------------------------------
@@ -204,13 +223,12 @@ void OnDestroy(HWND hwnd)
 /*-------------------------------------------
    process command line option
 ---------------------------------------------*/
-void CheckCommandLine(HWND hwnd, BOOL bPrev)
+BOOL CheckCommandLine(HWND hwnd, HWND hwndDlg)
 {
 	char name[20], value[20];
 	char *p;
 	int i;
 	BOOL bquot = FALSE;
-	BOOL bSilent = FALSE, bOnlyRas = FALSE;
 	
 	p = GetCommandLine();
 	
@@ -246,23 +264,29 @@ void CheckCommandLine(HWND hwnd, BOOL bPrev)
 			
 			if(strcmp(name, "silent") == 0)
 			{
-				if(!bPrev) bSilent = TRUE;
+				m_bSilent = TRUE;
 			}
 			else if(strcmp(name, "ras") == 0)
 			{
-				if(!bPrev) bOnlyRas = TRUE;
+				m_bOnlyRas = TRUE;
 			}
 		}
 		else p++;
 	}
 	
-	if(bSilent)
+	if(m_bSilent)
 	{
-		if(StartSyncTime(hwnd, bOnlyRas) == FALSE)
-			PostMessage(hwnd, WM_CLOSE, 0, 0);
+		if((hwnd != NULL) && (hwndDlg == NULL))
+			return TRUE;
+		else
+			return FALSE;
 	}
-	else
+	else if(hwnd != NULL)
+	{
 		PostMessage(hwnd, SNTPM_SHOWDLG, 0, 0);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 /* -------------------- Utilities ---------------------------------------*/

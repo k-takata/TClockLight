@@ -36,6 +36,7 @@ typedef union _TC_UINT64 {
 
 typedef struct
 {
+#if 1
     DWORD   dwUnknown1;
     ULONG   uKeMaximumIncrement;
     ULONG   uPageSize;
@@ -43,12 +44,17 @@ typedef struct
     ULONG   uMmLowestPhysicalPage;
     ULONG   uMmHighestPhysicalPage;
     ULONG   uAllocationGranularity;
-    PVOID   pLowestUserAddress;
-    PVOID   pMmHighestUserAddress;
-    ULONG   uKeActiveProcessors;
+    ULONG_PTR pLowestUserAddress;
+    ULONG_PTR pMmHighestUserAddress;
+    ULONG_PTR uKeActiveProcessors;
     BYTE    bKeNumberProcessors;
     BYTE    bUnknown2;
     WORD    wUnknown3;
+#else
+    BYTE Reserved1[24];
+    PVOID Reserved2[4];
+    CCHAR bKeNumberProcessors;
+#endif
 } SYSTEM_BASIC_INFORMATION;
 
 typedef struct

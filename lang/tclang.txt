@@ -164,7 +164,7 @@ Line01="  [ NTP Server ][                                    ] [ Delete   ]"
 Line02="  [     Timeout][          ][][msecs]"
 Line03="                [     Save Log]"
 Line04="        [Sound][                                           ][...]"
-Line05="   [Adjust Now   ]"
+Line05="   [Adjust Now      ]"
 Line06="   [                                                             ]"
 Line07="          [  OK          ]  [ Cancel       ]  [  Help       ]"
 

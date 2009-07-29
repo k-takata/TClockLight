@@ -21,10 +21,22 @@
 #define SNTPM_SHOWDLG  (WM_USER+10)
 #define SNTPM_ERROR    (WM_USER+11)
 #define SNTPM_SUCCESS  (WM_USER+12)
+#define SNTPM_LOADLOG  (WM_USER+13)
 
 #define BUFSIZE_SERVER 81
 
 #define SNTPLOG "SNTP.txt"
+
+
+#ifndef BCM_FIRST
+#define BCM_FIRST	0x1600
+#endif
+
+#ifndef BCM_SETSHIELD
+#define BCM_SETSHIELD	(BCM_FIRST + 0x000C)
+#define Button_SetElevationRequiredState(hwnd, fRequired) \
+	(LRESULT)SendMessage((hwnd), BCM_SETSHIELD, 0, (LPARAM)fRequired)
+#endif
 
 /* ---------- main.c --------------- */
 
@@ -37,6 +49,7 @@ extern char  g_inifile[];
 extern char  g_langfile[];
 extern HFONT g_hfontDialog;
 extern HWND  g_hwndMain;
+extern int   g_winver;
 
 /* ---------- dialog.c --------------- */
 

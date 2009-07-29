@@ -27,6 +27,9 @@ static void OnNTPServer(HWND hDlg);
 static void OnDelServer(HWND hDlg);
 static void OnBrowse(HWND hDlg);
 static void OnSyncNow(HWND hDlg);
+static BOOL IsUserAdmin(void);
+
+typedef BOOL (WINAPI *pfnIsUserAnAdmin)(void);
 
 static const char *m_section = "SNTP";
 
@@ -62,7 +65,8 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message,
 			switch(id)
 			{
 				case IDOK:
-					OnOK(hDlg); // fall
+					OnOK(hDlg); // Save Settings
+					// FALL-THROUGH
 				case IDCANCEL:
 					OnCancel(hDlg);
 					break;
@@ -86,6 +90,9 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message,
 			}
 			return TRUE;
 		}
+		case SNTPM_LOADLOG:
+			LoadLog(hDlg);
+			return TRUE;
 	}
 	return FALSE;
 }
@@ -154,7 +161,10 @@ void OnInit(HWND hDlg)
 	
 	GetMyRegStr(m_section, "Sound", s, MAX_PATH, "");
 	SetDlgItemText(hDlg, IDC_SYNCSOUND, s);
-
+	
+	if(g_winver&WINVISTA)
+		Button_SetElevationRequiredState(GetDlgItem(hDlg, IDC_SYNCNOW), TRUE);
+	
 	LoadLog(hDlg);
 }
 
@@ -171,13 +181,13 @@ void LoadLog(HWND hDlg)
 	DWORD dwReadLen = sizeof(buf) - 1;
 	BOOL ret;
 	
-	if(!IsDlgButtonChecked(hDlg, IDC_SNTPLOG)) return;
+//	if(!IsDlgButtonChecked(hDlg, IDC_SNTPLOG)) return;
 	
 	strcpy(fname, g_mydir);
 	add_title(fname, SNTPLOG);
 	hf = CreateFile(fname, GENERIC_READ, FILE_SHARE_READ,
 		NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (hf == INVALID_HANDLE_VALUE) return;
+	if(hf == INVALID_HANDLE_VALUE) return;
 	SetFilePointer(hf, -(LONG)dwReadLen, NULL, FILE_END);
 	ret = ReadFile(hf, buf, dwReadLen, &dwRead, NULL);
 	CloseHandle(hf);
@@ -196,7 +206,7 @@ void LoadLog(HWND hDlg)
 }
 
 /*-------------------------------------------
-  "OK" button
+  "OK" button -- Save Settings
 ---------------------------------------------*/
 void OnOK(HWND hDlg)
 {
@@ -339,6 +349,15 @@ void OnSyncNow(HWND hDlg)
 	nTimeOut = UpDown_GetPos(hDlg, IDC_TIMEOUTSPIN);
 	if(nTimeOut & 0xffff0000) nTimeOut = 1000;
 	
+	if((g_winver&WINVISTA) && !IsUserAdmin()) // Elevation Required
+	{
+		char buf[MAX_PATH];
+		OnOK(hDlg); // Save Settings
+		GetModuleFileName(NULL, buf, MAX_PATH);
+		ShellExecute(hDlg, "runas", buf, "/silent", NULL, SW_SHOWNORMAL);
+		return;
+	}
+	
 	bLog = IsDlgButtonChecked(hDlg, IDC_SNTPLOG);
 	
 	GetDlgItemText(hDlg, IDC_SYNCSOUND, soundfile, MAX_PATH);
@@ -353,3 +372,23 @@ void OnSyncNow(HWND hDlg)
 	CBSetCurSel(hDlg, IDC_NTPSERVER, 0);
 }
 
+/*------------------------------------------------
+  Does the user have admin privileges?
+--------------------------------------------------*/
+BOOL IsUserAdmin(void)
+{
+	BOOL fIsAdmin = TRUE;
+	pfnIsUserAnAdmin pIsUserAnAdmin;
+//	HMODULE hShell32 = LoadLibrary("shell32.dll");
+	HMODULE hShell32 = GetModuleHandle("shell32.dll");
+	if (hShell32 == NULL) {
+		return TRUE;
+	}
+	pIsUserAnAdmin = (pfnIsUserAnAdmin)
+			GetProcAddress(hShell32, (LPCSTR) 680);
+	if (pIsUserAnAdmin != NULL) {
+		fIsAdmin = pIsUserAnAdmin();
+	}
+//	FreeLibrary(hShell32);
+	return fIsAdmin;
+}

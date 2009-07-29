@@ -587,6 +587,23 @@ void Log(HWND hwndSNTP, const char *msg)
 		WriteFile(hf, s, strlen(s), &dwWritten, NULL);
 		CloseHandle(hf);
 	}
+	
+	// 
+	if(!g_hwndLog)
+	{
+		HWND hwnd = NULL;
+		while(1)
+		{
+			hwnd = FindWindowEx(NULL, hwnd, CLASS_TCLOCKSNTP, NULL);
+			if(hwnd == NULL)
+				break;
+			if(hwnd != hwndSNTP)
+			{
+				PostMessage(hwnd, SNTPM_LOADLOG, 0, 0);
+				break;
+			}
+		}
+	}
 }
 
 /*-------------------------------------------
