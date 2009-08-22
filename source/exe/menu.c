@@ -77,6 +77,8 @@ void OnContextMenu(HWND hwnd, HWND hwndClicked, int xPos, int yPos)
 {
 	WIN32_FIND_DATA fd;
 	HANDLE hfind;
+	TPMPARAMS tpmp;
+	LPTPMPARAMS lptpmp = NULL;
 	
 	SendOnContextMenu();
 	
@@ -113,9 +115,19 @@ void OnContextMenu(HWND hwnd, HWND hwndClicked, int xPos, int yPos)
 	// get keyboard input
 	SetFocusTClockMain(hwnd);
 	
+	// APP key
+	if((xPos == -1) && (yPos == -1))
+	{
+		tpmp.cbSize = sizeof(tpmp);
+		lptpmp = &tpmp;
+		GetWindowRect(g_hwndClock, &tpmp.rcExclude);
+		xPos = tpmp.rcExclude.right;
+		yPos = tpmp.rcExclude.top;
+	}
+	
 	// open popup menu
-	TrackPopupMenu(m_hMenu, TPM_LEFTALIGN|TPM_RIGHTBUTTON,
-		xPos, yPos, 0, hwnd, NULL);
+	TrackPopupMenuEx(m_hMenu, TPM_LEFTALIGN|TPM_RIGHTBUTTON,
+		xPos, yPos, hwnd, lptpmp);
 	
 	PostMessage(hwnd, WM_NULL, 0, 0);
 }

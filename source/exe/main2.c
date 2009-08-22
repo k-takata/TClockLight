@@ -75,8 +75,10 @@ int TClockExeMain(void)
 	wndclass.cbClsExtra    = 0;
 	wndclass.cbWndExtra    = 0;
 	wndclass.hInstance     = g_hInst;
-	wndclass.hIcon         = LoadIcon(g_hInst, "MYICON");
-	wndclass.hCursor       = LoadCursor(NULL, IDC_ARROW);
+//	wndclass.hIcon         = LoadIcon(g_hInst, "MYICON");
+	wndclass.hIcon         = NULL;
+//	wndclass.hCursor       = LoadCursor(NULL, IDC_ARROW);
+	wndclass.hCursor       = NULL;
 	wndclass.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
 	wndclass.lpszMenuName  = NULL;
 	wndclass.lpszClassName = CLASS_TCLOCKMAIN;
@@ -95,7 +97,8 @@ int TClockExeMain(void)
 	
 	// create a hidden window
 	hwnd = CreateWindowEx(0,
-		CLASS_TCLOCKMAIN, TITLE_TCLOCKMAIN, WS_OVERLAPPEDWINDOW,
+		CLASS_TCLOCKMAIN, TITLE_TCLOCKMAIN,
+		/*WS_OVERLAPPEDWINDOW*/ WS_POPUP|WS_DISABLED,
 		CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,
 		hwndParent, NULL, g_hInst, NULL);
 	ShowWindow(hwnd, SW_MINIMIZE);
