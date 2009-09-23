@@ -523,7 +523,9 @@ void SetMyDialgPos(HWND hwnd, int xLen, int yLen)
 		if(x < 0) x = 0;
 	}
 	
-	MoveWindow(hwnd, x, y, wProp, hProp, FALSE);
+//	MoveWindow(hwnd, x, y, wProp, hProp, FALSE);
+	SetWindowPos(hwnd, NULL, x, y, wProp, hProp,
+		SWP_NOZORDER|SWP_NOACTIVATE|SWP_NOREDRAW);
 }
 
 /*-------------------------------------------

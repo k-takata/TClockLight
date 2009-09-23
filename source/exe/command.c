@@ -25,7 +25,7 @@ typedef struct{
 static void ShowHelp(HWND hwnd);
 static void PostMessageCommand(const char *option);
 static void ExecHiddenCmdPrompt(HWND hwnd, const char *str);
-static BOOL CALLBACK doKyu(HWND hwnd, long height);
+static BOOL CALLBACK doKyu(HWND hwnd, LPARAM lParam);
 static void PushKeybd(LPKEYEVENT lpkey);
 
 /*------------------------------------------------
@@ -96,8 +96,9 @@ void OnTClockCommand(HWND hwnd, int id, int code)
 		{
 			RECT rc;
 			GetWindowRect(GetTaskbarWindow(), &rc);
-			if(rc.bottom < GetSystemMetrics(SM_CYSCREEN))
-				EnumWindows(doKyu, rc.bottom);
+		//	if(rc.bottom < GetSystemMetrics(SM_CYSCREEN))
+		//		EnumWindows(doKyu, rc.bottom);
+			EnumWindows(doKyu, (LPARAM)&rc);
 			break;
 		}
 		case IDC_DELRECDOCS: // delete recently used documents
@@ -331,15 +332,62 @@ void PushKeybd(LPKEYEVENT lpkey)
 /*------------------------------------------------
   Kyu!
 --------------------------------------------------*/
-BOOL CALLBACK doKyu(HWND hwnd, long height)
+BOOL CALLBACK doKyu(HWND hwnd, LPARAM lParam)
 {
 	RECT rc;
+	LPRECT lprcTaskbar = (LPRECT) lParam;
 	
+/*
 	GetWindowRect(hwnd, &rc);
 	
 	if(!IsZoomed(hwnd) && IsWindowVisible(hwnd) && (rc.top < height))
 		SetWindowPos(hwnd, NULL, rc.left, height, 0, 0,
 			SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
+*/
+	if(!IsZoomed(hwnd) && IsWindowVisible(hwnd))
+	{
+		int cxcenter = GetSystemMetrics(SM_CXSCREEN) / 2;
+		int cycenter = GetSystemMetrics(SM_CYSCREEN) / 2;
+		
+		GetWindowRect(hwnd, &rc);
+		
+		if (lprcTaskbar->bottom <= cycenter)
+		{
+			//上タスクバー
+			if (rc.top < lprcTaskbar->bottom)
+			{
+				SetWindowPos(hwnd, NULL, rc.left, lprcTaskbar->bottom, 0, 0,
+							 SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
+			}
+		}
+		else if (lprcTaskbar->right <= cxcenter)
+		{
+			//左タスクバー
+			if (rc.left < lprcTaskbar->right)
+			{
+				SetWindowPos(hwnd, NULL, lprcTaskbar->right, rc.top, 0, 0,
+							 SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
+			}
+		}
+		else if (lprcTaskbar->left >= cxcenter)
+		{
+			//右タスクバー
+			if (rc.right > lprcTaskbar->left)
+			{
+				SetWindowPos(hwnd, NULL, lprcTaskbar->left-(rc.right-rc.left), rc.top, 0, 0,
+							 SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
+			}
+		}
+		else
+		{
+			//下タスクバー
+			if (rc.bottom > lprcTaskbar->top)
+			{
+				SetWindowPos(hwnd, NULL, rc.left, lprcTaskbar->top-(rc.bottom-rc.top), 0, 0,
+							 SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
+			}
+		}
+	}
 	
 	return TRUE;
 }
