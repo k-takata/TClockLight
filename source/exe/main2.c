@@ -276,7 +276,12 @@ void InitFormat(void)
 	
 	AutoFormat(s, parts);  // common/autoformat.c
 	
-	SetMyRegStr("", "Format", s);
+	if(!SetMyRegStr("", "Format", s))
+	{
+		MessageBox(NULL, "Can't save the settings",
+			"Error", MB_OK|MB_ICONEXCLAMATION);
+		ExitProcess(1);
+	}
 	
 	SetMyRegLong("", "Kaigyo", parts[PART_BREAK]);
 }
