@@ -284,8 +284,8 @@ BOOL CALLBACK EnumSizeProcEx(ENUMLOGFONTEX* pelf,
 	}
 	
 	// Other case
-	num = (lpntm->ntmTm.tmHeight - lpntm->ntmTm.tmInternalLeading) * 72
-			/ m_logpixelsy;
+	num = MulDiv((lpntm->ntmTm.tmHeight - lpntm->ntmTm.tmInternalLeading),
+		72, m_logpixelsy);
 	count = SendMessage((HWND)hCombo, CB_GETCOUNT, 0, 0);
 	for(i = 0; i < count; i++)
 	{
