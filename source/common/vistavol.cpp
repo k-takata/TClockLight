@@ -184,7 +184,7 @@ BOOL GetMasterVolumeVista(int *piLevel)
 	if (FAILED(hr)) {
 		return FALSE;
 	}
-	*piLevel = (int) (fLevel * 100);
+	*piLevel = (int) (fLevel * 100 + 0.5);
 	return TRUE;
 }
 
