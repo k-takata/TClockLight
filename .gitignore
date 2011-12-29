@@ -1,0 +1,16 @@
+*.obj
+*.dll
+*.exe
+*.exp
+*.lib
+*.pdb
+*.bak
+*.BAK
+*~
+*.swp
+*.orig
+*.rej
+*.map
+*.RES
+*.res
+*.tclock
