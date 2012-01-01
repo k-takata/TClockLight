@@ -55,7 +55,7 @@ void InitFormatTime(void)
 	int i, ilang, ioptcal, codepage;
 	int ilangcal, codepagecal;
 	
-	g_bDispSecond = FALSE;
+//	g_bDispSecond = FALSE;
 	
 	GetLocalTime(&t);
 	
