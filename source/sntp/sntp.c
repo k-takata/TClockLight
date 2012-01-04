@@ -557,8 +557,8 @@ void Log(HWND hwndSNTP, const char *msg)
 	char s[160];
 	
 	GetLocalTime(&st);
-	wsprintf(s, "%02d/%02d %02d:%02d:%02d ",
-		st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+	wsprintf(s, "%04d/%02d/%02d %02d:%02d:%02d ",
+		st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 	strcat(s, msg);
 	strcat(s, "\r\n");
 	
