@@ -184,6 +184,7 @@ void GetDefaultFontName(char *fontname, const char *defaultfontname);
 
 BOOL LangIDToLangCode(char *dst, int langid, BOOL bCountry);
 BOOL FindFileWithLangCode(char *dst, int langid, const char* fname);
+BOOL DoesLangDirExist(void);
 
 /* -- localeinfo.c ---------------------------------------- */
 

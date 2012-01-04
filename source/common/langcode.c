@@ -367,3 +367,15 @@ BOOL GetLangFileName(char *dst, const char *fname, const char *code)
 	
 	return FALSE;
 }
+
+/*--------------------------------------------------------
+  check if 'lang' directory exists
+----------------------------------------------------------*/
+BOOL DoesLangDirExist(void)
+{
+	char buf[MAX_PATH];
+	
+	strcpy(buf, g_mydir);
+	add_title(buf, LANGDIR);
+	return IsDirectory(buf);
+}

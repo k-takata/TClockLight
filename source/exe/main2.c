@@ -158,6 +158,13 @@ void InitTClockMain(void)
 	g_bIniSetting = FALSE;
 	SetMyRegStr(NULL, "ExePath", g_mydir);
 	
+	// check if 'lang' directory exists
+	if(!DoesLangDirExist())
+	{
+		MessageBox(NULL, "language file not found", "TClock Light",
+				MB_ICONWARNING);
+	}
+	
 	// ini file name
 	strcpy(g_inifile, g_mydir);
 	add_title(g_inifile, "tclock.ini");
