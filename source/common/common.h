@@ -388,6 +388,7 @@ HWND GetTClockMainWindow(void);
 void SendStringToOther(HWND hwnd, HWND hwndFrom, const char *s, int type);
 void SendStringToOtherW(HWND hwnd, HWND hwndFrom, const wchar_t *s, int type);
 BOOL IsFile(const char* fname);
+BOOL IsDirectory(const char* fname);
 int CheckWinVersion(void);
 BOOL IsIE4(void);
 BOOL IsXPVisualStyle(void);

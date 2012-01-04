@@ -313,15 +313,29 @@ void SendStringToOtherW(HWND hwnd, HWND hwndFrom,
 --------------------------------------------------*/
 BOOL IsFile(const char* fname)
 {
-	WIN32_FIND_DATA fd;
-	HANDLE hfind;
+	DWORD ret;
 	
-	hfind = FindFirstFile(fname, &fd);
-	if(hfind != INVALID_HANDLE_VALUE)
+	ret = GetFileAttributes(fname);
+	if(ret == (DWORD)-1)
 	{
-		FindClose(hfind); return TRUE;
+		return FALSE;
 	}
-	return FALSE;
+	return (ret & FILE_ATTRIBUTE_DIRECTORY) == 0;
+}
+
+/*------------------------------------------------
+  the directory exists ?
+--------------------------------------------------*/
+BOOL IsDirectory(const char* fname)
+{
+	DWORD ret;
+	
+	ret = GetFileAttributes(fname);
+	if(ret == (DWORD)-1)
+	{
+		return FALSE;
+	}
+	return (ret & FILE_ATTRIBUTE_DIRECTORY) != 0;
 }
 
 /*-------------------------------------------
