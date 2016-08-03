@@ -7,7 +7,7 @@
 ---------------------------------------------------------------*/
 
 #include "tcdll.h"
-#include "newapi.h"
+//#include "newapi.h"
 
 #if TC_ENABLE_STARTMENU
 
@@ -451,7 +451,7 @@ void TransStartMenu(void)
 			InvalidateRect(m_hwndUserPaneXP, NULL, TRUE);
 		style = GetWindowLong(m_hwndDV2ContHost, GWL_EXSTYLE);
 		SetWindowLong(m_hwndDV2ContHost, GWL_EXSTYLE, style|WS_EX_LAYERED);
-		MySetLayeredWindowAttributes(m_hwndDV2ContHost,
+		SetLayeredWindowAttributes(m_hwndDV2ContHost,
 			0, (BYTE)m_alpha, LWA_ALPHA);
 		//InvalidateRect(m_hwndDV2ContHost, NULL, TRUE);
 	}
@@ -459,7 +459,7 @@ void TransStartMenu(void)
 	{
 		style = GetWindowLong(m_hwndBaseBar, GWL_EXSTYLE);
 		SetWindowLong(m_hwndBaseBar, GWL_EXSTYLE, style|WS_EX_LAYERED);
-		MySetLayeredWindowAttributes(m_hwndBaseBar,
+		SetLayeredWindowAttributes(m_hwndBaseBar,
 			0, (BYTE)m_alpha, LWA_ALPHA);
 	}
 }
@@ -476,7 +476,7 @@ void UnTransStartMenu(void)
 		style = GetWindowLong(m_hwndDV2ContHost, GWL_EXSTYLE);
 		style &= ~WS_EX_LAYERED;
 		SetWindowLong(m_hwndDV2ContHost, GWL_EXSTYLE, style);
-		MySetLayeredWindowAttributes(m_hwndDV2ContHost,
+		SetLayeredWindowAttributes(m_hwndDV2ContHost,
 			GetSysColor(COLOR_3DFACE), 0, LWA_COLORKEY);
 		InvalidateRect(m_hwndDV2ContHost, NULL, TRUE);
 	}
@@ -485,7 +485,7 @@ void UnTransStartMenu(void)
 		style = GetWindowLong(m_hwndBaseBar, GWL_EXSTYLE);
 		style &= ~WS_EX_LAYERED;
 		SetWindowLong(m_hwndBaseBar, GWL_EXSTYLE, style);
-		MySetLayeredWindowAttributes(m_hwndBaseBar,
+		SetLayeredWindowAttributes(m_hwndBaseBar,
 			GetSysColor(COLOR_3DFACE), 0, LWA_COLORKEY);
 	}
 }

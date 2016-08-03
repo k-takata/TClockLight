@@ -9,7 +9,7 @@ OUTDIR=out
 # Visual C++
 !IFDEF _NMAKE_VER
 
-!IF "$(CPU)"=="AMD64" || "$(TARGET_CPU)"=="x64" || DEFINED(AMD64)
+!IF "$(CPU)"=="AMD64" || "$(TARGET_CPU)"=="x64" || "$(Platform)"=="x64" || DEFINED(AMD64)
 WIN64=1
 !ENDIF
 

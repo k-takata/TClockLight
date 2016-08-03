@@ -7,7 +7,7 @@
 ---------------------------------------------------------------*/
 
 #include "tcdll.h"
-#include "newapi.h"
+//#include "newapi.h"
 
 #if TC_ENABLE_TRAYNOTIFY
 

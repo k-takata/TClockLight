@@ -26,13 +26,13 @@ COMMONH=$(COMMONDIR)\common.h
 OBJS=dllmain.obj dllmain2.obj dllwndproc.obj draw.obj\
 	format.obj formattime.obj tooltip.obj userstr.obj\
 	startbtn.obj startmenu.obj taskbar.obj taskswitch.obj traynotify.obj\
-	bmp.obj newapi.obj dllutl.obj\
+	bmp.obj dllutl.obj\
 	sysinfo.obj net.obj hdd.obj cpu.obj battery.obj mixer.obj \
 	vistavol.obj desktop.obj \
 	exec.obj utl.obj reg.obj font.obj localeinfo.obj
 
 LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib winmm.lib\
-	ole32.lib
+	ole32.lib msimg32.lib
 
 !IFDEF WIN64
 DLLBASE=0x60066040000
@@ -139,8 +139,8 @@ bmp.obj: $(SRCDIR)\bmp.c $(TCDLLH)
 	$(CC) $(COPT)$@ $(SRCDIR)\bmp.c
 dllutl.obj: $(SRCDIR)\dllutl.c $(TCDLLH)
 	$(CC) $(COPT)$@ $(SRCDIR)\dllutl.c
-newapi.obj: $(SRCDIR)\newapi.c $(TCDLLH)
-	$(CC) $(COPT)$@ $(SRCDIR)\newapi.c
+#newapi.obj: $(SRCDIR)\newapi.c $(TCDLLH)
+#	$(CC) $(COPT)$@ $(SRCDIR)\newapi.c
 sysinfo.obj: $(SRCDIR)\sysinfo.c $(TCDLLH) ..\config.h
 	$(CC) $(COPT)$@ $(SRCDIR)\sysinfo.c
 net.obj: $(SRCDIR)\net.c $(TCDLLH) ..\config.h

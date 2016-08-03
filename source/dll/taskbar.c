@@ -7,7 +7,7 @@
 ---------------------------------------------------------------*/
 
 #include "tcdll.h"
-#include "newapi.h"
+//#include "newapi.h"
 
 #if TC_ENABLE_TASKBAR
 
@@ -353,10 +353,10 @@ void SetLayeredTaskbar(HWND hwndTaskbar)
 	SetWindowLong(hwndTaskbar, GWL_EXSTYLE, exstyle);
 	
 	if(alpha == 0)
-		MySetLayeredWindowAttributes(hwndTaskbar,
+		SetLayeredWindowAttributes(hwndTaskbar,
 			GetSysColor(COLOR_3DFACE), 0, LWA_COLORKEY);
 	else if(alpha < 255)
-		MySetLayeredWindowAttributes(hwndTaskbar, 0, (BYTE)alpha, LWA_ALPHA);
+		SetLayeredWindowAttributes(hwndTaskbar, 0, (BYTE)alpha, LWA_ALPHA);
 }
 
 /*--------------------------------------------------

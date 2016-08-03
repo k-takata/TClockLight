@@ -41,12 +41,14 @@ void InitClock(HWND hwnd)
 	g_bIE4 = IsIE4();                   // common/util.c
 	g_bVisualStyle = IsXPVisualStyle(); // common/util.c
 	
+#if 0
 	// check subclassification
 	if(IsSubclassed(hwnd))
 	{
 		SendMessage(g_hwndTClockMain, TCM_CLOCKERROR, 0, 6);
 		return;
 	}
+#endif
 	
 	GetModuleFileName(g_hInst, g_mydir, MAX_PATH);
 	del_title(g_mydir);
@@ -152,7 +154,7 @@ void EndClock(HWND hwnd)
 	ClearDrawing();     // drawing.c
 	EndTooltip(hwnd);   // tooltip.c
 	
-	EndNewAPI();		// newapi.c
+	//EndNewAPI();		// newapi.c
 	
 	// Stop timers
 	KillTimer(hwnd, IDTIMER_MAIN);
