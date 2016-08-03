@@ -14,3 +14,15 @@
 *.RES
 *.res
 *.tclock
+
+out/
+out64/
+work/
+work64/
+
+tags
+
+/source_all/*
+!/source_all/config.h
+/source_custom/*
+!/source_custom/config.h
