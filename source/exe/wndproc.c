@@ -208,7 +208,7 @@ void ClearTClockMain(HWND hwnd)
 	StopFile();
 	EndMouseFunction(hwnd);
 	EndAlarm();
-	EndMenu();
+	EndContextMenu();
 #if TC_ENABLE_VOLUME
 	ReleaseMixer();
 #endif

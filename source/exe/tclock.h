@@ -76,7 +76,7 @@ void CopyToClipBoard(HWND hwnd, const char *pfmt);
 
 /* ---------- menu.c ---------------- */
 void ContextMenuCommand(HWND hwnd, int id);
-void EndMenu(void);
+void EndContextMenu(void);
 void OnContextMenu(HWND hwnd, HWND hwndClicked, int xPos, int yPos);
 void OnExitMenuLoop(HWND hwnd);
 void SetFocusTClockMain(HWND hwnd);

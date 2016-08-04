@@ -12,7 +12,7 @@
 /* Globals */
 
 void ContextMenuCommand(HWND hwnd, int id);
-void EndMenu(void);
+void EndContextMenu(void);
 void OnContextMenu(HWND hwnd, HWND hwndClicked, int xPos, int yPos);
 void OnExitMenuLoop(HWND hwnd);
 void SetFocusTClockMain(HWND hwnd);
@@ -61,7 +61,7 @@ void ContextMenuCommand(HWND hwnd, int id)
 /*------------------------------------------------
   clean up
 --------------------------------------------------*/
-void EndMenu(void)
+void EndContextMenu(void)
 {
 	if(m_hMenu) DestroyMenu(m_hMenu);
 	m_hMenu = NULL;
@@ -94,7 +94,7 @@ void OnContextMenu(HWND hwnd, HWND hwndClicked, int xPos, int yPos)
 		FindClose(hfind);
 		if(m_lasttime != fd.ftLastWriteTime.dwLowDateTime)
 		{
-			EndMenu();
+			EndContextMenu();
 			m_lasttime = fd.ftLastWriteTime.dwLowDateTime;
 		}
 	}
