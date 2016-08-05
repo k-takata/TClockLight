@@ -122,7 +122,7 @@ typedef struct _tagAlarmStruct
 	BOOL bRepeat;
 	BOOL bRepeatJihou;
 	BOOL bBlink;
-	BOOL nBlinkSec;
+	int  nBlinkSec;
 	BOOL bBootExec;
 	BOOL bInterval;
 	int  nInterval;

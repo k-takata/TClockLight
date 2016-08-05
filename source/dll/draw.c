@@ -306,8 +306,8 @@ void GetClockTextSize(HDC hdc, const TEXTMETRIC* ptm,
 		ep = p;
 		if(*p == 0x0d) p += 2;
 		
-		if(GetTextExtentPoint32W(hdc, sp, ep - sp, &sz) == 0)
-			sz.cx = (ep - sp) * ptm->tmAveCharWidth;
+		if(GetTextExtentPoint32W(hdc, sp, (int)(ep - sp), &sz) == 0)
+			sz.cx = (int)(ep - sp) * ptm->tmAveCharWidth;
 		if(w < sz.cx) w = sz.cx;
 		h += heightFont;
 		
@@ -397,7 +397,7 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 		while(*p && *p != 0x0d) p++;
 		ep = p;
 		if(*p == 0x0d) p += 2;
-		TextOutW(m_hdcClock, x, y, sp, ep - sp);
+		TextOutW(m_hdcClock, x, y, sp, (int)(ep - sp));
 		
 		if(*p) y += tm.tmHeight - tm.tmInternalLeading
 					+ 2 + m_dlineheight;

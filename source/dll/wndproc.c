@@ -191,7 +191,7 @@ LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			return 0;
 		case CLOCKM_BLINK: // blink the clock
 			g_nBlink = 2;
-			m_nBlinkSec = lParam;
+			m_nBlinkSec = (int)lParam;
 			if(lParam) m_nBlinkTick = GetTickCount();
 			return 0;
 		case CLOCKM_COPY: // copy format to clipboard
@@ -447,7 +447,7 @@ void OnWindowPosChanging(HWND hwnd, LPWINDOWPOS pwp)
 	if(!IsWindowVisible(hwnd) || (pwp->flags & SWP_NOSIZE))
 		return;
 	
-	dw = OnCalcRect(hwnd);
+	dw = (DWORD)OnCalcRect(hwnd);
 	w = LOWORD(dw); h = HIWORD(dw);
 	if(pwp->cx > w) pwp->cx = w;
 	if(pwp->cy > h) pwp->cy = h;
