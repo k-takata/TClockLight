@@ -24,30 +24,8 @@ static int iBatteryMode;
 #endif
 
 #if TC_ENABLE_MEMORY
-typedef struct _MYMEMORYSTATUSEX {
-	DWORD dwLength;
-	DWORD dwMemoryLoad;
-	DWORDLONG ullTotalPhys;
-	DWORDLONG ullAvailPhys;
-	DWORDLONG ullTotalPageFile;
-	DWORDLONG ullAvailPageFile;
-	DWORDLONG ullTotalVirtual;
-	DWORDLONG ullAvailVirtual;
-	DWORDLONG ullAvailExtendedVirtual;
-} MYMEMORYSTATUSEX, *LPMYMEMORYSTATUSEX;
-
-typedef BOOL (WINAPI *pfnGlobalMemoryStatusEx)(LPMYMEMORYSTATUSEX lpBuffer);
-
-static BOOL WINAPI GlobalMemoryStatusExStub(LPMYMEMORYSTATUSEX lpBuffer);
-static BOOL WINAPI GlobalMemoryStatusEx9x(LPMYMEMORYSTATUSEX lpBuffer);
-
-#if TC_SUPPORT_NT4 || TC_SUPPORT_WIN9X
-static pfnGlobalMemoryStatusEx pGlobalMemoryStatusEx = GlobalMemoryStatusExStub;
-#else
-static pfnGlobalMemoryStatusEx pGlobalMemoryStatusEx = GlobalMemoryStatusEx;
-#endif
 static BOOL m_bMem;
-static MYMEMORYSTATUSEX ms;
+static MEMORYSTATUSEX ms;
 #endif	/* TC_ENABLE_MEMORY */
 
 #if TC_ENABLE_VOLUME
@@ -133,7 +111,7 @@ void OnTimerSysInfo(void)
 #if TC_ENABLE_MEMORY
 	if (m_bMem) {
 		ms.dwLength = sizeof(ms);
-		pGlobalMemoryStatusEx(&ms);
+		GlobalMemoryStatusEx(&ms);
 	}
 #endif
 #if TC_ENABLE_HDD
@@ -263,7 +241,7 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 		{
 			m_bMem = TRUE;
 			ms.dwLength = sizeof(ms);
-			pGlobalMemoryStatusEx(&ms);
+			GlobalMemoryStatusEx(&ms);
 			g_bDispSecond = TRUE;
 		} else {
 			*pstruc->dp++ = *pstruc->sp++;
@@ -365,38 +343,6 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, m, 1000);
 	} else
 		*pstruc->dp++ = *pstruc->sp++;
-}
-
-BOOL WINAPI GlobalMemoryStatusExStub(LPMYMEMORYSTATUSEX lpBuffer)
-{
-	HMODULE hKernel32 = GetModuleHandle("kernel32.dll");
-	pGlobalMemoryStatusEx = (pfnGlobalMemoryStatusEx)
-			GetProcAddress(hKernel32, "GlobalMemoryStatusEx");
-	
-	if (pGlobalMemoryStatusEx == NULL) {
-		pGlobalMemoryStatusEx = GlobalMemoryStatusEx9x;
-	}
-	return pGlobalMemoryStatusEx(lpBuffer);
-}
-
-BOOL WINAPI GlobalMemoryStatusEx9x(LPMYMEMORYSTATUSEX lpBuffer)
-{
-	MEMORYSTATUS ms;
-	
-	if ((lpBuffer == NULL)
-			|| (lpBuffer->dwLength < sizeof(MYMEMORYSTATUSEX))) {
-		return FALSE;
-	}
-	GlobalMemoryStatus(&ms);
-	lpBuffer->dwMemoryLoad = ms.dwMemoryLoad;
-	lpBuffer->ullTotalPhys = ms.dwTotalPhys;
-	lpBuffer->ullAvailPhys = ms.dwAvailPhys;
-	lpBuffer->ullTotalPageFile = ms.dwTotalPageFile;
-	lpBuffer->ullAvailPageFile = ms.dwAvailPageFile;
-	lpBuffer->ullTotalVirtual = ms.dwTotalVirtual;
-	lpBuffer->ullAvailVirtual = ms.dwAvailVirtual;
-	lpBuffer->ullAvailExtendedVirtual = 0;
-	return TRUE;
 }
 #endif
 

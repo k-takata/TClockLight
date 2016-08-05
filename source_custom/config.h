@@ -30,9 +30,9 @@
 //--------------------------------------------------------
 // support OS
 
-#define TC_SUPPORT_WIN95		1
-#define TC_SUPPORT_WIN98		1
-#define TC_SUPPORT_NT4			1
+//#define TC_SUPPORT_WIN95		0
+//#define TC_SUPPORT_WIN98		0
+//#define TC_SUPPORT_NT4		0
 
 
 //--------------------------------------------------------
