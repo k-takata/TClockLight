@@ -17,7 +17,6 @@ void LoadSetting(HWND hwnd);
 
 BOOL    g_bInitClock = FALSE;  // InitTClock() has been called
 HANDLE  g_hInst;               // instanse handle
-WNDPROC g_oldWndProc;          // clock's window procedure
 BOOL    g_bIniSetting;         // use tclock.ini
 char    g_inifile[MAX_PATH];   // ini file name
 char    g_mydir[MAX_PATH];     // path of tcdll.dll
@@ -25,6 +24,8 @@ int     g_winver;              // Windows version
 BOOL    g_bIE4;                // IE 4 or later
 BOOL    g_bVisualStyle;        // Windows XP theme is used
 BOOL    g_bNoClock;            // don't customize clock
+
+#define SUBCLASS_ID		1
 
 
 /*------------------------------------------------
@@ -69,7 +70,7 @@ void InitClock(HWND hwnd)
 	InitUserStr();     // userstr.c
 	
 	// subclassfy the clock window !!
-	g_oldWndProc = SubclassWindow(hwnd, WndProc);
+	SetWindowSubclass(hwnd, SubclassProc, SUBCLASS_ID, 0);
 	
 	// don't accept double clicks
 	SetClassLong(hwnd, GCL_STYLE,
@@ -160,9 +161,7 @@ void EndClock(HWND hwnd)
 	KillTimer(hwnd, IDTIMER_MAIN);
 	
 	// restore window procedure
-	if(g_oldWndProc)
-		SubclassWindow(hwnd, g_oldWndProc);
-	g_oldWndProc = NULL;
+	RemoveWindowSubclass(hwnd, SubclassProc, SUBCLASS_ID);
 	
 #if TC_ENABLE_TASKBAR
 	RefreshTaskbar(hwnd);  // taskbar.c

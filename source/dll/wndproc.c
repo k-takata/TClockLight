@@ -9,7 +9,6 @@
 #include "tcdll.h"
 
 /* Globals */
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 BOOL  g_bDispSecond = FALSE; // draw clock every second
 int   g_nBlink = 0;          // 0: no blink
 							 // 1: blink (normal) 2: blink (invert color)
@@ -38,7 +37,7 @@ DWORD m_nBlinkTick = 0;
 /*------------------------------------------------
   subclass procedure of the clock
 --------------------------------------------------*/
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 	switch(message) // for tooltip
 	{
@@ -144,7 +143,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_CONTEXTMENU:
 			PostMessage(g_hwndTClockMain, WM_CONTEXTMENU, wParam, lParam);
 			return 0;
-		case WM_NCHITTEST:     // not to pass to g_oldWndProc
+		case WM_NCHITTEST:     // not to pass to the original wndproc
 			return DefWindowProc(hwnd, message, wParam, lParam);
 		case WM_MOUSEACTIVATE:
 			return MA_ACTIVATE;
@@ -215,7 +214,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 	}
 	
-	return CallWindowProc(g_oldWndProc, hwnd, message, wParam, lParam);
+	return DefSubclassProc(hwnd, message, wParam, lParam);
 }
 
 /*------------------------------------------------

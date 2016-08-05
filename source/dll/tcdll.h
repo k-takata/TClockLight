@@ -45,7 +45,6 @@ void LoadSetting(HWND hwnd);
 
 extern BOOL    g_bInitClock;
 extern HANDLE  g_hInst;
-extern WNDPROC g_oldWndProc;
 extern BOOL    g_bIniSetting;
 extern char    g_inifile[];
 extern char    g_mydir[];
@@ -55,7 +54,7 @@ extern BOOL    g_bVisualStyle;
 extern BOOL    g_bNoClock;
 
 /* ---------- wndproc.c ----------- */
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 extern BOOL g_bDispSecond;
 extern int  g_nBlink;
 
