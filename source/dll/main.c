@@ -142,9 +142,9 @@ LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
 	
 	if(nCode == HC_ACTION && pcwps && pcwps->hwnd)
 	{
-		if(!g_bInitClock && pcwps->hwnd == g_hwndClock)
+		if(!g_bInitClock /*&& pcwps->hwnd == g_hwndClock*/)
 		{
-			InitClock(pcwps->hwnd); // main2.c
+			InitClock(g_hwndClock); // main2.c
 		}
 	}
 	return CallNextHookEx(g_hhook, nCode, wParam, lParam);
