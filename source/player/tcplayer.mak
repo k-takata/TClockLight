@@ -127,5 +127,5 @@ nodeflib.obj: $(COMMONDIR)\nodeflib.c $(COMMONH)
 
 # res file
 
-$(RESFILE): $(RCFILE)
+$(RESFILE): $(RCFILE) $(SRCDIR)\tclock.manifest
 	$(RC) $(RCOPT)$@ $(RCFILE)

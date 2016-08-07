@@ -157,5 +157,5 @@ vistavol.obj: $(COMMONDIR)\vistavol.cpp ..\config.h
 
 # res file
 
-$(RESFILE): $(RCFILE)
+$(RESFILE): $(RCFILE) $(SRCDIR)\tclock.manifest
 	$(RC) $(RCOPT)$@ $(RCFILE)

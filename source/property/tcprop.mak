@@ -177,5 +177,5 @@ desktop.obj: $(COMMONDIR)\desktop.c $(COMMONH) ..\config.h
 
 # res file
 
-$(RESFILE): $(RCFILE) ..\config.h
+$(RESFILE): $(RCFILE) ..\config.h $(SRCDIR)\tclock.manifest
 	$(RC) $(RCOPT)$@ $(RCFILE)
