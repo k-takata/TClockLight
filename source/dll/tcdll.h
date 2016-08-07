@@ -52,9 +52,12 @@ extern int     g_winver;
 extern BOOL    g_bIE4;
 extern BOOL    g_bVisualStyle;
 extern BOOL    g_bNoClock;
+extern int     g_OrigClockWidth;
+extern int     g_OrigClockHeight;
 
 /* ---------- wndproc.c ----------- */
 LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+LRESULT CALLBACK SubclassTrayProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 extern BOOL g_bDispSecond;
 extern int  g_nBlink;
 

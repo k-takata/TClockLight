@@ -23,6 +23,7 @@ BOOL g_bFitClock = FALSE; // Fit clock to tray
 
 /* Statics */
 
+static LRESULT CalcRect(HWND hwnd, int *textwidth, int *textheight);
 static void GetClockTextSize(HDC hdc, const TEXTMETRIC* ptm,
 	const wchar_t* str, int *wout, int *hout);
 static void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt);
@@ -173,7 +174,7 @@ void OnPaint(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
   return size of clock
   high-order word: height, low-order word: width
 --------------------------------------------------*/
-LRESULT OnCalcRect(HWND hwnd)
+LRESULT CalcRect(HWND hwnd, int *textwidth, int *textheight)
 {
 	TEXTMETRIC tm;
 	HDC hdc;
@@ -196,6 +197,8 @@ LRESULT OnCalcRect(HWND hwnd)
 	if(g_scat2[0]) wcscat(s, g_scat2);
 	
 	GetClockTextSize(hdc, &tm, s, &wclock, &hclock);
+	if(textwidth != NULL) *textwidth = wclock;
+	if(textheight != NULL) *textheight = hclock;
 	
 	wclock += tm.tmAveCharWidth * 2 + m_dwidth;
 	hclock += (tm.tmHeight - tm.tmInternalLeading) / 2 + m_dheight;
@@ -225,6 +228,11 @@ LRESULT OnCalcRect(HWND hwnd)
 	ReleaseDC(hwnd, hdc);
 	
 	return (hclock << 16) + wclock;
+}
+
+LRESULT OnCalcRect(HWND hwnd)
+{
+	return CalcRect(hwnd, NULL, NULL);
 }
 
 /*------------------------------------------------
@@ -331,6 +339,7 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	DWORD dwRop = SRCCOPY;
 	COLORREF textcolor = 0;
 	BOOL aero = FALSE;
+	DWORD size;
 	
 	if(!m_hdcClock) CreateClockDC(hwnd);
 	
@@ -339,6 +348,15 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	GetClientRect(hwnd, &rcClock);
 	wclock = rcClock.right;
 	hclock = rcClock.bottom;
+	
+	size = (DWORD)CalcRect(hwnd, &wtext, &htext);
+	if(wclock < LOWORD(size) || hclock < HIWORD(size))
+	{
+		SetWindowPos(hwnd, NULL, 0, 0, LOWORD(size), HIWORD(size),
+				SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+		InvalidateRect(hwnd, NULL, FALSE);
+		return;
+	}
 	
 	if(g_nBlink > 0 && (g_nBlink % 2) == 0) dwRop = NOTSRCCOPY;
 	
@@ -379,7 +397,7 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	
 	GetTextMetrics(m_hdcClock, &tm);
 	
-	GetClockTextSize(m_hdcClock, &tm, s, &wtext, &htext);
+	//GetClockTextSize(m_hdcClock, &tm, s, &wtext, &htext);
 	
 	y = (hclock - htext)/2 - tm.tmInternalLeading/2 + m_dvpos;
 	
