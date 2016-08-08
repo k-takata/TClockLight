@@ -20,6 +20,8 @@ out64/
 work/
 work64/
 
+/pkg/
+
 tags
 
 /source_all/*
