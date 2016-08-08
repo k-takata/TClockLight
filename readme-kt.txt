@@ -352,6 +352,11 @@ UAC (User Account Control) が有効な場合に、tcsntp.exe を使って SNTP で
   表示するように変更。
 ・SNTP のログに年の表示を追加。
 
+2016/08/xx
+・Windows 10 Anniversary Update で動かない問題の暫定対処。
+・High DPI 暫定対応。
+・Win9x/NT4/2000 サポート終了。古いコードの削除。
+
 
 ５．ライセンス
 　オリジナルのライセンスが GPL であるため、この改造版のライセンスも
