@@ -348,7 +348,7 @@ void OnTimerMain(HWND hwnd)
 	
 	if(g_nBlink)
 	{
-		if(g_nBlink % 2) g_nBlink++; else g_nBlink--;
+		g_nBlink ^= 3;  // toggle 1 and 2
 	}
 	
 	// check daylight/standard time transition
