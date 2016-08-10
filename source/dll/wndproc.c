@@ -220,6 +220,44 @@ LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 }
 
 /*------------------------------------------------
+  Rearrange the notify area
+--------------------------------------------------*/
+static void RearrangeNotifyArea(HWND hwnd, HWND hwndClock)
+{
+	LRESULT size;
+	POINT posclk = {0, 0};
+	int wclock, hclock;
+	HWND hwndChild;
+
+	size = OnCalcRect(hwndClock);
+	wclock = LOWORD(size);
+	hclock = HIWORD(size);
+	//SetWindowPos(hwndClock, NULL, 0, 0, wclock, hclock,
+	//		SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER);
+	MapWindowPoints(hwndClock, hwnd, &posclk, 1);
+	posclk.x += g_OrigClockWidth;
+	posclk.y += g_OrigClockHeight;
+	for(hwndChild = GetWindow(hwnd, GW_CHILD); hwndChild != NULL;
+			hwndChild = GetWindow(hwndChild, GW_HWNDNEXT))
+	{
+		POINT pos = {0, 0};
+		MapWindowPoints(hwndChild, hwnd, &pos, 1);
+		if(pos.x >= posclk.x)
+		{
+			pos.x += wclock - g_OrigClockWidth;
+			SetWindowPos(hwndChild, NULL, pos.x, pos.y, 0, 0,
+					SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
+		}
+		else if(pos.y >= posclk.y)
+		{
+			pos.y += hclock - g_OrigClockHeight;
+			SetWindowPos(hwndChild, NULL, pos.x, pos.y, 0, 0,
+					SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
+		}
+	}
+}
+
+/*------------------------------------------------
   subclass procedure of the tray
 --------------------------------------------------*/
 LRESULT CALLBACK SubclassTrayProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
@@ -241,40 +279,14 @@ LRESULT CALLBACK SubclassTrayProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 		}
 		case WM_NOTIFY:
 		{
-			LRESULT ret, size;
-			POINT posclk = {0, 0};
-			int wclock, hclock;
-			HWND hwndClock = (HWND)dwRefData;
+			LRESULT ret;
 			NMHDR *nmh = (NMHDR*)lParam;
-			HWND hwndChild;
-			
+			HWND hwndClock = (HWND)dwRefData;
+
 			if(g_bNoClock || nmh->code != PGN_CALCSIZE)
 				break;
 			ret = DefSubclassProc(hwnd, message, wParam, lParam);
-			size = OnCalcRect(hwndClock);
-			wclock = LOWORD(size);
-			hclock = HIWORD(size);
-			MapWindowPoints(hwndClock, hwnd, &posclk, 1);
-			posclk.x += g_OrigClockWidth;
-			posclk.y += g_OrigClockHeight;
-			for(hwndChild = GetWindow(hwnd, GW_CHILD); hwndChild != NULL;
-					hwndChild = GetWindow(hwndChild, GW_HWNDNEXT))
-			{
-				POINT pos = {0, 0};
-				MapWindowPoints(hwndChild, hwnd, &pos, 1);
-				if(pos.x >= posclk.x)
-				{
-					pos.x += wclock - g_OrigClockWidth;
-					SetWindowPos(hwndChild, NULL, pos.x, pos.y, 0, 0,
-							SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
-				}
-				else if(pos.y >= posclk.y)
-				{
-					pos.y += hclock - g_OrigClockHeight;
-					SetWindowPos(hwndChild, NULL, pos.x, pos.y, 0, 0,
-							SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
-				}
-			}
+			RearrangeNotifyArea(hwnd, hwndClock);
 			return ret;
 		}
 	}
