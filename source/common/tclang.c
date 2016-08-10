@@ -115,10 +115,10 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont)
 	
 	hdc = GetDC(hDlg);
 	SelectObject(hdc, hfont);
-	GetTextExtentPoint32(hdc, test, strlen(test), &sz);
+	GetTextExtentPoint32(hdc, test, (int)strlen(test), &sz);
 	ReleaseDC(hDlg, hdc);
 	
-	xunit = (sz.cx * 100) / strlen(test);
+	xunit = (sz.cx * 100) / (int)strlen(test);
 	
 	GetPrivateProfileString(section, "Title", "", title,
 		80, g_langfile);
@@ -163,9 +163,9 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont)
 					ptCtrl.y = rcCtrl.top;
 					ScreenToClient(hDlg, &ptCtrl);
 					
-					x = ((xp - sp) * xunit) / 100;
+					x = ((int)(xp - sp) * xunit) / 100;
 					y = ptCtrl.y;
-					w = ((p - xp) * xunit) / 100;
+					w = ((int)(p - xp) * xunit) / 100;
 					h = rcCtrl.bottom - rcCtrl.top;
 					SetWindowPos(hwnd, NULL, x, y,
 						w, h, SWP_NOZORDER);
@@ -177,7 +177,7 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont)
 			else p++;
 		}
 		
-		w = ((p - sp) * xunit) / 100;
+		w = ((int)(p - sp) * xunit) / 100;
 		if(maxwidth < w) maxwidth = w;
 	}
 	

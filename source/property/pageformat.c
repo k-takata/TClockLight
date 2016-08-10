@@ -263,7 +263,7 @@ void OnDetail(HWND hDlg)
 	
 	ilang = CBGetItemData(hDlg, IDC_LOCALE,
 		CBGetCurSel(hDlg, IDC_LOCALE));
-	r = DialogBoxParam(g_hInst, MAKEINTRESOURCE(IDD_FORMAT2),
+	r = (int)DialogBoxParam(g_hInst, MAKEINTRESOURCE(IDD_FORMAT2),
 		GetParent(hDlg), DlgProcFormat2, (LPARAM)ilang);
 	if(r == IDOK) SendPSChanged(hDlg);
 }

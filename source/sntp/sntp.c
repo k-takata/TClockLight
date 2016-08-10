@@ -565,7 +565,7 @@ void Log(HWND hwndSNTP, const char *msg)
 	// save to edit control
 	if(g_hwndLog)
 	{
-		int pos = SendMessage(g_hwndLog, WM_GETTEXTLENGTH, 0, 0);
+		int pos = (int)SendMessage(g_hwndLog, WM_GETTEXTLENGTH, 0, 0);
 		SendMessage(g_hwndLog, EM_SETSEL, pos, pos);
 		SendMessage(g_hwndLog, EM_REPLACESEL, 0, (LPARAM)s);
 	}
@@ -584,7 +584,7 @@ void Log(HWND hwndSNTP, const char *msg)
 		if(hf == INVALID_HANDLE_VALUE)
 			return;
 		SetFilePointer(hf, 0, NULL, FILE_END);
-		WriteFile(hf, s, strlen(s), &dwWritten, NULL);
+		WriteFile(hf, s, (int)strlen(s), &dwWritten, NULL);
 		CloseHandle(hf);
 	}
 	

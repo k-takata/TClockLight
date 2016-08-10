@@ -98,13 +98,14 @@ void InitTaskSwitch(HWND hwndClock)
 	{
 		if(g_winver&WINXP)
 		{
-			m_oldTBStyle = SendMessage(m_hwndTab, TB_GETEXTENDEDSTYLE, 0, 0);
+			m_oldTBStyle = (DWORD)SendMessage(m_hwndTab,
+					TB_GETEXTENDEDSTYLE, 0, 0);
 			SendMessage(m_hwndTab, TB_SETEXTENDEDSTYLE,
 				0, m_oldTBStyle|TBSTYLE_EX_MIXEDBUTTONS);
 		}
 		else
 		{
-			m_oldTaskWidth = SendMessage(m_hwndTab, TCM_SETITEMSIZE,
+			m_oldTaskWidth = (LONG)SendMessage(m_hwndTab, TCM_SETITEMSIZE,
 				0, 23 + (23<<16));
 			m_oldTaskWidth = LOWORD(m_oldTaskWidth);
 		}

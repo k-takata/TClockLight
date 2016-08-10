@@ -119,7 +119,7 @@ int TClockExeMain(void)
 	
 	UnregisterClass(CLASS_TCLOCKMAIN, g_hInst);
 	
-	return msg.wParam;
+	return (int)msg.wParam;
 }
 
 /*-------------------------------------------

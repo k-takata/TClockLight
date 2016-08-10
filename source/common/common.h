@@ -416,13 +416,13 @@ void ReleaseMixer(void);
 #define ShowDlgItem(hDlg,id,b) ShowWindow(GetDlgItem((hDlg),(id)),(b)?SW_SHOW:SW_HIDE)
 #define AdjustDlgConboBoxDropDown(hDlg,id,b) AdjustConboBoxDropDown(GetDlgItem((hDlg),(id)),(b))
 
-#define CBAddString(hDlg,id,lParam) SendDlgItemMessage((hDlg),(id),CB_ADDSTRING,0,(lParam))
+#define CBAddString(hDlg,id,lParam) (int)SendDlgItemMessage((hDlg),(id),CB_ADDSTRING,0,(lParam))
 #define CBDeleteString(hDlg,id, i) SendDlgItemMessage((hDlg),(id),CB_DELETESTRING,(i),0)
 #define CBFindString(hDlg,id,s) SendDlgItemMessage((hDlg),(id),CB_FINDSTRING,0,(LPARAM)(s))
-#define CBFindStringExact(hDlg,id,s) SendDlgItemMessage((hDlg),(id),CB_FINDSTRINGEXACT,0,(LPARAM)(s))
-#define CBGetCount(hDlg,id) SendDlgItemMessage((hDlg),(id),CB_GETCOUNT,0,0)
-#define CBGetCurSel(hDlg,id) SendDlgItemMessage((hDlg),(id),CB_GETCURSEL,0,0)
-#define CBGetItemData(hDlg,id,i) SendDlgItemMessage((hDlg),(id),CB_GETITEMDATA,(i),0)
+#define CBFindStringExact(hDlg,id,s) (int)SendDlgItemMessage((hDlg),(id),CB_FINDSTRINGEXACT,0,(LPARAM)(s))
+#define CBGetCount(hDlg,id) (int)SendDlgItemMessage((hDlg),(id),CB_GETCOUNT,0,0)
+#define CBGetCurSel(hDlg,id) (int)SendDlgItemMessage((hDlg),(id),CB_GETCURSEL,0,0)
+#define CBGetItemData(hDlg,id,i) (int)SendDlgItemMessage((hDlg),(id),CB_GETITEMDATA,(i),0)
 #define CBGetLBText(hDlg,id,i,s) SendDlgItemMessage((hDlg),(id),CB_GETLBTEXT,(i),(LPARAM)(s))
 #define CBInsertString(hDlg,id,i,s) SendDlgItemMessage((hDlg),(id),CB_INSERTSTRING,(i),(LPARAM)(s))
 #define CBResetContent(hDlg,id) SendDlgItemMessage((hDlg),(id),CB_RESETCONTENT,0,0)
@@ -430,7 +430,7 @@ void ReleaseMixer(void);
 #define CBSetItemData(hDlg,id,i,lParam) SendDlgItemMessage((hDlg),(id),CB_SETITEMDATA,(i),(lParam))
 
 #define UpDown_GetPos(hDlg,id) \
-	SendDlgItemMessage((hDlg),(id),UDM_GETPOS,0,0)
+	(int)SendDlgItemMessage((hDlg),(id),UDM_GETPOS,0,0)
 #define UpDown_SetAccel(hDlg,id,nAccels,aAccels) \
 	SendDlgItemMessage((hDlg),(id),UDM_SETACCEL,(nAccels),(LPARAM)(aAccels))
 #define UpDown_SetRange(hDlg,id,nUpper,nLower) \

@@ -72,7 +72,7 @@ void OnDrawItemColorCombo(LPDRAWITEMSTRUCT pdis, char (*pTexts)[80])
 	
 	if(IsWindowEnabled(pdis->hwndItem))
 	{
-		col = pdis->itemData;
+		col = (COLORREF)pdis->itemData;
 		if(col & 0x80000000) col = GetSysColor(col & 0x00ffffff);
 	}
 	else col = GetSysColor(COLOR_3DFACE);
@@ -111,7 +111,7 @@ void OnDrawItemColorCombo(LPDRAWITEMSTRUCT pdis, char (*pTexts)[80])
 					SetTextColor(pdis->hDC, RGB(0,0,0));
 				y = (pdis->rcItem.bottom - pdis->rcItem.top - tm.tmHeight)/2;
 				TextOut(pdis->hDC, pdis->rcItem.left + 4, pdis->rcItem.top + y,
-					p, strlen(p));
+					p, (int)strlen(p));
 			}
 			if(!(pdis->itemState & ODS_FOCUS)) break;
 		}
@@ -252,7 +252,7 @@ BOOL CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf,
 			(LPARAM)pelf->elfLogFont.lfFaceName) == LB_ERR)
 	{
 		int index;
-		index = SendMessage((HWND)hCombo, CB_ADDSTRING,
+		index = (int)SendMessage((HWND)hCombo, CB_ADDSTRING,
 			0, (LPARAM)pelf->elfLogFont.lfFaceName);
 		if(index >= 0)
 			SendMessage((HWND)hCombo, CB_SETITEMDATA,
@@ -286,7 +286,7 @@ BOOL CALLBACK EnumSizeProcEx(ENUMLOGFONTEX* pelf,
 	// Other case
 	num = MulDiv((lpntm->ntmTm.tmHeight - lpntm->ntmTm.tmInternalLeading),
 		72, m_logpixelsy);
-	count = SendMessage((HWND)hCombo, CB_GETCOUNT, 0, 0);
+	count = (int)SendMessage((HWND)hCombo, CB_GETCOUNT, 0, 0);
 	for(i = 0; i < count; i++)
 	{
 		SendMessage((HWND)hCombo, CB_GETLBTEXT, i, (LPARAM)s);

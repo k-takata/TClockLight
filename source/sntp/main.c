@@ -111,7 +111,7 @@ int TCSNTPMain(void)
 	}
 	
 	timeEndPeriod(1);
-	return msg.wParam;
+	return (int)msg.wParam;
 }
 
 /*-------------------------------------------

@@ -573,8 +573,8 @@ void GetIconAndCaptionSize(SIZE *psz, HDC hdc,
 	if(caption[0])
 	{
 		if(GetTextExtentPoint32(hdc,
-			caption, strlen(caption), &szCap) == 0)
-			szCap.cx = strlen(caption) * tm.tmAveCharWidth;
+			caption, (int)strlen(caption), &szCap) == 0)
+			szCap.cx = (int)strlen(caption) * tm.tmAveCharWidth;
 	}
 	
 	psz->cx = w + 2 + szCap.cx;
@@ -642,7 +642,7 @@ void DrawIconAndCaption(HDC hdc, HDC hdcMem, HBITMAP hbmp, HICON hicon,
 			x += w + 2;
 			y = (height - tm.tmHeight) / 2 + i * height;
 			
-			TextOut(hdcMem, x + d, y + d, caption, strlen(caption));
+			TextOut(hdcMem, x + d, y + d, caption, (int)strlen(caption));
 		}
 	}
 }

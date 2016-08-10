@@ -100,7 +100,7 @@ int TCPlayerMain(void)
 		}
 	}
 	
-	return msg.wParam;
+	return (int)msg.wParam;
 }
 
 /*-------------------------------------------

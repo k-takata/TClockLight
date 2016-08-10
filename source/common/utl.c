@@ -286,7 +286,7 @@ void SendStringToOther(HWND hwnd, HWND hwndFrom,
 	COPYDATASTRUCT cds;
 	
 	cds.dwData = type;
-	cds.cbData = strlen(s) + 1;
+	cds.cbData = (DWORD)strlen(s) + 1;
 	cds.lpData = (LPVOID)s;
 	
 	if(hwnd && IsWindow(hwnd))
@@ -558,7 +558,7 @@ void WriteDebug(const char* s)
 		hf = _lcreat(fname, 0);
 	if(hf == HFILE_ERROR) return;
 	_llseek(hf, 0, 2);
-	_lwrite(hf, s, strlen(s));
+	_lwrite(hf, s, (UINT)strlen(s));
 	_lwrite(hf, "\x0d\x0a", 2);
 	_lclose(hf);
 }

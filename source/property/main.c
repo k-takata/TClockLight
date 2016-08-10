@@ -236,7 +236,7 @@ int TCPropMain(void)
 	wndclass.lpszClassName = CLASS_TCLOCKPROP;
 	RegisterClass(&wndclass);
 	
-	return DialogBox(g_hInst, MAKEINTRESOURCE(IDD_PROPERTY),
+	return (int)DialogBox(g_hInst, MAKEINTRESOURCE(IDD_PROPERTY),
 		NULL, DlgProc);
 }
 
@@ -312,7 +312,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message,
 			NM_TREEVIEW* pNMTV = (NM_TREEVIEW *)lParam;
 			if(pNMTV->hdr.code == TVN_SELCHANGED)
 			{
-				OnTVChanged(hDlg, pNMTV->itemNew.lParam);
+				OnTVChanged(hDlg, (int)pNMTV->itemNew.lParam);
 				return TRUE;
 			}
 			break;

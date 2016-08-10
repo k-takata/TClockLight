@@ -101,7 +101,7 @@ int TCTimerMain(void)
 		}
 	}
 	
-	return msg.wParam;
+	return (int)msg.wParam;
 }
 
 /*-------------------------------------------
