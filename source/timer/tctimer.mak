@@ -64,6 +64,11 @@ $(EXEFILE): $(OBJS) $(RESFILE)
 
 !ENDIF
 
+{$(COMMONDIR)\}.c{}.obj::
+	$(CC) $(COPT).\ $<
+{$(SRCDIR)\}.c{}.obj::
+	$(CC) $(COPT).\ $<
+
 
 # obj files
 
@@ -77,25 +82,15 @@ timer.obj: $(SRCDIR)\timer.c $(TCPROPH)
 # common obj files
 
 tclang.obj: $(COMMONDIR)\tclang.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\tclang.c
 langcode.obj: $(COMMONDIR)\langcode.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\langcode.c
 selectfile.obj: $(COMMONDIR)\selectfile.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\selectfile.c
 playfile.obj: $(COMMONDIR)\playfile.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\playfile.c
 soundselect.obj: $(COMMONDIR)\soundselect.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\soundselect.c
 utl.obj: $(COMMONDIR)\utl.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\utl.c
 exec.obj: $(COMMONDIR)\exec.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\exec.c
 reg.obj: $(COMMONDIR)\reg.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\reg.c
 font.obj: $(COMMONDIR)\font.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\font.c
 nodeflib.obj: $(COMMONDIR)\nodeflib.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\nodeflib.c
 
 # res file
 

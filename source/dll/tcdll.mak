@@ -73,6 +73,11 @@ $(DLLFILE): $(OBJS) $(RESFILE)
 
 !ENDIF
 
+{$(COMMONDIR)\}.c{}.obj::
+	$(CC) $(COPT).\ $<
+{$(SRCDIR)\}.c{}.obj::
+	$(CC) $(COPT).\ $<
+
 
 # obj files
 
@@ -83,62 +88,36 @@ dllmain2.obj: $(SRCDIR)\main2.c $(TCDLLH) ..\config.h
 dllwndproc.obj: $(SRCDIR)\wndproc.c $(TCDLLH) ..\config.h
 	$(CC) $(COPT)$@ $(SRCDIR)\wndproc.c
 format.obj: $(SRCDIR)\format.c $(TCDLLH) ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\format.c
 formattime.obj: $(SRCDIR)\formattime.c $(TCDLLH)
-	$(CC) $(COPT)$@ $(SRCDIR)\formattime.c
 tooltip.obj: $(SRCDIR)\tooltip.c $(TCDLLH)
-	$(CC) $(COPT)$@ $(SRCDIR)\tooltip.c
 userstr.obj: $(SRCDIR)\userstr.c $(TCDLLH)
-	$(CC) $(COPT)$@ $(SRCDIR)\userstr.c
 draw.obj: $(SRCDIR)\draw.c $(TCDLLH)
-	$(CC) $(COPT)$@ $(SRCDIR)\draw.c
 startbtn.obj: $(SRCDIR)\startbtn.c $(TCDLLH) ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\startbtn.c
 startmenu.obj: $(SRCDIR)\startmenu.c $(TCDLLH) ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\startmenu.c
 taskbar.obj: $(SRCDIR)\taskbar.c $(TCDLLH) ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\taskbar.c
 taskswitch.obj: $(SRCDIR)\taskswitch.c $(TCDLLH) ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\taskswitch.c
 traynotify.obj: $(SRCDIR)\traynotify.c $(TCDLLH) ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\traynotify.c
 bmp.obj: $(SRCDIR)\bmp.c $(TCDLLH)
-	$(CC) $(COPT)$@ $(SRCDIR)\bmp.c
 dllutl.obj: $(SRCDIR)\dllutl.c $(TCDLLH)
-	$(CC) $(COPT)$@ $(SRCDIR)\dllutl.c
 #newapi.obj: $(SRCDIR)\newapi.c $(TCDLLH)
-#	$(CC) $(COPT)$@ $(SRCDIR)\newapi.c
 sysinfo.obj: $(SRCDIR)\sysinfo.c $(TCDLLH) ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\sysinfo.c
 net.obj: $(SRCDIR)\net.c $(TCDLLH) ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\net.c
 hdd.obj: $(SRCDIR)\hdd.c $(TCDLLH) ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\hdd.c
 cpu.obj: $(SRCDIR)\cpu.c $(TCDLLH) ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\cpu.c
 battery.obj: $(SRCDIR)\battery.c $(TCDLLH) ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\battery.c
 
 # common obj files
 
 utl.obj: $(COMMONDIR)\utl.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\utl.c
 exec.obj: $(COMMONDIR)\exec.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\exec.c
 reg.obj: $(COMMONDIR)\reg.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\reg.c
 font.obj: $(COMMONDIR)\font.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\font.c
 localeinfo.obj: $(COMMONDIR)\localeinfo.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\localeinfo.c
 nodeflib.obj: $(COMMONDIR)\nodeflib.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\nodeflib.c
 mixer.obj: $(COMMONDIR)\mixer.c $(COMMONH) ..\config.h
-	$(CC) $(COPT)$@ $(COMMONDIR)\mixer.c
 vistavol.obj: $(COMMONDIR)\vistavol.cpp ..\config.h
 	$(CC) $(COPT)$@ $(COMMONDIR)\vistavol.cpp
 desktop.obj: $(COMMONDIR)\desktop.c $(COMMONH) ..\config.h
-	$(CC) $(COPT)$@ $(COMMONDIR)\desktop.c
 
 # res file
 

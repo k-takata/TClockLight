@@ -69,56 +69,39 @@ $(EXEFILE): main.obj $(OBJS) $(RESFILE)  TCDLL.lib
 
 !ENDIF
 
+{$(COMMONDIR)\}.c{}.obj::
+	$(CC) $(COPT).\ $<
+{$(SRCDIR)\}.c{}.obj::
+	$(CC) $(COPT).\ $<
+
 
 # obj files
 
 main.obj: $(SRCDIR)\main.c $(TCLOCKH)
-	$(CC) $(COPT)$@ $(SRCDIR)\main.c
 main2.obj: $(SRCDIR)\main2.c $(TCLOCKH) ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\main2.c
 wndproc.obj: $(SRCDIR)\wndproc.c $(TCLOCKH) ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\wndproc.c
 cmdopt.obj: $(SRCDIR)\cmdopt.c $(TCLOCKH)
-	$(CC) $(COPT)$@ $(SRCDIR)\cmdopt.c
 command.obj: $(SRCDIR)\command.c $(TCLOCKH) $(COMMONDIR)\command.h
-	$(CC) $(COPT)$@ $(SRCDIR)\command.c
 menu.obj: $(SRCDIR)\menu.c $(TCLOCKH) $(COMMONDIR)\command.h
-	$(CC) $(COPT)$@ $(SRCDIR)\menu.c
 alarm.obj: $(SRCDIR)\alarm.c $(TCLOCKH)
-	$(CC) $(COPT)$@ $(SRCDIR)\alarm.c
 mouse.obj: $(SRCDIR)\mouse.c $(TCLOCKH) $(COMMONDIR)\command.h ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\mouse.c
 mouse2.obj: $(SRCDIR)\mouse2.c $(TCLOCKH) ..\config.h
-	$(CC) $(COPT)$@ $(SRCDIR)\mouse2.c
 sntp.obj: $(SRCDIR)\sntp.c $(TCLOCKH) $(COMMONDIR)\command.h
-	$(CC) $(COPT)$@ $(SRCDIR)\sntp.c
 about.obj: $(SRCDIR)\about.c $(TCLOCKH)
-	$(CC) $(COPT)$@ $(SRCDIR)\about.c
 
 # common obj files
 
 langcode.obj: $(COMMONDIR)\langcode.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\langcode.c
 playfile.obj: $(COMMONDIR)\playfile.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\playfile.c
 alarmstruct.obj: $(COMMONDIR)\alarmstruct.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\alarmstruct.c
 mousestruct.obj: $(COMMONDIR)\mousestruct.c $(COMMONH) $(COMMONDIR)\command.h ..\config.h
-	$(CC) $(COPT)$@ $(COMMONDIR)\mousestruct.c
 utl.obj: ..\common\utl.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\utl.c
 exec.obj: $(COMMONDIR)\exec.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\exec.c
 reg.obj: $(COMMONDIR)\reg.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\reg.c
 nodeflib.obj: $(COMMONDIR)\nodeflib.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\nodeflib.c
 autoformat.obj: $(COMMONDIR)\autoformat.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\autoformat.c
 localeinfo.obj: $(COMMONDIR)\localeinfo.c $(COMMONH)
-	$(CC) $(COPT)$@ $(COMMONDIR)\localeinfo.c
 mixer.obj: $(COMMONDIR)\mixer.c $(COMMONH) ..\config.h
-	$(CC) $(COPT)$@ $(COMMONDIR)\mixer.c
 vistavol.obj: $(COMMONDIR)\vistavol.cpp ..\config.h
 	$(CC) $(COPT)$@ $(COMMONDIR)\vistavol.cpp
 
