@@ -52,6 +52,9 @@ LOPT=/SUBSYSTEM:WINDOWS /merge:.rdata=.text /nologo /MAP
 !IFNDEF WIN64
 #LOPT=$(LOPT) /OPT:NOWIN98
 !ENDIF
+!IF $(MSVC_MAJOR) >= 14
+LIBS=$(LIBS) libvcruntime.lib
+!ENDIF
 
 $(EXEFILE): propmain.obj $(OBJS) nodeflib.obj $(RESFILE)
 	$(LINK) $(LOPT) propmain.obj nodeflib.obj $(OBJS) $(RESFILE) $(LIBS) /OUT:$@
