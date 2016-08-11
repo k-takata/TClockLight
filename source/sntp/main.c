@@ -38,7 +38,7 @@ BOOL m_bSilent = FALSE, m_bOnlyRas = FALSE;
   WinMain
 ---------------------------------------------*/
 #ifdef NODEFAULTLIB
-void /*WINAPI*/ WinMainCRTStartup(void)
+void WinMainCRTStartup(void)
 {
 	g_hInst = GetModuleHandle(NULL);
 	ExitProcess(TCSNTPMain());
