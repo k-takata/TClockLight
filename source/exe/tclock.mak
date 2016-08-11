@@ -35,9 +35,6 @@ all: $(EXEFILE)
 
 # all: $(EXEFILE) $(DLLFILE)
 
-# Visual C++
-!IFDEF _NMAKE_VER
-
 CC=cl
 LINK=link
 RC=rc
@@ -72,38 +69,6 @@ $(EXEFILE): main.obj $(OBJS) $(RESFILE)  TCDLL.lib
 
 !ENDIF
 
-# Borland C++ Compiler
-!ELSE
-
-CC=bcc32
-LINK=ilink32
-RC=brc32
-RCOPT=-r -32 -fo
-
-!IFDEF NODEFAULTLIB
-
-COPT=-c -w -w-8057 -O2 -Oi -d -DNODEFAULTLIB -tW -o
-LOPT=/c /C /Gn /x
-
-$(EXEFILE): main.obj $(OBJS) nodeflib.obj bccexe.pat $(RESFILE) TCDLL.lib
-	$(LINK) $(LOPT) /Tpe /aa main.obj $(OBJS) nodeflib.obj bccexe.pat,$@,,$(LIBS) TCDLL.lib,,$(RESFILE)
-	del $(TDSFILE)
-
-bccexe.pat: $(COMMONDIR)\bccexe.nas
-	nasmw -f obj -o $@ $(COMMONDIR)\bccexe.nas
-
-!ELSE
-
-COPT=-c -w -w-8057 -O2 -Oi -d -tW -o
-LOPT=/c /C /Gn /x
-
-$(EXEFILE): main.obj $(OBJS) $(RESFILE) TCDLL.lib
-	$(LINK) $(LOPT) /Tpe /aa main.obj $(OBJS) c0w32.obj,$@,,$(LIBS) cw32.lib TCDLL.lib,,$(RESFILE)
-	del $(TDSFILE)
-
-!ENDIF
-
-!ENDIF
 
 # obj files
 

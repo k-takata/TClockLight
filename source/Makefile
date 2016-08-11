@@ -6,9 +6,6 @@ WORKDIR=work
 OUTDIR=out
 
 
-# Visual C++
-!IFDEF _NMAKE_VER
-
 # Check target
 !IF "$(CPU)"=="AMD64" || "$(TARGET_CPU)"=="x64" || "$(Platform)"=="x64" || "$(PLATFORM)"=="x64" || DEFINED(AMD64)
 WIN64=1
@@ -62,26 +59,6 @@ all:
 	$(MAKE) -f ..\player\tcplayer.mak SRCDIR=..\player $(MAKEOPT)
 	$(MAKE) -f ..\sntp\tcsntp.mak SRCDIR=..\sntp $(MAKEOPT)
 	cd ..
-
-# Borland C++ Compiler
-!ELSE
-
-NODEFLIBOPT=-D NODEFAULTLIB=1
-MAKEOPT=-D OUTDIR=..\$(OUTDIR) $(NODEFLIBOPT)
-
-all:
-	-if not exist $(OUTDIR) mkdir $(OUTDIR)
-	-if not exist $(WORKDIR) mkdir $(WORKDIR)
-	cd $(WORKDIR)
-	$(MAKE) -f ..\dll\tcdll.mak -D SRCDIR=..\dll $(MAKEOPT)
-	$(MAKE) -f ..\exe\tclock.mak -D SRCDIR=..\exe $(MAKEOPT)
-	$(MAKE) -f ..\property\tcprop.mak -D SRCDIR=..\property $(MAKEOPT)
-	$(MAKE) -f ..\timer\tctimer.mak -D SRCDIR=..\timer $(MAKEOPT)
-	$(MAKE) -f ..\player\tcplayer.mak -D SRCDIR=..\player $(MAKEOPT)
-	$(MAKE) -f ..\sntp\tcsntp.mak -D SRCDIR=..\sntp $(MAKEOPT)
-	cd ..
-
-!ENDIF
 
 clean:
 	-del $(OUTDIR)\*.exe $(OUTDIR)\tcdll.tclock $(OUTDIR)\*.map

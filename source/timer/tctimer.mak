@@ -32,9 +32,6 @@ LIBS=kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib\
 
 all: $(EXEFILE)
 
-# Visual C++
-!IFDEF _NMAKE_VER
-
 CC=cl
 LINK=link
 RC=rc
@@ -67,36 +64,6 @@ $(EXEFILE): $(OBJS) $(RESFILE)
 
 !ENDIF
 
-# Borland C++ Compiler
-!ELSE
-
-CC=bcc32
-LINK=ilink32
-RC=brc32
-RCOPT=-r -32 -fo
-
-!IFDEF NODEFAULTLIB
-COPT=-c -w -w-8057 -O2 -Oi -d -DNODEFAULTLIB -tW -o
-LOPT=/c /C /Gn /x
-
-$(EXEFILE): $(OBJS) nodeflib.obj bccexe.pat $(RESFILE)
-	$(LINK) $(LOPT) /Tpe /aa $(OBJS) nodeflib.obj bccexe.pat,$@,,$(LIBS),,$(RESFILE)
-	del $(TDSFILE)
-
-bccexe.pat: $(COMMONDIR)\bccexe.nas
-	nasmw -f obj -o $@ $(COMMONDIR)\bccexe.nas
-
-!ELSE
-COPT=-c -w -w-8057 -O2 -Oi -d -tW -o
-LOPT=/c /C /Gn /x
-
-$(EXEFILE): $(OBJS) $(RESFILE)
-	$(LINK) $(LOPT) /Tpe /aa $(OBJS) c0w32.obj,$@,,$(LIBS) cw32.lib,,$(RESFILE)
-	del $(TDSFILE)
-
-!ENDIF
-
-!ENDIF
 
 # obj files
 

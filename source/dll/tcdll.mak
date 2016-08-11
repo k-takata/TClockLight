@@ -41,9 +41,6 @@ DLLBASE=0x66040000
 !ENDIF
 
 
-# Visual C++
-!IFDEF _NMAKE_VER
-
 CC=cl
 LINK=link
 RC=rc
@@ -76,37 +73,6 @@ $(DLLFILE): $(OBJS) $(RESFILE)
 
 !ENDIF
 
-# Borland C++ Compiler
-!ELSE
-CC=bcc32
-LINK=ilink32
-RC=brc32
-RCOPT=-r -32 -fo
-
-!IFDEF NODEFAULTLIB
-COPT=-c -w -w-8057 -O2 -Oi -d -DNODEFAULTLIB -tWD -tWM -o
-LOPT=/c /C /Gn /Tpd /x /b:$(DLLBASE)
-
-$(DLLFILE): $(OBJS) nodeflib.obj bccdll.pat $(RESFILE)
-	IMPLIB $(LIBFILE) $(DEFFILE)
-	$(LINK) $(LOPT) $(OBJS) nodeflib.obj bccdll.pat,$@,,$(LIBS),$(DEFFILE),$(RESFILE)
-	del $(TDSFILE)
-
-!ELSE
-COPT=-c -w -w-8057 -O2 -Oi -d -tWD -tWM -o
-LOPT=/c /C /Gn /Tpd /x /b:$(DLLBASE)
-
-$(DLLFILE): $(OBJS) bccdll.pat $(RESFILE)
-	IMPLIB $(LIBFILE) $(DEFFILE)
-	$(LINK) $(LOPT) $(OBJS) bccdll.pat c0d32x.obj,$@,,$(LIBS) cw32mt.lib,$(DEFFILE),$(RESFILE)
-	del $(TDSFILE)
-
-!ENDIF
-
-bccdll.pat: $(SRCDIR)\bccdll.nas
-	nasmw -f obj -o $@ $(SRCDIR)\bccdll.nas
-
-!ENDIF
 
 # obj files
 
