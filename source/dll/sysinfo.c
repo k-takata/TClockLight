@@ -149,36 +149,36 @@ void OnTimerSysInfo(void)
 void ElapsedTimeHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	static int sec = -1;
-	static DWORD t;
+	static ULONGLONG t;
 	unsigned st;
 	int len, slen;
 	BOOL bComma;
 
 	if (pstruc->pt->wSecond != sec) {
 		sec = pstruc->pt->wSecond;
-		t = GetTickCount();
+		t = GetTickCount64();
 	}
 
 	pstruc->sp++;
 	if (*pstruc->sp == 'T') {
 		pstruc->sp++;
-		SetNumFormat(&pstruc->dp, t / 3600000, 1, 0, FALSE);
+		SetNumFormat(&pstruc->dp, (unsigned)(t / 3600000), 1, 0, FALSE);
 		*pstruc->dp++ = ':';
-		SetNumFormat(&pstruc->dp, t / 60000 % 60, 2, 0, FALSE);
+		SetNumFormat(&pstruc->dp, (unsigned)(t / 60000 % 60), 2, 0, FALSE);
 		*pstruc->dp++ = ':';
-		SetNumFormat(&pstruc->dp, t / 1000 % 60, 2, 0, FALSE);
+		SetNumFormat(&pstruc->dp, (unsigned)(t / 1000 % 60), 2, 0, FALSE);
 		g_bDispSecond = TRUE;
 		return;
 	} else if (GetNumFormat(&pstruc->sp, 'd', 'd', &len, &slen, &bComma)) {
-		st = t / 86400000;
+		st = (unsigned)(t / 86400000);
 	} else if (GetNumFormat(&pstruc->sp, 'a', 'a', &len, &slen, &bComma)) {
-		st = t / 3600000;
+		st = (unsigned)(t / 3600000);
 	} else if (GetNumFormat(&pstruc->sp, 'h', 'h', &len, &slen, &bComma)) {
-		st = t / 3600000 % 24;
+		st = (unsigned)(t / 3600000 % 24);
 	} else if (GetNumFormat(&pstruc->sp, 'n', 'n', &len, &slen, &bComma)) {
-		st = t / 60000 % 60;
+		st = (unsigned)(t / 60000 % 60);
 	} else if (GetNumFormat(&pstruc->sp, 's', 's', &len, &slen, &bComma)) {
-		st = t / 1000 % 60;
+		st = (unsigned)(t / 1000 % 60);
 	} else {
 		*pstruc->dp++ = 'S';
 		return;
