@@ -47,13 +47,10 @@ RCOPT=/fo
 
 !IFDEF NODEFAULTLIB
 
-COPT=/c /W3 /O2 /Oi /DNODEFAULTLIB /D_CRT_SECURE_NO_WARNINGS /nologo /Fo
-LOPT=/SUBSYSTEM:WINDOWS /NODEFAULTLIB /merge:.rdata=.text /nologo
-!IFDEF WIN64
-COPT=/GS- $(COPT)
-LIBS=$(LIBS) libcmt.lib
-!ELSE
-LOPT=$(LOPT) /OPT:NOWIN98
+COPT=/c /GS- /W3 /O2 /Oi /DNODEFAULTLIB /D_CRT_SECURE_NO_WARNINGS /nologo /Fo
+LOPT=/SUBSYSTEM:WINDOWS /merge:.rdata=.text /nologo /MAP
+!IFNDEF WIN64
+#LOPT=$(LOPT) /OPT:NOWIN98
 !ENDIF
 
 $(EXEFILE): propmain.obj $(OBJS) nodeflib.obj $(RESFILE)
@@ -64,7 +61,7 @@ $(EXEFILE): propmain.obj $(OBJS) nodeflib.obj $(RESFILE)
 COPT=/c /W3 /O2 /Oi /D_CRT_SECURE_NO_WARNINGS /nologo /Fo
 LOPT=/SUBSYSTEM:WINDOWS /merge:.rdata=.text /nologo
 !IFNDEF WIN64
-LOPT=$(LOPT) /OPT:NOWIN98
+#LOPT=$(LOPT) /OPT:NOWIN98
 !ENDIF
 
 $(EXEFILE): propmain.obj $(OBJS) $(RESFILE)
