@@ -7,7 +7,7 @@
 ---------------------------------------------------------------*/
 
 #include "tcdll.h"
-//#include "newapi.h"
+#include "newapi.h"
 
 /* Globals */
 
@@ -529,6 +529,6 @@ void GradientFillClock(HDC hdc, const RECT* prc,
 	gRect.LowerRight = 1;
 	
 	// newapi.c
-	GradientFill(hdc, vert, 2, &gRect, 1, grad);
+	MyGradientFill(hdc, vert, 2, &gRect, 1, grad);
 }
 

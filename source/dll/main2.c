@@ -168,7 +168,7 @@ void EndClock(HWND hwnd)
 	ClearDrawing();     // drawing.c
 	EndTooltip(hwnd);   // tooltip.c
 	
-	//EndNewAPI();		// newapi.c
+	EndNewAPI();		// newapi.c
 	
 	// Stop timers
 	KillTimer(hwnd, IDTIMER_MAIN);

@@ -7,7 +7,7 @@
 ---------------------------------------------------------------*/
 
 #include "tcdll.h"
-//#include "newapi.h"
+#include "newapi.h"
 
 #if TC_ENABLE_STARTBUTTON
 
@@ -624,7 +624,7 @@ void DrawIconAndCaption(HDC hdc, HDC hdcMem, HBITMAP hbmp, HICON hicon,
 			SelectObject(hdcTemp, hbmp);
 			
 			if((g_winver&WINME)||(g_winver&WIN2000))
-				TransparentBlt(hdcMem, x + d, y + d, w, h,
+				MyTransparentBlt(hdcMem, x + d, y + d, w, h,
 					hdcTemp, 0, 0, w, h, GetSysColor(COLOR_3DFACE));
 			else
 				BitBlt(hdcMem, x + d, y + d, w, h, hdcTemp, 0, 0, SRCCOPY);
@@ -688,7 +688,7 @@ void DrawStartButtonBack(HWND hwnd, HDC hdc, HDC hdcMem,
 		SelectObject(hdcTemp, hbmpBack);
 		
 		if((g_winver&WINME)||(g_winver&WIN2000))
-			TransparentBlt(hdcMem, 0, 0, w, h*3,
+			MyTransparentBlt(hdcMem, 0, 0, w, h*3,
 				hdcTemp, 0, 0, w, h*3, GetSysColor(COLOR_3DFACE));
 		else BitBlt(hdcMem, 0, 0, w, h*3, hdcTemp, 0, 0, SRCCOPY);
 		
