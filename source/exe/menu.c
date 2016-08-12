@@ -224,7 +224,7 @@ void LoadMenuFromText(HMENU hmenu,
 		hf = _lopen(fname, OF_READ);
 	if(hf == HFILE_ERROR)
 	{
-		AppendMenu(hmenu, MF_STRING, IDC_EXIT, "Exit TClock");
+		AppendMenu(hmenu, MF_STRING, IDC_EXIT, "E&xit TClock");
 		return;
 	}
 	
