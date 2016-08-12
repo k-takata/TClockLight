@@ -224,8 +224,8 @@ void ImportOldMouseFunc(void);
 
 #ifdef NODEFAULTLIB
 
-void r_memcpy(void *d, const void *s, size_t l);
-void r_memset(void *d, int c, size_t l);
+void *r_memcpy(void *d, const void *s, size_t l);
+void *r_memset(void *d, int c, size_t l);
 char *r_strstr(const char *string, const char *strCharSet);
 int r_strncmp(const char* d, const char* s, size_t n);
 int r_strnicmp(const char* d, const char* s, size_t n);

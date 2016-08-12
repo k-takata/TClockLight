@@ -13,19 +13,24 @@
 /*-------------------------------------------
   memcpy for BCC
 ---------------------------------------------*/
-void r_memcpy(void *d, const void *s, size_t l)
+void *r_memcpy(void *d, const void *s, size_t l)
 {
 	size_t i;
+	void *start = d;
 	for (i = 0; i < l; i++) *((char*)d)++ = *((char*)s)++;
+	return start;
 }
 
 /*-------------------------------------------
-  memset for BCC
+  memset
 ---------------------------------------------*/
-void r_memset(void *d, int c, size_t l)
+#pragma function(memset)
+void *memset(void *d, int c, size_t l)
 {
 	size_t i;
+	void *start = d;
 	for (i = 0; i < l; i++) *((char*)d)++ = (char)c;
+	return start;
 }
 
 /*-------------------------------------------
