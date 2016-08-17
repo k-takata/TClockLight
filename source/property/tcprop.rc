@@ -118,13 +118,13 @@ BEGIN
     CONTROL         "Day of Week",IDC_WEEKDAY,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,59,71,62,12
     CONTROL         "Line break",IDC_KAIGYO,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,126,71,50,11
+                    WS_TABSTOP,126,71,50,12
     CONTROL         "Hour",IDC_HOUR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,9,
                     91,33,12
     CONTROL         "Minute",IDC_MINUTE,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,58,91,39,12
     CONTROL         "Second",IDC_SECOND,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,126,91,42,11
+                    WS_TABSTOP,126,91,42,12
     CONTROL         "12H",IDC_12HOUR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,9,
                     112,33,13
     CONTROL         "AM/PM",IDC_AMPM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,

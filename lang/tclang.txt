@@ -1,5 +1,5 @@
 [Main]
-DialogFont=MS Sans Serif, 8
+DialogFont=MS Sans Serif, 9
 Version=TClock Light kt090704
 HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/en/
 
