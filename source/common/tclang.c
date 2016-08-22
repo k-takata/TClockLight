@@ -16,7 +16,7 @@ HFONT CreateDialogFont(void);
 void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont);
 
 /* Statics */
-const char *GetControlTitle(char *dst, const char *src, int nMax);
+static const char *GetControlTitle(char *dst, const char *src, int nMax, int *ccAmp);
 
 /* Externs */
 
@@ -133,6 +133,7 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont)
 	maxwidth = 0;
 	for(i = 0; hwnd; i++)
 	{
+		int ccamps = 0;	// Total count of "&" in a line
 		const char *p, *sp;
 		
 		wsprintf(entry, "Line%02d", i + 1);
@@ -146,8 +147,10 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont)
 		{
 			if(*p == '[')
 			{
+				int ccamp;	// Count of "&" in an item
 				const char *xp = p;
-				p = GetControlTitle(title, p, 80);
+				p = GetControlTitle(title, p, 80, &ccamp);
+				ccamps += ccamp;
 				
 				if(hfont != NULL)
 					SendMessage(hwnd, WM_SETFONT, (WPARAM)hfont, 0);
@@ -165,7 +168,7 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont)
 					
 					x = ((int)(xp - sp) * xunit) / 100;
 					y = ptCtrl.y;
-					w = ((int)(p - xp) * xunit) / 100;
+					w = (((int)(p - xp) - ccamp) * xunit) / 100;
 					h = rcCtrl.bottom - rcCtrl.top;
 					SetWindowPos(hwnd, NULL, x, y,
 						w, h, SWP_NOZORDER);
@@ -177,7 +180,7 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont)
 			else p++;
 		}
 		
-		w = ((int)(p - sp) * xunit) / 100;
+		w = (((int)(p - sp) - ccamps) * xunit) / 100;
 		if(maxwidth < w) maxwidth = w;
 	}
 	
@@ -200,10 +203,12 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont)
 /*-------------------------------------------
   get "AAA" in "[  AAA   ]"
 ---------------------------------------------*/
-const char *GetControlTitle(char *dst, const char *src, int nMax)
+const char *GetControlTitle(char *dst, const char *src, int nMax, int *ccAmp)
 {
 	const char *sp, *ep;
 	int i;
+	
+	*ccAmp = 0;
 	
 	if(*src != '[') return src;
 	src++;
@@ -218,7 +223,15 @@ const char *GetControlTitle(char *dst, const char *src, int nMax)
 		{
 			if(!ep) ep = src;
 		}
-		else ep = NULL;
+		else
+		{
+			if(*src == '&')
+			{
+				src = CharNext(src);
+				++*ccAmp;
+			}
+			ep = NULL;
+		}
 		src = CharNext(src);
 	}
 	if(!ep) ep = src;
