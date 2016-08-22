@@ -478,9 +478,8 @@ BOOL PlayWave(HWND hwnd, const char *fname, int loops)
 	}
 	*/
 
-	if(waveOutOpen(&m_hWaveOut, (UINT)WAVE_MAPPER,
-		(LPWAVEFORMATEX)m_pWaveFormat,
-		0, 0, (DWORD)WAVE_FORMAT_QUERY))
+	if(waveOutOpen(&m_hWaveOut, WAVE_MAPPER,
+		m_pWaveFormat, 0, 0, WAVE_FORMAT_QUERY))
 	{
 		free(m_pWaveFormat); m_pWaveFormat = NULL;
 		mmioClose(hmmio, 0);
@@ -523,9 +522,8 @@ BOOL PlayWave(HWND hwnd, const char *fname, int loops)
 	}
 	mmioClose(hmmio, 0);
 	
-	if(waveOutOpen((LPHWAVEOUT)&m_hWaveOut, (UINT)WAVE_MAPPER,
-		(LPWAVEFORMATEX)m_pWaveFormat, (UINT)hwnd, 0,
-		(DWORD)CALLBACK_WINDOW))
+	if(waveOutOpen(&m_hWaveOut, WAVE_MAPPER,
+		m_pWaveFormat, (DWORD_PTR)hwnd, 0, CALLBACK_WINDOW))
     {
 		free(m_pWaveFormat); m_pWaveFormat = NULL;
 		free(m_pWaveData); m_pWaveData = NULL;
