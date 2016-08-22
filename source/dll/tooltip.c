@@ -141,6 +141,7 @@ void OnTooltipMouseMsg(HWND hwndClock,
 	UINT message, WPARAM wParam, LPARAM lParam)
 {
 	MSG msg;
+	DWORD pos;
 	
 	if(!m_hwndTip) return;
 	if(!m_bTip1) return;
@@ -152,8 +153,8 @@ void OnTooltipMouseMsg(HWND hwndClock,
 	msg.wParam = wParam;
 	msg.lParam = lParam;
 	msg.time = GetMessageTime();
-	msg.pt.x = LOWORD(GetMessagePos());
-	msg.pt.y = HIWORD(GetMessagePos());
+	pos = GetMessagePos();
+	POINTSTOPOINT(msg.pt, pos);
 	SendMessage(m_hwndTip, TTM_RELAYEVENT, 0, (LPARAM)&msg);
 }
 
