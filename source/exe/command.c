@@ -228,7 +228,7 @@ void CopyToClipBoard(HWND hwnd, const char *pfmt)
 	
 	if(g_hwndClock)
 	{
-		MultiByteToWideChar(CP_ACP, 0, pfmt, -1, ws, MAX_PATH-1);
+		MultiByteToWideChar(CP_ACP, 0, pfmt, -1, ws, MAX_PATH);
 		SendStringToOtherW(g_hwndClock, hwnd, ws, COPYDATA_COPY);
 	}
 }
