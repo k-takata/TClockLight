@@ -79,7 +79,7 @@ int GetMyRegStrW(const char *section, const char *entry,
 	char* buf;
 	int r;
 	
-	buf = malloc(cbData+1);
+	buf = malloc(cbData * sizeof(wchar_t));
 	
 	r = GetMyRegStr(section, entry, buf, cbData, defval);
 	

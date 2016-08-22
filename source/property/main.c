@@ -390,6 +390,7 @@ void OnApply(HWND hDlg)
 	}
 	
 	EnableDlgItem(hDlg, IDC_APPLY, FALSE);
+	PostMessage(hDlg, WM_NEXTDLGCTL, 0, FALSE);
 }
 
 /*-------------------------------------------
