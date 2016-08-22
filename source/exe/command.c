@@ -357,7 +357,7 @@ BOOL CALLBACK doKyu(HWND hwnd, LPARAM lParam)
 		
 		if (lprcTaskbar->bottom <= cycenter)
 		{
-			//上タスクバー
+			// Top taskbar
 			if (rc.top < lprcTaskbar->bottom)
 			{
 				SetWindowPos(hwnd, NULL, rc.left, lprcTaskbar->bottom, 0, 0,
@@ -366,7 +366,7 @@ BOOL CALLBACK doKyu(HWND hwnd, LPARAM lParam)
 		}
 		else if (lprcTaskbar->right <= cxcenter)
 		{
-			//左タスクバー
+			// Left taskbar
 			if (rc.left < lprcTaskbar->right)
 			{
 				SetWindowPos(hwnd, NULL, lprcTaskbar->right, rc.top, 0, 0,
@@ -375,7 +375,7 @@ BOOL CALLBACK doKyu(HWND hwnd, LPARAM lParam)
 		}
 		else if (lprcTaskbar->left >= cxcenter)
 		{
-			//右タスクバー
+			// Right taskbar
 			if (rc.right > lprcTaskbar->left)
 			{
 				SetWindowPos(hwnd, NULL, lprcTaskbar->left-(rc.right-rc.left), rc.top, 0, 0,
@@ -384,7 +384,7 @@ BOOL CALLBACK doKyu(HWND hwnd, LPARAM lParam)
 		}
 		else
 		{
-			//下タスクバー
+			// Bottom taskbar
 			if (rc.bottom > lprcTaskbar->top)
 			{
 				SetWindowPos(hwnd, NULL, rc.left, lprcTaskbar->top-(rc.bottom-rc.top), 0, 0,
