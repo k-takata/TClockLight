@@ -232,24 +232,26 @@ static void RearrangeNotifyArea(HWND hwnd, HWND hwndClock)
 	size = OnCalcRect(hwndClock);
 	wclock = LOWORD(size);
 	hclock = HIWORD(size);
-	//SetWindowPos(hwndClock, NULL, 0, 0, wclock, hclock,
-	//		SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER);
+	SetWindowPos(hwndClock, NULL, 0, 0, wclock, hclock,
+			SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER);
 	MapWindowPoints(hwndClock, hwnd, &posclk, 1);
 	posclk.x += g_OrigClockWidth;
 	posclk.y += g_OrigClockHeight;
-	for(hwndChild = GetWindow(hwnd, GW_CHILD); hwndChild != NULL;
-			hwndChild = GetWindow(hwndChild, GW_HWNDNEXT))
+	hwndChild = hwndClock;
+	while((hwndChild = GetWindow(hwndChild, GW_HWNDNEXT)) != NULL)
 	{
 		POINT pos = {0, 0};
 		MapWindowPoints(hwndChild, hwnd, &pos, 1);
 		if(pos.x >= posclk.x)
 		{
+			// Horizontal taskbar
 			pos.x += wclock - g_OrigClockWidth;
 			SetWindowPos(hwndChild, NULL, pos.x, pos.y, 0, 0,
 					SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
 		}
 		else if(pos.y >= posclk.y)
 		{
+			// Vertical taskbar
 			pos.y += hclock - g_OrigClockHeight;
 			SetWindowPos(hwndChild, NULL, pos.x, pos.y, 0, 0,
 					SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
@@ -287,7 +289,6 @@ LRESULT CALLBACK SubclassTrayProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 				break;
 			ret = DefSubclassProc(hwnd, message, wParam, lParam);
 			RearrangeNotifyArea(hwnd, hwndClock);
-			InvalidateRect(hwndClock, NULL, FALSE);
 			return ret;
 		}
 	}
