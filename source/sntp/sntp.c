@@ -70,14 +70,12 @@ static char m_soundfile[MAX_PATH] = { 0 };  // sound file
 static int  m_nMinuteDif = 0;               // forcely time difference
 
 static DWORD m_dwTickCountOnSend = 0;    // starting time of sending data
-static DWORD m_dwTickCountOnRecv = 0;    // ending time of receiving data
+static DWORD m_dwTickCountOnRecv = 0;    // starting time of receiving data
 
 static char  *m_pGetHost = NULL; // buffer of host entry
 static HANDLE m_hGetHost;        // task handle of WSAAsyncGetHostByName()
 static SOCKET m_socket;   // socket
 static int    m_port;     // port
-
-static HOSTTIME T4; // Destination Timestamp
 
 /*
 ** 1900-01-01 - 1601-01-01 = 109207day = 9435484800sec
@@ -355,9 +353,6 @@ void SNTPSend(HWND hwndSNTP, unsigned long serveraddr)
 		return;
 	}
 	
-	// save tickcount
-//	m_dwTickCountOnSend = GetTickCount();
-	
 	SetTimer(hwndSNTP, IDTIMER_MAIN, m_nTimeOut, NULL);
 }
 
@@ -381,6 +376,7 @@ void OnReceive(HWND hwndSNTP, WPARAM wParam, LPARAM lParam)
 		WSAGETSELECTEVENT(lParam) != FD_READ) return;
 	
 	// receive data
+	m_dwTickCountOnRecv = timeGetTime();
 	sockaddr_Size = sizeof(serversockaddr);
 	if(recvfrom(m_socket, (char *)&NTP_Recv, sizeof(NTP_Recv), 0,
 		(struct sockaddr *)&serversockaddr, &sockaddr_Size) == SOCKET_ERROR)
@@ -388,9 +384,6 @@ void OnReceive(HWND hwndSNTP, WPARAM wParam, LPARAM lParam)
 		SocketClose(hwndSNTP, "recvfrom() failed");
 		return;
 	}
-	
-//	GetSystemTimeAsFileTime((FILETIME*)&T4);
-	m_dwTickCountOnRecv = timeGetTime();
 	
 	// if Leap Indicator is 3
 	if((NTP_Recv.Control_Byte >> 6) == 3)
@@ -418,7 +411,7 @@ void SynchronizeSystemTime(HWND hwndSNTP, struct NTP_Packet *pnp)
 	BOOL b;
 	
 	// timeout ?
-	sr_time = timeGetTime() - m_dwTickCountOnSend;
+	sr_time = m_dwTickCountOnRecv - m_dwTickCountOnSend;
 	if(sr_time >= (DWORD)m_nTimeOut)
 	{
 		wsprintf(s, "timeout (%04d)", sr_time);
@@ -430,12 +423,6 @@ void SynchronizeSystemTime(HWND hwndSNTP, struct NTP_Packet *pnp)
 	GetLocalClockOffset(pnp, &htofs, &htdelay);
 	
 	// difference
-/*
-	if(m_nMinuteDif > 0)
-		htofs += M32x32to64(m_nMinuteDif * 60, 10000000);
-	else if(m_nMinuteDif < 0)
-		htofs -= M32x32to64(-m_nMinuteDif * 60, 10000000);
-*/
 	htofs += Int32x32To64(m_nMinuteDif * 60, HOSTTIME_TICK);
 	
 	// current time
@@ -471,10 +458,10 @@ void SynchronizeSystemTime(HWND hwndSNTP, struct NTP_Packet *pnp)
 		wsprintf(s + strlen(s), "%02d:%02d.%03d ",
 			st_dif.wMinute, st_dif.wSecond, st_dif.wMilliseconds);
 	}
-	wsprintf(s + strlen(s), "(%04d)", sr_time);
-	
 	FileTimeToSystemTime((FILETIME*)&htdelay, &st_delay);
-	wsprintf(s + strlen(s), " [%04d]", st_delay.wSecond * 1000 + st_delay.wMilliseconds);
+	// "(Send-Receive time) [Network delay]"
+	wsprintf(s + strlen(s), "(%04d) [%04d]", sr_time,
+			st_delay.wSecond * 1000 + st_delay.wMilliseconds);
 	
 	Log(hwndSNTP, s);
 	
@@ -630,23 +617,8 @@ void time2int(int *ph, int *pm, const char *src)
 static void HostTimeToNTPTime(const HOSTTIME *pht, NTPTIME *pnt)
 {
 	ULARGE_INTEGER uli;
-//	int i;
 
 	uli.QuadPart = *pht - ORG_DIFF;
-
-/*
-	for (i = 31; i >= 0; i--) {
-	//	uli.QuadPart <<= 1;
-		uli.QuadPart = Int64ShllMod32(uli.QuadPart, 1);
-		if (uli.HighPart >= 10000000) {
-			uli.HighPart -= 10000000;
-			uli.LowPart |= 1;
-		}
-	}
-
-	pnt->seconds = htonl(uli.LowPart);
-	pnt->fractions = htonl(uli.HighPart * 429); // (HighPart / 10000000) << 32
-*/
 	pnt->seconds = htonl((DWORD)(uli.QuadPart / HOSTTIME_TICK));
 	uli.HighPart = (DWORD)(uli.QuadPart % HOSTTIME_TICK);
 	uli.LowPart = 0;
@@ -665,7 +637,7 @@ static void NTPTimeToHostTime(const NTPTIME *pnt, HOSTTIME *pht)
 static void GetLocalClockOffset(const struct NTP_Packet *pnp,
 	HOSTTIME *phtofs, HOSTTIME *lpdelay)
 {
-	HOSTTIME T1, T2, T3;
+	HOSTTIME T1, T2, T3, T4;
 
 	NTPTimeToHostTime(&pnp->originate_timestamp, &T1);
 	NTPTimeToHostTime(&pnp->receive_timestamp, &T2);
@@ -674,7 +646,6 @@ static void GetLocalClockOffset(const struct NTP_Packet *pnp,
 	T4 = T1
 		+ (m_dwTickCountOnRecv - m_dwTickCountOnSend) * HOSTTIME_TICK / 1000;
 	*lpdelay = (T4 - T1) - (T3 - T2);
-//	*phtofs = ((T2 - T1) + (T3 - T4)) >> 1;
 	*phtofs = Int64ShraMod32((T2 - T1) + (T3 - T4), 1);
 }
 
