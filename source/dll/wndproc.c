@@ -405,8 +405,8 @@ void OnRefreshClock(HWND hwnd)
 	
 	PostMessage(GetParent(GetParent(hwnd)), WM_SIZE,
 		SIZE_RESTORED, 0);
-	PostMessage(GetParent(hwnd), WM_SIZE,
-		SIZE_RESTORED, 0);
+	//PostMessage(GetParent(hwnd), WM_SIZE,
+	//	SIZE_RESTORED, 0);
 	
 	InvalidateRect(hwnd, NULL, FALSE);
 	InvalidateRect(GetParent(hwnd), NULL, TRUE);
@@ -463,8 +463,8 @@ void OnVolumeChange(HWND hwnd)
 	
 	PostMessage(GetParent(GetParent(hwnd)), WM_SIZE,
 		SIZE_RESTORED, 0);
-	PostMessage(GetParent(hwnd), WM_SIZE,
-		SIZE_RESTORED, 0);
+	//PostMessage(GetParent(hwnd), WM_SIZE,
+	//	SIZE_RESTORED, 0);
 	
 	InvalidateRect(hwnd, NULL, FALSE);
 	InvalidateRect(GetParent(hwnd), NULL, TRUE);
@@ -592,7 +592,12 @@ void OnCopyData(HWND hwnd, HWND hwndFrom, const COPYDATASTRUCT* pcds)
 			break;
 	}
 	
-	if(bResize) ClearClockDC();
+	if(bResize)
+	{
+		ClearClockDC();
+		PostMessage(GetParent(GetParent(hwnd)), WM_SIZE,
+				SIZE_RESTORED, 0);
+	}
 	if(bRefresh && !g_bDispSecond) InvalidateRect(hwnd, NULL, FALSE);
 }
 
