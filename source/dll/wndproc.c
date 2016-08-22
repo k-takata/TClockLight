@@ -287,6 +287,7 @@ LRESULT CALLBACK SubclassTrayProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 				break;
 			ret = DefSubclassProc(hwnd, message, wParam, lParam);
 			RearrangeNotifyArea(hwnd, hwndClock);
+			InvalidateRect(hwndClock, NULL, FALSE);
 			return ret;
 		}
 	}
