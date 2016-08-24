@@ -30,9 +30,10 @@
 //--------------------------------------------------------
 // support OS
 
-//#define TC_SUPPORT_WIN95		0
-//#define TC_SUPPORT_WIN98		0
-//#define TC_SUPPORT_NT4		0
+#define TC_SUPPORT_WINVISTA		1
+#define TC_SUPPORT_WIN7			1
+#define TC_SUPPORT_WIN8			1
+#define TC_SUPPORT_WIN10		1
 
 
 //--------------------------------------------------------
@@ -51,17 +52,3 @@
 #endif
 
 #define TC_ENABLE_TASKSWITCH	TC_ENABLE_TASKBAR
-
-#ifdef _WIN64
- #undef TC_SUPPORT_WIN95
- #undef TC_SUPPORT_WIN98
- #undef TC_SUPPORT_NT4
- #define TC_SUPPORT_WIN95		0
- #define TC_SUPPORT_WIN98		0
- #define TC_SUPPORT_WIN9X		0
- #define TC_SUPPORT_NT4			0
-#elif TC_SUPPORT_WIN95 || TC_SUPPORT_WIN98
- #define TC_SUPPORT_WIN9X		1
-#else
- #define TC_SUPPORT_WIN9X		0
-#endif
