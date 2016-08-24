@@ -303,8 +303,6 @@ void ExecHiddenCmdPrompt(HWND hwnd, const char *str)
 	SHELLEXECUTEINFO sei;
 	char *param;
 	
-	if(!(g_winver&WINNT)) return;
-	
 	param = malloc(strlen(str) + 4);
 	strcpy(param, "/c ");
 	strcat(param, str);

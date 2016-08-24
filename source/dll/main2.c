@@ -21,7 +21,6 @@ BOOL    g_bIniSetting;         // use tclock.ini
 char    g_inifile[MAX_PATH];   // ini file name
 char    g_mydir[MAX_PATH];     // path of tcdll.dll
 int     g_winver;              // Windows version
-BOOL    g_bIE4;                // IE 4 or later
 BOOL    g_bVisualStyle;        // Windows XP theme is used
 BOOL    g_bNoClock;            // don't customize clock
 int     g_OrigClockWidth;      // original clock width
@@ -44,7 +43,6 @@ void InitClock(HWND hwnd)
 	g_hInst = GetModuleHandle(DLLFILENAME);
 	
 	g_winver = CheckWinVersion();       // common/util.c
-	g_bIE4 = IsIE4();                   // common/util.c
 	g_bVisualStyle = IsXPVisualStyle(); // common/util.c
 	
 #if 0

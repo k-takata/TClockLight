@@ -26,14 +26,6 @@ static void InitTextColor(void);
 static void InitFormat(void);
 static void AddMessageFilters(void);
 
-/* typedefs */
-
-typedef BOOL (WINAPI *pfnImmDisableIME)(DWORD);
-typedef BOOL (WINAPI *pfnChangeWindowMessageFilter)(UINT, DWORD);
-
-/* imm.h */
-
-BOOL WINAPI ImmDisableIME(DWORD);
 
 /*-------------------------------------------
    main routine
@@ -243,15 +235,12 @@ void InitFormat(void)
 		// vertical task bar
 		if(rc.right < rc.bottom) bbreak = TRUE;
 		
-		if(g_winver&WINXP)
+		hwnd = FindWindowEx(hwnd, NULL, "TrayNotifyWnd", NULL);
+		if(hwnd)
 		{
-			hwnd = FindWindowEx(hwnd, NULL, "TrayNotifyWnd", NULL);
-			if(hwnd)
-			{
-				RECT rc;
-				GetClientRect(hwnd, &rc);
-				if(rc.bottom - rc.top > 32) bbreak = TRUE;
-			}
+			RECT rc;
+			GetClientRect(hwnd, &rc);
+			if(rc.bottom - rc.top > 32) bbreak = TRUE;
 		}
 	}
 	
@@ -274,8 +263,6 @@ void InitFormat(void)
 --------------------------------------------------*/
 void AddMessageFilters(void)
 {
-	HMODULE hUser32;
-	pfnChangeWindowMessageFilter pChangeWindowMessageFilter;
 	int i;
 	const UINT messages[] = {
 	//	WM_CREATE,
@@ -309,16 +296,9 @@ void AddMessageFilters(void)
 		WM_XBUTTONUP,
 	};
 	
-	hUser32 = GetModuleHandle("user32.dll");
-	if (hUser32 == NULL)
-		return;
-	pChangeWindowMessageFilter = (pfnChangeWindowMessageFilter)
-			GetProcAddress(hUser32, "ChangeWindowMessageFilter");
-	if (pChangeWindowMessageFilter == NULL)
-		return;
-	
-	for (i = 0; i < sizeof(messages) / sizeof(UINT); i++) {
-		pChangeWindowMessageFilter(messages[i], MSGFLT_ADD);
+	for(i = 0; i < sizeof(messages) / sizeof(UINT); i++)
+	{
+		ChangeWindowMessageFilter(messages[i], MSGFLT_ADD);
 	}
 }
 

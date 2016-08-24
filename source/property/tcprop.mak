@@ -33,7 +33,7 @@ OBJS=pagecolor.obj pagesize.obj pageformat.obj pageformat2.obj\
 	desktop.obj
 
 LIBS=kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib\
-	shell32.lib winmm.lib comctl32.lib
+	shell32.lib winmm.lib comctl32.lib dwmapi.lib
 
 all: $(EXEFILE)
 

@@ -65,22 +65,13 @@ void LoadDrawingSetting(HWND hwnd)
 	m_colback = GetMyRegLong(NULL, "BackColor",
 		0x80000000 | COLOR_3DFACE);
 	
-	if(!(g_winver&WINXP) && m_fillbackcolor == FALSE)
-	{
-		m_fillbackcolor = TRUE;
-		m_colback = 0x80000000 | COLOR_3DFACE;
-	}
-	
 	m_colback2 = m_colback;
-	if((g_winver&WIN98) || (g_winver&WIN2000))
-	{
-		if(GetMyRegLong(NULL, "UseBackColor2", TRUE))
-			m_colback2 = GetMyRegLong(NULL, "BackColor2", m_colback);
-		m_grad = GetMyRegLong(NULL, "GradDir", GRADIENT_FILL_RECT_H);
-	}
+	if(GetMyRegLong(NULL, "UseBackColor2", TRUE))
+		m_colback2 = GetMyRegLong(NULL, "BackColor2", m_colback);
+	m_grad = GetMyRegLong(NULL, "GradDir", GRADIENT_FILL_RECT_H);
 	
 	m_bFillTray = FALSE;
-	if(m_fillbackcolor && ((g_winver&WINME) || (g_winver&WIN2000)))
+	if(m_fillbackcolor)
 		m_bFillTray = GetMyRegLong(NULL, "FillTray", FALSE);
 	
 	m_colfore = GetMyRegLong(NULL, "ForeColor", 
@@ -118,9 +109,7 @@ void LoadDrawingSetting(HWND hwnd)
 	m_dvpos = (int)(short)GetMyRegLong(NULL, "VertPos", 0);
 	m_dlineheight = (int)(short)GetMyRegLong(NULL, "LineHeight", 0);
 	
-	g_bFitClock = FALSE;
-	if(g_winver&WINXP)
-		g_bFitClock = GetMyRegLong(NULL, "FitClock", TRUE);
+	g_bFitClock = GetMyRegLong(NULL, "FitClock", TRUE);
 	
 	m_ClockWidth = -1;
 }
@@ -360,8 +349,7 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	
 	if(g_nBlink > 0 && (g_nBlink % 2) == 0) dwRop = NOTSRCCOPY;
 	
-	if(g_winver&WINVISTA)
-		aero = IsVistaAero();
+	aero = IsVistaAero();
 	if(!m_fillbackcolor && (dwRop == SRCCOPY) && aero)
 	{
 		HBRUSH hbr = GetStockBrush(BLACK_BRUSH);
@@ -483,7 +471,7 @@ void FillClock(HWND hwnd, HDC hdc, const RECT *prc)
 		CopyParentSurface(hwnd, hdc, 0, 0, prc->right, prc->bottom,
 			rc.left - rcTray.left, rc.top - rcTray.top);
 	}
-	else if(m_colback == m_colback2 || !(g_winver&(WIN98|WIN2000)))
+	else if(m_colback == m_colback2)
 	{
 		col = m_colback;
 		if(col & 0x80000000) col = GetSysColor(col & 0x00ffffff);

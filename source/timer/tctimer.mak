@@ -28,7 +28,7 @@ OBJS=timermain.obj timerdlg.obj timer.obj\
 	utl.obj exec.obj reg.obj font.obj
 
 LIBS=kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib\
-	shell32.lib winmm.lib comctl32.lib
+	shell32.lib winmm.lib comctl32.lib dwmapi.lib
 
 all: $(EXEFILE)
 

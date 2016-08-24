@@ -12,11 +12,7 @@
 ２．コンパイラ
 　以下のコンパイラ/開発環境などが使用可能です。
 
-  ・Visual C++ 6.0 あるいはそれ以降
-  ・Windows SDK 6.1
-    http://www.microsoft.com/download/en/details.aspx?id=24826
-  ・Windows SDK 7.0
-    http://www.microsoft.com/download/en/details.aspx?id=18950
+  ・Visual C++ 2010 あるいはそれ以降
   ・Windows SDK 7.1
     http://www.microsoft.com/download/en/details.aspx?id=8442
 
@@ -89,16 +85,20 @@
 3.3. サポート OS
 　動作する OS に関する設定です。無効化すると、その OS では動作しなくなり
 ますが、代わりにファイルサイズが小さくなるかもしれません。
-32bit 版ではデフォルトではいずれも有効化されています。
+デフォルトではいずれも有効化されています。
+(ただし現時点では Vista から 10 まで、サポート OS による差分はありません。)
 
-  TC_SUPPORT_WIN95
-    Windows 95 をサポートします。
+  TC_SUPPORT_WINVISTA
+    Windows Vista をサポートします。
 
-  TC_SUPPORT_WIN98
-    Windows 98 をサポートします。
+  TC_SUPPORT_WIN7
+    Windows 7 をサポートします。
 
-  TC_SUPPORT_NT4
-    Windows NT 4.0 をサポートします。
+  TC_SUPPORT_WIN8
+    Windows 8/8.1 をサポートします。
+
+  TC_SUPPORT_WIN10
+    Windows 10 をサポートします。
 
 
 ４．参考情報

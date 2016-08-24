@@ -200,10 +200,8 @@ void SendOnContextMenu(void)
 void CheckMenu(HMENU hmenu)
 {
 	char s[80];
-	int winver = CheckWinVersion();
 	
-	EnableMenuItem(hmenu, IDC_TASKMAN, MF_BYCOMMAND|
-		((winver&WINNT) ? MF_ENABLED:MF_GRAYED) );
+	EnableMenuItem(hmenu, IDC_TASKMAN, MF_BYCOMMAND|MF_ENABLED);
 	
 	EnableMenuItem(hmenu, IDC_SYNCTIME, MF_BYCOMMAND|
 		(GetMyRegStr("SNTP", "Server", s, 80, "") > 0 ?

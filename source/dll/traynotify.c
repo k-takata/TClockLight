@@ -37,8 +37,6 @@ void InitTrayNotify(HWND hwndClock)
 	
 	EndTrayNotify();
 	
-	if(!(g_winver&WINME) && !(g_winver&WIN2000)) return;
-	
 	if(GetMyRegLong(NULL, "NoClock", FALSE)) return;
 	
 	if(GetMyRegLong(NULL, "FillTray", FALSE) == FALSE) return;
@@ -78,10 +76,7 @@ void InitTrayNotify(HWND hwndClock)
 	
 	if(m_hwndToolbar)
 	{
-		if(g_winver&WINXP)
-			SendMessage(GetParent(m_hwndToolbar), WM_SYSCOLORCHANGE, 0, 0);
-		else
-			SendMessage(m_hwndToolbar, WM_SYSCOLORCHANGE, 0, 0);
+		SendMessage(GetParent(m_hwndToolbar), WM_SYSCOLORCHANGE, 0, 0);
 	}
 }
 

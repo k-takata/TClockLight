@@ -43,7 +43,6 @@ extern char  g_inifile[];
 extern char  g_langfile[];
 extern HFONT g_hfontDialog;
 extern HWND  g_hwndMain;
-extern int   g_winver;
 
 /* ---------- dialog.c --------------- */
 

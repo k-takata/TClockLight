@@ -66,7 +66,6 @@ BOOL BrowseSoundFile(HINSTANCE hInst, HWND hDlg,
 	_OPENFILENAMEA ofn;
 	char filter[160], mmfileexts[80];
 	char ftitle[MAX_PATH], initdir[MAX_PATH];
-	int winver;
 	
 	memset(&ofn, '\0', sizeof(_OPENFILENAMEA));
 	
@@ -98,10 +97,7 @@ BOOL BrowseSoundFile(HINSTANCE hInst, HWND hDlg,
 	
 	fname[0] = 0;
 	
-	winver = CheckWinVersion();
-	if((winver&WINME) || (winver&WIN2000))
-		ofn.lStructSize = sizeof(_OPENFILENAMEA);
-	else ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.lStructSize = sizeof(_OPENFILENAMEA);
 	
 	ofn.hwndOwner = hDlg;
 	ofn.hInstance = hInst;

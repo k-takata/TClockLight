@@ -140,13 +140,6 @@ void OnInit(HWND hDlg)
 	if(alpha < 0) alpha = 0; else if(alpha > 100) alpha = 100;
 	UpDown_SetPos(hDlg, IDC_STARTMENUTRANSSPIN, alpha);
 	
-	if(!(g_winver&WIN2000))
-	{
-		int i;
-		for(i = IDC_STARTMENUTRANSLAB; i <= IDC_STARTMENUTRANSSPIN; i++)
-			EnableDlgItem(hDlg, i, FALSE);
-	}
-	
 	m_bInit = TRUE;
 }
 

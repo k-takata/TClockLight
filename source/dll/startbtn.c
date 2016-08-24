@@ -85,7 +85,7 @@ void InitStartButton(HWND hwndClock)
 	if(m_hwndTask == NULL)
 		m_hwndTask = FindWindowEx(hwndTaskbar, NULL, "MSTaskSwWClass", NULL);
 	
-	if((m_hwndStart == NULL) && (g_winver&WINVISTA))
+	if(m_hwndStart == NULL)
 	{
 		DWORD dwThID1, dwThID2;
 		m_hwndStart = FindWindowEx(GetParent(hwndTaskbar), NULL, "Button", NULL);
@@ -250,12 +250,9 @@ BOOL SubClassStartButton(void)
 	if(IsSubclassed(m_hwndTask))
 		return FALSE;
 	
-	if(g_winver&WINXP)
-	{
-		m_oldClassStyle = GetClassLong(m_hwndStart, GCL_STYLE);
-		SetClassLong(m_hwndStart, GCL_STYLE,
+	m_oldClassStyle = GetClassLong(m_hwndStart, GCL_STYLE);
+	SetClassLong(m_hwndStart, GCL_STYLE,
 			m_oldClassStyle & ~(CS_HREDRAW|CS_VREDRAW));
-	}
 	
 	m_oldWndProcStart = SubclassWindow(m_hwndStart, WndProcStart);
 	m_oldWndProcTask = SubclassWindow(m_hwndTask, WndProcTask);
@@ -270,8 +267,7 @@ void UnSubclassStartButton(void)
 {
 	if(m_hwndStart && IsWindow(m_hwndStart) && m_oldWndProcStart)
 	{
-		if(g_winver&WINXP)
-			SetClassLong(m_hwndStart, GCL_STYLE, m_oldClassStyle);
+		SetClassLong(m_hwndStart, GCL_STYLE, m_oldClassStyle);
 		
 		SubclassWindow(m_hwndStart, m_oldWndProcStart);
 		
@@ -623,11 +619,8 @@ void DrawIconAndCaption(HDC hdc, HDC hdcMem, HBITMAP hbmp, HICON hicon,
 			HDC hdcTemp = CreateCompatibleDC(hdc);
 			SelectObject(hdcTemp, hbmp);
 			
-			if((g_winver&WINME)||(g_winver&WIN2000))
-				MyTransparentBlt(hdcMem, x + d, y + d, w, h,
+			MyTransparentBlt(hdcMem, x + d, y + d, w, h,
 					hdcTemp, 0, 0, w, h, GetSysColor(COLOR_3DFACE));
-			else
-				BitBlt(hdcMem, x + d, y + d, w, h, hdcTemp, 0, 0, SRCCOPY);
 			
 			DeleteDC(hdcTemp);
 		}
@@ -687,10 +680,8 @@ void DrawStartButtonBack(HWND hwnd, HDC hdc, HDC hdcMem,
 		HDC hdcTemp = CreateCompatibleDC(hdc);
 		SelectObject(hdcTemp, hbmpBack);
 		
-		if((g_winver&WINME)||(g_winver&WIN2000))
-			MyTransparentBlt(hdcMem, 0, 0, w, h*3,
+		MyTransparentBlt(hdcMem, 0, 0, w, h*3,
 				hdcTemp, 0, 0, w, h*3, GetSysColor(COLOR_3DFACE));
-		else BitBlt(hdcMem, 0, 0, w, h*3, hdcTemp, 0, 0, SRCCOPY);
 		
 		DeleteDC(hdcTemp);
 	}
