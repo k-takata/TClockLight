@@ -29,7 +29,7 @@ OBJS=main2.obj wndproc.obj cmdopt.obj command.obj menu.obj\
 	playfile.obj alarmstruct.obj mousestruct.obj mixer.obj vistavol.obj
 
 LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib winmm.lib\
-	imm32.lib ole32.lib
+	imm32.lib ole32.lib dwmapi.lib
 
 all: $(EXEFILE)
 

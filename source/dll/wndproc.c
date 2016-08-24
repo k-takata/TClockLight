@@ -27,8 +27,6 @@ static LRESULT OnMouseUp(HWND hwnd, UINT message,
 static void OnWindowPosChanging(HWND hwnd, LPWINDOWPOS pwp);
 static void OnCopyData(HWND hwnd, HWND hwndFrom, const COPYDATASTRUCT* pcds);
 static void OnCopy(HWND hwnd, const wchar_t* fmt);
-static void InitDaylightTimeTransition(void);
-static BOOL CheckDaylightTimeTransition(const SYSTEMTIME *plt);
 
 int   m_nBlinkSec = 0;
 DWORD m_nBlinkTick = 0;
@@ -310,8 +308,7 @@ void OnTimerMain(HWND hwnd)
 	GetLocalTime(&t);
 	
 	// adjusting milliseconds gap
-	if((t.wMilliseconds > 200 ||
-		((g_winver | WINNT) && t.wMilliseconds > 50)))
+	if(t.wMilliseconds > 50)
 	{
 		KillTimer(hwnd, IDTIMER_MAIN);
 		SetTimer(hwnd, IDTIMER_MAIN, 1001 - t.wMilliseconds, NULL);
@@ -347,8 +344,6 @@ void OnTimerMain(HWND hwnd)
 		LastTime.wYear != t.wYear)
 	{
 		InitFormatTime(); // formattime.c
-		if(!(g_winver&WINNT))
-			InitDaylightTimeTransition();
 	}
 	
 	hdc = NULL;
@@ -363,13 +358,6 @@ void OnTimerMain(HWND hwnd)
 	if(g_nBlink)
 	{
 		g_nBlink ^= 3;  // toggle 1 and 2
-	}
-	
-	// check daylight/standard time transition
-	if(!(g_winver&WINNT) && LastTime.wHour != t.wHour)
-	{
-		if(CheckDaylightTimeTransition(&t))
-			PostMessage(hwnd, WM_USER+102, 0, 0);
 	}
 	
 	memcpy(&LastTime, &t, sizeof(t));
@@ -441,8 +429,6 @@ void OnRefreshTaskbar(HWND hwnd)
 void OnRefreshStartMenu(HWND hwnd)
 {
 	ResetStartMenu(hwnd);
-	
-	if(!g_bIE4) InitTaskbar(hwnd);
 }
 #endif
 
@@ -610,6 +596,7 @@ void OnCopy(HWND hwnd, const wchar_t* pfmt)
 {
 	wchar_t format[BUFSIZE_FORMAT];
 	wchar_t ws[BUFSIZE_FORMAT];
+	wchar_t *p;
 	HGLOBAL hg;
 	
 	if(pfmt)
@@ -629,98 +616,12 @@ void OnCopy(HWND hwnd, const wchar_t* pfmt)
 	if(!OpenClipboard(hwnd)) return;
 	EmptyClipboard();
 	
-	if(g_winver&WINNT)
-	{
-		wchar_t *p;
-		
-		hg = GlobalAlloc(GMEM_DDESHARE, (wcslen(ws) + 1) * sizeof(wchar_t));
-		p = (wchar_t*)GlobalLock(hg);
-		wcscpy(p, ws);
-		GlobalUnlock(hg);
-		SetClipboardData(CF_UNICODETEXT, hg);
-	}
-	else
-	{
-		char s[BUFSIZE_FORMAT], *p;
-		
-		WideCharToMultiByte(CP_ACP, 0, ws, -1, s, BUFSIZE_FORMAT-1,
-			NULL, NULL);
-		
-		hg = GlobalAlloc(GMEM_DDESHARE, strlen(s) + 1);
-		p = (char*)GlobalLock(hg);
-		strcpy(p, s);
-		GlobalUnlock(hg);
-		SetClipboardData(CF_TEXT, hg);
-	}
+	hg = GlobalAlloc(GMEM_DDESHARE, (wcslen(ws) + 1) * sizeof(wchar_t));
+	p = (wchar_t*)GlobalLock(hg);
+	wcscpy(p, ws);
+	GlobalUnlock(hg);
+	SetClipboardData(CF_UNICODETEXT, hg);
 	
 	CloseClipboard();
-}
-
-static int m_iHourTransition = -1, m_iMinuteTransition = -1;
-
-/*------------------------------------------------
-  initialize time-zone information
---------------------------------------------------*/
-void InitDaylightTimeTransition(void)
-{
-	SYSTEMTIME lt, *plt;
-	TIME_ZONE_INFORMATION tzi;
-	DWORD dw;
-	BOOL b;
-	
-	m_iHourTransition = m_iMinuteTransition = -1;
-	
-	GetLocalTime(&lt);
-	
-	b = FALSE;
-	memset(&tzi, 0, sizeof(tzi));
-	dw = GetTimeZoneInformation(&tzi);
-	if(dw == TIME_ZONE_ID_STANDARD
-	  && tzi.DaylightDate.wMonth == lt.wMonth
-	  && tzi.DaylightDate.wDayOfWeek == lt.wDayOfWeek)
-	{
-		b = TRUE; plt = &(tzi.DaylightDate);
-	}
-	if(dw == TIME_ZONE_ID_DAYLIGHT
-	  && tzi.StandardDate.wMonth == lt.wMonth
-	  && tzi.StandardDate.wDayOfWeek == lt.wDayOfWeek)
-	{
-		b = TRUE; plt = &(tzi.StandardDate);
-	}
-	
-	if(b && plt->wDay < 5)
-	{
-		if(((lt.wDay - 1) / 7 + 1) == plt->wDay)
-		{
-			m_iHourTransition = plt->wHour;
-			m_iMinuteTransition = plt->wMinute;
-		}
-	}
-	else if(b && plt->wDay == 5)
-	{
-		FILETIME ft;
-		SystemTimeToFileTime(&lt, &ft);
-		*(DWORDLONG*)&ft += 6048000000000i64;
-		FileTimeToSystemTime(&ft, &lt);
-		if(lt.wDay < 8)
-		{
-			m_iHourTransition = plt->wHour;
-			m_iMinuteTransition = plt->wMinute;
-		}
-	}
-}
-
-/*------------------------------------------------
-  check standard/daylight saving time transition
---------------------------------------------------*/
-BOOL CheckDaylightTimeTransition(const SYSTEMTIME *plt)
-{
-	if((int)plt->wHour == m_iHourTransition &&
-	   (int)plt->wMinute >= m_iMinuteTransition)
-	{
-		m_iHourTransition = m_iMinuteTransition = -1;
-		return TRUE;
-	}
-	else return FALSE;
 }
 

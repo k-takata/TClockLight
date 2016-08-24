@@ -49,7 +49,6 @@ extern BOOL    g_bIniSetting;
 extern char    g_inifile[];
 extern char    g_mydir[];
 extern int     g_winver;
-extern BOOL    g_bIE4;
 extern BOOL    g_bVisualStyle;
 extern BOOL    g_bNoClock;
 extern int     g_OrigClockWidth;

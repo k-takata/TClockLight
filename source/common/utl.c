@@ -7,6 +7,7 @@
 ---------------------------------------------------------------*/
 
 #include "common.h"
+#include <dwmapi.h>
 
 extern HINSTANCE g_hInst;
 extern char g_mydir[];
@@ -375,26 +376,6 @@ int CheckWinVersion(void)
 	return ret;
 }
 
-/*------------------------------------------------
-  IE 4 or later ?
---------------------------------------------------*/
-BOOL IsIE4(void)
-{
-	HWND hwnd;
-	DWORD dw;
-	
-	dw = GetRegLong(HKEY_CURRENT_USER,
-		"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
-		"ClassicShell", 0);
-	if(dw) return TRUE;
-	
-	hwnd = FindWindow("Shell_TrayWnd", NULL);
-	if(hwnd == NULL) return FALSE;
-	hwnd = FindWindowEx(hwnd, NULL, "ReBarWindow32", NULL);
-	if(hwnd != NULL) return TRUE;
-	return FALSE;
-}
-
 /*-------------------------------------------
   using XP Theme ?
 ---------------------------------------------*/
@@ -414,28 +395,12 @@ BOOL IsXPVisualStyle(void)
 /*-------------------------------------------
   using Vista Aero ?
 ---------------------------------------------*/
-typedef HRESULT (WINAPI *pfnDwmIsCompositionEnabled)(BOOL *);
-static HRESULT WINAPI DwmIsCompositionEnabledStub(BOOL *pfEnabled);
-
 BOOL IsVistaAero(void)
 {
 #if 1
-	static pfnDwmIsCompositionEnabled pDwmIsCompositionEnabled = NULL;
-	BOOL ret = FALSE;
+	BOOL ret;
 	
-	if (pDwmIsCompositionEnabled == NULL) {
-	//	HMODULE hDwmApi = LoadLibrary("dwmapi.dll");
-		HMODULE hDwmApi = GetModuleHandle("dwmapi.dll");
-		if (hDwmApi != NULL) {
-			pDwmIsCompositionEnabled = (pfnDwmIsCompositionEnabled)
-					GetProcAddress(hDwmApi, "DwmIsCompositionEnabled");
-		}
-		if (pDwmIsCompositionEnabled == NULL) {
-			pDwmIsCompositionEnabled = DwmIsCompositionEnabledStub;
-		}
-	}
-	
-	pDwmIsCompositionEnabled(&ret);
+	DwmIsCompositionEnabled(&ret);
 	return ret;
 #else
 	if(GetRegLong(HKEY_CURRENT_USER,
@@ -447,15 +412,6 @@ BOOL IsVistaAero(void)
 	return FALSE;
 #endif
 }
-
-static HRESULT WINAPI DwmIsCompositionEnabledStub(BOOL *pfEnabled)
-{
-	if (pfEnabled != NULL) {
-		*pfEnabled = FALSE;
-	}
-	return S_OK;
-}
-
 
 /*-------------------------------------------
   using Taskbar Animations ?
@@ -476,25 +432,15 @@ BOOL IsTaskbarAnimation(void)
 ---------------------------------------------*/
 void SetForegroundWindow98(HWND hwnd)
 {
-	DWORD dwVer;
+	DWORD thread1, thread2;
+	DWORD pid;
 	
-	dwVer = GetVersion();
-	if(((dwVer & 0x80000000) && 
-	       LOBYTE(LOWORD(dwVer)) >= 4 && HIBYTE(LOWORD(dwVer)) >= 10) ||
-	   (!(dwVer & 0x80000000) && LOBYTE(LOWORD(dwVer)) >= 5)) // Win98/2000
-	{
-		DWORD thread1, thread2;
-		DWORD pid;
-		thread1 = GetWindowThreadProcessId(
-			GetForegroundWindow(), &pid);
-		thread2 = GetCurrentThreadId();
-		AttachThreadInput(thread2, thread1, TRUE);
-		SetForegroundWindow(hwnd);
-		AttachThreadInput(thread2, thread1, FALSE);
-		BringWindowToTop(hwnd);
-	}
-	else  // Win95/NT
-		SetForegroundWindow(hwnd);
+	thread1 = GetWindowThreadProcessId(GetForegroundWindow(), &pid);
+	thread2 = GetCurrentThreadId();
+	AttachThreadInput(thread2, thread1, TRUE);
+	SetForegroundWindow(hwnd);
+	AttachThreadInput(thread2, thread1, FALSE);
+	BringWindowToTop(hwnd);
 }
 
 /*------------------------------------------------

@@ -98,10 +98,7 @@ typedef struct _MIB_IF_TABLE2 {
 
 
 static HMODULE hmodIPHLP = NULL;
-static MIB_IFTABLE *ift = NULL;
 static MIB_IF_TABLE2 *ift2 = NULL;
-static DWORD (WINAPI *pGetIfTable)(PMIB_IFTABLE, PULONG, BOOL);
-static DWORD (WINAPI *pGetIfEntry)(PMIB_IFROW);
 static DWORD (WINAPI *pGetIfTable2)(PMIB_IF_TABLE2 *);
 static DWORD (WINAPI *pGetIfEntry2)(PMIB_IF_ROW2);
 static VOID (WINAPI *pFreeMibTable)(PVOID);
@@ -123,25 +120,6 @@ void Net_start(void)
 		if(pGetIfTable2(&ift2) == NO_ERROR)
 		{
 			return;
-		}
-	}
-
-	// Win2k/XP
-	(FARPROC)pGetIfTable = GetProcAddress(hmodIPHLP, "GetIfTable");
-	(FARPROC)pGetIfEntry = GetProcAddress(hmodIPHLP, "GetIfEntry");
-	
-	if(pGetIfTable && pGetIfEntry)
-	{
-		ULONG bufsize = 0;
-		if(pGetIfTable(ift, &bufsize, TRUE) == ERROR_INSUFFICIENT_BUFFER)
-		{
-			if((ift = (MIB_IFTABLE*)malloc(bufsize)) != NULL)
-			{
-				if(pGetIfTable(ift, &bufsize, TRUE) == NO_ERROR)
-				{
-					return;
-				}
-			}
 		}
 	}
 
@@ -178,32 +156,22 @@ void Net_get(ULONGLONG *recv, ULONGLONG *send)
 			}
 		}
 	}
-	else if(ift)	// Win2k/XP
-	{
-		int i;
-
-		for(i = ift->dwNumEntries - 1; i >= 0 ; i--)
-		{
-			MIB_IFROW *ifr = &ift->table[i];
-			if(ifr->dwType == IF_TYPE_ETHERNET_CSMACD ||
-				ifr->dwType == IF_TYPE_IEEE80211 ||
-				ifr->dwType == IF_TYPE_PPP)
-			{
-				pGetIfEntry(ifr);
-				urecv += ifr->dwInOctets;
-				usend += ifr->dwOutOctets;
-			}
-		}
-	}
 	*recv = urecv;
 	*send = usend;
 }
 
 void Net_end(void)
 {
-	if (hmodIPHLP && ift2) { pFreeMibTable(ift2); ift2 = NULL; }
-	if (hmodIPHLP) { FreeLibrary(hmodIPHLP); hmodIPHLP = NULL; }
-	if (ift) { free(ift); ift = NULL; }
+	if (hmodIPHLP)
+	{
+		if (ift2)
+		{
+			pFreeMibTable(ift2);
+			ift2 = NULL;
+		}
+		FreeLibrary(hmodIPHLP);
+		hmodIPHLP = NULL;
+	}
 }
 
 #endif	/* TC_ENABLE_NETWORK */

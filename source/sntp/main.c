@@ -20,7 +20,6 @@ char      g_langfile[MAX_PATH];    // tclang.txt
 HFONT     g_hfontDialog = NULL;    // dialog font
 HWND      g_hwndMain  = NULL;      // main window
 HICON     g_hIconPlay, g_hIconStop; // icons to use frequently
-int       g_winver;                // Windows version flags
 
 /* Statics */
 
@@ -128,8 +127,6 @@ void InitApp(void)
 	// common/langcode.c
 	FindFileWithLangCode(g_langfile, GetUserDefaultLangID(), TCLANGTXT);
 	g_hfontDialog = CreateDialogFont();
-	
-	g_winver = CheckWinVersion();
 	
 	g_hIconPlay = LoadImage(g_hInst, MAKEINTRESOURCE(IDI_PLAY), IMAGE_ICON,
 		16, 16, LR_DEFAULTCOLOR|LR_SHARED);
