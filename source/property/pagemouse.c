@@ -649,7 +649,7 @@ static struct {
 #endif
 };
 
-#define MAX_MOUSEFUNC	(sizeof(m_mousefunc) / sizeof(m_mousefunc[0]))
+#define MAX_MOUSEFUNC	ARRAYSIZE(m_mousefunc)
 
 void InitFunction(HWND hDlg, int id)
 {

@@ -296,7 +296,7 @@ void AddMessageFilters(void)
 		WM_XBUTTONUP,
 	};
 	
-	for(i = 0; i < sizeof(messages) / sizeof(UINT); i++)
+	for(i = 0; i < ARRAYSIZE(messages); i++)
 	{
 		ChangeWindowMessageFilter(messages[i], MSGFLT_ADD);
 	}

@@ -77,7 +77,7 @@ struct {
 #endif
 };
 
-#define NUM_HANDLERS (sizeof(format_handers) / sizeof(format_handers[0])) 
+#define NUM_HANDLERS	ARRAYSIZE(format_handers)
 
 /*------------------------------------------------
    read settings and initialize

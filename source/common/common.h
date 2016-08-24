@@ -450,6 +450,10 @@ void ReleaseMixer(void);
 #define GET_WHEEL_DELTA_WPARAM(wParam)	((short)HIWORD(wParam))
 #endif
 
+#ifndef ARRAYSIZE
+#define ARRAYSIZE(arr)	(sizeof(arr) / sizeof((arr)[0]))
+#endif
+
 /* -- for VC6 compatibility ---------------------------------------- */
 
 #ifndef _W64
