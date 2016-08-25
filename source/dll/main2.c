@@ -26,6 +26,7 @@ BOOL    g_bNoClock;            // don't customize clock
 int     g_OrigClockWidth;      // original clock width
 int     g_OrigClockHeight;     // original clock height
 BOOL    g_bSubclassed;         // clock window is subclassed
+BOOL    g_bLMousePassThru;     // pass through left button messages
 
 #define SUBCLASS_ID			1
 #define SUBCLASSTRAY_ID		2
@@ -213,6 +214,7 @@ void OnDestroy(HWND hwnd)
 void LoadSetting(HWND hwnd)
 {
 	g_bNoClock = GetMyRegLong(NULL, "NoClock", FALSE);
+	g_bLMousePassThru = GetMyRegLong("Mouse", "LeftMousePassThrough", FALSE);
 	
 #if TC_ENABLE_MOUSEDROP
 	DragAcceptFiles(hwnd, GetMyRegLong(NULL, "DropFiles", FALSE));

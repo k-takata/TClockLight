@@ -100,6 +100,10 @@ INT_PTR CALLBACK PageMouseProc(HWND hDlg, UINT message,
 				case IDC_RCLICKMENU:
 					SendPSChanged(hDlg);
 					break;
+				case IDC_LMOUSEPASSTHRU:
+					g_bApplyClock = TRUE;
+					SendPSChanged(hDlg);
+					break;
 				case IDC_MOUSEFUNC:
 					OnFunction(hDlg, TRUE);
 					break;
@@ -199,6 +203,9 @@ void OnInit(HWND hDlg)
 	CBSetCurSel(hDlg, IDC_NAMECLICK, 0);
 	OnName(hDlg);
 	
+	CheckDlgButton(hDlg, IDC_LMOUSEPASSTHRU,
+		GetMyRegLong(m_section, "LeftMousePassThrough", FALSE));
+	
 	b = GetMyRegLong(NULL, "RightClickMenu", TRUE);
 	b = GetMyRegLong(m_section, "RightClickMenu", b);
 	CheckDlgButton(hDlg, IDC_RCLICKMENU, b);
@@ -244,6 +251,9 @@ void OnApply(HWND hDlg)
 		}
 	}
 	m_numOld = m_numMouseCommand;
+	
+	SetMyRegLong(m_section, "LeftMousePassThrough",
+		IsDlgButtonChecked(hDlg, IDC_LMOUSEPASSTHRU));
 	
 	SetMyRegLong(m_section, "RightClickMenu",
 		IsDlgButtonChecked(hDlg, IDC_RCLICKMENU));
@@ -611,6 +621,7 @@ void EnableMousePageItems(HWND hDlg)
 	hwnd = GetWindow(hDlg, GW_CHILD);
 	while(hwnd)
 	{
+		if(GetDlgCtrlID(hwnd) == IDC_LMOUSEPASSTHRU) continue;
 		if(GetDlgCtrlID(hwnd) == IDC_RCLICKMENU) break;
 		
 		if(GetDlgCtrlID(hwnd) != IDC_ADDCLICK)

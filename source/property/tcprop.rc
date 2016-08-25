@@ -280,9 +280,12 @@ BEGIN
     RTEXT           "File",IDC_LABMOUSEOPT,0,116,33,11
     EDITTEXT        IDC_MOUSEOPT,39,113,126,13,ES_AUTOHSCROLL
     PUSHBUTTON      "...",IDC_MOUSEOPTSANSHO,169,113,15,13
+    CONTROL         "Always pass through left button messages",
+                    IDC_LMOUSEPASSTHRU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,39,
+                    136,186,11
     CONTROL         "Always show TClock menu on right button click",
                     IDC_RCLICKMENU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,39,
-                    136,186,11
+                    150,186,11
 END
 
 IDD_PAGEMOUSE2 DIALOG DISCARDABLE  0, 0, 240, 140

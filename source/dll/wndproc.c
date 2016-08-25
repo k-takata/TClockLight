@@ -125,12 +125,18 @@ LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		/* -------- Mouse messages ------------- */
 		
 		case WM_LBUTTONDOWN:   // mouse button is down
+			if(g_bLMousePassThru)
+				break;	// pass through
+			// FALL-THROUGH
 		case WM_RBUTTONDOWN:
 		case WM_MBUTTONDOWN:
 		case WM_XBUTTONDOWN:
 			return OnMouseDown(hwnd, message, wParam, lParam);
 		
 		case WM_LBUTTONUP:    // mouse button is up
+			if(g_bLMousePassThru)
+				break;	// pass through
+			// FALL-THROUGH
 		case WM_RBUTTONUP:
 		case WM_MBUTTONUP:
 		case WM_XBUTTONUP:

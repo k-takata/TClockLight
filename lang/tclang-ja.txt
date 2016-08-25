@@ -1,6 +1,6 @@
 [Main]
 DialogFont=ＭＳ Ｐゴシック,9
-Version=TClock Light kt090704
+Version=TClock Light kt160825
 HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/ja/
 
 [Property]
@@ -83,7 +83,8 @@ Line03="          [   シングル] [   ダブル]  [   3回]  [   4回]"
 Line04="          [   Ctrl] [   Shift] [   Alt]"
 Line05="   [ 機能][                             ]"
 Line06="[ファイル][                                          ][...]"
-Line07="  [    常に右クリックでTClockのメニューを表示]"
+Line07="  [    常に左ボタンメッセージを通過させる]"
+Line08="  [    常に右クリックでTClockのメニューを表示]"
 
 [Mouse2]
 HelpURL=mouse2.html
