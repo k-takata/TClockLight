@@ -53,6 +53,7 @@ extern BOOL    g_bVisualStyle;
 extern BOOL    g_bNoClock;
 extern int     g_OrigClockWidth;
 extern int     g_OrigClockHeight;
+extern BOOL    g_bSubclassed;
 
 /* ---------- wndproc.c ----------- */
 LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);

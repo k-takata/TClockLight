@@ -25,6 +25,7 @@ BOOL    g_bVisualStyle;        // Windows XP theme is used
 BOOL    g_bNoClock;            // don't customize clock
 int     g_OrigClockWidth;      // original clock width
 int     g_OrigClockHeight;     // original clock height
+BOOL    g_bSubclassed;         // clock window is subclassed
 
 #define SUBCLASS_ID			1
 #define SUBCLASSTRAY_ID		2
@@ -52,6 +53,8 @@ void InitClock(HWND hwnd)
 		SendMessage(g_hwndTClockMain, TCM_CLOCKERROR, 0, 6);
 		return;
 	}
+#else
+	g_bSubclassed = IsSubclassed(hwnd);
 #endif
 	
 	GetModuleFileName(g_hInst, g_mydir, MAX_PATH);

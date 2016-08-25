@@ -202,6 +202,15 @@ LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			OnVolumeChange(hwnd);
 			return 0;
 #endif
+		case CLOCKM_VISTACALENDAR:
+			if(g_bSubclassed)
+			{
+				// Assuming Win10AU
+				DefSubclassProc(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, 0);
+				return DefSubclassProc(hwnd, WM_LBUTTONUP, MK_LBUTTON, 0);
+			}
+			// pass through
+			break;
 		
 		case WM_COPYDATA:
 			OnCopyData(hwnd, (HWND)wParam, (COPYDATASTRUCT*)lParam);
