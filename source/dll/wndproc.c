@@ -203,9 +203,9 @@ LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			return 0;
 #endif
 		case CLOCKM_VISTACALENDAR:
-			if(g_bSubclassed)
+			if(g_winver&WIN10RS1)
 			{
-				// Assuming Win10AU
+				// Win10AU: simulate left click
 				DefSubclassProc(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, 0);
 				return DefSubclassProc(hwnd, WM_LBUTTONUP, MK_LBUTTON, 0);
 			}
