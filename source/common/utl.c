@@ -340,17 +340,18 @@ BOOL IsDirectory(const char* fname)
 }
 
 /*-------------------------------------------
-  check Windows 95/98/Me/NT4/2000/XP/Vista
+  check Windows version
 ---------------------------------------------*/
 int CheckWinVersion(void)
 {
 	DWORD dw;
-	WORD ver, w;
+	WORD ver, w, build;
 	int ret;
 	
 	dw = GetVersion();
 	w = LOWORD(dw);
 	ver = MAKEWORD(HIBYTE(w), LOBYTE(w));
+	build = (dw >> 16) & 0x7fff;
 	ret = 0;
 	if(dw & 0x80000000)
 	{
@@ -369,8 +370,21 @@ int CheckWinVersion(void)
 			ret |= WINXP;
 		if(ver >= MAKEWORD(0, 6))	// 6.0
 			ret |= WINVISTA;
-	//	if(ver >= MAKEWORD(1, 6))	// 6.1
-	//		ret |= WIN7;
+		if(ver >= MAKEWORD(1, 6))	// 6.1
+			ret |= WIN7;
+		if(ver >= MAKEWORD(2, 6))	// 6.2
+			ret |= WIN8;
+		if(ver >= MAKEWORD(3, 6))	// 6.3
+			ret |= WIN8_1;
+		if(ver >= MAKEWORD(0, 10))	// 10.0
+		{
+			if(build >= 10240)
+				ret |= WIN10;
+			if(build >= 10586)
+				ret |= WIN10TH2;	// Ver.1511, Threshold 2
+			if(build >= 14393)
+				ret |= WIN10RS1;	// Ver.1607, Redstone 1, Anniversary Update
+		}
 	}
 	
 	return ret;
@@ -398,7 +412,7 @@ BOOL IsXPVisualStyle(void)
 BOOL IsVistaAero(void)
 {
 #if 1
-	BOOL ret;
+	BOOL ret = FALSE;
 	
 	DwmIsCompositionEnabled(&ret);
 	return ret;

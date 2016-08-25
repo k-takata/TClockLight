@@ -364,14 +364,19 @@ void EndDesktopIcons(void);
 /* -- utl.c ---------------------------------------- */
 
 // Windows version flag
-#define WIN95    0x01   // 95,98,Me
-#define WIN98    0x02   // 98,Me
-#define WINME    0x04   // Me
-#define WINNT    0x08   // NT4,2000,XP,Vista,Win7
-#define WIN2000  0x10   // 2000,XP,Vista,Win7
-#define WINXP    0x20   // XP,Vista,Win7
-#define WINVISTA 0x40   // Vista,Win7
-#define WIN7     0x80   // Win7
+#define WIN95    0x0001   // 95,98,Me
+#define WIN98    0x0002   // 98,Me
+#define WINME    0x0004   // Me
+#define WINNT    0x0008   // NT4,2000,XP,Vista,Win7, ...
+#define WIN2000  0x0010   // 2000,XP,Vista,Win7, ...
+#define WINXP    0x0020   // XP,Vista,Win7, ...
+#define WINVISTA 0x0040   // Vista,Win7, ...
+#define WIN7     0x0080   // Win7, ...
+#define WIN8     0x0100   // Win8, ...
+#define WIN8_1   0x0200   // Win8.1, ...
+#define WIN10    0x0400   // Win10,Win10TH2,Win10RS1
+#define WIN10TH2 0x0400   // Win10TH2,Win10RS1
+#define WIN10RS1 0x0800   // Win10RS1
 
 void add_title(char *path, const char* titile);
 void del_title(char *path);
