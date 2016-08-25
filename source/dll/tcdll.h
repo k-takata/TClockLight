@@ -20,9 +20,9 @@
 #endif
 
 // timer id
-#define IDTIMER_MAIN         1
-#define IDTIMER_SYSINFO      2
-#define IDTIMER_TOOLTIP      3
+#define IDTIMER_MAIN         1001
+#define IDTIMER_SYSINFO      1002
+#define IDTIMER_TOOLTIP      1003
 
 /* structure for format handler functions */
 
