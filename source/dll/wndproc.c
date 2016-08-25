@@ -125,18 +125,12 @@ LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		/* -------- Mouse messages ------------- */
 		
 		case WM_LBUTTONDOWN:   // mouse button is down
-			if(g_bLMousePassThru)
-				break;	// pass through
-			// FALL-THROUGH
 		case WM_RBUTTONDOWN:
 		case WM_MBUTTONDOWN:
 		case WM_XBUTTONDOWN:
 			return OnMouseDown(hwnd, message, wParam, lParam);
 		
 		case WM_LBUTTONUP:    // mouse button is up
-			if(g_bLMousePassThru)
-				break;	// pass through
-			// FALL-THROUGH
 		case WM_RBUTTONUP:
 		case WM_MBUTTONUP:
 		case WM_XBUTTONUP:
@@ -481,8 +475,10 @@ void OnVolumeChange(HWND hwnd)
 --------------------------------------------------*/
 LRESULT OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	if(message == WM_LBUTTONDOWN)
-		SetFocus(hwnd);
+	BOOL skipmsg = FALSE;
+	
+	//if(message == WM_LBUTTONDOWN)
+	//	SetFocus(hwnd);
 	
 	if(g_sdisp2[0] || g_scat2[0])
 	{
@@ -493,13 +489,23 @@ LRESULT OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	
 	if(g_nBlink)
 	{
-		g_nBlink = 0; InvalidateRect(hwnd, NULL, FALSE);
+		g_nBlink = 0;
+		InvalidateRect(hwnd, NULL, FALSE);
+		skipmsg = TRUE;
 	}
 	
 #if TC_ENABLE_STARTBUTTON
 	if(StartMenuFromClock(message, wParam, lParam))  // startbtn.c
 		return 0;
 #endif
+	
+	if(g_bLMousePassThru && message == WM_LBUTTONDOWN)
+	{
+		if(skipmsg)
+			return 0;
+		else
+			return DefSubclassProc(hwnd, message, wParam, lParam);
+	}
 	
 	PostMessage(g_hwndTClockMain, message, wParam, lParam);
 	return 0;
@@ -510,6 +516,9 @@ LRESULT OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 --------------------------------------------------*/
 LRESULT OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	if(g_bLMousePassThru && message == WM_LBUTTONUP)
+		return DefSubclassProc(hwnd, message, wParam, lParam);
+	
 	PostMessage(g_hwndTClockMain, message, wParam, lParam);
 	return 0;
 }
