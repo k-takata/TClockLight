@@ -120,7 +120,6 @@ void InitClock(HWND hwnd)
 #endif
 	
 	SetTimer(hwnd, IDTIMER_MAIN, 1000, NULL);
-	InvalidateRect(hwnd, NULL, TRUE);
 	
 #if TC_ENABLE_DESKTOPICON
 	SetDesktopIcons();     // desktop.c
