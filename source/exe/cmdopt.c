@@ -63,10 +63,7 @@ void CheckCommandLine(HWND hwnd, BOOL bPrev)
 			else if(strcmp(name, "exit") == 0)
 			{
 				if(bPrev && hwndClock)
-				{
 					PostMessage(hwndClock, CLOCKM_EXIT, 0, 0);
-					InvalidateRect(hwndClock, NULL, TRUE);
-				}
 			}
 			else if(strcmp(name, "blink") == 0)
 			{
