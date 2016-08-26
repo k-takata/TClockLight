@@ -12,7 +12,7 @@
 /* Globals */
 
 void ContextMenuCommand(HWND hwnd, int id);
-void EndMenu(void);
+void EndContextMenu(void);
 void OnContextMenu(HWND hwnd, HWND hwndClicked, int xPos, int yPos);
 void OnExitMenuLoop(HWND hwnd);
 void SetFocusTClockMain(HWND hwnd);
@@ -61,7 +61,7 @@ void ContextMenuCommand(HWND hwnd, int id)
 /*------------------------------------------------
   clean up
 --------------------------------------------------*/
-void EndMenu(void)
+void EndContextMenu(void)
 {
 	if(m_hMenu) DestroyMenu(m_hMenu);
 	m_hMenu = NULL;
@@ -94,7 +94,7 @@ void OnContextMenu(HWND hwnd, HWND hwndClicked, int xPos, int yPos)
 		FindClose(hfind);
 		if(m_lasttime != fd.ftLastWriteTime.dwLowDateTime)
 		{
-			EndMenu();
+			EndContextMenu();
 			m_lasttime = fd.ftLastWriteTime.dwLowDateTime;
 		}
 	}
@@ -200,10 +200,8 @@ void SendOnContextMenu(void)
 void CheckMenu(HMENU hmenu)
 {
 	char s[80];
-	int winver = CheckWinVersion();
 	
-	EnableMenuItem(hmenu, IDC_TASKMAN, MF_BYCOMMAND|
-		((winver&WINNT) ? MF_ENABLED:MF_GRAYED) );
+	EnableMenuItem(hmenu, IDC_TASKMAN, MF_BYCOMMAND|MF_ENABLED);
 	
 	EnableMenuItem(hmenu, IDC_SYNCTIME, MF_BYCOMMAND|
 		(GetMyRegStr("SNTP", "Server", s, 80, "") > 0 ?
@@ -224,7 +222,7 @@ void LoadMenuFromText(HMENU hmenu,
 		hf = _lopen(fname, OF_READ);
 	if(hf == HFILE_ERROR)
 	{
-		AppendMenu(hmenu, MF_STRING, IDC_EXIT, "Exit TClock");
+		AppendMenu(hmenu, MF_STRING, IDC_EXIT, "E&xit TClock");
 		return;
 	}
 	

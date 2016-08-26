@@ -152,7 +152,7 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 			char s[160];
 			
 			np = nextline(p);
-			_lwrite(hf, p, np - p);
+			_lwrite(hf, p, (int)(np - p));
 			p = np;
 			
 			tick = GetTickCount();
@@ -167,7 +167,7 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 					MyString(IDS_STOP, "Stop"),
 					pTS->name, remaining/60, remaining%60,
 					CLASS_TCLOCKTIMER, TIMERM_STOP, pTS->id);
-				_lwrite(hf, s, strlen(s));
+				_lwrite(hf, s, (int)strlen(s));
 			}
 			
 			while(*p)
@@ -180,7 +180,7 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 		else
 		{
 			np = nextline(p);
-			_lwrite(hf, p, np - p);
+			_lwrite(hf, p, (int)(np - p));
 			p = np;
 		}
 	}

@@ -1,6 +1,6 @@
 [Main]
-DialogFont=MS Sans Serif, 8
-Version=TClock Light kt090704
+DialogFont=MS Sans Serif, 9
+Version=TClock Light kt160825
 HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/en/
 
 [Property]
@@ -83,7 +83,8 @@ Line03="           [    single] [    double] [    triple][    quadruple]"
 Line04="           [    Ctrl] [    Shift] [    Alt]"
 Line05="[ Function][                               ]"
 Line06="  [   File][                                       ][...]"
-Line07="           [   Always show TClock menu on right button click]"
+Line07="           [   Always pass through left button messages]"
+Line08="           [   Always show TClock menu on right button click]"
 
 [Mouse2]
 HelpURL=mouse2.html

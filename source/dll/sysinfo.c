@@ -24,30 +24,8 @@ static int iBatteryMode;
 #endif
 
 #if TC_ENABLE_MEMORY
-typedef struct _MYMEMORYSTATUSEX {
-	DWORD dwLength;
-	DWORD dwMemoryLoad;
-	DWORDLONG ullTotalPhys;
-	DWORDLONG ullAvailPhys;
-	DWORDLONG ullTotalPageFile;
-	DWORDLONG ullAvailPageFile;
-	DWORDLONG ullTotalVirtual;
-	DWORDLONG ullAvailVirtual;
-	DWORDLONG ullAvailExtendedVirtual;
-} MYMEMORYSTATUSEX, *LPMYMEMORYSTATUSEX;
-
-typedef BOOL (WINAPI *pfnGlobalMemoryStatusEx)(LPMYMEMORYSTATUSEX lpBuffer);
-
-static BOOL WINAPI GlobalMemoryStatusExStub(LPMYMEMORYSTATUSEX lpBuffer);
-static BOOL WINAPI GlobalMemoryStatusEx9x(LPMYMEMORYSTATUSEX lpBuffer);
-
-#if TC_SUPPORT_NT4 || TC_SUPPORT_WIN9X
-static pfnGlobalMemoryStatusEx pGlobalMemoryStatusEx = GlobalMemoryStatusExStub;
-#else
-static pfnGlobalMemoryStatusEx pGlobalMemoryStatusEx = GlobalMemoryStatusEx;
-#endif
 static BOOL m_bMem;
-static MYMEMORYSTATUSEX ms;
+static MEMORYSTATUSEX ms;
 #endif	/* TC_ENABLE_MEMORY */
 
 #if TC_ENABLE_VOLUME
@@ -133,7 +111,7 @@ void OnTimerSysInfo(void)
 #if TC_ENABLE_MEMORY
 	if (m_bMem) {
 		ms.dwLength = sizeof(ms);
-		pGlobalMemoryStatusEx(&ms);
+		GlobalMemoryStatusEx(&ms);
 	}
 #endif
 #if TC_ENABLE_HDD
@@ -171,36 +149,36 @@ void OnTimerSysInfo(void)
 void ElapsedTimeHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	static int sec = -1;
-	static DWORD t;
+	static ULONGLONG t;
 	unsigned st;
 	int len, slen;
 	BOOL bComma;
 
 	if (pstruc->pt->wSecond != sec) {
 		sec = pstruc->pt->wSecond;
-		t = GetTickCount();
+		t = GetTickCount64();
 	}
 
 	pstruc->sp++;
 	if (*pstruc->sp == 'T') {
 		pstruc->sp++;
-		SetNumFormat(&pstruc->dp, t / 3600000, 1, 0, FALSE);
+		SetNumFormat(&pstruc->dp, (unsigned)(t / 3600000), 1, 0, FALSE);
 		*pstruc->dp++ = ':';
-		SetNumFormat(&pstruc->dp, t / 60000 % 60, 2, 0, FALSE);
+		SetNumFormat(&pstruc->dp, (unsigned)(t / 60000 % 60), 2, 0, FALSE);
 		*pstruc->dp++ = ':';
-		SetNumFormat(&pstruc->dp, t / 1000 % 60, 2, 0, FALSE);
+		SetNumFormat(&pstruc->dp, (unsigned)(t / 1000 % 60), 2, 0, FALSE);
 		g_bDispSecond = TRUE;
 		return;
 	} else if (GetNumFormat(&pstruc->sp, 'd', 'd', &len, &slen, &bComma)) {
-		st = t / 86400000;
+		st = (unsigned)(t / 86400000);
 	} else if (GetNumFormat(&pstruc->sp, 'a', 'a', &len, &slen, &bComma)) {
-		st = t / 3600000;
+		st = (unsigned)(t / 3600000);
 	} else if (GetNumFormat(&pstruc->sp, 'h', 'h', &len, &slen, &bComma)) {
-		st = t / 3600000 % 24;
+		st = (unsigned)(t / 3600000 % 24);
 	} else if (GetNumFormat(&pstruc->sp, 'n', 'n', &len, &slen, &bComma)) {
-		st = t / 60000 % 60;
+		st = (unsigned)(t / 60000 % 60);
 	} else if (GetNumFormat(&pstruc->sp, 's', 's', &len, &slen, &bComma)) {
-		st = t / 1000 % 60;
+		st = (unsigned)(t / 1000 % 60);
 	} else {
 		*pstruc->dp++ = 'S';
 		return;
@@ -224,7 +202,8 @@ void NetworkHandler(FORMATHANDLERSTRUCT* pstruc)
 	else if (*(pstruc->sp + 2) == 'S') i += 2;
 	else i = -4;
 
-	if (!(*(pstruc->sp+3)=='B' || *(pstruc->sp+3)=='K' || *(pstruc->sp+3)=='M'))
+	if (!(*(pstruc->sp+3)=='B' || *(pstruc->sp+3)=='K'
+				|| *(pstruc->sp+3)=='M' || *(pstruc->sp+3)=='G'))
 		i = -4;
 
 	if (i >= 0) {
@@ -241,6 +220,7 @@ void NetworkHandler(FORMATHANDLERSTRUCT* pstruc)
 		ntd = 1000 * net[i];
 		if (*(pstruc->sp + 3) == 'K') ntd /= 1024;
 		else if (*(pstruc->sp + 3) == 'M') ntd /= 1048576;
+		else if (*(pstruc->sp + 3) == 'G') ntd /= 1048576 * 1024;
 
 		pstruc->sp += 4;
 		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, ntd, 1000);
@@ -263,7 +243,7 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 		{
 			m_bMem = TRUE;
 			ms.dwLength = sizeof(ms);
-			pGlobalMemoryStatusEx(&ms);
+			GlobalMemoryStatusEx(&ms);
 			g_bDispSecond = TRUE;
 		} else {
 			*pstruc->dp++ = *pstruc->sp++;
@@ -366,38 +346,6 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 	} else
 		*pstruc->dp++ = *pstruc->sp++;
 }
-
-BOOL WINAPI GlobalMemoryStatusExStub(LPMYMEMORYSTATUSEX lpBuffer)
-{
-	HMODULE hKernel32 = GetModuleHandle("kernel32.dll");
-	pGlobalMemoryStatusEx = (pfnGlobalMemoryStatusEx)
-			GetProcAddress(hKernel32, "GlobalMemoryStatusEx");
-	
-	if (pGlobalMemoryStatusEx == NULL) {
-		pGlobalMemoryStatusEx = GlobalMemoryStatusEx9x;
-	}
-	return pGlobalMemoryStatusEx(lpBuffer);
-}
-
-BOOL WINAPI GlobalMemoryStatusEx9x(LPMYMEMORYSTATUSEX lpBuffer)
-{
-	MEMORYSTATUS ms;
-	
-	if ((lpBuffer == NULL)
-			|| (lpBuffer->dwLength < sizeof(MYMEMORYSTATUSEX))) {
-		return FALSE;
-	}
-	GlobalMemoryStatus(&ms);
-	lpBuffer->dwMemoryLoad = ms.dwMemoryLoad;
-	lpBuffer->ullTotalPhys = ms.dwTotalPhys;
-	lpBuffer->ullAvailPhys = ms.dwAvailPhys;
-	lpBuffer->ullTotalPageFile = ms.dwTotalPageFile;
-	lpBuffer->ullAvailPageFile = ms.dwAvailPageFile;
-	lpBuffer->ullTotalVirtual = ms.dwTotalVirtual;
-	lpBuffer->ullAvailVirtual = ms.dwAvailVirtual;
-	lpBuffer->ullAvailExtendedVirtual = 0;
-	return TRUE;
-}
 #endif
 
 #if TC_ENABLE_HDD
@@ -407,7 +355,8 @@ void HDDHandler(FORMATHANDLERSTRUCT* pstruc)
 
 	if (!m_bHDD) {
 		if ((*(pstruc->sp+1)=='T'||*(pstruc->sp+1)=='A'||*(pstruc->sp+1)=='U')&&
-			(*(pstruc->sp+3)=='M'||*(pstruc->sp+3)=='G'||*(pstruc->sp+3)=='P')&&
+			(*(pstruc->sp+3)=='M'||*(pstruc->sp+3)=='G'||
+				*(pstruc->sp+3)=='T'||*(pstruc->sp+3)=='P')&&
 			(*(pstruc->sp + 2) >= 'A' && *(pstruc->sp + 2) <= 'Z'))
 		{
 			m_bHDD = TRUE;
@@ -432,6 +381,8 @@ void HDDHandler(FORMATHANDLERSTRUCT* pstruc)
 				d = 1000 * diskAll[drv] / 1048576;
 			else if (*(pstruc->sp + 3) == 'G')
 				d = 1000 * diskAll[drv] / 1048576 / 1024;
+			else if (*(pstruc->sp + 3) == 'T')
+				d = 1000 * diskAll[drv] / 1048576 / 1048576;
 		}
 		else if (*(pstruc->sp + 1) == 'A')
 		{
@@ -439,6 +390,8 @@ void HDDHandler(FORMATHANDLERSTRUCT* pstruc)
 				d = 1000 * diskFree[drv] / 1048576;
 			else if (*(pstruc->sp + 3) == 'G')
 				d = 1000 * diskFree[drv] / 1048576 / 1024;
+			else if (*(pstruc->sp + 3) == 'T')
+				d = 1000 * diskFree[drv] / 1048576 / 1048576;
 			else if (*(pstruc->sp + 3) == 'P')
 				d = diskAll[drv] ? 1000 * diskFree[drv] * 100 / diskAll[drv] : 0;
 		}
@@ -448,6 +401,8 @@ void HDDHandler(FORMATHANDLERSTRUCT* pstruc)
 				d = 1000 * (diskAll[drv] - diskFree[drv]) / 1048576;
 			else if (*(pstruc->sp + 3) == 'G')
 				d = 1000 * (diskAll[drv] - diskFree[drv]) / 1048576 / 1024;
+			else if (*(pstruc->sp + 3) == 'T')
+				d = 1000 * (diskAll[drv] - diskFree[drv]) / 1048576 / 1048576;
 			else if (*(pstruc->sp + 3) == 'P')
 				d = diskAll[drv] ?
 					1000 * (diskAll[drv] - diskFree[drv]) * 100 / diskAll[drv] : 0;

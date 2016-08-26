@@ -20,21 +20,12 @@ UINT g_uTaskbarRestart;     // taskbar recreating message
 
 /* Statics */
 
-static void DisableIME(void);
 static void InitTClockMain(void);
 static BOOL CheckTCDLL(void);
 static void InitTextColor(void);
 static void InitFormat(void);
 static void AddMessageFilters(void);
 
-/* typedefs */
-
-typedef BOOL (WINAPI *pfnImmDisableIME)(DWORD);
-typedef BOOL (WINAPI *pfnChangeWindowMessageFilter)(UINT, DWORD);
-
-/* imm.h */
-
-BOOL WINAPI ImmDisableIME(DWORD);
 
 /*-------------------------------------------
    main routine
@@ -53,7 +44,7 @@ int TClockExeMain(void)
 		return 1;
 	}
 	
-	DisableIME();
+	ImmDisableIME(0);
 	
 	if(!CheckTCDLL()) { return 1; }
 	
@@ -120,30 +111,7 @@ int TClockExeMain(void)
 	
 	UnregisterClass(CLASS_TCLOCKMAIN, g_hInst);
 	
-	return msg.wParam;
-}
-
-/*-------------------------------------------
-  disable the IME
----------------------------------------------*/
-void DisableIME(void)
-{
-#if TC_SUPPORT_WIN95 || TC_SUPPORT_NT4
-	HMODULE hImm32;
-	pfnImmDisableIME pImmDisableIME;
-	
-	hImm32 = LoadLibrary("imm32.dll");
-	if (hImm32 == NULL)
-		return;
-	pImmDisableIME = (pfnImmDisableIME)
-			GetProcAddress(hImm32, "ImmDisableIME");
-	if (pImmDisableIME != NULL) {
-		pImmDisableIME(0);
-	}
-	FreeLibrary(hImm32);
-#else
-	ImmDisableIME(0);
-#endif
+	return (int)msg.wParam;
 }
 
 /*-------------------------------------------
@@ -267,15 +235,12 @@ void InitFormat(void)
 		// vertical task bar
 		if(rc.right < rc.bottom) bbreak = TRUE;
 		
-		if(g_winver&WINXP)
+		hwnd = FindWindowEx(hwnd, NULL, "TrayNotifyWnd", NULL);
+		if(hwnd)
 		{
-			hwnd = FindWindowEx(hwnd, NULL, "TrayNotifyWnd", NULL);
-			if(hwnd)
-			{
-				RECT rc;
-				GetClientRect(hwnd, &rc);
-				if(rc.bottom - rc.top > 32) bbreak = TRUE;
-			}
+			RECT rc;
+			GetClientRect(hwnd, &rc);
+			if(rc.bottom - rc.top > 32) bbreak = TRUE;
 		}
 	}
 	
@@ -298,8 +263,6 @@ void InitFormat(void)
 --------------------------------------------------*/
 void AddMessageFilters(void)
 {
-	HMODULE hUser32;
-	pfnChangeWindowMessageFilter pChangeWindowMessageFilter;
 	int i;
 	const UINT messages[] = {
 	//	WM_CREATE,
@@ -333,16 +296,9 @@ void AddMessageFilters(void)
 		WM_XBUTTONUP,
 	};
 	
-	hUser32 = GetModuleHandle("user32.dll");
-	if (hUser32 == NULL)
-		return;
-	pChangeWindowMessageFilter = (pfnChangeWindowMessageFilter)
-			GetProcAddress(hUser32, "ChangeWindowMessageFilter");
-	if (pChangeWindowMessageFilter == NULL)
-		return;
-	
-	for (i = 0; i < sizeof(messages) / sizeof(UINT); i++) {
-		pChangeWindowMessageFilter(messages[i], MSGFLT_ADD);
+	for(i = 0; i < ARRAYSIZE(messages); i++)
+	{
+		ChangeWindowMessageFilter(messages[i], MSGFLT_ADD);
 	}
 }
 

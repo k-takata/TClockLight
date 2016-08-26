@@ -90,7 +90,7 @@ BOOL Player(HWND hwnd, const char *src)
 	if(!src || *src == 0) return FALSE;
 	
 	ListSoundFiles(hwnd, src);
-	m_numFiles = SendDlgItemMessage(hwnd, IDC_LIST, LB_GETCOUNT, 0, 0);
+	m_numFiles = (int)SendDlgItemMessage(hwnd, IDC_LIST, LB_GETCOUNT, 0, 0);
 	if(m_numFiles == 0) return FALSE;
 	m_nCurrent = 0;
 	
@@ -242,7 +242,7 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 			char s[160];
 			
 			np = nextline(p);
-			_lwrite(hf, p, np - p);
+			_lwrite(hf, p, (int)(np - p));
 			p = np;
 			
 			if(m_bPlaying)
@@ -250,17 +250,17 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 				wsprintf(s, "\"%s\" post %s %d\r\n",
 					MyString(IDS_STOP, "Stop"), CLASS_TCLOCKPLAYER,
 					PLAYERM_STOP);
-				_lwrite(hf, s, strlen(s));
+				_lwrite(hf, s, (int)strlen(s));
 				wsprintf(s, "\"%s\" post %s %d\r\n",
 					MyString(IDS_PAUSE, "Pause"), CLASS_TCLOCKPLAYER,
 					PLAYERM_PAUSE);
-				_lwrite(hf, s, strlen(s));
+				_lwrite(hf, s, (int)strlen(s));
 				if((m_numFiles > 1 && m_nCurrent > 0) || IsPrevNext(FALSE))
 				{
 					wsprintf(s, "\"%s\" post %s %d\r\n",
 						MyString(IDS_PREV, "Prev"), CLASS_TCLOCKPLAYER,
 						PLAYERM_PREV);
-					_lwrite(hf, s, strlen(s));
+					_lwrite(hf, s, (int)strlen(s));
 				}
 				if((m_numFiles > 1 && m_nCurrent < m_numFiles - 1)
 					|| IsPrevNext(TRUE))
@@ -268,7 +268,7 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 					wsprintf(s, "\"%s\" post %s %d\r\n",
 						MyString(IDS_NEXT, "Next"), CLASS_TCLOCKPLAYER,
 						PLAYERM_NEXT);
-					_lwrite(hf, s, strlen(s));
+					_lwrite(hf, s, (int)strlen(s));
 				}
 			}
 			
@@ -282,7 +282,7 @@ void OnRequestMenu(HWND hwnd, BOOL bClear)
 		else
 		{
 			np = nextline(p);
-			_lwrite(hf, p, np - p);
+			_lwrite(hf, p, (int)(np - p));
 			p = np;
 		}
 	}

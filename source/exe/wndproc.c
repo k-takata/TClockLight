@@ -208,7 +208,7 @@ void ClearTClockMain(HWND hwnd)
 	StopFile();
 	EndMouseFunction(hwnd);
 	EndAlarm();
-	EndMenu();
+	EndContextMenu();
 #if TC_ENABLE_VOLUME
 	ReleaseMixer();
 #endif
@@ -262,8 +262,7 @@ void OnTimerMain(HWND hwnd)
 	GetLocalTime(&st);
 	
 	// adjusting milliseconds gap
-	if((st.wMilliseconds > 200 ||
-		((g_winver | WINNT) && st.wMilliseconds > 50)))
+	if(st.wMilliseconds > 50)
 	{
 		KillTimer(hwnd, IDTIMER_MAIN);
 		SetTimer(hwnd, IDTIMER_MAIN, 1001 - st.wMilliseconds, NULL);

@@ -33,10 +33,14 @@ struct {
 	{ ':', NULL, STimeHandler },
 	{ 'y', NULL, YearHandler },
 	{ 'm', NULL, MonthHandler },
+	{ 0, L"_m",  MonthHandler },
 	{ 'd', NULL, DateHandler },
+	{ 0, L"_d",  DateHandler },
 	{ 0, L"aaa", DayOfWeekHandler },
 	{ 'h', NULL, HourHandler },
+	{ 0, L"_h",  HourHandler },
 	{ 'n', NULL, MinuteHandler },
+	{ 0, L"_n",  MinuteHandler },
 	{ 's', NULL, SecondHandler },
 	{ 0, L"tt", AMPMHandler },
 	{ 0, L"\\n", CRLFHandler },
@@ -77,7 +81,7 @@ struct {
 #endif
 };
 
-#define NUM_HANDLERS (sizeof(format_handers) / sizeof(format_handers[0])) 
+#define NUM_HANDLERS	ARRAYSIZE(format_handers)
 
 /*------------------------------------------------
    read settings and initialize

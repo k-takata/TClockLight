@@ -2,14 +2,8 @@
   tcsntp.h
 ---------------------------------------------*/
 
-#define _WIN32_IE    0x0200
-#define _WIN32_WINNT 0x0400
-#define WINVER       0x0400
-
-#include <windows.h>
-#include <commctrl.h>
-#include "resource.h"
 #include "../common/common.h"
+#include "resource.h"
 
 // notification of event to get host
 #define WSOCK_GETHOST (WM_USER+1)
@@ -49,7 +43,6 @@ extern char  g_inifile[];
 extern char  g_langfile[];
 extern HFONT g_hfontDialog;
 extern HWND  g_hwndMain;
-extern int   g_winver;
 
 /* ---------- dialog.c --------------- */
 

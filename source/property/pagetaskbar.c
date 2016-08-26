@@ -119,32 +119,15 @@ void OnInit(HWND hDlg)
 	
 	OnTaskSwitchFlat(hDlg);
 	
-	if(!IsIE4()) // old Win95/NT4
-	{
-		EnableDlgItem(hDlg, IDC_TASKSWITCHFLAT, FALSE);
-		EnableDlgItem(hDlg, IDC_TASKSWITCH_SEPARAT, FALSE);
-		EnableDlgItem(hDlg, IDC_TASKSWITCHICON, FALSE);
-		EnableDlgItem(hDlg, IDC_RBHIDE, FALSE);
-	}
-	
 	if(IsXPVisualStyle())
 	{
 		for(i = IDC_TASKBARCLASSIC; i <= IDC_TBBORDER; i++)
 			EnableDlgItem(hDlg, i, FALSE);
 	}
 	
-	if(g_winver&WINXP)
-	{
-		EnableDlgItem(hDlg, IDC_TASKSWITCH_SEPARAT, FALSE);
-		if(IsTaskbarAnimation())
-			EnableDlgItem(hDlg, IDC_TASKSWITCHICON, FALSE);
-	}
-	
-	if(!(g_winver&WIN2000))
-	{
-		for(i = IDC_CAPBARTRANS; i <= IDC_SPINBARTRANS; i++)
-			EnableDlgItem(hDlg, i, FALSE);
-	}
+	EnableDlgItem(hDlg, IDC_TASKSWITCH_SEPARAT, FALSE);
+	if((g_winver&WIN7) || IsTaskbarAnimation())
+		EnableDlgItem(hDlg, IDC_TASKSWITCHICON, FALSE);
 	
 	m_bInit = TRUE;
 }
@@ -181,10 +164,6 @@ void OnApply(HWND hDlg)
 --------------------------------------------------*/
 void OnTaskSwitchFlat(HWND hDlg)
 {
-	BOOL b;
-	
-	b = IsDlgButtonChecked(hDlg, IDC_TASKSWITCHFLAT);
-	if(g_winver&WINXP) b = FALSE;
-	EnableDlgItem(hDlg, IDC_TASKSWITCH_SEPARAT, b);
+	EnableDlgItem(hDlg, IDC_TASKSWITCH_SEPARAT, FALSE);
 }
 

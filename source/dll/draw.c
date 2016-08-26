@@ -23,6 +23,7 @@ BOOL g_bFitClock = FALSE; // Fit clock to tray
 
 /* Statics */
 
+static LRESULT CalcRect(HWND hwnd, int *textwidth, int *textheight);
 static void GetClockTextSize(HDC hdc, const TEXTMETRIC* ptm,
 	const wchar_t* str, int *wout, int *hout);
 static void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt);
@@ -64,22 +65,13 @@ void LoadDrawingSetting(HWND hwnd)
 	m_colback = GetMyRegLong(NULL, "BackColor",
 		0x80000000 | COLOR_3DFACE);
 	
-	if(!(g_winver&WINXP) && m_fillbackcolor == FALSE)
-	{
-		m_fillbackcolor = TRUE;
-		m_colback = 0x80000000 | COLOR_3DFACE;
-	}
-	
 	m_colback2 = m_colback;
-	if((g_winver&WIN98) || (g_winver&WIN2000))
-	{
-		if(GetMyRegLong(NULL, "UseBackColor2", TRUE))
-			m_colback2 = GetMyRegLong(NULL, "BackColor2", m_colback);
-		m_grad = GetMyRegLong(NULL, "GradDir", GRADIENT_FILL_RECT_H);
-	}
+	if(GetMyRegLong(NULL, "UseBackColor2", TRUE))
+		m_colback2 = GetMyRegLong(NULL, "BackColor2", m_colback);
+	m_grad = GetMyRegLong(NULL, "GradDir", GRADIENT_FILL_RECT_H);
 	
 	m_bFillTray = FALSE;
-	if(m_fillbackcolor && ((g_winver&WINME) || (g_winver&WIN2000)))
+	if(m_fillbackcolor)
 		m_bFillTray = GetMyRegLong(NULL, "FillTray", FALSE);
 	
 	m_colfore = GetMyRegLong(NULL, "ForeColor", 
@@ -117,9 +109,7 @@ void LoadDrawingSetting(HWND hwnd)
 	m_dvpos = (int)(short)GetMyRegLong(NULL, "VertPos", 0);
 	m_dlineheight = (int)(short)GetMyRegLong(NULL, "LineHeight", 0);
 	
-	g_bFitClock = FALSE;
-	if(g_winver&WINXP)
-		g_bFitClock = GetMyRegLong(NULL, "FitClock", TRUE);
+	g_bFitClock = GetMyRegLong(NULL, "FitClock", TRUE);
 	
 	m_ClockWidth = -1;
 }
@@ -173,12 +163,13 @@ void OnPaint(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
   return size of clock
   high-order word: height, low-order word: width
 --------------------------------------------------*/
-LRESULT OnCalcRect(HWND hwnd)
+LRESULT CalcRect(HWND hwnd, int *textwidth, int *textheight)
 {
 	TEXTMETRIC tm;
 	HDC hdc;
 	HFONT hOldFont;
 	wchar_t s[BUFSIZE_FORMAT+BUFSIZE_DISP*2];
+	wchar_t *p;
 	int wclock, hclock;
 	
 	if(!(GetWindowLong(hwnd, GWL_STYLE) & WS_VISIBLE))
@@ -195,7 +186,19 @@ LRESULT OnCalcRect(HWND hwnd)
 	if(g_scat1[0]) wcscat(s, g_scat1);
 	if(g_scat2[0]) wcscat(s, g_scat2);
 	
+	p = s;
+	while(*p != L'\0')
+	{
+		// Replace all spaces to '0' to avoid changing the width when
+		// number of digits is changed.  E.g.: ' 9:59' -> '10:00'
+		if(*p == L' ')
+			*p = L'0';
+		++p;
+	}
+	
 	GetClockTextSize(hdc, &tm, s, &wclock, &hclock);
+	if(textwidth != NULL) *textwidth = wclock;
+	if(textheight != NULL) *textheight = hclock;
 	
 	wclock += tm.tmAveCharWidth * 2 + m_dwidth;
 	hclock += (tm.tmHeight - tm.tmInternalLeading) / 2 + m_dheight;
@@ -224,7 +227,12 @@ LRESULT OnCalcRect(HWND hwnd)
 	if(m_hFont) SelectObject(hdc, hOldFont);
 	ReleaseDC(hwnd, hdc);
 	
-	return (hclock << 16) + wclock;
+	return MAKELONG(wclock, hclock);
+}
+
+LRESULT OnCalcRect(HWND hwnd)
+{
+	return CalcRect(hwnd, NULL, NULL);
 }
 
 /*------------------------------------------------
@@ -306,8 +314,8 @@ void GetClockTextSize(HDC hdc, const TEXTMETRIC* ptm,
 		ep = p;
 		if(*p == 0x0d) p += 2;
 		
-		if(GetTextExtentPoint32W(hdc, sp, ep - sp, &sz) == 0)
-			sz.cx = (ep - sp) * ptm->tmAveCharWidth;
+		if(GetTextExtentPoint32W(hdc, sp, (int)(ep - sp), &sz) == 0)
+			sz.cx = (int)(ep - sp) * ptm->tmAveCharWidth;
 		if(w < sz.cx) w = sz.cx;
 		h += heightFont;
 		
@@ -331,6 +339,7 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	DWORD dwRop = SRCCOPY;
 	COLORREF textcolor = 0;
 	BOOL aero = FALSE;
+	DWORD size;
 	
 	if(!m_hdcClock) CreateClockDC(hwnd);
 	
@@ -340,10 +349,18 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	wclock = rcClock.right;
 	hclock = rcClock.bottom;
 	
+	size = (DWORD)CalcRect(hwnd, &wtext, &htext);
+	if(wclock < LOWORD(size) || hclock < HIWORD(size))
+	{
+		SetWindowPos(hwnd, NULL, 0, 0, LOWORD(size), HIWORD(size),
+				SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+		InvalidateRect(hwnd, NULL, FALSE);
+		return;
+	}
+	
 	if(g_nBlink > 0 && (g_nBlink % 2) == 0) dwRop = NOTSRCCOPY;
 	
-	if(g_winver&WINVISTA)
-		aero = IsVistaAero();
+	aero = IsVistaAero();
 	if(!m_fillbackcolor && (dwRop == SRCCOPY) && aero)
 	{
 		HBRUSH hbr = GetStockBrush(BLACK_BRUSH);
@@ -379,7 +396,7 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	
 	GetTextMetrics(m_hdcClock, &tm);
 	
-	GetClockTextSize(m_hdcClock, &tm, s, &wtext, &htext);
+	//GetClockTextSize(m_hdcClock, &tm, s, &wtext, &htext);
 	
 	y = (hclock - htext)/2 - tm.tmInternalLeading/2 + m_dvpos;
 	
@@ -397,7 +414,7 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 		while(*p && *p != 0x0d) p++;
 		ep = p;
 		if(*p == 0x0d) p += 2;
-		TextOutW(m_hdcClock, x, y, sp, ep - sp);
+		TextOutW(m_hdcClock, x, y, sp, (int)(ep - sp));
 		
 		if(*p) y += tm.tmHeight - tm.tmInternalLeading
 					+ 2 + m_dlineheight;
@@ -465,7 +482,7 @@ void FillClock(HWND hwnd, HDC hdc, const RECT *prc)
 		CopyParentSurface(hwnd, hdc, 0, 0, prc->right, prc->bottom,
 			rc.left - rcTray.left, rc.top - rcTray.top);
 	}
-	else if(m_colback == m_colback2 || !(g_winver&(WIN98|WIN2000)))
+	else if(m_colback == m_colback2)
 	{
 		col = m_colback;
 		if(col & 0x80000000) col = GetSysColor(col & 0x00ffffff);

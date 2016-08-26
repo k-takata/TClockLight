@@ -7,7 +7,7 @@
 ---------------------------------------------------------------*/
 
 #include "tcdll.h"
-#include "newapi.h"
+//#include "newapi.h"
 
 #if TC_ENABLE_TASKBAR
 
@@ -32,9 +32,6 @@ static void SetLayeredTaskbar(HWND hwndTaskbar);
 static void EndLayeredTaskbar(HWND hwndTaskbar);
 static void RefreshRebar(HWND hwndRebar);
 
-#if TC_ENABLE_STARTMENU
-static WNDPROC m_oldWndProcTaskBar = NULL;
-#endif
 static BOOL m_bHiddenGrippers = FALSE;
 static BOOL m_bFlatTaskbar = FALSE;
 static BOOL m_bFlatTray = FALSE;
@@ -50,10 +47,6 @@ void InitTaskbar(HWND hwndClock)
 	hwndTray = GetParent(hwndClock);
 	hwndTaskbar = GetParent(hwndTray);
 	hwndRebar = FindWindowEx(hwndTaskbar, NULL, "ReBarWindow32", NULL);
-	
-#if TC_ENABLE_STARTMENU
-	SubclassTaskbar(hwndTaskbar);
-#endif
 	
 	SetFlatTray(hwndTray);       // flat tray
 	
@@ -74,10 +67,6 @@ void EndTaskbar(HWND hwndClock)
 	hwndTray = GetParent(hwndClock);
 	hwndTaskbar = GetParent(hwndTray);
 	hwndRebar = FindWindowEx(hwndTaskbar, NULL, "ReBarWindow32", NULL);
-	
-#if TC_ENABLE_STARTMENU
-	UnSubclassTaskbar(hwndTaskbar);
-#endif
 	
 	EndLayeredTaskbar(hwndTaskbar);
 	
@@ -110,81 +99,6 @@ void RefreshTaskbar(HWND hwndClock)
 	InvalidateRect(hwndTaskbar, NULL, TRUE);
 	PostMessage(hwndTaskbar, WM_SIZE, SIZE_RESTORED, 0);
 }
-
-#if TC_ENABLE_STARTMENU
-/*--------------------------------------------------
-  call default window procedure of task bar
-  this is called in startmenu.c
-----------------------------------------------------*/
-LRESULT CallOldTaskbarWndProc(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam)
-{
-	if(m_oldWndProcTaskBar)
-		return CallWindowProc(m_oldWndProcTaskBar, hwnd,
-			message, wParam, lParam);
-	return 0;
-}
-
-/*--------------------------------------------------
-  subclassify Task bar
-----------------------------------------------------*/
-void SubclassTaskbar(HWND hwndTaskbar)
-{
-	BOOL bSubclass;
-	
-	bSubclass = FALSE;
-	if(!g_bIE4) bSubclass = TRUE; // old Windows 95
-	
-	if(bSubclass)
-	{
-		if(m_oldWndProcTaskBar) return;
-		
-		if(IsSubclassed(hwndTaskbar)) return;
-		
-		m_oldWndProcTaskBar = SubclassWindow(hwndTaskbar, WndProcTaskBar);
-	}
-}
-
-/*--------------------------------------------------
-  restore window procedure of Task bar
-----------------------------------------------------*/
-void UnSubclassTaskbar(HWND hwndTaskbar)
-{
-	if(hwndTaskbar && IsWindow(hwndTaskbar))
-	{
-		if (m_oldWndProcTaskBar)
-			SubclassWindow(hwndTaskbar, m_oldWndProcTaskBar);
-	}
-	m_oldWndProcTaskBar = NULL;
-}
-
-/*------------------------------------------------
-  window procedure of subclassified task bar
---------------------------------------------------*/
-LRESULT CALLBACK WndProcTaskBar(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam)
-{
-	switch(message)
-	{
-		// owner-drawn start menu (Win95 without IE 4)
-		case WM_DRAWITEM:
-			// startmenu.c
-			if(OnDrawItemStartMenu(hwnd, (DRAWITEMSTRUCT*)lParam))
-				return 1;
-			break;
-		case WM_EXITSIZEMOVE:
-			PostMessage(hwnd, WM_SIZE, SIZE_RESTORED, 0);
-			break;
-		
-		/*
-		case WM_MOUSEWHEEL:
-			PostMessage(hwndTClockMain, message, wParam, lParam);
-			break;
-		*/
-	}
-	return CallWindowProc(m_oldWndProcTaskBar, hwnd, message, wParam, lParam);
-}
-#endif	/* TC_ENABLE_STARTMENU */
 
 /*--------------------------------------------------
   hide grippers
@@ -333,7 +247,6 @@ void SetLayeredTaskbar(HWND hwndTaskbar)
 	int alpha;
 	BOOL b;
 	
-	if(!(g_winver&WIN2000)) return;
 	if(!hwndTaskbar) return;
 	
 	alpha = GetMyRegLong(NULL, "AlphaTaskbar", 0);
@@ -353,10 +266,10 @@ void SetLayeredTaskbar(HWND hwndTaskbar)
 	SetWindowLong(hwndTaskbar, GWL_EXSTYLE, exstyle);
 	
 	if(alpha == 0)
-		MySetLayeredWindowAttributes(hwndTaskbar,
+		SetLayeredWindowAttributes(hwndTaskbar,
 			GetSysColor(COLOR_3DFACE), 0, LWA_COLORKEY);
 	else if(alpha < 255)
-		MySetLayeredWindowAttributes(hwndTaskbar, 0, (BYTE)alpha, LWA_ALPHA);
+		SetLayeredWindowAttributes(hwndTaskbar, 0, (BYTE)alpha, LWA_ALPHA);
 }
 
 /*--------------------------------------------------
@@ -366,7 +279,6 @@ void EndLayeredTaskbar(HWND hwndTaskbar)
 {
 	LONG exstyle;
 	
-	if(!(g_winver&WIN2000)) return;
 	if(!m_bLayeredTaskbar) return;
 	m_bLayeredTaskbar = FALSE;
 	if(!hwndTaskbar) return;

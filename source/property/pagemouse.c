@@ -41,6 +41,7 @@ static int m_numMouseCommand = 0;
 static int m_numOld = 0;
 static int m_nCurrent = -1;
 static int m_widthOpt = 0;
+static int m_prevcommand = -1;
 
 /*------------------------------------------------
   Dialog procedure
@@ -99,8 +100,12 @@ INT_PTR CALLBACK PageMouseProc(HWND hDlg, UINT message,
 				case IDC_RCLICKMENU:
 					SendPSChanged(hDlg);
 					break;
+				case IDC_LMOUSEPASSTHRU:
+					g_bApplyClock = TRUE;
+					SendPSChanged(hDlg);
+					break;
 				case IDC_MOUSEFUNC:
-					OnFunction(hDlg, FALSE);
+					OnFunction(hDlg, TRUE);
 					break;
 				case IDC_MOUSEOPT:
 					if(code == EN_CHANGE)
@@ -198,6 +203,10 @@ void OnInit(HWND hDlg)
 	CBSetCurSel(hDlg, IDC_NAMECLICK, 0);
 	OnName(hDlg);
 	
+	CheckDlgButton(hDlg, IDC_LMOUSEPASSTHRU,
+		GetMyRegLong(m_section, "LeftMousePassThrough",
+			(g_winver&WIN10RS1) != 0));
+	
 	b = GetMyRegLong(NULL, "RightClickMenu", TRUE);
 	b = GetMyRegLong(m_section, "RightClickMenu", b);
 	CheckDlgButton(hDlg, IDC_RCLICKMENU, b);
@@ -243,6 +252,9 @@ void OnApply(HWND hDlg)
 		}
 	}
 	m_numOld = m_numMouseCommand;
+	
+	SetMyRegLong(m_section, "LeftMousePassThrough",
+		IsDlgButtonChecked(hDlg, IDC_LMOUSEPASSTHRU));
 	
 	SetMyRegLong(m_section, "RightClickMenu",
 		IsDlgButtonChecked(hDlg, IDC_RCLICKMENU));
@@ -400,7 +412,10 @@ void OnFunction(HWND hDlg, BOOL bInit)
 	int command = CBGetItemData(hDlg, IDC_MOUSEFUNC,
 					CBGetCurSel(hDlg, IDC_MOUSEFUNC));
 	
-	if(!bInit) SetDlgItemText(hDlg, IDC_MOUSEOPT, "");
+	if(!bInit || command != m_prevcommand)
+		SetDlgItemText(hDlg, IDC_MOUSEOPT, "");
+	
+	m_prevcommand = command;
 	
 	if(command == IDC_OPENFILE || command == IDC_MOUSECOPY
 		|| command == IDC_MONOFF || command == IDC_COMMAND
@@ -510,6 +525,8 @@ void SetMouseCommandToDlg(HWND hDlg, PMOUSESTRUCT pMSS)
 {
 	int i, count;
 	
+	m_prevcommand = -1;
+	
 	if(!pMSS)
 	{
 		SetDlgItemText(hDlg, IDC_NAMECLICK, "");
@@ -542,7 +559,9 @@ void SetMouseCommandToDlg(HWND hDlg, PMOUSESTRUCT pMSS)
 	{
 		if(CBGetItemData(hDlg, IDC_MOUSEFUNC, i) == pMSS->nCommand)
 		{
-			CBSetCurSel(hDlg, IDC_MOUSEFUNC, i); break;
+			CBSetCurSel(hDlg, IDC_MOUSEFUNC, i);
+			m_prevcommand = pMSS->nCommand;
+			break;
 		}
 	}
 	if(i == count && pMSS->nCommand > 100)
@@ -553,7 +572,9 @@ void SetMouseCommandToDlg(HWND hDlg, PMOUSESTRUCT pMSS)
 		{
 			if(CBGetItemData(hDlg, IDC_MOUSEFUNC, i) == IDC_COMMAND)
 			{
-				CBSetCurSel(hDlg, IDC_MOUSEFUNC, i); break;
+				CBSetCurSel(hDlg, IDC_MOUSEFUNC, i);
+				m_prevcommand = IDC_COMMAND;
+				break;
 			}
 		}
 	}
@@ -601,6 +622,7 @@ void EnableMousePageItems(HWND hDlg)
 	hwnd = GetWindow(hDlg, GW_CHILD);
 	while(hwnd)
 	{
+		if(GetDlgCtrlID(hwnd) == IDC_LMOUSEPASSTHRU) continue;
 		if(GetDlgCtrlID(hwnd) == IDC_RCLICKMENU) break;
 		
 		if(GetDlgCtrlID(hwnd) != IDC_ADDCLICK)
@@ -639,7 +661,7 @@ static struct {
 #endif
 };
 
-#define MAX_MOUSEFUNC	(sizeof(m_mousefunc) / sizeof(m_mousefunc[0]))
+#define MAX_MOUSEFUNC	ARRAYSIZE(m_mousefunc)
 
 void InitFunction(HWND hDlg, int id)
 {

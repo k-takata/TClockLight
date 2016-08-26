@@ -162,8 +162,7 @@ void OnInit(HWND hDlg)
 	GetMyRegStr(m_section, "Sound", s, MAX_PATH, "");
 	SetDlgItemText(hDlg, IDC_SYNCSOUND, s);
 	
-	if(g_winver&WINVISTA)
-		Button_SetElevationRequiredState(GetDlgItem(hDlg, IDC_SYNCNOW), TRUE);
+	Button_SetElevationRequiredState(GetDlgItem(hDlg, IDC_SYNCNOW), TRUE);
 	
 	LoadLog(hDlg);
 }
@@ -349,7 +348,7 @@ void OnSyncNow(HWND hDlg)
 	nTimeOut = UpDown_GetPos(hDlg, IDC_TIMEOUTSPIN);
 	if(nTimeOut & 0xffff0000) nTimeOut = 1000;
 	
-	if((g_winver&WINVISTA) && !IsUserAdmin()) // Elevation Required
+	if(!IsUserAdmin()) // Elevation Required
 	{
 		char buf[MAX_PATH];
 		OnOK(hDlg); // Save Settings

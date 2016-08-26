@@ -1,0 +1,115 @@
+
+                    TClock Light 改造版 構成変更手順
+
+１．概要
+　tclocklight-kt090704 以降では、構成設定ファイル (config.h) を編集し、
+再コンパイルすることで、簡単に TClock Light の各機能を有効化/無効化する
+ことができます。
+　デフォルトでは、オリジナル版である tclocklight-040702-3 と同じ機能が
+有効化されています。
+
+
+２．コンパイラ
+　以下のコンパイラ/開発環境などが使用可能です。
+
+  ・Visual C++ 2010 あるいはそれ以降
+  ・Windows SDK 7.1
+    http://www.microsoft.com/download/en/details.aspx?id=8442
+
+
+３．構成設定
+　config.h を開くと、例えば以下のように書かれた行があります。行末の数値が
+1 の場合は機能が有効化され、0 の場合は機能が無効化されます。
+
+    #define TC_ENABLE_STARTBUTTON   1
+
+
+3.1. 基本機能
+　オリジナル版の TClock Light に搭載されている機能に関する構成設定です。
+デフォルトではいずれも有効化されています。
+
+  TC_ENABLE_STARTBUTTON
+    スタートボタンの改造を有効化します。
+
+  TC_ENABLE_STARTMENU
+    スタートメニューの改造を有効化します。
+
+  TC_ENABLE_TASKBAR
+    タスクバーの改造を有効化します。
+
+  TC_ENABLE_TRAYNOTIFY
+    トレイの塗りつぶしを有効化します。
+
+  TC_ENABLE_MOUSEDROP
+    ファイルのドロップを有効化します。
+
+
+3.2. 拡張機能
+　各種改造版で拡張された機能に関する構成設定です。デフォルトではいずれも
+無効化されています。
+
+  TC_ENABLE_BATTERY
+    バッテリーに関する拡張書式を有効化します。
+
+  TC_ENABLE_CPU
+    CPU 使用率に関する拡張書式を有効化します。
+
+  TC_ENABLE_ETIME
+    起動時間に関する拡張書式を有効化します。
+
+  TC_ENABLE_HDD
+    HDD 容量に関する拡張書式を有効化します。
+
+  TC_ENABLE_MEMORY
+    メモリ使用量に関する拡張書式を有効化します。
+
+  TC_ENABLE_NETWORK
+    ネットワーク転送量に関する拡張書式を有効化します。
+
+  TC_ENABLE_VOLUME
+    音量に関する拡張書式および音量の操作機能を有効化します。
+
+  TC_ENABLE_WHEEL
+    マウスのホイール操作に関する機能を有効化します。
+
+  TC_ENABLE_DESKTOPICON
+    デスクトップアイコンに関する機能を有効化します。
+
+
+※ 拡張書式の詳細は format-kt.txt を参照してください。基本的には
+   tclocklight-unofficial-060502 などで使われているものと同じものが使用
+   できます。（一部拡張あり）ただし、デフォルトライブラリを使用しないように
+   するため、固定小数点演算を行っており、表示に差異が出る可能性があります。
+
+
+3.3. サポート OS
+　動作する OS に関する設定です。無効化すると、その OS では動作しなくなり
+ますが、代わりにファイルサイズが小さくなるかもしれません。
+デフォルトではいずれも有効化されています。
+(ただし現時点では Vista から 10 まで、サポート OS による差分はありません。)
+
+  TC_SUPPORT_WINVISTA
+    Windows Vista をサポートします。
+
+  TC_SUPPORT_WIN7
+    Windows 7 をサポートします。
+
+  TC_SUPPORT_WIN8
+    Windows 8/8.1 をサポートします。
+
+  TC_SUPPORT_WIN10
+    Windows 10 をサポートします。
+
+
+４．参考情報
+
+・システム情報の表示（CPU使用率など）
+  http://homepage1.nifty.com/kazubon/progdoc/tclock/sysinfo.html
+・機能のはずし方
+  http://homepage1.nifty.com/kazubon/progdoc/tclock/superlight.html
+・TClock2ch付属サイト…
+  http://www22.atpages.jp/tclock2ch/
+    - tclocklight-050716.zip
+    - tclocklight-unofficial-060502.zip
+    - tclocklight-080409.zip
+

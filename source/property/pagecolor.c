@@ -141,8 +141,8 @@ void OnInit(HWND hDlg)
 	
 	CheckDlgButton(hDlg, IDC_FILLTRAY,
 		GetMyRegLong(NULL, "FillTray", FALSE));
-	if(!(g_winver&WINME)&&!(g_winver&WIN2000)&&!(g_winver&WINXP))
-		EnableDlgItem(hDlg, IDC_FILLTRAY, FALSE);
+	EnableDlgItem(hDlg, IDC_FILLTRAY,
+		IsDlgButtonChecked(hDlg, IDC_CHKCOLOR));
 	
 	// settings of "font" and "font size"
 	
@@ -237,13 +237,7 @@ void OnCheckColor(HWND hDlg)
 		hwnd = GetWindow(hwnd, GW_HWNDNEXT);
 	}
 	
-	if((g_winver&WIN98)||(g_winver&WIN2000))
-		b2 = IsDlgButtonChecked(hDlg, IDC_CHKCOLOR2);
-	else
-	{
-		EnableDlgItem(hDlg, IDC_CHKCOLOR2, FALSE);
-		b2 = FALSE;
-	}
+	b2 = IsDlgButtonChecked(hDlg, IDC_CHKCOLOR2);
 	
 	hwnd = GetWindow(GetDlgItem(hDlg, IDC_CHKCOLOR2), GW_HWNDNEXT);
 	while(hwnd)
@@ -253,9 +247,7 @@ void OnCheckColor(HWND hDlg)
 		hwnd = GetWindow(hwnd, GW_HWNDNEXT);
 	}
 	
-	if((g_winver&WINME)||(g_winver&WIN2000))
-		EnableDlgItem(hDlg, IDC_FILLTRAY, b1);
-	else EnableDlgItem(hDlg, IDC_FILLTRAY, FALSE);
+	EnableDlgItem(hDlg, IDC_FILLTRAY, b1);
 }
 
 /*------------------------------------------------

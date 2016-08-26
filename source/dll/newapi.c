@@ -28,15 +28,12 @@ BOOL MySetLayeredWindowAttributes(HWND hwnd, COLORREF crKey,
 /* Statics */
 
 static void InitMsimg32(void);
-static void InitUser32(void);
 
 static HMODULE m_hmodMSIMG32 = NULL;
 static BOOL (WINAPI *m_pGradientFill)(HDC,PTRIVERTEX,ULONG,PVOID,ULONG, ULONG) = NULL;
 static BOOL (WINAPI *m_pAlphaBlend)(HDC,int,int,int,int,HDC,int,int,int,int,BLENDFUNCTION) = NULL;
 static BOOL (WINAPI *m_pTransparentBlt)(HDC,int,int,int,int,HDC,int,int,int,int,UINT) = NULL;
 
-static HMODULE m_hmodUser32 = NULL;
-static BOOL (WINAPI *m_pSetLayeredWindowAttributes)(HWND,COLORREF,BYTE,DWORD) = NULL;
 
 /*------------------------------------------------
   free DLLs
@@ -48,10 +45,6 @@ void EndNewAPI(void)
 	m_pGradientFill = NULL;
 	m_pAlphaBlend = NULL;
 	m_pTransparentBlt = NULL;
-	
-	if(m_hmodUser32 != NULL) FreeLibrary(m_hmodUser32);
-	m_hmodUser32 = NULL;
-	m_pSetLayeredWindowAttributes = NULL;
 }
 
 /*------------------------------------------------
@@ -105,20 +98,6 @@ BOOL MyTransparentBlt(HDC hdcDest, int nXOriginDest, int nYOriginDest,
 }
 
 /*------------------------------------------------
-  replacement of API SetLayeredWindowAttributes
---------------------------------------------------*/
-BOOL MySetLayeredWindowAttributes(HWND hwnd, COLORREF crKey,
-	BYTE bAlpha, DWORD dwFlags)
-{
-	if(m_hmodUser32 == NULL) InitUser32();
-	
-	if(m_pSetLayeredWindowAttributes)
-		return m_pSetLayeredWindowAttributes(hwnd, crKey, 
-				bAlpha, dwFlags);
-	else return FALSE;
-}
-
-/*------------------------------------------------
   load msimg32.dll
 --------------------------------------------------*/
 void InitMsimg32(void)
@@ -134,21 +113,6 @@ void InitMsimg32(void)
 			= GetProcAddress(m_hmodMSIMG32, "AlphaBlend");
 		(FARPROC)m_pTransparentBlt
 			= GetProcAddress(m_hmodMSIMG32, "TransparentBlt");
-	}
-}
-
-/*------------------------------------------------
-  load user32.dll
---------------------------------------------------*/
-void InitUser32(void)
-{
-	if(m_hmodUser32) return;
-	
-	m_hmodUser32 = LoadLibrary("user32.dll");
-	if(m_hmodUser32 != NULL)
-	{
-		(FARPROC)m_pSetLayeredWindowAttributes
-			= GetProcAddress(m_hmodUser32, "SetLayeredWindowAttributes");
 	}
 }
 

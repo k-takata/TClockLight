@@ -63,7 +63,7 @@ int GetMyRegStr(const char *section, const char *entry,
 		if(b == FALSE)
 		{
 			strcpy(val, defval);
-			r = strlen(defval);
+			r = (int)strlen(defval);
 		}
 	}
 	
@@ -152,7 +152,7 @@ BOOL SetMyRegStr(const char *section, const char *entry, const char *val)
 		if(RegCreateKey(HKEY_CURRENT_USER, key, &hkey) == 0)
 		{
 			if(RegSetValueEx(hkey, entry, 0, REG_SZ,
-				(CONST BYTE*)val, strlen(val)) == 0)
+				(CONST BYTE*)val, (DWORD)strlen(val)) == 0)
 			{
 				r = TRUE;
 			}
@@ -358,7 +358,7 @@ int GetRegStr(HKEY rootkey, const char *subkey, const char *entry,
 	if(b == FALSE)
 		strcpy(val, defval);
 	
-	return strlen(val);
+	return (int)strlen(val);
 }
 
 /*------------------------------------------------

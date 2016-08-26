@@ -29,12 +29,12 @@ STYLE DS_CONTROL | WS_CHILD
 FONT 9, "MS Sans Serif"
 BEGIN
     CONTROL         "Background1",IDC_CHKCOLOR,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,0,7,56,11
+                    WS_TABSTOP,0,5,56,11
     COMBOBOX        IDC_COLBACK,62,5,84,120,CBS_DROPDOWNLIST | 
                     CBS_OWNERDRAWFIXED | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "...",IDC_CHOOSECOLBACK,151,5,14,13
     CONTROL         "Background2",IDC_CHKCOLOR2,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,0,27,56,11
+                    WS_TABSTOP,0,26,56,11
     COMBOBOX        IDC_COLBACK2,62,26,84,120,CBS_DROPDOWNLIST | 
                     CBS_OWNERDRAWFIXED | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "...",IDC_CHOOSECOLBACK2,151,26,14,13
@@ -52,8 +52,8 @@ BEGIN
     RTEXT           "Font",IDC_STATIC,26,115,29,12
     COMBOBOX        IDC_FONT,62,113,84,120,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
-    RTEXT           "Size",IDC_STATIC,26,135,29,12
-    COMBOBOX        IDC_FONTSIZE,62,133,38,66,CBS_DROPDOWN | WS_VSCROLL | 
+    RTEXT           "Size",IDC_STATIC,26,138,29,12
+    COMBOBOX        IDC_FONTSIZE,62,136,38,66,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
     CONTROL         "Bold",IDC_BOLD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     114,135,36,12
@@ -77,9 +77,9 @@ BEGIN
     EDITTEXT        IDC_VERTPOS,71,57,40,13,ES_AUTOHSCROLL
     CONTROL         "",IDC_SPINVPOS,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
-                    UDS_ARROWKEYS,110,51,9,13
+                    UDS_ARROWKEYS,111,51,9,13
     RTEXT           "Line height",IDC_STATIC,9,78,55,11
-    EDITTEXT        IDC_LINEHEIGHT,70,76,40,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LINEHEIGHT,71,76,40,13,ES_AUTOHSCROLL
     CONTROL         "",IDC_SPINLHEIGHT,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,111,71,9,13
@@ -118,13 +118,13 @@ BEGIN
     CONTROL         "Day of Week",IDC_WEEKDAY,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,59,71,62,12
     CONTROL         "Line break",IDC_KAIGYO,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,126,71,50,11
+                    WS_TABSTOP,126,71,50,12
     CONTROL         "Hour",IDC_HOUR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,9,
                     91,33,12
     CONTROL         "Minute",IDC_MINUTE,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,58,91,39,12
     CONTROL         "Second",IDC_SECOND,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,126,91,42,11
+                    WS_TABSTOP,126,91,42,12
     CONTROL         "12H",IDC_12HOUR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,9,
                     112,33,13
     CONTROL         "AM/PM",IDC_AMPM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
@@ -280,9 +280,12 @@ BEGIN
     RTEXT           "File",IDC_LABMOUSEOPT,0,116,33,11
     EDITTEXT        IDC_MOUSEOPT,39,113,126,13,ES_AUTOHSCROLL
     PUSHBUTTON      "...",IDC_MOUSEOPTSANSHO,169,113,15,13
+    CONTROL         "Always pass through left button messages",
+                    IDC_LMOUSEPASSTHRU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,39,
+                    136,186,11
     CONTROL         "Always show TClock menu on right button click",
                     IDC_RCLICKMENU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,39,
-                    136,186,11
+                    150,186,11
 END
 
 IDD_PAGEMOUSE2 DIALOG DISCARDABLE  0, 0, 240, 140

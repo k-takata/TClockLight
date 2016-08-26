@@ -7,7 +7,7 @@
 ---------------------------------------------------------------*/
 
 #include "tcdll.h"
-#include "newapi.h"
+//#include "newapi.h"
 
 #if TC_ENABLE_STARTMENU
 
@@ -62,12 +62,12 @@ void InitStartMenu(HWND hwndClock)
 	InitStartMenuSetting(hwndClock);
 	
 	// XP
-	if(g_winver&WINXP) SubclassUserPaneXP();
+	SubclassUserPaneXP();
 	
 	// IE 4 or later
-	if(g_bIE4) SubclassBaseBar();
+	SubclassBaseBar();
 	
-	if((g_winver&WIN2000) && m_hwndBaseBar)
+	if(m_hwndBaseBar)
 		TransStartMenu();
 }
 
@@ -76,11 +76,11 @@ void InitStartMenu(HWND hwndClock)
 ----------------------------------------------------*/
 void EndStartMenu(void)
 {
-	if(g_bIE4) UnSubclassBaseBar();
+	UnSubclassBaseBar();
 	
-	if(g_winver&WINXP) UnSubclassUserPaneXP();
+	UnSubclassUserPaneXP();
 	
-	if((g_winver&WIN2000) && m_alpha < 255) UnTransStartMenu();
+	if(m_alpha < 255) UnTransStartMenu();
 	
 	ClearStartMenuResource();
 }
@@ -98,31 +98,28 @@ void ResetStartMenu(HWND hwndClock)
 	
 	if(!bOld && m_bSubclass)
 	{
-		if(g_bIE4)  SubclassBaseBar();
-		if(g_winver&WINXP) SubclassUserPaneXP();
+		SubclassBaseBar();
+		SubclassUserPaneXP();
 	}
 	else if(bOld && !m_bSubclass)
 	{
-		if(g_winver&WINXP) UnSubclassUserPaneXP();
-		if(g_bIE4) UnSubclassBaseBar();
+		UnSubclassUserPaneXP();
+		UnSubclassBaseBar();
 	}
 	
-	if(g_winver&WIN2000)
+	if(m_alpha < 255)
 	{
-		if(m_alpha < 255)
+		if(m_hwndBaseBar)
+			TransStartMenu();
+		else if(m_hwndDV2ContHost)
 		{
-			if(m_hwndBaseBar)
+			if((GetWindowLong(m_hwndDV2ContHost, GWL_EXSTYLE)
+						& WS_EX_LAYERED))
 				TransStartMenu();
-			else if(m_hwndDV2ContHost)
-			{
-				if((GetWindowLong(m_hwndDV2ContHost, GWL_EXSTYLE)
-					& WS_EX_LAYERED))
-						TransStartMenu();
-			}
 		}
-		else if(oldalpha < 255 && m_alpha == 255)
-			UnTransStartMenu();
 	}
+	else if(oldalpha < 255 && m_alpha == 255)
+		UnTransStartMenu();
 }
 
 /*--------------------------------------------------
@@ -145,7 +142,7 @@ void CheckStartMenu(void)
 	if(m_hwndBaseBar && !IsWindow(m_hwndBaseBar))
 	{
 		SubclassBaseBar();
-		if((g_winver&WIN2000) && m_hwndBaseBar)
+		if(m_hwndBaseBar)
 			TransStartMenu();
 	}
 	
@@ -196,7 +193,6 @@ BOOL OnDrawItemStartMenu(HWND hwnd, DRAWITEMSTRUCT* pdis)
 	
 	// default drawing
 	pdis->hDC = hdcMem;
-	CallOldTaskbarWndProc(hwnd, WM_DRAWITEM, 0, (LPARAM)pdis);
 	
 	// width of "Windows95"
 	rcItem.right = pdis->rcItem.left;
@@ -271,14 +267,11 @@ void InitStartMenuSetting(HWND hwndClock)
 	m_bStartMenu = GetMyRegLong(NULL, "StartMenu", FALSE);
 	m_bStartMenu = GetMyRegLong(m_section, "StartMenu", m_bStartMenu);
 	
-	if(g_winver&WIN2000)
-	{
-		m_alpha = GetMyRegLong(NULL, "AlphaStartMenu", 0);
-		m_alpha = GetMyRegLong(m_section, "Alpha", m_alpha);
-		m_alpha = 255 - (m_alpha * 255 / 100);
-		if(m_alpha < 8) m_alpha = 8;
-		else if(m_alpha > 255) m_alpha = 255;
-	}
+	m_alpha = GetMyRegLong(NULL, "AlphaStartMenu", 0);
+	m_alpha = GetMyRegLong(m_section, "Alpha", m_alpha);
+	m_alpha = 255 - (m_alpha * 255 / 100);
+	if(m_alpha < 8) m_alpha = 8;
+	else if(m_alpha > 255) m_alpha = 255;
 	
 	if(m_bStartMenu || m_alpha < 255) m_bSubclass = TRUE;
 	
@@ -451,7 +444,7 @@ void TransStartMenu(void)
 			InvalidateRect(m_hwndUserPaneXP, NULL, TRUE);
 		style = GetWindowLong(m_hwndDV2ContHost, GWL_EXSTYLE);
 		SetWindowLong(m_hwndDV2ContHost, GWL_EXSTYLE, style|WS_EX_LAYERED);
-		MySetLayeredWindowAttributes(m_hwndDV2ContHost,
+		SetLayeredWindowAttributes(m_hwndDV2ContHost,
 			0, (BYTE)m_alpha, LWA_ALPHA);
 		//InvalidateRect(m_hwndDV2ContHost, NULL, TRUE);
 	}
@@ -459,7 +452,7 @@ void TransStartMenu(void)
 	{
 		style = GetWindowLong(m_hwndBaseBar, GWL_EXSTYLE);
 		SetWindowLong(m_hwndBaseBar, GWL_EXSTYLE, style|WS_EX_LAYERED);
-		MySetLayeredWindowAttributes(m_hwndBaseBar,
+		SetLayeredWindowAttributes(m_hwndBaseBar,
 			0, (BYTE)m_alpha, LWA_ALPHA);
 	}
 }
@@ -476,7 +469,7 @@ void UnTransStartMenu(void)
 		style = GetWindowLong(m_hwndDV2ContHost, GWL_EXSTYLE);
 		style &= ~WS_EX_LAYERED;
 		SetWindowLong(m_hwndDV2ContHost, GWL_EXSTYLE, style);
-		MySetLayeredWindowAttributes(m_hwndDV2ContHost,
+		SetLayeredWindowAttributes(m_hwndDV2ContHost,
 			GetSysColor(COLOR_3DFACE), 0, LWA_COLORKEY);
 		InvalidateRect(m_hwndDV2ContHost, NULL, TRUE);
 	}
@@ -485,7 +478,7 @@ void UnTransStartMenu(void)
 		style = GetWindowLong(m_hwndBaseBar, GWL_EXSTYLE);
 		style &= ~WS_EX_LAYERED;
 		SetWindowLong(m_hwndBaseBar, GWL_EXSTYLE, style);
-		MySetLayeredWindowAttributes(m_hwndBaseBar,
+		SetLayeredWindowAttributes(m_hwndBaseBar,
 			GetSysColor(COLOR_3DFACE), 0, LWA_COLORKEY);
 	}
 }

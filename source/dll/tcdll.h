@@ -2,15 +2,6 @@
   tcdll.h
 ---------------------------------------------*/
 
-#define _WIN32_IE    0x0200
-#define _WIN32_WINNT 0x0400
-#define WINVER       0x0400
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <windowsx.h>
-#include <commctrl.h>
-#include <shellapi.h>
 #include "../common/common.h"
 
 #define DLLFILENAME "tcdll.tclock"
@@ -29,9 +20,9 @@
 #endif
 
 // timer id
-#define IDTIMER_MAIN         1
-#define IDTIMER_SYSINFO      2
-#define IDTIMER_TOOLTIP      3
+#define IDTIMER_MAIN         1001
+#define IDTIMER_SYSINFO      1002
+#define IDTIMER_TOOLTIP      1003
 
 /* structure for format handler functions */
 
@@ -54,17 +45,19 @@ void LoadSetting(HWND hwnd);
 
 extern BOOL    g_bInitClock;
 extern HANDLE  g_hInst;
-extern WNDPROC g_oldWndProc;
 extern BOOL    g_bIniSetting;
 extern char    g_inifile[];
 extern char    g_mydir[];
 extern int     g_winver;
-extern BOOL    g_bIE4;
 extern BOOL    g_bVisualStyle;
 extern BOOL    g_bNoClock;
+extern int     g_OrigClockWidth;
+extern int     g_OrigClockHeight;
+extern BOOL    g_bLMousePassThru;
 
 /* ---------- wndproc.c ----------- */
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+LRESULT CALLBACK SubclassTrayProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 extern BOOL g_bDispSecond;
 extern int  g_nBlink;
 

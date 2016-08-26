@@ -16,7 +16,7 @@ HINSTANCE g_hInst;  // instance handle
   TClock doesn't use "WinMain" for compacting the file size
 -----------------------------------------------------------*/
 #ifdef NODEFAULTLIB
-void /*WINAPI*/ WinMainCRTStartup(void)
+void WinMainCRTStartup(void)
 {
 	g_hInst = GetModuleHandle(NULL);
 	ExitProcess(TClockExeMain());

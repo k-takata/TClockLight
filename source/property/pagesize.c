@@ -112,11 +112,8 @@ void OnInit(HWND hDlg)
 	UpDown_SetPos(hDlg, IDC_SPINLHEIGHT,
 		GetMyRegLong(NULL, "LineHeight", 0));
 	
-	if(g_winver&WINXP)
-		CheckDlgButton(hDlg, IDC_FITCLOCK,
-			GetMyRegLong(NULL, "FitClock", TRUE));
-	else
-		EnableDlgItem(hDlg, IDC_FITCLOCK, FALSE);
+	CheckDlgButton(hDlg, IDC_FITCLOCK,
+		GetMyRegLong(NULL, "FitClock", TRUE));
 	
 	UpDown_SetRange(hDlg, IDC_SPINCWIDTH, 32, -32);
 	UpDown_SetPos(hDlg, IDC_SPINCWIDTH,
@@ -163,8 +160,6 @@ void OnFitClock(HWND hDlg)
 	HWND hwndBar, hwnd;
 	RECT rc;
 	BOOL b1, b2;
-	
-	if(!(g_winver&WINXP)) return;
 	
 	if(IsDlgButtonChecked(hDlg, IDC_FITCLOCK))
 	{

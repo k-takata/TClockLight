@@ -2,16 +2,6 @@
   tclock.h
 ---------------------------------------------*/
 
-#define _WIN32_IE    0x0200
-#define _WIN32_WINNT 0x0400
-#define WINVER       0x0400
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <windowsx.h>
-#include <mmsystem.h>
-#include <shellapi.h>
-#include <shlobj.h>
 #include "../common/common.h"
 
 // IDs for timer
@@ -76,7 +66,7 @@ void CopyToClipBoard(HWND hwnd, const char *pfmt);
 
 /* ---------- menu.c ---------------- */
 void ContextMenuCommand(HWND hwnd, int id);
-void EndMenu(void);
+void EndContextMenu(void);
 void OnContextMenu(HWND hwnd, HWND hwndClicked, int xPos, int yPos);
 void OnExitMenuLoop(HWND hwnd);
 void SetFocusTClockMain(HWND hwnd);

@@ -7,7 +7,7 @@
 ---------------------------------------------------------------*/
 
 #include "tcdll.h"
-#include "newapi.h"
+//#include "newapi.h"
 
 #if TC_ENABLE_TASKSWITCH
 
@@ -37,19 +37,15 @@ void InitTaskSwitch(HWND hwndClock)
 {
 	HANDLE hwndTaskbar, hwndRebar, hwndSwitch;
 	
-	if(!g_bIE4) return;
-	
 	EndTaskSwitch();
 	
 	if(!g_bVisualStyle)
 	{
 		m_bTaskSwitchFlat = GetMyRegLong(NULL, "TaskSwitchFlat", FALSE);
-		if(!(g_winver&WINXP) && m_bTaskSwitchFlat)
-			m_bSeparator = GetMyRegLong(NULL, "TaskSwitchSeparators", FALSE);
 	}
 	
 	// Icons Only
-	if(!(g_winver&WINXP) || !IsTaskbarAnimation())
+	if(!(g_winver&WIN7) && !IsTaskbarAnimation())
 		m_bTaskSwitchIcons = GetMyRegLong(NULL, "TaskSwitchIconsOnly", FALSE);
 	
 	if(!m_bTaskSwitchFlat && !m_bTaskSwitchIcons)
@@ -65,26 +61,12 @@ void InitTaskSwitch(HWND hwndClock)
 	m_hwndTab = GetWindow(hwndSwitch, GW_CHILD);
 	if(m_hwndTab == NULL) return;
 	
-	if(!(g_winver&WINXP) && IsSubclassed(m_hwndTab))
-	{
-		m_hwndTab = NULL; return;
-	}
-	
 	if(m_bTaskSwitchFlat)
 	{
 		m_oldStyle = GetWindowLong(m_hwndTab, GWL_STYLE);
 		
-		if(g_winver&WINXP)
-		{
-			// m_hwndTab is Toolbar control
-			SetWindowLong(m_hwndTab, GWL_STYLE, m_oldStyle|TBSTYLE_FLAT);
-		}
-		else
-		{
-			// m_hwndTab is Tab control
-			SetWindowLong(m_hwndTab, GWL_STYLE,
-				m_oldStyle|TCS_FLATBUTTONS|TCS_HOTTRACK);
-		}
+		// m_hwndTab is Toolbar control
+		SetWindowLong(m_hwndTab, GWL_STYLE, m_oldStyle|TBSTYLE_FLAT);
 		
 		if(m_bSeparator)
 		{
@@ -96,18 +78,10 @@ void InitTaskSwitch(HWND hwndClock)
 	
 	if(m_bTaskSwitchIcons)
 	{
-		if(g_winver&WINXP)
-		{
-			m_oldTBStyle = SendMessage(m_hwndTab, TB_GETEXTENDEDSTYLE, 0, 0);
-			SendMessage(m_hwndTab, TB_SETEXTENDEDSTYLE,
+		m_oldTBStyle = (DWORD)SendMessage(m_hwndTab,
+				TB_GETEXTENDEDSTYLE, 0, 0);
+		SendMessage(m_hwndTab, TB_SETEXTENDEDSTYLE,
 				0, m_oldTBStyle|TBSTYLE_EX_MIXEDBUTTONS);
-		}
-		else
-		{
-			m_oldTaskWidth = SendMessage(m_hwndTab, TCM_SETITEMSIZE,
-				0, 23 + (23<<16));
-			m_oldTaskWidth = LOWORD(m_oldTaskWidth);
-		}
 	}
 	
 	m_oldWndProcTab = SubclassWindow(m_hwndTab, WndProcTab);
@@ -120,8 +94,6 @@ void InitTaskSwitch(HWND hwndClock)
 ----------------------------------------------------*/
 void EndTaskSwitch(void)
 {
-	if(!g_bIE4) return;
-	
 	if(!m_hwndTab || !IsWindow(m_hwndTab)) return;
 	
 	if(m_oldWndProcTab)
@@ -136,11 +108,7 @@ void EndTaskSwitch(void)
 	
 	if(m_bTaskSwitchIcons)
 	{
-		if(g_winver&WINXP)
-			SendMessage(m_hwndTab, TB_SETEXTENDEDSTYLE, 0, m_oldTBStyle);
-		else
-			SendMessage(m_hwndTab, TCM_SETITEMSIZE, 0,
-				m_oldTaskWidth + (23<<16));
+		SendMessage(m_hwndTab, TB_SETEXTENDEDSTYLE, 0, m_oldTBStyle);
 	}
 	
 	PostMessage(m_hwndTab, WM_SIZE, SIZE_RESTORED, 0);
@@ -160,12 +128,12 @@ LRESULT CALLBACK WndProcTab(HWND hwnd, UINT message,
 		case TCM_SETITEMSIZE:
 			if(m_bTaskSwitchIcons)
 			{
-				lParam = 23 + (HIWORD(lParam)<<16);
+				lParam = MAKELONG(23, HIWORD(lParam));
 			}
 			else
 			{
 				if(LOWORD(lParam)-8 >= 22)
-					lParam = LOWORD(lParam)-8 + (HIWORD(lParam)<<16);
+					lParam = MAKELONG(LOWORD(lParam)-8, HIWORD(lParam));
 			}
 			break;
 		case TCM_INSERTITEM:
@@ -178,12 +146,12 @@ LRESULT CALLBACK WndProcTab(HWND hwnd, UINT message,
 		case TB_SETBUTTONSIZE:
 			if(m_bTaskSwitchIcons)
 			{
-				lParam = 23 + (HIWORD(lParam)<<16);
+				lParam = MAKELONG(23, HIWORD(lParam));
 			}
 			else
 			{
 				if(LOWORD(lParam)-8 >= 22)
-					lParam = LOWORD(lParam)-8 + (HIWORD(lParam)<<16);
+					lParam = MAKELONG(LOWORD(lParam)-8, HIWORD(lParam));
 			}
 			break;
 		case TB_INSERTBUTTON:

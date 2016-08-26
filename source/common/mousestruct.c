@@ -230,12 +230,12 @@ void ImportOldMouseFunc(void)
 			}
 			else
 			{
-				if(i == 0 && j == 2) // double click
+				if(i == 0 && j == 1) // left single click
 				{
 					wsprintf(newsection, "Mouse%d", count + 1);
 					SetMyRegStr(newsection, "Button", "left");
-					SetMyRegLong(newsection, "Click", 2);
-					SetMyRegLong(newsection, "Command", IDC_DATETIME);
+					SetMyRegLong(newsection, "Click", 1);
+					SetMyRegLong(newsection, "Command", IDC_VISTACALENDAR);
 					count++;
 				}
 				if(i == 1 && j == 1) // right single click

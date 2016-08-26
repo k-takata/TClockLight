@@ -39,7 +39,7 @@ static void CheckCommandLine(HWND hwnd);
   WinMain
 ---------------------------------------------*/
 #ifdef NODEFAULTLIB
-void WINAPI WinMainCRTStartup(void)
+void WinMainCRTStartup(void)
 {
 	g_hInst = GetModuleHandle(NULL);
 	ExitProcess(TCTimerMain());
@@ -101,7 +101,7 @@ int TCTimerMain(void)
 		}
 	}
 	
-	return msg.wParam;
+	return (int)msg.wParam;
 }
 
 /*-------------------------------------------

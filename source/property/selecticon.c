@@ -135,7 +135,7 @@ void EndSelectIcon(HWND hDlg)
 {
 	int i, count;
 	HICON hicon;
-	count = SendDlgItemMessage(hDlg, IDC_LISTICON, LB_GETCOUNT, 0, 0);
+	count = (int)SendDlgItemMessage(hDlg, IDC_LISTICON, LB_GETCOUNT, 0, 0);
 	for(i = 0; i < count; i++)
 	{
 		hicon = (HICON)SendDlgItemMessage(hDlg, IDC_LISTICON,
@@ -153,7 +153,7 @@ void OnOK(HWND hDlg)
 	int index;
 	
 	GetDlgItemText(hDlg, IDC_FNAMEICON, m_fname_index, MAX_PATH);
-	index = SendDlgItemMessage(hDlg, IDC_LISTICON, LB_GETCURSEL, 0, 0);
+	index = (int)SendDlgItemMessage(hDlg, IDC_LISTICON, LB_GETCURSEL, 0, 0);
 	wsprintf(num, ",%d", index);
 	strcat(m_fname_index, num);
 }

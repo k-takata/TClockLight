@@ -5,11 +5,11 @@
 //--------------------------------------------------------
 // basic functions
 
-#define TC_ENABLE_STARTBUTTON	1
-#define TC_ENABLE_STARTMENU		1
-#define TC_ENABLE_TASKBAR		1
-#define TC_ENABLE_TRAYNOTIFY	1
-#define TC_ENABLE_MOUSEDROP		1
+#define TC_ENABLE_STARTBUTTON	0
+#define TC_ENABLE_STARTMENU		0
+#define TC_ENABLE_TASKBAR		0
+#define TC_ENABLE_TRAYNOTIFY	0
+#define TC_ENABLE_MOUSEDROP		0
 
 //--------------------------------------------------------
 // optional functions
@@ -17,8 +17,8 @@
 #define TC_ENABLE_BATTERY		0
 #define TC_ENABLE_CPU			0
 #define TC_ENABLE_ETIME			0
-#define TC_ENABLE_HDD			0
-#define TC_ENABLE_MEMORY		0
+#define TC_ENABLE_HDD			1
+#define TC_ENABLE_MEMORY		1
 #define TC_ENABLE_NETWORK		0
 #define TC_ENABLE_VOLUME		0
 #define TC_ENABLE_WHEEL			0

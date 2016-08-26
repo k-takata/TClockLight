@@ -17,14 +17,18 @@ void LoadSetting(HWND hwnd);
 
 BOOL    g_bInitClock = FALSE;  // InitTClock() has been called
 HANDLE  g_hInst;               // instanse handle
-WNDPROC g_oldWndProc;          // clock's window procedure
 BOOL    g_bIniSetting;         // use tclock.ini
 char    g_inifile[MAX_PATH];   // ini file name
 char    g_mydir[MAX_PATH];     // path of tcdll.dll
 int     g_winver;              // Windows version
-BOOL    g_bIE4;                // IE 4 or later
 BOOL    g_bVisualStyle;        // Windows XP theme is used
 BOOL    g_bNoClock;            // don't customize clock
+int     g_OrigClockWidth;      // original clock width
+int     g_OrigClockHeight;     // original clock height
+BOOL    g_bLMousePassThru;     // pass through left button messages
+
+#define SUBCLASS_ID			1
+#define SUBCLASSTRAY_ID		2
 
 
 /*------------------------------------------------
@@ -32,20 +36,24 @@ BOOL    g_bNoClock;            // don't customize clock
 --------------------------------------------------*/
 void InitClock(HWND hwnd)
 {
+	RECT rc;
+	
 	if(g_bInitClock) return;
 	g_bInitClock = TRUE;
 	
 	g_hInst = GetModuleHandle(DLLFILENAME);
 	
 	g_winver = CheckWinVersion();       // common/util.c
-	g_bIE4 = IsIE4();                   // common/util.c
 	g_bVisualStyle = IsXPVisualStyle(); // common/util.c
 	
-	// check subclassification
-	if(IsSubclassed(hwnd))
+	if(!(g_winver&WIN10RS1))
 	{
-		SendMessage(g_hwndTClockMain, TCM_CLOCKERROR, 0, 6);
-		return;
+		// check subclassification
+		if(IsSubclassed(hwnd))
+		{
+			SendMessage(g_hwndTClockMain, TCM_CLOCKERROR, 0, 6);
+			return;
+		}
 	}
 	
 	GetModuleFileName(g_hInst, g_mydir, MAX_PATH);
@@ -57,6 +65,11 @@ void InitClock(HWND hwnd)
 /*  g_bIniSetting = FALSE;
 	if(IsFile(g_inifile)) g_bIniSetting = TRUE; */
 	
+	// Save the original window size
+	GetWindowRect(hwnd, &rc);
+	g_OrigClockWidth = rc.right - rc.left;
+	g_OrigClockHeight = rc.bottom - rc.top;
+	
 	// tell tclock.exe clock's HWND
 	PostMessage(g_hwndTClockMain, TCM_HWNDCLOCK, 0, (LPARAM)hwnd);
 	
@@ -67,7 +80,9 @@ void InitClock(HWND hwnd)
 	InitUserStr();     // userstr.c
 	
 	// subclassfy the clock window !!
-	g_oldWndProc = SubclassWindow(hwnd, WndProc);
+	SetWindowSubclass(GetParent(hwnd), SubclassTrayProc, SUBCLASSTRAY_ID,
+			(DWORD_PTR)hwnd);
+	SetWindowSubclass(hwnd, SubclassProc, SUBCLASS_ID, 0);
 	
 	// don't accept double clicks
 	SetClassLong(hwnd, GCL_STYLE,
@@ -158,9 +173,8 @@ void EndClock(HWND hwnd)
 	KillTimer(hwnd, IDTIMER_MAIN);
 	
 	// restore window procedure
-	if(g_oldWndProc)
-		SubclassWindow(hwnd, g_oldWndProc);
-	g_oldWndProc = NULL;
+	RemoveWindowSubclass(hwnd, SubclassProc, SUBCLASS_ID);
+	RemoveWindowSubclass(GetParent(hwnd), SubclassTrayProc, SUBCLASSTRAY_ID);
 	
 #if TC_ENABLE_TASKBAR
 	RefreshTaskbar(hwnd);  // taskbar.c
@@ -197,6 +211,8 @@ void OnDestroy(HWND hwnd)
 void LoadSetting(HWND hwnd)
 {
 	g_bNoClock = GetMyRegLong(NULL, "NoClock", FALSE);
+	g_bLMousePassThru = GetMyRegLong("Mouse", "LeftMousePassThrough",
+			(g_winver&WIN10RS1) != 0);
 	
 #if TC_ENABLE_MOUSEDROP
 	DragAcceptFiles(hwnd, GetMyRegLong(NULL, "DropFiles", FALSE));

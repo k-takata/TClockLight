@@ -9,7 +9,6 @@
 #include "tcdll.h"
 
 /* Globals */
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 BOOL  g_bDispSecond = FALSE; // draw clock every second
 int   g_nBlink = 0;          // 0: no blink
 							 // 1: blink (normal) 2: blink (invert color)
@@ -28,8 +27,6 @@ static LRESULT OnMouseUp(HWND hwnd, UINT message,
 static void OnWindowPosChanging(HWND hwnd, LPWINDOWPOS pwp);
 static void OnCopyData(HWND hwnd, HWND hwndFrom, const COPYDATASTRUCT* pcds);
 static void OnCopy(HWND hwnd, const wchar_t* fmt);
-static void InitDaylightTimeTransition(void);
-static BOOL CheckDaylightTimeTransition(const SYSTEMTIME *plt);
 
 int   m_nBlinkSec = 0;
 DWORD m_nBlinkTick = 0;
@@ -38,7 +35,7 @@ DWORD m_nBlinkTick = 0;
 /*------------------------------------------------
   subclass procedure of the clock
 --------------------------------------------------*/
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 	switch(message) // for tooltip
 	{
@@ -73,14 +70,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_ERASEBKGND:
 			break;
 		
+#if 0
 		case (WM_USER+100):        // a message requesting for clock size
 			if(g_bNoClock) break;  // sent from parent window
 			return OnCalcRect(hwnd);
+#endif
 		
 		case WM_WINDOWPOSCHANGING:  // size arrangement
 			if(g_bNoClock) break;
 			OnWindowPosChanging(hwnd, (LPWINDOWPOS)lParam);
-			break;
+			return 0;
 		
 		case WM_SIZE:
 			if(g_bNoClock) break;
@@ -144,7 +143,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_CONTEXTMENU:
 			PostMessage(g_hwndTClockMain, WM_CONTEXTMENU, wParam, lParam);
 			return 0;
-		case WM_NCHITTEST:     // not to pass to g_oldWndProc
+		case WM_NCHITTEST:     // not to pass to the original wndproc
 			return DefWindowProc(hwnd, message, wParam, lParam);
 		case WM_MOUSEACTIVATE:
 			return MA_ACTIVATE;
@@ -192,7 +191,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return 0;
 		case CLOCKM_BLINK: // blink the clock
 			g_nBlink = 2;
-			m_nBlinkSec = lParam;
+			m_nBlinkSec = (int)lParam;
 			if(lParam) m_nBlinkTick = GetTickCount();
 			return 0;
 		case CLOCKM_COPY: // copy format to clipboard
@@ -203,6 +202,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			OnVolumeChange(hwnd);
 			return 0;
 #endif
+		case CLOCKM_VISTACALENDAR:
+			if(g_winver&WIN10RS1)
+			{
+				// Win10AU: simulate left click
+				DefSubclassProc(hwnd, WM_LBUTTONDOWN, MK_LBUTTON, 0);
+				return DefSubclassProc(hwnd, WM_LBUTTONUP, MK_LBUTTON, 0);
+			}
+			// pass through
+			break;
 		
 		case WM_COPYDATA:
 			OnCopyData(hwnd, (HWND)wParam, (COPYDATASTRUCT*)lParam);
@@ -215,7 +223,84 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 	}
 	
-	return CallWindowProc(g_oldWndProc, hwnd, message, wParam, lParam);
+	return DefSubclassProc(hwnd, message, wParam, lParam);
+}
+
+/*------------------------------------------------
+  Rearrange the notify area
+--------------------------------------------------*/
+static void RearrangeNotifyArea(HWND hwnd, HWND hwndClock)
+{
+	LRESULT size;
+	POINT posclk = {0, 0};
+	int wclock, hclock;
+	HWND hwndChild;
+
+	size = OnCalcRect(hwndClock);
+	wclock = LOWORD(size);
+	hclock = HIWORD(size);
+	SetWindowPos(hwndClock, NULL, 0, 0, wclock, hclock,
+			SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER);
+	MapWindowPoints(hwndClock, hwnd, &posclk, 1);
+	posclk.x += g_OrigClockWidth;
+	posclk.y += g_OrigClockHeight;
+	hwndChild = hwndClock;
+	while((hwndChild = GetWindow(hwndChild, GW_HWNDNEXT)) != NULL)
+	{
+		POINT pos = {0, 0};
+		MapWindowPoints(hwndChild, hwnd, &pos, 1);
+		if(pos.x >= posclk.x)
+		{
+			// Horizontal taskbar
+			pos.x += wclock - g_OrigClockWidth;
+			SetWindowPos(hwndChild, NULL, pos.x, pos.y, 0, 0,
+					SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
+		}
+		else if(pos.y >= posclk.y)
+		{
+			// Vertical taskbar
+			pos.y += hclock - g_OrigClockHeight;
+			SetWindowPos(hwndChild, NULL, pos.x, pos.y, 0, 0,
+					SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
+		}
+	}
+}
+
+/*------------------------------------------------
+  subclass procedure of the tray
+--------------------------------------------------*/
+LRESULT CALLBACK SubclassTrayProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+	switch(message)
+	{
+		case (WM_USER+100):        // a message requesting for clock size
+		{
+			LRESULT ret, size;
+			HWND hwndClock = (HWND)dwRefData;
+			
+			if(g_bNoClock)
+				break;
+			ret = DefSubclassProc(hwnd, message, wParam, lParam);
+			size = OnCalcRect(hwndClock);
+			ret = MAKELONG(LOWORD(size) + LOWORD(ret) - g_OrigClockWidth,
+				HIWORD(ret));
+			return ret;
+		}
+		case WM_NOTIFY:
+		{
+			LRESULT ret;
+			NMHDR *nmh = (NMHDR*)lParam;
+			HWND hwndClock = (HWND)dwRefData;
+
+			if(g_bNoClock || nmh->code != PGN_CALCSIZE)
+				break;
+			ret = DefSubclassProc(hwnd, message, wParam, lParam);
+			RearrangeNotifyArea(hwnd, hwndClock);
+			return ret;
+		}
+	}
+	
+	return DefSubclassProc(hwnd, message, wParam, lParam);
 }
 
 /*------------------------------------------------
@@ -232,8 +317,7 @@ void OnTimerMain(HWND hwnd)
 	GetLocalTime(&t);
 	
 	// adjusting milliseconds gap
-	if((t.wMilliseconds > 200 ||
-		((g_winver | WINNT) && t.wMilliseconds > 50)))
+	if(t.wMilliseconds > 50)
 	{
 		KillTimer(hwnd, IDTIMER_MAIN);
 		SetTimer(hwnd, IDTIMER_MAIN, 1001 - t.wMilliseconds, NULL);
@@ -269,8 +353,6 @@ void OnTimerMain(HWND hwnd)
 		LastTime.wYear != t.wYear)
 	{
 		InitFormatTime(); // formattime.c
-		if(!(g_winver&WINNT))
-			InitDaylightTimeTransition();
 	}
 	
 	hdc = NULL;
@@ -284,14 +366,7 @@ void OnTimerMain(HWND hwnd)
 	
 	if(g_nBlink)
 	{
-		if(g_nBlink % 2) g_nBlink++; else g_nBlink--;
-	}
-	
-	// check daylight/standard time transition
-	if(!(g_winver&WINNT) && LastTime.wHour != t.wHour)
-	{
-		if(CheckDaylightTimeTransition(&t))
-			PostMessage(hwnd, WM_USER+102, 0, 0);
+		g_nBlink ^= 3;  // toggle 1 and 2
 	}
 	
 	memcpy(&LastTime, &t, sizeof(t));
@@ -329,8 +404,8 @@ void OnRefreshClock(HWND hwnd)
 	
 	PostMessage(GetParent(GetParent(hwnd)), WM_SIZE,
 		SIZE_RESTORED, 0);
-	PostMessage(GetParent(hwnd), WM_SIZE,
-		SIZE_RESTORED, 0);
+	//PostMessage(GetParent(hwnd), WM_SIZE,
+	//	SIZE_RESTORED, 0);
 	
 	InvalidateRect(hwnd, NULL, FALSE);
 	InvalidateRect(GetParent(hwnd), NULL, TRUE);
@@ -363,8 +438,6 @@ void OnRefreshTaskbar(HWND hwnd)
 void OnRefreshStartMenu(HWND hwnd)
 {
 	ResetStartMenu(hwnd);
-	
-	if(!g_bIE4) InitTaskbar(hwnd);
 }
 #endif
 
@@ -387,8 +460,8 @@ void OnVolumeChange(HWND hwnd)
 	
 	PostMessage(GetParent(GetParent(hwnd)), WM_SIZE,
 		SIZE_RESTORED, 0);
-	PostMessage(GetParent(hwnd), WM_SIZE,
-		SIZE_RESTORED, 0);
+	//PostMessage(GetParent(hwnd), WM_SIZE,
+	//	SIZE_RESTORED, 0);
 	
 	InvalidateRect(hwnd, NULL, FALSE);
 	InvalidateRect(GetParent(hwnd), NULL, TRUE);
@@ -402,8 +475,10 @@ void OnVolumeChange(HWND hwnd)
 --------------------------------------------------*/
 LRESULT OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	if(message == WM_LBUTTONDOWN)
-		SetFocus(hwnd);
+	BOOL skipmsg = FALSE;
+	
+	//if(message == WM_LBUTTONDOWN)
+	//	SetFocus(hwnd);
 	
 	if(g_sdisp2[0] || g_scat2[0])
 	{
@@ -414,13 +489,23 @@ LRESULT OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	
 	if(g_nBlink)
 	{
-		g_nBlink = 0; InvalidateRect(hwnd, NULL, FALSE);
+		g_nBlink = 0;
+		InvalidateRect(hwnd, NULL, FALSE);
+		skipmsg = TRUE;
 	}
 	
 #if TC_ENABLE_STARTBUTTON
 	if(StartMenuFromClock(message, wParam, lParam))  // startbtn.c
 		return 0;
 #endif
+	
+	if(g_bLMousePassThru && message == WM_LBUTTONDOWN)
+	{
+		if(skipmsg)
+			return 0;
+		else
+			return DefSubclassProc(hwnd, message, wParam, lParam);
+	}
 	
 	PostMessage(g_hwndTClockMain, message, wParam, lParam);
 	return 0;
@@ -431,6 +516,9 @@ LRESULT OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 --------------------------------------------------*/
 LRESULT OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	if(g_bLMousePassThru && message == WM_LBUTTONUP)
+		return DefSubclassProc(hwnd, message, wParam, lParam);
+	
 	PostMessage(g_hwndTClockMain, message, wParam, lParam);
 	return 0;
 }
@@ -448,7 +536,7 @@ void OnWindowPosChanging(HWND hwnd, LPWINDOWPOS pwp)
 	if(!IsWindowVisible(hwnd) || (pwp->flags & SWP_NOSIZE))
 		return;
 	
-	dw = OnCalcRect(hwnd);
+	dw = (DWORD)OnCalcRect(hwnd);
 	w = LOWORD(dw); h = HIWORD(dw);
 	if(pwp->cx > w) pwp->cx = w;
 	if(pwp->cy > h) pwp->cy = h;
@@ -516,7 +604,12 @@ void OnCopyData(HWND hwnd, HWND hwndFrom, const COPYDATASTRUCT* pcds)
 			break;
 	}
 	
-	if(bResize) ClearClockDC();
+	if(bResize)
+	{
+		ClearClockDC();
+		PostMessage(GetParent(GetParent(hwnd)), WM_SIZE,
+				SIZE_RESTORED, 0);
+	}
 	if(bRefresh && !g_bDispSecond) InvalidateRect(hwnd, NULL, FALSE);
 }
 
@@ -527,6 +620,7 @@ void OnCopy(HWND hwnd, const wchar_t* pfmt)
 {
 	wchar_t format[BUFSIZE_FORMAT];
 	wchar_t ws[BUFSIZE_FORMAT];
+	wchar_t *p;
 	HGLOBAL hg;
 	
 	if(pfmt)
@@ -546,98 +640,12 @@ void OnCopy(HWND hwnd, const wchar_t* pfmt)
 	if(!OpenClipboard(hwnd)) return;
 	EmptyClipboard();
 	
-	if(g_winver&WINNT)
-	{
-		wchar_t *p;
-		
-		hg = GlobalAlloc(GMEM_DDESHARE, (wcslen(ws) + 1) * sizeof(wchar_t));
-		p = (wchar_t*)GlobalLock(hg);
-		wcscpy(p, ws);
-		GlobalUnlock(hg);
-		SetClipboardData(CF_UNICODETEXT, hg);
-	}
-	else
-	{
-		char s[BUFSIZE_FORMAT], *p;
-		
-		WideCharToMultiByte(CP_ACP, 0, ws, -1, s, BUFSIZE_FORMAT-1,
-			NULL, NULL);
-		
-		hg = GlobalAlloc(GMEM_DDESHARE, strlen(s) + 1);
-		p = (char*)GlobalLock(hg);
-		strcpy(p, s);
-		GlobalUnlock(hg);
-		SetClipboardData(CF_TEXT, hg);
-	}
+	hg = GlobalAlloc(GMEM_DDESHARE, (wcslen(ws) + 1) * sizeof(wchar_t));
+	p = (wchar_t*)GlobalLock(hg);
+	wcscpy(p, ws);
+	GlobalUnlock(hg);
+	SetClipboardData(CF_UNICODETEXT, hg);
 	
 	CloseClipboard();
-}
-
-static int m_iHourTransition = -1, m_iMinuteTransition = -1;
-
-/*------------------------------------------------
-  initialize time-zone information
---------------------------------------------------*/
-void InitDaylightTimeTransition(void)
-{
-	SYSTEMTIME lt, *plt;
-	TIME_ZONE_INFORMATION tzi;
-	DWORD dw;
-	BOOL b;
-	
-	m_iHourTransition = m_iMinuteTransition = -1;
-	
-	GetLocalTime(&lt);
-	
-	b = FALSE;
-	memset(&tzi, 0, sizeof(tzi));
-	dw = GetTimeZoneInformation(&tzi);
-	if(dw == TIME_ZONE_ID_STANDARD
-	  && tzi.DaylightDate.wMonth == lt.wMonth
-	  && tzi.DaylightDate.wDayOfWeek == lt.wDayOfWeek)
-	{
-		b = TRUE; plt = &(tzi.DaylightDate);
-	}
-	if(dw == TIME_ZONE_ID_DAYLIGHT
-	  && tzi.StandardDate.wMonth == lt.wMonth
-	  && tzi.StandardDate.wDayOfWeek == lt.wDayOfWeek)
-	{
-		b = TRUE; plt = &(tzi.StandardDate);
-	}
-	
-	if(b && plt->wDay < 5)
-	{
-		if(((lt.wDay - 1) / 7 + 1) == plt->wDay)
-		{
-			m_iHourTransition = plt->wHour;
-			m_iMinuteTransition = plt->wMinute;
-		}
-	}
-	else if(b && plt->wDay == 5)
-	{
-		FILETIME ft;
-		SystemTimeToFileTime(&lt, &ft);
-		*(DWORDLONG*)&ft += 6048000000000i64;
-		FileTimeToSystemTime(&ft, &lt);
-		if(lt.wDay < 8)
-		{
-			m_iHourTransition = plt->wHour;
-			m_iMinuteTransition = plt->wMinute;
-		}
-	}
-}
-
-/*------------------------------------------------
-  check standard/daylight saving time transition
---------------------------------------------------*/
-BOOL CheckDaylightTimeTransition(const SYSTEMTIME *plt)
-{
-	if((int)plt->wHour == m_iHourTransition &&
-	   (int)plt->wMinute >= m_iMinuteTransition)
-	{
-		m_iHourTransition = m_iMinuteTransition = -1;
-		return TRUE;
-	}
-	else return FALSE;
 }
 

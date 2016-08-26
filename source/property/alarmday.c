@@ -27,7 +27,7 @@ static PALARMSTRUCT m_pAS;
 int SetAlarmDay(HWND hDlg, PALARMSTRUCT pAS)
 {
 	m_pAS = pAS;
-	return DialogBox(g_hInst, MAKEINTRESOURCE(IDD_ALARMDAY),
+	return (int)DialogBox(g_hInst, MAKEINTRESOURCE(IDD_ALARMDAY),
 		hDlg, AlarmDayProc);
 }
 

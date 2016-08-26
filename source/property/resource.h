@@ -102,7 +102,8 @@
 #define IDC_MOUSEOPT                    1414
 #define IDC_MOUSEOPTSANSHO              1415
 #define IDC_LABMOUSEOPT2                1416
-#define IDC_RCLICKMENU                  1417
+#define IDC_LMOUSEPASSTHRU              1417
+#define IDC_RCLICKMENU                  1418
 
 // mouse2
 #define IDC_DROPFILES                   1418
