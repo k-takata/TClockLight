@@ -187,12 +187,13 @@ void YearHandler(FORMATHANDLERSTRUCT* pstruc)
 		*pstruc->dp++ = (wchar_t)(year % 10 + '0');
 }
 
-/* m, mm, mmm, mmmm, mme */
+/* m, mm, _m, mmm, mmmm, mme */
 void MonthHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	int keta = 0;
+	BOOL padsp = (*pstruc->sp == '_');
 	
-	while(*pstruc->sp == 'm')
+	while(*pstruc->sp == 'm' || *pstruc->sp == '_')
 	{
 		pstruc->sp++;
 		keta++;
@@ -221,7 +222,11 @@ void MonthHandler(FORMATHANDLERSTRUCT* pstruc)
 			if(keta == 2 || mon > 9)
 			{
 				if(*pstruc->dp)
-					*pstruc->dp++ = (wchar_t)(mon / 10 + '0');
+				{
+					wchar_t c = (wchar_t)(mon / 10 + '0');
+					if(padsp && c == '0') c = ' ';
+					*pstruc->dp++ = c;
+				}
 			}
 			if(*pstruc->dp)
 				*pstruc->dp++ = (wchar_t)(mon % 10 + '0');
@@ -229,12 +234,13 @@ void MonthHandler(FORMATHANDLERSTRUCT* pstruc)
 	}
 }
 
-/* d, dd, ddd, dddd, dde */
+/* d, dd, _d, ddd, dddd, dde */
 void DateHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	int keta = 0;
+	BOOL padsp = (*pstruc->sp == '_');
 	
-	while(*pstruc->sp == 'd')
+	while(*pstruc->sp == 'd' || *pstruc->sp == '_')
 	{
 		pstruc->sp++;
 		keta++;
@@ -262,7 +268,11 @@ void DateHandler(FORMATHANDLERSTRUCT* pstruc)
 			if(keta == 2 || day > 9)
 			{
 				if(*pstruc->dp)
-					*pstruc->dp++ = (wchar_t)(day / 10 + '0');
+				{
+					wchar_t c = (wchar_t)(day / 10 + '0');
+					if(padsp && c == '0') c = ' ';
+					*pstruc->dp++ = c;
+				}
 			}
 			if(*pstruc->dp)
 				*pstruc->dp++ = (wchar_t)(day % 10 + '0');
@@ -286,11 +296,12 @@ void DayOfWeekHandler(FORMATHANDLERSTRUCT* pstruc)
 	while(*p && *pstruc->dp) *pstruc->dp++ = *p++;
 }
 
-/* h, hh */
+/* h, hh, _h */
 void HourHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	int keta = 1;
 	int hour = (int)pstruc->pt->wHour;
+	BOOL padsp = (*pstruc->sp == '_');
 	
 	if(m_bHour12)
 	{
@@ -304,23 +315,33 @@ void HourHandler(FORMATHANDLERSTRUCT* pstruc)
 	if(keta == 2 || hour > 9)
 	{
 		if(*pstruc->dp)
-			*pstruc->dp++ = (wchar_t)(hour / 10 + '0');
+		{
+			wchar_t c = (wchar_t)(hour / 10 + '0');
+			if(padsp && c == '0') c = ' ';
+			*pstruc->dp++ = c;
+		}
 	}
 	if(*pstruc->dp)
 		*pstruc->dp++ = (wchar_t)(hour % 10 + '0');
 }
 
-/* n, nn */
+/* n, nn, _n */
 void MinuteHandler(FORMATHANDLERSTRUCT* pstruc)
 {
-	int min = (int)pstruc->pt->wMinute;
 	int keta = 1;
+	int min = (int)pstruc->pt->wMinute;
+	BOOL padsp = (*pstruc->sp == '_');
+	
 	pstruc->sp++;
 	if(*pstruc->sp == 'n') { keta++; pstruc->sp++; }
 	if(keta == 2 || min > 9)
 	{
 		if(*pstruc->dp)
-			*pstruc->dp++ = (wchar_t)(min / 10 + '0');
+		{
+			wchar_t c = (wchar_t)(min / 10 + '0');
+			if(padsp && c == '0') c = ' ';
+			*pstruc->dp++ = c;
+		}
 	}
 	if(*pstruc->dp)
 		*pstruc->dp++ = (wchar_t)(min % 10 + '0');
@@ -329,8 +350,9 @@ void MinuteHandler(FORMATHANDLERSTRUCT* pstruc)
 /* s, ss */
 void SecondHandler(FORMATHANDLERSTRUCT* pstruc)
 {
-	int sec = (int)pstruc->pt->wSecond;
 	int keta = 1;
+	int sec = (int)pstruc->pt->wSecond;
+	
 	pstruc->sp++;
 	if(*pstruc->sp == 's') { keta++; pstruc->sp++; }
 	if(keta == 2 || sec > 9)

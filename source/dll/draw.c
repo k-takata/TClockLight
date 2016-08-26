@@ -169,6 +169,7 @@ LRESULT CalcRect(HWND hwnd, int *textwidth, int *textheight)
 	HDC hdc;
 	HFONT hOldFont;
 	wchar_t s[BUFSIZE_FORMAT+BUFSIZE_DISP*2];
+	wchar_t *p;
 	int wclock, hclock;
 	
 	if(!(GetWindowLong(hwnd, GWL_STYLE) & WS_VISIBLE))
@@ -184,6 +185,16 @@ LRESULT CalcRect(HWND hwnd, int *textwidth, int *textheight)
 	
 	if(g_scat1[0]) wcscat(s, g_scat1);
 	if(g_scat2[0]) wcscat(s, g_scat2);
+	
+	p = s;
+	while(*p != L'\0')
+	{
+		// Replace all spaces to '0' to avoid changing the width when
+		// number of digits is changed.  E.g.: ' 9:59' -> '10:00'
+		if(*p == L' ')
+			*p = L'0';
+		++p;
+	}
 	
 	GetClockTextSize(hdc, &tm, s, &wclock, &hclock);
 	if(textwidth != NULL) *textwidth = wclock;
