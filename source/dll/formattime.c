@@ -389,17 +389,17 @@ void CRLFHandler(FORMATHANDLERSTRUCT* pstruc)
 /* \x1234; */
 void CharaHandler(FORMATHANDLERSTRUCT* pstruc)
 {
-	wchar_t ch = 0;
+	unsigned int ch = 0;
 	
 	pstruc->sp += 2;
 	while(*pstruc->sp)
 	{
 		if('0' <= *pstruc->sp && *pstruc->sp <= '9')
-			ch = (wchar_t)(ch * 16 + *pstruc->sp - '0');
+			ch = ch * 16 + *pstruc->sp - '0';
 		else if('A' <= *pstruc->sp && *pstruc->sp <= 'F')
-			ch = (wchar_t)(ch * 16 + *pstruc->sp - 'A' + 10);
+			ch = ch * 16 + *pstruc->sp - 'A' + 10;
 		else if('a' <= *pstruc->sp && *pstruc->sp <= 'f')
-			ch = (wchar_t)(ch * 16 + *pstruc->sp - 'a' + 10);
+			ch = ch * 16 + *pstruc->sp - 'a' + 10;
 		else
 		{
 			if(*pstruc->sp == ';') pstruc->sp++;
@@ -409,7 +409,13 @@ void CharaHandler(FORMATHANDLERSTRUCT* pstruc)
 	}
 	
 	if(ch == 0) ch = ' ';
-	if(*pstruc->dp) *pstruc->dp++ = ch;
+	if(ch >= 0x10000)
+	{
+		// surrogate pair
+		if(*pstruc->dp) *pstruc->dp++ = (wchar_t)((ch >> 10) + 0xd7c0);
+		ch = (ch & 0x3ff) + 0xdc00;
+	}
+	if(*pstruc->dp) *pstruc->dp++ = (wchar_t)ch;
 }
 
 /* Y */
