@@ -45,7 +45,7 @@ void InitTaskSwitch(HWND hwndClock)
 	}
 	
 	// Icons Only
-	if(!IsTaskbarAnimation())
+	if(!(g_winver&WIN7) && !IsTaskbarAnimation())
 		m_bTaskSwitchIcons = GetMyRegLong(NULL, "TaskSwitchIconsOnly", FALSE);
 	
 	if(!m_bTaskSwitchFlat && !m_bTaskSwitchIcons)

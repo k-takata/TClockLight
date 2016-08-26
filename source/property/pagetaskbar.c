@@ -126,7 +126,7 @@ void OnInit(HWND hDlg)
 	}
 	
 	EnableDlgItem(hDlg, IDC_TASKSWITCH_SEPARAT, FALSE);
-	if(IsTaskbarAnimation())
+	if((g_winver&WIN7) || IsTaskbarAnimation())
 		EnableDlgItem(hDlg, IDC_TASKSWITCHICON, FALSE);
 	
 	m_bInit = TRUE;
