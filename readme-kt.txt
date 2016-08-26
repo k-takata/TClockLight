@@ -378,11 +378,14 @@ UAC (User Account Control) が有効な場合に、tcsntp.exe を使って SNTP で
 ・SNTP のログに年の表示を追加。
 
 2016/08/xx
-・Windows 10 Anniversary Update で動かない問題の対処。
+・Windows 10 Anniversary Update で動かない問題の対処。(T-Clock Redux の
+  コードを参考に。)
 ・High DPI 対応。
 ・Win9x/NT4/2000/XP サポート終了。古いコードの削除。
 ・VC6～VC2008, BCC のサポート終了。
 ・VC2012～VC2015 に対応。
+・プロパティの「マウス操作」タブで、「機能」ドロップダウンを開いただけで、
+  それに関連するオプション設定が消えるのを修正。
 ・tclocklight-050716 の細かいバグ修正を一部取り込む。
 ・起動時間の表示が 49.7 日でリセットされる問題を修正。(all 版)
 ・書式 _m, _d, _h, _n を追加。
