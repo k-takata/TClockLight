@@ -375,8 +375,8 @@ void EndDesktopIcons(void);
 #define WIN8     0x0100   // Win8, ...
 #define WIN8_1   0x0200   // Win8.1, ...
 #define WIN10    0x0400   // Win10,Win10TH2,Win10RS1
-#define WIN10TH2 0x0400   // Win10TH2,Win10RS1
-#define WIN10RS1 0x0800   // Win10RS1
+#define WIN10TH2 0x0800   // Win10TH2,Win10RS1
+#define WIN10RS1 0x1000   // Win10RS1
 
 void add_title(char *path, const char* titile);
 void del_title(char *path);
