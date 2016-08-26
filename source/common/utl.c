@@ -351,7 +351,7 @@ int CheckWinVersion(void)
 	dw = GetVersion();
 	w = LOWORD(dw);
 	ver = MAKEWORD(HIBYTE(w), LOBYTE(w));
-	build = (dw >> 16) & 0x7fff;
+	build = HIWORD(dw) & 0x7fff;
 	ret = 0;
 #if 0
 	if(dw & 0x80000000)
