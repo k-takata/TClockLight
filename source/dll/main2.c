@@ -211,7 +211,8 @@ void OnDestroy(HWND hwnd)
 void LoadSetting(HWND hwnd)
 {
 	g_bNoClock = GetMyRegLong(NULL, "NoClock", FALSE);
-	g_bLMousePassThru = GetMyRegLong("Mouse", "LeftMousePassThrough", FALSE);
+	g_bLMousePassThru = GetMyRegLong("Mouse", "LeftMousePassThrough",
+			(g_winver&WIN10RS1) != 0);
 	
 #if TC_ENABLE_MOUSEDROP
 	DragAcceptFiles(hwnd, GetMyRegLong(NULL, "DropFiles", FALSE));

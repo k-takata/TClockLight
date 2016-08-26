@@ -204,7 +204,8 @@ void OnInit(HWND hDlg)
 	OnName(hDlg);
 	
 	CheckDlgButton(hDlg, IDC_LMOUSEPASSTHRU,
-		GetMyRegLong(m_section, "LeftMousePassThrough", FALSE));
+		GetMyRegLong(m_section, "LeftMousePassThrough",
+			(g_winver&WIN10RS1) != 0));
 	
 	b = GetMyRegLong(NULL, "RightClickMenu", TRUE);
 	b = GetMyRegLong(m_section, "RightClickMenu", b);
