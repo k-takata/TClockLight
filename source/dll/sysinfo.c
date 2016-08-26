@@ -202,7 +202,8 @@ void NetworkHandler(FORMATHANDLERSTRUCT* pstruc)
 	else if (*(pstruc->sp + 2) == 'S') i += 2;
 	else i = -4;
 
-	if (!(*(pstruc->sp+3)=='B' || *(pstruc->sp+3)=='K' || *(pstruc->sp+3)=='M'))
+	if (!(*(pstruc->sp+3)=='B' || *(pstruc->sp+3)=='K'
+				|| *(pstruc->sp+3)=='M' || *(pstruc->sp+3)=='G'))
 		i = -4;
 
 	if (i >= 0) {
@@ -219,6 +220,7 @@ void NetworkHandler(FORMATHANDLERSTRUCT* pstruc)
 		ntd = 1000 * net[i];
 		if (*(pstruc->sp + 3) == 'K') ntd /= 1024;
 		else if (*(pstruc->sp + 3) == 'M') ntd /= 1048576;
+		else if (*(pstruc->sp + 3) == 'G') ntd /= 1048576 * 1024;
 
 		pstruc->sp += 4;
 		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, ntd, 1000);
@@ -353,7 +355,8 @@ void HDDHandler(FORMATHANDLERSTRUCT* pstruc)
 
 	if (!m_bHDD) {
 		if ((*(pstruc->sp+1)=='T'||*(pstruc->sp+1)=='A'||*(pstruc->sp+1)=='U')&&
-			(*(pstruc->sp+3)=='M'||*(pstruc->sp+3)=='G'||*(pstruc->sp+3)=='P')&&
+			(*(pstruc->sp+3)=='M'||*(pstruc->sp+3)=='G'||
+				*(pstruc->sp+3)=='T'||*(pstruc->sp+3)=='P')&&
 			(*(pstruc->sp + 2) >= 'A' && *(pstruc->sp + 2) <= 'Z'))
 		{
 			m_bHDD = TRUE;
@@ -378,6 +381,8 @@ void HDDHandler(FORMATHANDLERSTRUCT* pstruc)
 				d = 1000 * diskAll[drv] / 1048576;
 			else if (*(pstruc->sp + 3) == 'G')
 				d = 1000 * diskAll[drv] / 1048576 / 1024;
+			else if (*(pstruc->sp + 3) == 'T')
+				d = 1000 * diskAll[drv] / 1048576 / 1048576;
 		}
 		else if (*(pstruc->sp + 1) == 'A')
 		{
@@ -385,6 +390,8 @@ void HDDHandler(FORMATHANDLERSTRUCT* pstruc)
 				d = 1000 * diskFree[drv] / 1048576;
 			else if (*(pstruc->sp + 3) == 'G')
 				d = 1000 * diskFree[drv] / 1048576 / 1024;
+			else if (*(pstruc->sp + 3) == 'T')
+				d = 1000 * diskFree[drv] / 1048576 / 1048576;
 			else if (*(pstruc->sp + 3) == 'P')
 				d = diskAll[drv] ? 1000 * diskFree[drv] * 100 / diskAll[drv] : 0;
 		}
@@ -394,6 +401,8 @@ void HDDHandler(FORMATHANDLERSTRUCT* pstruc)
 				d = 1000 * (diskAll[drv] - diskFree[drv]) / 1048576;
 			else if (*(pstruc->sp + 3) == 'G')
 				d = 1000 * (diskAll[drv] - diskFree[drv]) / 1048576 / 1024;
+			else if (*(pstruc->sp + 3) == 'T')
+				d = 1000 * (diskAll[drv] - diskFree[drv]) / 1048576 / 1048576;
 			else if (*(pstruc->sp + 3) == 'P')
 				d = diskAll[drv] ?
 					1000 * (diskAll[drv] - diskFree[drv]) * 100 / diskAll[drv] : 0;

@@ -63,18 +63,22 @@ $ Ss        = 秒
 # NSSB      = 1秒当たりの送信量(Byte単位)
 # NSSK      = 1秒当たりの送信量(KB単位)
 # NSSM      = 1秒当たりの送信量(MB単位)
+# NSSG      = 1秒当たりの送信量(GB単位)
 
 # NRSB      = 1秒当たりの受信量(Byte単位)
 # NRSK      = 1秒当たりの受信量(KB単位)
 # NRSM      = 1秒当たりの受信量(MB単位)
+# NRSG      = 1秒当たりの受信量(GB単位)
 
 # NSAB      = 総送信量(Byte単位)
 # NSAK      = 総送信量(KB単位)
 # NSAM      = 総送信量(MB単位)
+# NSAG      = 総送信量(GB単位)
 
 # NRAB      = 総受信量(Byte単位)
 # NRAK      = 総受信量(KB単位)
 # NRAM      = 総受信量(MB単位)
+# NRAG      = 総受信量(GB単位)
 
 ■ メモリ ■
 ※ TC_ENABLE_MEMORY が 1 のときに使用可能
@@ -122,13 +126,16 @@ $ Ss        = 秒
 ※ TC_ENABLE_HDD が 1 のときに使用可能
 # HT[A-Z]M  = [A-Z]ドライブの合計サイズ(MB単位)
 # HT[A-Z]G  = [A-Z]ドライブの合計サイズ(GB単位)
+# HT[A-Z]T  = [A-Z]ドライブの合計サイズ(TB単位)
 
 # HA[A-Z]M  = [A-Z]ドライブの空き領域(MB単位)
 # HA[A-Z]G  = [A-Z]ドライブの空き領域(GB単位)
+# HA[A-Z]T  = [A-Z]ドライブの空き領域(TB単位)
 # HA[A-Z]P  = [A-Z]ドライブの空き領域(%)
 
 # HU[A-Z]M  = [A-Z]ドライブの使用領域(MB単位)
 # HU[A-Z]G  = [A-Z]ドライブの使用領域(GB単位)
+# HU[A-Z]T  = [A-Z]ドライブの使用領域(TB単位)
 # HU[A-Z]P  = [A-Z]ドライブの使用領域(%)
 
 ■ 音量 ■
