@@ -438,7 +438,7 @@ void ReleaseMixer(void);
 #define UpDown_SetAccel(hDlg,id,nAccels,aAccels) \
 	SendDlgItemMessage((hDlg),(id),UDM_SETACCEL,(nAccels),(LPARAM)(aAccels))
 #define UpDown_SetRange(hDlg,id,nUpper,nLower) \
-	SendDlgItemMessage((hDlg),(id),UDM_SETRANGE,0,((nLower)<<16)|(nUpper))
+	SendDlgItemMessage((hDlg),(id),UDM_SETRANGE,0,MAKELONG((nUpper),(nLower)))
 #define UpDown_SetBuddy(hDlg,id,idBuddy) \
 	SendDlgItemMessage((hDlg),(id),UDM_SETBUDDY, \
 		(WPARAM)GetDlgItem((hDlg),(idBuddy)),0)

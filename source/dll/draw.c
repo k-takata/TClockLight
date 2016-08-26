@@ -216,7 +216,7 @@ LRESULT CalcRect(HWND hwnd, int *textwidth, int *textheight)
 	if(m_hFont) SelectObject(hdc, hOldFont);
 	ReleaseDC(hwnd, hdc);
 	
-	return (hclock << 16) + wclock;
+	return MAKELONG(wclock, hclock);
 }
 
 LRESULT OnCalcRect(HWND hwnd)

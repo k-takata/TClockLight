@@ -128,12 +128,12 @@ LRESULT CALLBACK WndProcTab(HWND hwnd, UINT message,
 		case TCM_SETITEMSIZE:
 			if(m_bTaskSwitchIcons)
 			{
-				lParam = 23 + (HIWORD(lParam)<<16);
+				lParam = MAKELONG(23, HIWORD(lParam));
 			}
 			else
 			{
 				if(LOWORD(lParam)-8 >= 22)
-					lParam = LOWORD(lParam)-8 + (HIWORD(lParam)<<16);
+					lParam = MAKELONG(LOWORD(lParam)-8, HIWORD(lParam));
 			}
 			break;
 		case TCM_INSERTITEM:
@@ -146,12 +146,12 @@ LRESULT CALLBACK WndProcTab(HWND hwnd, UINT message,
 		case TB_SETBUTTONSIZE:
 			if(m_bTaskSwitchIcons)
 			{
-				lParam = 23 + (HIWORD(lParam)<<16);
+				lParam = MAKELONG(23, HIWORD(lParam));
 			}
 			else
 			{
 				if(LOWORD(lParam)-8 >= 22)
-					lParam = LOWORD(lParam)-8 + (HIWORD(lParam)<<16);
+					lParam = MAKELONG(LOWORD(lParam)-8, HIWORD(lParam));
 			}
 			break;
 		case TB_INSERTBUTTON:

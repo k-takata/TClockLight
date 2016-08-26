@@ -282,8 +282,8 @@ LRESULT CALLBACK SubclassTrayProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 				break;
 			ret = DefSubclassProc(hwnd, message, wParam, lParam);
 			size = OnCalcRect(hwndClock);
-			ret = (HIWORD(ret) << 16)
-				+ (LOWORD(size) + LOWORD(ret) - g_OrigClockWidth);
+			ret = MAKELONG(LOWORD(size) + LOWORD(ret) - g_OrigClockWidth,
+				HIWORD(ret));
 			return ret;
 		}
 		case WM_NOTIFY:
