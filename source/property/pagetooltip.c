@@ -240,14 +240,7 @@ void InitFont(HWND hDlg)
 	GetMyRegStr(m_section, "Font", s, 80, temp);
 	if(s[0] == 0)
 	{
-		HFONT hfont;
-		hfont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-		if(hfont)
-		{
-			LOGFONT lf;
-			GetObject(hfont, sizeof(lf), (LPVOID)&lf);
-			strcpy(s, lf.lfFaceName);
-		}
+		GetDefaultFontName(s, NULL);
 	}
 	
 	// common/combobox.c
