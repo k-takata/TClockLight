@@ -1,6 +1,6 @@
 [Main]
 DialogFont=‚l‚r ‚oƒSƒVƒbƒN,9
-Version=TClock Light kt160825
+Version=TClock Light kt160827
 HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/ja/
 
 [Property]

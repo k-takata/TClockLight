@@ -15,7 +15,7 @@
 #include <shlobj.h>
 #include "../config.h"
 
-#define TCLOCKVERSION     "TClock Light kt160825"
+#define TCLOCKVERSION     "TClock Light kt160827"
 
 #define CLASS_TCLOCKMAIN   "TClockMainClass"
 #define CLASS_TCLOCKPROP   "TClockPropertyClass"
