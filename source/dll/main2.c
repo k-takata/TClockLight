@@ -46,6 +46,7 @@ void InitClock(HWND hwnd)
 	g_winver = CheckWinVersion();       // common/util.c
 	g_bVisualStyle = IsXPVisualStyle(); // common/util.c
 	
+#if 0
 	if(!(g_winver&WIN10RS1))
 	{
 		// check subclassification
@@ -55,6 +56,7 @@ void InitClock(HWND hwnd)
 			return;
 		}
 	}
+#endif
 	
 	GetModuleFileName(g_hInst, g_mydir, MAX_PATH);
 	del_title(g_mydir);
