@@ -218,35 +218,31 @@ LRESULT CALLBACK WndProcTip(HWND hwnd, UINT message,
 {
 	if(message == WM_WINDOWPOSCHANGING)
 	{
-		HWND hwndClock = GetClockWindow();
 		LPWINDOWPOS pwp = (LPWINDOWPOS)lParam;
-		RECT rcClock, rcTip;
-		int wscreen, hscreen, w, h;
+		RECT rcClock;
+		int wscreen, hscreen;
 		
 		if(!(pwp->flags & SWP_NOMOVE))
 		{
-			GetWindowRect(hwndClock, &rcClock);
-			GetWindowRect(hwnd, &rcTip);
+			GetWindowRect(GetClockWindow(), &rcClock);
 			wscreen = GetSystemMetrics(SM_CXSCREEN);
 			hscreen = GetSystemMetrics(SM_CYSCREEN);
-			h = rcTip.bottom - rcTip.top;
-			w = rcTip.right - rcTip.left;
 			
 			if(m_bTrackActive)
 			{
 				if(rcClock.left > wscreen / 2)
-					pwp->x = wscreen - w - 1;
+					pwp->x = wscreen - pwp->cx - 1;
 				else
 					pwp->x = 0;
 				if(rcClock.top > hscreen / 2)
-					pwp->y = rcClock.top - h;
+					pwp->y = rcClock.top - pwp->cy;
 				else
 					pwp->y = rcClock.bottom;
 			}
 			else
 			{
 				if(rcClock.top > hscreen / 2)
-					pwp->y = rcClock.top - h;
+					pwp->y = rcClock.top - pwp->cy;
 				else
 				{
 					if(pwp->y < rcClock.bottom)
@@ -403,7 +399,7 @@ void OnTimerTooltip(HWND hwndClock, BOOL forceFlg)
 	
 	if(!m_hwndTip) return;
 	
-	if((m_bUpdate || IsWindowVisible(m_hwndTip)) && !forceFlg ) return;
+	if((m_bUpdate || IsWindowVisible(m_hwndTip)) && !forceFlg) return;
 	
 	GetWindowRect(hwndClock, &rc);
 	GetCursorPos(&pt);
