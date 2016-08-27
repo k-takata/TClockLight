@@ -11,6 +11,7 @@
 
 typedef struct _tagTimerStruct
 {
+	struct _tagTimerStruct* next;
 	char  name[BUFSIZE_NAME];
 	int   id;
 	int   minute;
@@ -31,8 +32,6 @@ typedef TIMERSTRUCT* PTIMERSTRUCT;
 /* ---------- main.c --------------- */
 
 BOOL ExecCommandString(HWND hwnd, const char *command);
-PTIMERSTRUCT AddTimerStruct(PTIMERSTRUCT pArray, int len, PTIMERSTRUCT pItem);
-PTIMERSTRUCT DelTimerStruct(PTIMERSTRUCT pArray, int len, int index);
 
 extern HINSTANCE g_hInst;
 extern char  g_mydir[];
@@ -51,7 +50,7 @@ void OnShowDialog(HWND hwnd);
 extern HWND g_hDlg;
 
 /* ---------- timer.c --------------- */
-void TimerStart(PTIMERSTRUCT pTS);
+void TimerStart(const PTIMERSTRUCT pTS);
 void ClearTimer(void);
 BOOL IsTimerRunning(void);
 void OnTimerTimer(HWND hDlg);

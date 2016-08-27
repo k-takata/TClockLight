@@ -195,6 +195,11 @@ BOOL ExecCommandString(HWND hwnd, const char *command)
 			PostMessage(g_hwndClock, CLOCKM_COPY, 0, 0);
 		return FALSE;
 	}
+	else if(strcmp(cmdstr, "tip") == 0)
+	{
+		SendStringToClock(g_hwndClock, option, COPYDATA_TOOLTIP);
+		return FALSE;
+	}
 	else if(strcmp(cmdstr, "sntp") == 0)
 	{
 		strcpy(cmdstr, "tcsntp.exe /silent");

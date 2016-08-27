@@ -34,7 +34,6 @@ static BOOL m_bStartMenuFromClock;
 static BOOL m_bRClickMenu = FALSE;
 
 static PMOUSESTRUCT m_pMouseCommand = NULL;
-static int m_numMouseCommand = 0;
 
 /*------------------------------------------------
   initialize
@@ -66,17 +65,11 @@ void InitMouseFunction(HWND hwnd)
 		DelMyReg(m_section, "ver230");
 	}
 	
-	if(m_pMouseCommand) free(m_pMouseCommand);
-	m_pMouseCommand = NULL;
+	// common/list.c
+	clear_list(m_pMouseCommand);
 	
-	m_numMouseCommand = GetMyRegLong(m_section, "MouseNum", 0);
-	
-	if(m_numMouseCommand > 0)
-	{
-		m_pMouseCommand = malloc(sizeof(MOUSESTRUCT) * m_numMouseCommand);
-		// common/mousestruct.c
-		LoadMouseFunc(m_pMouseCommand, m_numMouseCommand);
-	}
+	// common/mousestruct.c
+	m_pMouseCommand = LoadMouseFunc();
 }
 
 /*------------------------------------------------
@@ -87,7 +80,8 @@ void EndMouseFunction(HWND hwnd)
 	if(m_bTimer) KillTimer(hwnd, IDTIMER_MOUSE);
 	m_bTimer = FALSE;
 	
-	if(m_pMouseCommand) free(m_pMouseCommand);
+	// common/list.c
+	clear_list(m_pMouseCommand);
 	m_pMouseCommand = NULL;
 }
 
@@ -372,7 +366,6 @@ PMOUSESTRUCT GetMouseCommand(int button, int nclick)
 {
 	PMOUSESTRUCT pMSS;
 	BOOL bCtrl, bShift, bAlt;
-	int i;
 	
 	if(!m_pMouseCommand) return NULL;
 	
@@ -381,13 +374,14 @@ PMOUSESTRUCT GetMouseCommand(int button, int nclick)
 	bAlt   = GetAsyncKeyState(VK_MENU)    ? TRUE : FALSE;
 	
 	pMSS = m_pMouseCommand;
-	for(i = 0; i < m_numMouseCommand; i++)
+	while(pMSS)
 	{
 		if(pMSS->nButton == button && pMSS->nClick == nclick &&
 			pMSS->bCtrl == bCtrl && pMSS->bShift == bShift &&
 			pMSS->bAlt == bAlt)
 			return pMSS;
-		pMSS++;
+		
+		pMSS = pMSS->next;
 	}
 	return NULL;
 }

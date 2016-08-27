@@ -17,7 +17,6 @@ void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason);
 /* Statics */
 
 static PALARMSTRUCT m_pAlarm = NULL;
-static int m_numAlarm = 0;
 static BOOL m_bCheckEverySeconds = FALSE;
 
 /*------------------------------------------------
@@ -25,69 +24,61 @@ static BOOL m_bCheckEverySeconds = FALSE;
 --------------------------------------------------*/
 void InitAlarm(void)
 {
-	PALARMSTRUCT pAS;
-	int i;
+	ALARMSTRUCT item;
+	PALARMSTRUCT pitem;
 	int jihou;
 	
-	m_numAlarm = GetMyRegLong("", "AlarmNum", 0);
-	if(m_numAlarm < 1) m_numAlarm = 0;
-	
-	if(m_pAlarm) free(m_pAlarm);
+	clear_list(m_pAlarm);
 	m_pAlarm = NULL;
 	
 	jihou = 0;
 	if(GetMyRegLong("", "Jihou", FALSE)) jihou = 1;
 	
-	if(m_numAlarm + jihou == 0) return;
-	
-	m_pAlarm = malloc(sizeof(ALARMSTRUCT) * (m_numAlarm + jihou));
-	
 	// read settings
-	LoadAlarm(m_pAlarm, m_numAlarm); // common/alarmstruct.c
+	m_pAlarm = LoadAlarm(); // common/alarmstruct.c
 	
 	// cuckoo clock
 	if(jihou)
 	{
-		pAS = m_pAlarm + m_numAlarm;
-		m_numAlarm++;
+		memset(&item, 0, sizeof(ALARMSTRUCT));
+		strcpy(item.name, "cuckoo");
+		strcpy(item.strHours, "*");
+		strcpy(item.strMinutes, "0");
+		strcpy(item.strWDays, "*");
+		SetAlarmTime(&item); // common/alarmstruct.c
 		
-		memset(pAS, 0, sizeof(ALARMSTRUCT));
-		strcpy(pAS->strHours, "*");
-		strcpy(pAS->strMinutes, "0");
-		strcpy(pAS->strWDays, "*");
-		SetAlarmTime(pAS); // common/alarmstruct.c
-		
-		pAS->bEnable = TRUE;
-		pAS->bHour12 = TRUE;
-		GetMyRegStr("", "JihouFile", pAS->fname, MAX_PATH, "");
+		item.bEnable = TRUE;
+		item.bHour12 = TRUE;
+		GetMyRegStr("", "JihouFile", item.fname, MAX_PATH, "");
 		if(GetMyRegLong("", "JihouRepeat", FALSE))
-			pAS->bRepeatJihou = TRUE;
+			item.bRepeatJihou = TRUE;
 		if(GetMyRegLong("", "JihouBlink", FALSE))
 		{
-			pAS->bBlink = TRUE; pAS->nBlinkSec = 60;
+			item.bBlink = TRUE; item.nBlinkSec = 60;
 		}
+		
+		m_pAlarm = copy_listitem(m_pAlarm, &item, sizeof(item));
 	}
 	
 	m_bCheckEverySeconds = FALSE;
-	if(m_pAlarm)
+	pitem = m_pAlarm;
+	while(pitem)
 	{
-		for(i = 0; i < m_numAlarm; i++)
+		if(pitem->bEnable)
 		{
-			pAS = m_pAlarm + i;
-			if(pAS->bEnable)
+			if(pitem->second)
+				m_bCheckEverySeconds = TRUE;
+			else if(pitem->bInterval)
 			{
-				if(pAS->second)
-					m_bCheckEverySeconds = TRUE;
-				else if(pAS->bInterval)
-				{
-					if(!pAS->bBootExec)
-						pAS->tickLast = GetTickCount();
-					m_bCheckEverySeconds = TRUE;
-				}
-				if(pAS->bResumeExec)
-					m_bCheckEverySeconds = TRUE;
+				if(!pitem->bBootExec)
+					pitem->tickLast = GetTickCount();
+				m_bCheckEverySeconds = TRUE;
 			}
+			if(pitem->bResumeExec)
+				m_bCheckEverySeconds = TRUE;
 		}
+		
+		pitem = pitem->next;
 	}
 }
 
@@ -96,7 +87,7 @@ void InitAlarm(void)
 --------------------------------------------------*/
 void EndAlarm(void)
 {
-	if(m_pAlarm) free(m_pAlarm);
+	clear_list(m_pAlarm);
 	m_pAlarm = NULL;
 }
 
@@ -105,10 +96,10 @@ void EndAlarm(void)
 --------------------------------------------------*/
 void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason)
 {
-	PALARMSTRUCT pAS;
+	PALARMSTRUCT pitem;
 	static int hourLast = 0, minuteLast = 0;
 	static DWORD resumeTick = 0;
-	int i, hour, loops;
+	int hour, loops;
 	
 	if(!m_pAlarm) return;
 	
@@ -124,19 +115,18 @@ void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason)
 	if(reason == 2)
 		resumeTick = GetTickCount();
 	
-	for(i = 0; i < m_numAlarm; i++)
+	for(pitem = m_pAlarm; pitem; pitem = pitem->next)
 	{
 		BOOL bexec = FALSE;
 		
-		pAS = m_pAlarm + i;
-		if(!pAS->bEnable) continue;
+		if(!pitem->bEnable) continue;
 		
 		// 12 hour
 		hour = 0;
 		if(st)
 		{
 			hour = st->wHour;
-			if(pAS->bHour12)
+			if(pitem->bHour12)
 			{
 				if(hour == 0) hour = 12;
 				else if(hour >= 13) hour -= 12;
@@ -146,13 +136,13 @@ void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason)
 		// compare time
 		if(reason == 0 && st)
 		{
-			if(pAS->hours[hour]
-				&& pAS->minutes[st->wMinute]
-				&& pAS->wdays[st->wDayOfWeek])
+			if(pitem->hours[hour]
+				&& pitem->minutes[st->wMinute]
+				&& pitem->wdays[st->wDayOfWeek])
 			{
-				if(pAS->second)
+				if(pitem->second)
 				{
-					if(pAS->second == st->wSecond) bexec = TRUE;
+					if(pitem->second == st->wSecond) bexec = TRUE;
 				}
 				else bexec = TRUE;
 			}
@@ -161,39 +151,39 @@ void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason)
 		// Execute when TClock is started
 		if(reason == 1)
 		{
-			if(pAS->bBootExec) bexec = TRUE;
+			if(pitem->bBootExec) bexec = TRUE;
 		}
 		
 		// Execute on resume
-		if(reason == 2 && pAS->bResumeExec)
+		if(reason == 2 && pitem->bResumeExec)
 		{
-			if(pAS->nResumeDelay == 0)
+			if(pitem->nResumeDelay == 0)
 			{
 				bexec = TRUE;
-				pAS->bResumeTimer = FALSE;
+				pitem->bResumeTimer = FALSE;
 			}
 			else
 			{
-				pAS->bResumeTimer = TRUE;
+				pitem->bResumeTimer = TRUE;
 				continue;
 			}
 		}
-		if(reason == 0 && pAS->bResumeTimer)
+		if(reason == 0 && pitem->bResumeTimer)
 		{
-			if(GetTickCount() - resumeTick > (DWORD)(pAS->nResumeDelay * 1000))
+			if(GetTickCount() - resumeTick > (DWORD)(pitem->nResumeDelay * 1000))
 			{
 				bexec = TRUE;
-				pAS->bResumeTimer = FALSE;
+				pitem->bResumeTimer = FALSE;
 			}
 		}
 		
 		// At regular intervals
-		if(st && pAS->bInterval && pAS->nInterval > 0)
+		if(st && pitem->bInterval && pitem->nInterval > 0)
 		{
-			if(pAS->hours[hour] && pAS->wdays[st->wDayOfWeek])
+			if(pitem->hours[hour] && pitem->wdays[st->wDayOfWeek])
 			{
-				if(GetTickCount() - pAS->tickLast >
-					(DWORD)pAS->nInterval * 1000 * 60) bexec = TRUE;
+				if(GetTickCount() - pitem->tickLast >
+					(DWORD)pitem->nInterval * 1000 * 60) bexec = TRUE;
 			}
 		}
 		
@@ -201,23 +191,23 @@ void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason)
 		if(bexec)
 		{
 			DWORD tick = GetTickCount();
-			if(tick - pAS->tickLast < 60000 && reason == 0)
+			if(tick - pitem->tickLast < 60000 && reason == 0)
 				bexec = FALSE;
-			else pAS->tickLast = tick;
+			else pitem->tickLast = tick;
 		}
 		
 		if(bexec)
 		{
-			if(pAS->bBlink && g_hwndClock)
-				PostMessage(g_hwndClock, CLOCKM_BLINK, 0, pAS->nBlinkSec);
+			if(pitem->bBlink && g_hwndClock)
+				PostMessage(g_hwndClock, CLOCKM_BLINK, 0, pitem->nBlinkSec);
 			
-			if(pAS->fname[0])
+			if(pitem->fname[0])
 			{
-				if(pAS->bRepeat) loops = -1; else loops = 0;
-				if(pAS->bRepeatJihou) loops = hour;
+				if(pitem->bRepeat) loops = -1; else loops = 0;
+				if(pitem->bRepeatJihou) loops = hour;
 				
 				// common/playfile.c
-				PlayFile(hwnd, pAS->fname, loops);
+				PlayFile(hwnd, pitem->fname, loops);
 			}
 		}
 	}

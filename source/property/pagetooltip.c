@@ -19,9 +19,13 @@ static void SendPSChanged(HWND hDlg);
 static void OnInit(HWND hDlg);
 static void OnApply(HWND hDlg);
 static void OnUseTip1(HWND hDlg);
+static void InitFont(HWND hDlg);
+static void OnFont(HWND hDlg, BOOL bInit);
+static void OnBrowse(HWND hDlg);
 
 static BOOL  m_bInit = FALSE;
 static BOOL  m_bChanged = FALSE;
+static HFONT m_hfontb, m_hfonti;
 
 static char *m_section = "Tooltip";
 
@@ -50,9 +54,22 @@ INT_PTR CALLBACK PageTooltipProc(HWND hDlg, UINT message,
 				case IDC_TOOLTIPTIME:
 					if(code == EN_CHANGE) SendPSChanged(hDlg);
 					break;
+				case IDC_TOOLTIPBROWSE:
+					OnBrowse(hDlg);
+					break;
 				case IDC_TOOLTIPSTYLE1:
 				case IDC_TOOLTIPSTYLE2:
+				case IDC_TOOLTIPBOLD:
+				case IDC_TOOLTIPITALIC:
 					SendPSChanged(hDlg);
+					break;
+				case IDC_TOOLTIPFONT:
+				case IDC_TOOLTIPFONTSIZE:
+					if(code == CBN_SELCHANGE || code == CBN_EDITCHANGE)
+					{
+						if(id == IDC_TOOLTIPFONT) OnFont(hDlg, FALSE);
+						SendPSChanged(hDlg);
+					}
 					break;
 			}
 			return TRUE;
@@ -64,6 +81,10 @@ INT_PTR CALLBACK PageTooltipProc(HWND hDlg, UINT message,
 				case PSN_HELP: MyHelp(GetParent(hDlg), "Tooltip"); break;
 			}
 			return TRUE;
+		case WM_DESTROY:
+			DeleteObject(m_hfontb);
+			DeleteObject(m_hfonti);
+			break;
 	}
 	return FALSE;
 }
@@ -89,6 +110,7 @@ void OnInit(HWND hDlg)
 	char s[BUFSIZE_TOOLTIP];
 	BOOL b;
 	int n;
+	LOGFONT logfont;
 	
 	m_bInit = FALSE;
 	
@@ -114,6 +136,36 @@ void OnInit(HWND hDlg)
 	UpDown_SetRange(hDlg, IDC_TOOLTIPTIMESPIN, 32, 0);
 	UpDown_SetPos(hDlg, IDC_TOOLTIPTIMESPIN, n);
 	
+	InitFont(hDlg);
+	OnFont(hDlg, TRUE);
+	
+	b = GetMyRegLong(NULL, "TipBold", FALSE);
+	b = GetMyRegLong(m_section, "Bold", b);
+	CheckDlgButton(hDlg, IDC_TOOLTIPBOLD, b);
+	b = GetMyRegLong(NULL, "TipItalic", FALSE);
+	b = GetMyRegLong(m_section, "Italic", b);
+	CheckDlgButton(hDlg, IDC_TOOLTIPITALIC, b);
+	
+	m_hfontb = m_hfonti = NULL;
+	if(g_hfontDialog)
+	{
+		GetObject(g_hfontDialog, sizeof(LOGFONT), &logfont);
+		logfont.lfWeight = FW_BOLD;
+		m_hfontb = CreateFontIndirect(&logfont);
+		SendDlgItemMessage(hDlg, IDC_TOOLTIPBOLD,
+			WM_SETFONT, (WPARAM)m_hfontb, 0);
+		
+		logfont.lfWeight = FW_NORMAL;
+		logfont.lfItalic = 1;
+		m_hfonti = CreateFontIndirect(&logfont);
+		SendDlgItemMessage(hDlg, IDC_TOOLTIPITALIC,
+			WM_SETFONT, (WPARAM)m_hfonti, 0);
+		
+		GetDlgItemText(hDlg, IDC_TOOLTIPITALIC, s, 77);
+		strcat(s, "  ");
+		SetDlgItemText(hDlg, IDC_TOOLTIPITALIC, s);
+	}
+	
 	OnUseTip1(hDlg);
 	
 	m_bInit = TRUE;
@@ -125,7 +177,6 @@ void OnInit(HWND hDlg)
 void OnApply(HWND hDlg)
 {
 	char s[BUFSIZE_TOOLTIP];
-	int n;
 	
 	if(!m_bChanged) return;
 	m_bChanged = FALSE;
@@ -139,12 +190,28 @@ void OnApply(HWND hDlg)
 	if(IsDlgButtonChecked(hDlg, IDC_TOOLTIPSTYLE2))
 		SetMyRegLong(m_section, "Style", 1);
 	else SetMyRegLong(m_section, "Style", 0);
-	
 	DelMyReg(NULL, "BalloonFlg");
 	
-	n = GetDlgItemInt(hDlg, IDC_TOOLTIPTIME, NULL, FALSE);
-	SetMyRegLong(m_section, "DispTime", n);
+	SetMyRegLong(m_section, "DispTime",
+		UpDown_GetPos(hDlg,IDC_TOOLTIPTIMESPIN));
 	DelMyReg(NULL, "TipDispTime");
+	
+	CBGetLBText(hDlg, IDC_TOOLTIPFONT,
+		CBGetCurSel(hDlg, IDC_TOOLTIPFONT), s);
+	SetMyRegStr(m_section, "Font", s);
+	DelMyReg(NULL, "TipFont");
+	
+	GetDlgItemText(hDlg, IDC_TOOLTIPFONTSIZE, s, 10);
+	if(s[0]) SetMyRegStr(m_section, "FontSize", s);
+	else SetMyRegStr(m_section, "FontSize", "9");
+	DelMyReg(NULL, "TipFontSize");
+	
+	SetMyRegLong(m_section, "Bold",
+		IsDlgButtonChecked(hDlg, IDC_TOOLTIPBOLD));
+	DelMyReg(NULL, "TipBold");
+	SetMyRegLong(m_section, "Italic",
+		IsDlgButtonChecked(hDlg, IDC_TOOLTIPITALIC));
+	DelMyReg(NULL, "TipItalic");
 }
 
 /*------------------------------------------------
@@ -161,4 +228,86 @@ void OnUseTip1(HWND hDlg)
 		hwnd = GetWindow(hwnd, GW_HWNDNEXT);
 	}
 }
+
+/*------------------------------------------------
+   Initialization of "Font" combo box
+--------------------------------------------------*/
+void InitFont(HWND hDlg)
+{
+	char s[80], temp[80];
+	
+	GetMyRegStr(NULL, "TipFont", temp, 80, "");
+	GetMyRegStr(m_section, "Font", s, 80, temp);
+	if(s[0] == 0)
+	{
+		HFONT hfont;
+		hfont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+		if(hfont)
+		{
+			LOGFONT lf;
+			GetObject(hfont, sizeof(lf), (LPVOID)&lf);
+			strcpy(s, lf.lfFaceName);
+		}
+	}
+	
+	// common/combobox.c
+	InitFontNameCombo(hDlg, IDC_TOOLTIPFONT, s);
+}
+
+/*------------------------------------------------
+   set sizes to "Font Size" combo box
+--------------------------------------------------*/
+void OnFont(HWND hDlg, BOOL bInit)
+{
+	char s[160], size[10];
+	int charset;
+	int index;
+	
+	if(bInit)
+	{
+		char temp[10];
+		GetMyRegStr(NULL, "TipFontSize", temp, 10, "9");
+		GetMyRegStr(m_section, "FontSize", size, 10, temp);
+	}
+	else
+		GetDlgItemText(hDlg, IDC_TOOLTIPFONTSIZE, size, 10);
+	
+	CBGetLBText(hDlg, IDC_TOOLTIPFONT,
+		CBGetCurSel(hDlg, IDC_TOOLTIPFONT), (LPARAM)s);
+	charset = CBGetItemData(hDlg, IDC_TOOLTIPFONT,
+		CBGetCurSel(hDlg, IDC_TOOLTIPFONT));
+	
+	// common/combobox.c
+	InitFontSizeCombo(hDlg, IDC_TOOLTIPFONTSIZE, s, charset);
+	
+	index = CBFindStringExact(hDlg, IDC_TOOLTIPFONTSIZE, size);
+	if(index == CB_ERR)
+		SetDlgItemText(hDlg, IDC_TOOLTIPFONTSIZE, size);
+	else CBSetCurSel(hDlg, IDC_TOOLTIPFONTSIZE, index);
+}
+
+/*------------------------------------------------
+  "..." button - select a text file for tooltip
+--------------------------------------------------*/
+void OnBrowse(HWND hDlg)
+{
+	char *filter = "text file (*.txt)\0*.txt\0\0";
+	char temp[MAX_PATH], deffile[MAX_PATH], fname[MAX_PATH+10];
+	
+	deffile[0] = 0;
+	GetDlgItemText(hDlg, IDC_TOOLTIP, temp, MAX_PATH);
+	if(strncmp(temp, "file:", 5) == 0)
+		strcpy(deffile, temp + 5);
+	
+	// select file : common/selectfile.c
+	if(!SelectMyFile(g_hInst, hDlg, filter, 0, deffile, fname))
+		return;
+	
+	strcpy(temp, "file:");
+	strcat(temp, fname);
+	SetDlgItemText(hDlg, IDC_TOOLTIP, temp);
+	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+	SendPSChanged(hDlg);
+}
+
 

@@ -94,6 +94,7 @@
 #define COPYDATA_EXEC       109
 #define COPYDATA_SNTPLOG    110
 #define COPYDATA_SNTPLOGADD 111
+#define COPYDATA_TOOLTIP    112
 
 /* -- buffer size --------------------------------------- */
 
@@ -103,11 +104,26 @@
 #define BUFSIZE_USTR     41
 #define BUFSIZE_NAME     40
 
+/* -- list.c ---------------------------------------- */
+
+struct list {
+	struct list *next;
+	char name[BUFSIZE_NAME];
+};
+typedef struct list LIST;
+
+void *add_listitem(void *top, void *item);
+void *copy_listitem(void *top, void *item, size_t size);
+void *del_listitem(void *top, void *item);
+void *clear_list(void *top);
+void *get_listitem(void *top, int index);
+
 /* -- alarmstruct.c ---------------------------------------- */
 
 // struct of Alarm
 typedef struct _tagAlarmStruct
 {
+	struct _tagAlarmStruct *next;
 	char name[BUFSIZE_NAME];
 	BOOL bEnable;
 	char strHours[80];
@@ -133,8 +149,8 @@ typedef struct _tagAlarmStruct
 } ALARMSTRUCT;
 typedef ALARMSTRUCT* PALARMSTRUCT;
 
-void LoadAlarm(PALARMSTRUCT pAS, int count);
-void SaveAlarm(const PALARMSTRUCT pAS, int count);
+PALARMSTRUCT LoadAlarm(void);
+void SaveAlarm(const PALARMSTRUCT plist);
 void SetAlarmTime(PALARMSTRUCT pAS);
 
 /* -- autoformat.c ---------------------------------------- */
@@ -205,6 +221,7 @@ int MyGetTimeFormatW(int ilang, int codepage,
 // struct of Mouse
 typedef struct _tagMouseStruct
 {
+	struct _tagMouseStruct *next;
 	char name[BUFSIZE_NAME];
 	int  nButton;
 	int  nClick;
@@ -216,8 +233,8 @@ typedef struct _tagMouseStruct
 } MOUSESTRUCT;
 typedef MOUSESTRUCT* PMOUSESTRUCT;
 
-void LoadMouseFunc(PMOUSESTRUCT pMSS, int count);
-void SaveMouseFunc(PMOUSESTRUCT pMSS, int count);
+PMOUSESTRUCT LoadMouseFunc(void);
+void SaveMouseFunc(const PMOUSESTRUCT plist);
 void ImportOldMouseFunc(void);
 
 /* -- nodeflib.c ---------------------------------------- */
@@ -236,6 +253,7 @@ int r_wcslen(const wchar_t *p);
 wchar_t *r_wcscpy(wchar_t *dp, const wchar_t *sp);
 int r_wcsncmp(const wchar_t *p1, const wchar_t *p2, int count);
 wchar_t *r_wcscat(wchar_t *dp, const wchar_t *sp);
+wchar_t *r_wcsstr(const wchar_t *string, const wchar_t *strCharSet);
 
 __inline int r_toupper(int c)
 {
@@ -267,6 +285,9 @@ DWORDLONG r_M32x32to64(DWORD a, DWORD b);
 
 #undef wcscpy
 #define wcscpy(d,s) r_wcscpy(d,s)
+
+#undef wcsstr
+#define wcsstr(d,s) r_wcsstr(d,s)
 
 #undef wcscat
 #define wcscat(d,s) r_wcscat(d,s)
