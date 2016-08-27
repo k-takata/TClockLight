@@ -101,7 +101,7 @@ void OnInit(HWND hDlg)
 		GetMyRegLong(NULL, "DelayStart", 0), FALSE);
 	
 	CheckDlgButton(hDlg, IDC_TASKBARRESTART,
-		GetMyRegLong(NULL, "TaskbarRestart", FALSE));
+		GetMyRegLong(NULL, "TaskbarRestart", TRUE));
 	
 #if TC_ENABLE_DESKTOPICON
 	CheckDlgButton(hDlg, IDC_DESKTOPICON,

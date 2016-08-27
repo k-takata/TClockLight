@@ -328,7 +328,7 @@ void OnTaskbarRestart(HWND hwnd)
 	if(m_bHook) HookEnd();
 	m_bHook = FALSE; g_hwndClock = NULL;
 	
-	if(GetMyRegLong(NULL, "TaskbarRestart", FALSE))
+	if(GetMyRegLong(NULL, "TaskbarRestart", TRUE))
 	{
 		SetTimer(hwnd, IDTIMER_START, 1000, NULL);
 		m_bStartTimer = TRUE;
