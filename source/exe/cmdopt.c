@@ -10,9 +10,7 @@
 
 /* Globals */
 void CheckCommandLine(HWND hwnd, BOOL bPrev);
-
-/* Statics */
-static void SendStringToClock(HWND hwndClock, const char *value, int type);
+void SendStringToClock(HWND hwndClock, const char *value, int type);
 
 /*-------------------------------------------
    process command line option
@@ -107,6 +105,11 @@ void CheckCommandLine(HWND hwnd, BOOL bPrev)
 					SendStringToOther(hwnd, NULL, value, COPYDATA_SOUND);
 				else PlayFileCmdLine(hwnd, value);
 			}
+			else if(strcmp(name, "tip") == 0)
+			{
+				if(bPrev && hwndClock)
+					SendStringToClock(hwndClock, value, COPYDATA_TOOLTIP);
+			}
 			else if(strcmp(name, "cmd") == 0)
 			{
 				if(bPrev)
@@ -144,16 +147,16 @@ void CheckCommandLine(HWND hwnd, BOOL bPrev)
 --------------------------------------------------*/
 void SendStringToClock(HWND hwndClock, const char *value, int type)
 {
-	wchar_t wtemp[BUFSIZE_DISP], wvalue[BUFSIZE_DISP], *sp;
+	wchar_t wtemp[BUFSIZE_TOOLTIP], wvalue[BUFSIZE_TOOLTIP], *sp;
 	int i;
 	
 	MultiByteToWideChar(CP_ACP,
 		0, value, -1, wtemp, BUFSIZE_DISP-1);
 	sp = wtemp;
-	for(i = 0; i < BUFSIZE_DISP-1 && *sp; i++)
+	for(i = 0; i < BUFSIZE_TOOLTIP-1 && *sp; i++)
 	{
 		// line break
-		if(i < BUFSIZE_DISP-2 && *sp == '\\' && *(sp + 1) == 'n')
+		if(i < BUFSIZE_TOOLTIP-2 && *sp == '\\' && *(sp + 1) == 'n')
 		{
 			wvalue[i++] = 0x0d; wvalue[i] = 0x0a;
 			sp += 2;

@@ -1,6 +1,6 @@
 [Main]
 DialogFont=MS Sans Serif, 9
-Version=TClock Light kt160825
+Version=TClock Light kt160827
 HelpURL=http://homepage1.nifty.com/kazubon/tclocklight/help/en/
 
 [Property]
@@ -95,9 +95,11 @@ Line03="  [       File][                                       ][...]"
 [Tooltip]
 HelpURL=tooltip.html
 Line01=" [    Show toolip]"
-Line02="  [Format ][                                           ]"
+Line02="       [Format ][                                           ][...]"
 Line03="       [Style ] [    Normal] [    Balloon]"
 Line04="  [Pop-up time ][        ][][seconds]"
+Line05="        [  Font][                          ]"
+Line06="     [Font size][        ]  [    Bold] [    Italic]"
 
 [StartButton]
 HelpURL=startbutton.html

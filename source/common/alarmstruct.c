@@ -10,8 +10,8 @@
 
 /* Globals */
 
-void LoadAlarm(PALARMSTRUCT pAS, int count);
-void SaveAlarm(const PALARMSTRUCT pAS, int count);
+PALARMSTRUCT LoadAlarm(void);
+void SaveAlarm(const PALARMSTRUCT plist);
 void SetAlarmTime(PALARMSTRUCT pAS);
 
 /* Statics */
@@ -23,69 +23,93 @@ static void ParseAlarmFormatSub(int *n1, int *n2, int *n3, BOOL *asta,
 /*------------------------------------------------
   read settings of Alarm
 --------------------------------------------------*/
-void LoadAlarm(PALARMSTRUCT pAS, int count)
+PALARMSTRUCT LoadAlarm(void)
 {
-	int i;
+	PALARMSTRUCT plist = NULL;
+	ALARMSTRUCT item;
+	int i, count;
 	char subkey[20];
+	
+	count = GetMyRegLong("", "AlarmNum", 0);
 	
 	for(i = 0; i < count; i++)
 	{
 		wsprintf(subkey, "Alarm%d", i + 1);
 		
-		memset(pAS + i, 0, sizeof(ALARMSTRUCT));
+		memset(&item, 0, sizeof(ALARMSTRUCT));
 		
-		GetMyRegStr(subkey, "Name", pAS[i].name, BUFSIZE_NAME, "");
-		pAS[i].bEnable = GetMyRegLong(subkey, "Alarm", FALSE);
+		GetMyRegStr(subkey, "Name", item.name, BUFSIZE_NAME, "");
+		item.bEnable = GetMyRegLong(subkey, "Alarm", FALSE);
 		
-		GetMyRegStr(subkey, "Hour", pAS[i].strHours, 80, "");
-		GetMyRegStr(subkey, "Minute", pAS[i].strMinutes, 80, "");
-		GetMyRegStr(subkey, "WDays", pAS[i].strWDays, 80, "");
+		GetMyRegStr(subkey, "Hour", item.strHours, 80, "");
+		GetMyRegStr(subkey, "Minute", item.strMinutes, 80, "");
+		GetMyRegStr(subkey, "WDays", item.strWDays, 80, "");
 		
-		pAS[i].second = GetMyRegLong(subkey, "Second", 0);
+		item.second = GetMyRegLong(subkey, "Second", 0);
 		
-		GetMyRegStr(subkey, "File", pAS[i].fname, MAX_PATH, "");
-		pAS[i].bHour12 = GetMyRegLong(subkey, "Hour12", TRUE);
-		pAS[i].bRepeat = GetMyRegLong(subkey, "Repeat", FALSE);
-		pAS[i].bBlink = GetMyRegLong(subkey, "Blink", FALSE);
-		pAS[i].bBootExec = GetMyRegLong(subkey, "OnBoot", FALSE);
-		pAS[i].bInterval = GetMyRegLong(subkey, "Interval", FALSE);
-		pAS[i].nInterval = GetMyRegLong(subkey, "IntervalMinutes", 0);
-		pAS[i].bResumeExec = GetMyRegLong(subkey, "OnResume", FALSE);
-		pAS[i].nResumeDelay = GetMyRegLong(subkey, "ResumeDelay", 0);
-		pAS[i].bResumeTimer = FALSE;
+		GetMyRegStr(subkey, "File", item.fname, MAX_PATH, "");
+		item.bHour12 = GetMyRegLong(subkey, "Hour12", TRUE);
+		item.bRepeat = GetMyRegLong(subkey, "Repeat", FALSE);
+		item.bBlink = GetMyRegLong(subkey, "Blink", FALSE);
+		item.bBootExec = GetMyRegLong(subkey, "OnBoot", FALSE);
+		item.bInterval = GetMyRegLong(subkey, "Interval", FALSE);
+		item.nInterval = GetMyRegLong(subkey, "IntervalMinutes", 0);
+		item.bResumeExec = GetMyRegLong(subkey, "OnResume", FALSE);
+		item.nResumeDelay = GetMyRegLong(subkey, "ResumeDelay", 0);
+		item.bResumeTimer = FALSE;
 		
-		SetAlarmTime(pAS + i);
+		SetAlarmTime(&item);
+		
+		plist = copy_listitem(plist, &item, sizeof(item)); // list.c
 	}
+	
+	return plist;
 }
 
 /*------------------------------------------------
   save settings of Alarm
 --------------------------------------------------*/
-void SaveAlarm(const PALARMSTRUCT pAS, int count)
+void SaveAlarm(const PALARMSTRUCT plist)
 {
-	int i;
+	int count, oldcount, i;
 	char subkey[20];
+	PALARMSTRUCT current;
 	
-	for(i = 0; i < count; i++)
+	oldcount = GetMyRegLong("", "AlarmNum", 0);
+	
+	current = plist;
+	count = 0;
+	while(current)
+	{
+		wsprintf(subkey, "Alarm%d", count + 1);
+		
+		SetMyRegStr(subkey, "Name", current->name);
+		SetMyRegLong(subkey, "Alarm", current->bEnable);
+		SetMyRegStr(subkey, "Hour", current->strHours);
+		SetMyRegStr(subkey, "Minute", current->strMinutes);
+		SetMyRegStr(subkey, "WDays", current->strWDays);
+		SetMyRegLong(subkey, "Second", current->second);
+		
+		SetMyRegStr(subkey, "File", current->fname);
+		SetMyRegLong(subkey, "Hour12", current->bHour12);
+		SetMyRegLong(subkey, "Repeat", current->bRepeat);
+		SetMyRegLong(subkey, "Blink", current->bBlink);
+		SetMyRegLong(subkey, "OnBoot", current->bBootExec);
+		SetMyRegLong(subkey, "Interval", current->bInterval);
+		SetMyRegLong(subkey, "IntervalMinutes", current->nInterval);
+		SetMyRegLong(subkey, "OnResume", current->bResumeExec);
+		SetMyRegLong(subkey, "ResumeDelay", current->nResumeDelay);
+		
+		current = current->next;
+		count++;
+	}
+	
+	SetMyRegLong("", "AlarmNum", count);
+	
+	for(i = count; i < oldcount; i++)
 	{
 		wsprintf(subkey, "Alarm%d", i + 1);
-		
-		SetMyRegStr(subkey, "Name", pAS[i].name);
-		SetMyRegLong(subkey, "Alarm", pAS[i].bEnable);
-		SetMyRegStr(subkey, "Hour", pAS[i].strHours);
-		SetMyRegStr(subkey, "Minute", pAS[i].strMinutes);
-		SetMyRegStr(subkey, "WDays", pAS[i].strWDays);
-		SetMyRegLong(subkey, "Second", pAS[i].second);
-		
-		SetMyRegStr(subkey, "File", pAS[i].fname);
-		SetMyRegLong(subkey, "Hour12", pAS[i].bHour12);
-		SetMyRegLong(subkey, "Repeat", pAS[i].bRepeat);
-		SetMyRegLong(subkey, "Blink", pAS[i].bBlink);
-		SetMyRegLong(subkey, "OnBoot", pAS[i].bBootExec);
-		SetMyRegLong(subkey, "Interval", pAS[i].bInterval);
-		SetMyRegLong(subkey, "IntervalMinutes", pAS[i].nInterval);
-		SetMyRegLong(subkey, "OnResume", pAS[i].bResumeExec);
-		SetMyRegLong(subkey, "ResumeDelay", pAS[i].nResumeDelay);
+		DelMyRegKey(subkey);
 	}
 }
 

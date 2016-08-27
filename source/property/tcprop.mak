@@ -26,7 +26,7 @@ OBJS=pagecolor.obj pagesize.obj pageformat.obj pageformat2.obj\
 	pagemouse.obj pagemouse2.obj pagetooltip.obj\
 	pagestartbtn.obj selecticon.obj pagestartmenu.obj\
 	pagetaskbar.obj pagemisc.obj\
-	tclang.obj langcode.obj\
+	tclang.obj langcode.obj list.obj\
 	combobox.obj autoformat.obj localeinfo.obj selectfile.obj \
 	playfile.obj soundselect.obj alarmstruct.obj mousestruct.obj\
 	utl.obj exec.obj reg.obj font.obj\
@@ -106,6 +106,7 @@ localeinfo.obj: $(COMMONDIR)\localeinfo.c $(COMMONH)
 selectfile.obj: $(COMMONDIR)\selectfile.c $(COMMONH)
 playfile.obj: $(COMMONDIR)\playfile.c $(COMMONH)
 soundselect.obj: $(COMMONDIR)\soundselect.c $(COMMONH)
+list.obj: $(COMMONDIR)\list.c $(COMMONH)
 alarmstruct.obj: $(COMMONDIR)\alarmstruct.c $(COMMONH)
 mousestruct.obj: $(COMMONDIR)\mousestruct.c $(COMMONH) $(COMMONDIR)\command.h ..\config.h
 utl.obj: $(COMMONDIR)\utl.c $(COMMONH)

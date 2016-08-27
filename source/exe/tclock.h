@@ -58,6 +58,7 @@ extern HWND  g_hwndClock;
 
 /* ---------- cmdopt.c ------------- */
 void CheckCommandLine(HWND hwnd, BOOL bPrev);
+void SendStringToClock(HWND hwndClock, const char *value, int type);
 
 /* ---------- command.c ---------------- */
 void OnTClockCommand(HWND hwnd, int id, int code);

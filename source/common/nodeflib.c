@@ -164,6 +164,21 @@ wchar_t *r_wcscat(wchar_t *dp, const wchar_t *sp)
 }
 
 /*-------------------------------------------
+  wcsstr
+---------------------------------------------*/
+wchar_t *r_wcsstr(const wchar_t *string, const wchar_t *strCharSet)
+{
+	const wchar_t *p = string;
+	while(*p)
+	{
+		if(wcsncmp(p, strCharSet, wcslen(strCharSet)) == 0)
+			return (wchar_t *)p;
+		p++;
+	}
+	return NULL;
+}
+
+/*-------------------------------------------
   32bit x 32bit = 64bit
 ---------------------------------------------*/
 

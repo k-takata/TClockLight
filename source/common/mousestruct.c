@@ -11,85 +11,109 @@
 
 /* Globals */
 
-void LoadMouseFunc(PMOUSESTRUCT pMSS, int count);
-void SaveMouseFunc(PMOUSESTRUCT pMSS, int count);
+PMOUSESTRUCT LoadMouseFunc(void);
+void SaveMouseFunc(const PMOUSESTRUCT plist);
 void ImportOldMouseFunc(void);
 
 /*------------------------------------------------
   read settings of Mouse
 --------------------------------------------------*/
-void LoadMouseFunc(PMOUSESTRUCT pMSS, int count)
+PMOUSESTRUCT LoadMouseFunc(void)
 {
-	int i;
+	PMOUSESTRUCT plist = NULL;
+	MOUSESTRUCT item;
+	int i, count;
 	char section[20], s[20];
+	
+	count = GetMyRegLong("Mouse", "MouseNum", 0);
 	
 	for(i = 0; i < count; i++)
 	{
 		wsprintf(section, "Mouse%d", i + 1);
 		
-		memset(pMSS + i, 0, sizeof(MOUSESTRUCT));
+		memset(&item, 0, sizeof(MOUSESTRUCT));
 		
-		GetMyRegStr(section, "Name", pMSS[i].name, BUFSIZE_NAME, section);
+		GetMyRegStr(section, "Name", item.name, BUFSIZE_NAME, section);
 		
 		GetMyRegStr(section, "Button", s, 20, "");
-		if(strcmp(s, "left") == 0) pMSS[i].nButton = 0;
-		else if(strcmp(s, "right") == 0) pMSS[i].nButton = 1;
-		else if(strcmp(s, "middle") == 0) pMSS[i].nButton = 2;
-		else if(strcmp(s, "x1") == 0) pMSS[i].nButton = 3;
-		else if(strcmp(s, "x2") == 0) pMSS[i].nButton = 4;
+		if(strcmp(s, "left") == 0) item.nButton = 0;
+		else if(strcmp(s, "right") == 0) item.nButton = 1;
+		else if(strcmp(s, "middle") == 0) item.nButton = 2;
+		else if(strcmp(s, "x1") == 0) item.nButton = 3;
+		else if(strcmp(s, "x2") == 0) item.nButton = 4;
 #if TC_ENABLE_WHEEL
-		else if(strcmp(s, "wheelup") == 0) pMSS[i].nButton = 5;
-		else if(strcmp(s, "wheeldown") == 0) pMSS[i].nButton = 6;
+		else if(strcmp(s, "wheelup") == 0) item.nButton = 5;
+		else if(strcmp(s, "wheeldown") == 0) item.nButton = 6;
 #endif
 		
-		pMSS[i].nClick = GetMyRegLong(section, "Click", 1);
-		pMSS[i].bCtrl  = GetMyRegLong(section, "Ctrl", FALSE);
-		pMSS[i].bShift = GetMyRegLong(section, "Shift", FALSE);
-		pMSS[i].bAlt   = GetMyRegLong(section, "Alt", FALSE);
+		item.nClick = GetMyRegLong(section, "Click", 1);
+		item.bCtrl  = GetMyRegLong(section, "Ctrl", FALSE);
+		item.bShift = GetMyRegLong(section, "Shift", FALSE);
+		item.bAlt   = GetMyRegLong(section, "Alt", FALSE);
 		
-		pMSS[i].nCommand = GetMyRegLong(section, "Command", 0);
-		GetMyRegStr(section, "Option", pMSS[i].option, MAX_PATH, "");
+		item.nCommand = GetMyRegLong(section, "Command", 0);
+		GetMyRegStr(section, "Option", item.option, MAX_PATH, "");
+		
+		plist = copy_listitem(plist, &item, sizeof(MOUSESTRUCT));
 	}
+	
+	return plist;
 }
 
 /*------------------------------------------------
   save settings of Mouse
 --------------------------------------------------*/
-void SaveMouseFunc(PMOUSESTRUCT pMSS, int count)
+void SaveMouseFunc(const PMOUSESTRUCT plist)
 {
-	int i;
+	int oldcount, i;
 	char section[20];
+	PMOUSESTRUCT current;
 	
-	for(i = 0; i < count; i++)
+	oldcount = GetMyRegLong("Mouse", "MouseNum", 0);
+	
+	current = plist;
+	i = 0;
+	while(current)
 	{
 		wsprintf(section, "Mouse%d", i + 1);
 		
-		SetMyRegStr(section, "Name", pMSS[i].name);
+		SetMyRegStr(section, "Name", current->name);
 		
-		if(pMSS[i].nButton == 0)
+		if(current->nButton == 0)
 			SetMyRegStr(section, "Button", "left");
-		else if(pMSS[i].nButton == 1)
+		else if(current->nButton == 1)
 			SetMyRegStr(section, "Button", "right");
-		else if(pMSS[i].nButton == 2)
+		else if(current->nButton == 2)
 			SetMyRegStr(section, "Button", "middle");
-		else if(pMSS[i].nButton == 3)
+		else if(current->nButton == 3)
 			SetMyRegStr(section, "Button", "x1");
-		else if(pMSS[i].nButton == 4)
+		else if(current->nButton == 4)
 			SetMyRegStr(section, "Button", "x2");
 #if TC_ENABLE_WHEEL
-		else if(pMSS[i].nButton == 5)
+		else if(current->nButton == 5)
 			SetMyRegStr(section, "Button", "wheelup");
-		else if(pMSS[i].nButton == 6)
+		else if(current->nButton == 6)
 			SetMyRegStr(section, "Button", "wheeldown");
 #endif
 		
-		SetMyRegLong(section, "Click", pMSS[i].nClick);
-		SetMyRegLong(section, "Ctrl", pMSS[i].bCtrl);
-		SetMyRegLong(section, "Shift", pMSS[i].bShift);
-		SetMyRegLong(section, "Alt", pMSS[i].bAlt);
+		SetMyRegLong(section, "Click", current->nClick);
+		SetMyRegLong(section, "Ctrl", current->bCtrl);
+		SetMyRegLong(section, "Shift", current->bShift);
+		SetMyRegLong(section, "Alt", current->bAlt);
 		
-		SetMyRegLong(section, "Command", pMSS[i].nCommand);
-		SetMyRegStr(section, "Option", pMSS[i].option);
+		SetMyRegLong(section, "Command", current->nCommand);
+		SetMyRegStr(section, "Option", current->option);
+		
+		current = current->next;
+		i++;
+	}
+	
+	SetMyRegLong("Mouse", "MouseNum", i);
+	
+	for(; i < oldcount; i++)
+	{
+		wsprintf(section, "Mouse%d", i + 1);
+		DelMyRegKey(section);
 	}
 }
 

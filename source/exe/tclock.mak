@@ -26,7 +26,8 @@ COMMONH=$(COMMONDIR)\common.h
 OBJS=main2.obj wndproc.obj cmdopt.obj command.obj menu.obj\
 	alarm.obj mouse.obj mouse2.obj about.obj\
 	langcode.obj utl.obj exec.obj reg.obj autoformat.obj localeinfo.obj\
-	playfile.obj alarmstruct.obj mousestruct.obj mixer.obj vistavol.obj
+	playfile.obj list.obj alarmstruct.obj mousestruct.obj mixer.obj\
+	vistavol.obj
 
 LIBS=kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib winmm.lib\
 	imm32.lib ole32.lib dwmapi.lib
@@ -93,6 +94,7 @@ about.obj: $(SRCDIR)\about.c $(TCLOCKH)
 
 langcode.obj: $(COMMONDIR)\langcode.c $(COMMONH)
 playfile.obj: $(COMMONDIR)\playfile.c $(COMMONH)
+list.obj: $(COMMONDIR)\list.c $(COMMONH)
 alarmstruct.obj: $(COMMONDIR)\alarmstruct.c $(COMMONH)
 mousestruct.obj: $(COMMONDIR)\mousestruct.c $(COMMONH) $(COMMONDIR)\command.h ..\config.h
 utl.obj: ..\common\utl.c $(COMMONH)

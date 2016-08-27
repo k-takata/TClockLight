@@ -30,8 +30,8 @@ static void OnBrowse(HWND hDlg);
 static void OnTest(HWND hDlg);
 static void OnShowTime(HWND hDlg);
 static void OnUserStr(HWND hDlg);
-static void GetTimerFromDlg(HWND hDlg, PTIMERSTRUCT pTS);
-static void SetTimerToDlg(HWND hDlg, const PTIMERSTRUCT pTS);
+static void GetTimerFromDlg(HWND hDlg, PTIMERSTRUCT pitem);
+static void SetTimerToDlg(HWND hDlg, const TIMERSTRUCT *pitem);
 static void EnableTimerDlgItems(HWND hDlg);
 
 static PTIMERSTRUCT m_pTimer = NULL;
@@ -131,7 +131,9 @@ void OnInit(HWND hDlg)
 {
 	HICON hIcon;
 	char section[20];
-	int i;
+	int i, count;
+	TIMERSTRUCT item;
+	PTIMERSTRUCT pitem;
 	
 	// common/tclang.c
 	SetDialogLanguage(hDlg, "Timer", g_hfontDialog);
@@ -151,41 +153,47 @@ void OnInit(HWND hDlg)
 	UpDown_SetRange(hDlg, IDC_TIMERSPIN1, 1440, 0);
 	UpDown_SetRange(hDlg, IDC_TIMERSPIN2, 59, 0);
 	
-	m_numTimer = GetMyRegLong(NULL, "TimerNum", 0);
-	if(m_numTimer > 0)
+	count = GetMyRegLong(NULL, "TimerNum", 0);
+	m_pTimer = NULL;
+	if(count > 0)
 	{
-		m_pTimer = (PTIMERSTRUCT)malloc(sizeof(TIMERSTRUCT) * m_numTimer);
-		for(i = 0; i < m_numTimer; i++)
+		for(i = 0; i < count; i++)
 		{
-			PTIMERSTRUCT pTS = m_pTimer + i;
-			
+			memset(&item, 0, sizeof(TIMERSTRUCT));
 			wsprintf(section, "Timer%d", i + 1);
-			GetMyRegStr(section, "Name", pTS->name, BUFSIZE_NAME, section);
-			pTS->minute = GetMyRegLong(section, "Minute", 3);
-			pTS->second = GetMyRegLong(section, "Second", 0);
-			GetMyRegStr(section, "File", pTS->fname, MAX_PATH, "");
-			pTS->bRepeat = GetMyRegLong(section, "Repeat", FALSE);
-			pTS->bBlink = GetMyRegLong(section, "Blink", FALSE);
-			pTS->bDisp = GetMyRegLong(section, "Disp", FALSE);
-			pTS->nDispType = GetMyRegLong(section, "DispType", 1);
-			pTS->nUserStr = GetMyRegLong(section, "UserStr", 0);
+			GetMyRegStr(section, "Name", item.name, BUFSIZE_NAME, section);
+			item.minute = GetMyRegLong(section, "Minute", 3);
+			item.second = GetMyRegLong(section, "Second", 0);
+			GetMyRegStr(section, "File", item.fname, MAX_PATH, "");
+			item.bRepeat = GetMyRegLong(section, "Repeat", FALSE);
+			item.bBlink = GetMyRegLong(section, "Blink", FALSE);
+			item.bDisp = GetMyRegLong(section, "Disp", FALSE);
+			item.nDispType = GetMyRegLong(section, "DispType", 1);
+			item.nUserStr = GetMyRegLong(section, "UserStr", 0);
+			
+			m_pTimer = copy_listitem(m_pTimer, &item, sizeof(TIMERSTRUCT));
+			// common/list.c
 		}
 	}
 	else
 	{
-		m_numTimer = 1;
-		m_pTimer = (PTIMERSTRUCT)malloc(sizeof(TIMERSTRUCT));
-		memset(m_pTimer, 0, sizeof(TIMERSTRUCT));
-		strcpy(m_pTimer->name, "Timer1");
-		m_pTimer->minute = 3;
-		m_pTimer->nDispType = 1;
+		memset(&item, 0, sizeof(TIMERSTRUCT));
+		strcpy(item.name, "Timer1");
+		item.minute = 3;
+		item.nDispType = 1;
+		
+		m_pTimer = copy_listitem(m_pTimer, &item, sizeof(TIMERSTRUCT));
 	}
 	
-	for(i = 0; i < m_numTimer; i++)
-		CBAddString(hDlg, IDC_TIMERNAME, (LPARAM)(m_pTimer + i)->name);
+	pitem = m_pTimer;
+	while(pitem)
+	{
+		CBAddString(hDlg, IDC_TIMERNAME, (LPARAM)pitem->name);
+		pitem = pitem->next;
+	}
 	
+	m_nCurrent = -1;
 	CBSetCurSel(hDlg, IDC_TIMERNAME, 0);
-	
 	OnName(hDlg);
 }
 
@@ -196,9 +204,8 @@ void OnDestroy(HWND hDlg)
 {
 	g_hDlg = NULL;
 	
-	if(m_pTimer) free(m_pTimer);
+	clear_list(m_pTimer);
 	m_pTimer = NULL;
-	m_numTimer = 0;
 	m_nCurrent = -1;
 	
 	StopFile();
@@ -210,43 +217,42 @@ void OnDestroy(HWND hDlg)
 ---------------------------------------------*/
 void OnOK(HWND hDlg)
 {
+	PTIMERSTRUCT pitem;
 	char section[20];
 	int i, nOldTimer;
 	
 	/* save settings */
-	if(m_pTimer && (0 <= m_nCurrent && m_nCurrent < m_numTimer))
-		GetTimerFromDlg(hDlg, (m_pTimer + m_nCurrent));
+	GetTimerFromDlg(hDlg, get_listitem(m_pTimer, m_nCurrent));
 	
 	nOldTimer = GetMyRegLong(NULL, "TimerNum", 0);
-	if(nOldTimer < 1) nOldTimer = 0;
 	
-	SetMyRegLong(NULL, "TimerNum", m_numTimer);
-	
-	for(i = 0; i < m_numTimer && m_pTimer; i++)
+	pitem = m_pTimer;
+	for(i = 0; pitem; i++)
 	{
-		PTIMERSTRUCT pTS = m_pTimer + i;
-		
 		wsprintf(section, "Timer%d", i + 1);
-		SetMyRegStr(section, "Name", pTS->name);
-		SetMyRegLong(section, "Minute", pTS->minute);
-		SetMyRegLong(section, "Second", pTS->second);
-		SetMyRegStr(section, "File", pTS->fname);
-		SetMyRegLong(section, "Repeat", pTS->bRepeat);
-		SetMyRegLong(section, "Blink", pTS->bBlink);
-		SetMyRegLong(section, "Disp", pTS->bDisp);
-		SetMyRegLong(section, "DispType", pTS->nDispType);
-		SetMyRegLong(section, "UserStr", pTS->nUserStr);
+		SetMyRegStr(section, "Name", pitem->name);
+		SetMyRegLong(section, "Minute", pitem->minute);
+		SetMyRegLong(section, "Second", pitem->second);
+		SetMyRegStr(section, "File", pitem->fname);
+		SetMyRegLong(section, "Repeat", pitem->bRepeat);
+		SetMyRegLong(section, "Blink", pitem->bBlink);
+		SetMyRegLong(section, "Disp", pitem->bDisp);
+		SetMyRegLong(section, "DispType", pitem->nDispType);
+		SetMyRegLong(section, "UserStr", pitem->nUserStr);
+		
+		pitem = pitem->next;
 	}
 	
-	for(i = m_numTimer; i < nOldTimer; i++)
+	SetMyRegLong(NULL, "TimerNum", i);
+	
+	for(; i < nOldTimer; i++)
 	{
 		wsprintf(section, "Timer%d", i + 1);
 		DelMyRegKey(section);
 	}
 	
 	/* start a timer */
-	if(m_pTimer && (0 <= m_nCurrent && m_nCurrent < m_numTimer))
-		TimerStart(m_pTimer + m_nCurrent);
+	TimerStart(get_listitem(m_pTimer, m_nCurrent));
 	
 	DestroyWindow(hDlg);
 }
@@ -296,15 +302,11 @@ void OnName(HWND hDlg)
 	
 	if(!m_pTimer) return;
 	
-	if(0 <= m_nCurrent && m_nCurrent < m_numTimer)
-		GetTimerFromDlg(hDlg, m_pTimer + m_nCurrent);
+	GetTimerFromDlg(hDlg, get_listitem(m_pTimer, m_nCurrent));
 	
 	index = CBGetCurSel(hDlg, IDC_TIMERNAME);
-	if(0 <= index && index < m_numTimer)
-	{
-		SetTimerToDlg(hDlg, m_pTimer + index);
-		m_nCurrent = index;
-	}
+	SetTimerToDlg(hDlg, get_listitem(m_pTimer, index));
+	m_nCurrent = index;
 }
 
 /*------------------------------------------------
@@ -314,17 +316,18 @@ void OnName(HWND hDlg)
 void OnNameDropDown(HWND hDlg)
 {
 	char name[BUFSIZE_NAME];
+	PTIMERSTRUCT pitem;
 	
-	if(!m_pTimer ||
-		!(0 <= m_nCurrent && m_nCurrent < m_numTimer)) return;
+	pitem = get_listitem(m_pTimer, m_nCurrent);
+	if(pitem == NULL) return;
 	
 	GetDlgItemText(hDlg, IDC_TIMERNAME, name, BUFSIZE_NAME);
 	
-	if(strcmp(name, m_pTimer[m_nCurrent].name) != 0)
+	if(strcmp(name, pitem->name) != 0)
 	{
+		strcpy(pitem->name, name);
 		CBDeleteString(hDlg, IDC_TIMERNAME, m_nCurrent);
 		CBInsertString(hDlg, IDC_TIMERNAME, m_nCurrent, name);
-		strcpy(m_pTimer[m_nCurrent].name, name);
 	}
 }
 
@@ -333,70 +336,72 @@ void OnNameDropDown(HWND hDlg)
 --------------------------------------------------*/
 void OnAdd(HWND hDlg)
 {
-	PTIMERSTRUCT pTSNew;
-	TIMERSTRUCT ts;
+	PTIMERSTRUCT pitem;
+	int count, index;
+	
+	count = CBGetCount(hDlg, IDC_TIMERNAME);
+	if(count < 0) return;
 	
 	OnNameDropDown(hDlg);
 	
-	memset(&ts, 0, sizeof(TIMERSTRUCT));
-	wsprintf(ts.name, "Timer%d", m_numTimer+1);
-	ts.minute = 3;
-	ts.nDispType = 1;
+	GetTimerFromDlg(hDlg, get_listitem(m_pTimer, m_nCurrent));
 	
-	pTSNew = AddTimerStruct(m_pTimer, m_numTimer, &ts);
+	pitem = malloc(sizeof(TIMERSTRUCT));
+	memset(pitem, 0, sizeof(TIMERSTRUCT));
+	wsprintf(pitem->name, "Timer%d", count + 1);
+	pitem->minute = 3;
+	pitem->nDispType = 1;
+	// common/list.c
+	m_pTimer = add_listitem(m_pTimer, pitem);
 	
-	m_nCurrent = m_numTimer;
-	CBAddString(hDlg, IDC_TIMERNAME, (LPARAM)ts.name);
-	CBSetCurSel(hDlg, IDC_TIMERNAME, m_numTimer);
-	SetTimerToDlg(hDlg, &ts);
+	index = CBAddString(hDlg, IDC_TIMERNAME, (LPARAM)pitem->name);
+	CBSetCurSel(hDlg, IDC_TIMERNAME, index);
 	
-	m_numTimer++;
-	if(m_pTimer) free(m_pTimer);
-	m_pTimer = pTSNew;
-	
-	if(m_numTimer == 1)
+	if(count == 0)
 		EnableTimerDlgItems(hDlg);
+	
+	SetTimerToDlg(hDlg, pitem);
+	m_nCurrent = index;
 	
 	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
 }
 
 /*------------------------------------------------
-  delete an alarm
+  delete a timer
 --------------------------------------------------*/
 void OnDelete(HWND hDlg)
 {
-	PTIMERSTRUCT pTSNew;
+	int count, index;
+	PTIMERSTRUCT pitem;
 	
-	if(!m_pTimer || m_numTimer < 1) return;
+	count = CBGetCount(hDlg, IDC_TIMERNAME);
+	if(count < 1) return;
 	
-	if(!(0 <= m_nCurrent && m_nCurrent < m_numTimer)) return;
+	index = CBGetCurSel(hDlg, IDC_TIMERNAME);
+	if(index < 0) return;
 	
-	if(m_numTimer > 1)
+	pitem = get_listitem(m_pTimer, index);
+	if(pitem == NULL) return;
+	// common/list.c
+	m_pTimer = del_listitem(m_pTimer, pitem);
+	
+	CBDeleteString(hDlg, IDC_TIMERNAME, index);
+	
+	if(count > 1)
 	{
-		pTSNew = DelTimerStruct(m_pTimer, m_numTimer, m_nCurrent);
-		
-		PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
-		CBDeleteString(hDlg, IDC_TIMERNAME, m_nCurrent);
-		
-		if(m_nCurrent == m_numTimer - 1) m_nCurrent--;
-		CBSetCurSel(hDlg, IDC_TIMERNAME, m_nCurrent);
-		SetTimerToDlg(hDlg, (pTSNew + m_nCurrent));
-		
-		m_numTimer--;
-		if(m_pTimer) free(m_pTimer);
-		m_pTimer = pTSNew;
+		if(index == count - 1) index--;
+		CBSetCurSel(hDlg, IDC_TIMERNAME, index);
 	}
 	else
 	{
-		free(m_pTimer); m_pTimer = NULL;
-		m_numTimer = 0;
-		m_nCurrent = -1;
-		
-		CBDeleteString(hDlg, IDC_TIMERNAME, 0);
-		SetTimerToDlg(hDlg, NULL);
-		
+		index = -1;
 		EnableTimerDlgItems(hDlg);
 	}
+	
+	SetTimerToDlg(hDlg, get_listitem(m_pTimer, index));
+	m_nCurrent = index;
+	
+	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
 }
 
 /*------------------------------------------------
@@ -476,49 +481,54 @@ void OnUserStr(HWND hDlg)
 /*------------------------------------------------
   get settings of a timer from the dialog
 --------------------------------------------------*/
-void GetTimerFromDlg(HWND hDlg, PTIMERSTRUCT pTS)
+void GetTimerFromDlg(HWND hDlg, PTIMERSTRUCT pitem)
 {
-	if(!pTS) return;
+	if(!pitem) return;
 	
-	GetDlgItemText(hDlg, IDC_TIMERNAME, pTS->name, BUFSIZE_NAME);
-	pTS->minute = GetDlgItemInt(hDlg, IDC_TIMERMINUTE, NULL, FALSE);
-	pTS->second = GetDlgItemInt(hDlg, IDC_TIMERSECOND, NULL, FALSE);
-	GetDlgItemText(hDlg, IDC_TIMERFILE, pTS->fname, MAX_PATH);
-	pTS->bRepeat = IsDlgButtonChecked(hDlg, IDC_TIMERREPEAT);
-	pTS->bBlink = IsDlgButtonChecked(hDlg, IDC_TIMERBLINK);
-	pTS->bDisp  = IsDlgButtonChecked(hDlg, IDC_SHOWTIME);
+	GetDlgItemText(hDlg, IDC_TIMERNAME, pitem->name, BUFSIZE_NAME);
+	pitem->minute = GetDlgItemInt(hDlg, IDC_TIMERMINUTE, NULL, FALSE);
+	pitem->second = GetDlgItemInt(hDlg, IDC_TIMERSECOND, NULL, FALSE);
+	GetDlgItemText(hDlg, IDC_TIMERFILE, pitem->fname, MAX_PATH);
+	pitem->bRepeat = IsDlgButtonChecked(hDlg, IDC_TIMERREPEAT);
+	pitem->bBlink = IsDlgButtonChecked(hDlg, IDC_TIMERBLINK);
+	pitem->bDisp  = IsDlgButtonChecked(hDlg, IDC_SHOWTIME);
 	if(IsDlgButtonChecked(hDlg, IDC_SHOWWHOLE))
-		pTS->nDispType  = 0;
+		pitem->nDispType  = 0;
 	else if(IsDlgButtonChecked(hDlg, IDC_SHOWUSTR))
-		pTS->nDispType  = 2;
-	else pTS->nDispType  = 1;
-	pTS->nUserStr = GetDlgItemInt(hDlg, IDC_SHOWUSTRNUM, NULL, FALSE);
+		pitem->nDispType  = 2;
+	else pitem->nDispType  = 1;
+	pitem->nUserStr = GetDlgItemInt(hDlg, IDC_SHOWUSTRNUM, NULL, FALSE);
 }
 
 /*------------------------------------------------
   set settings of a timer to the dialog
 --------------------------------------------------*/
-void SetTimerToDlg(HWND hDlg, const PTIMERSTRUCT pTS)
+void SetTimerToDlg(HWND hDlg, const TIMERSTRUCT *pitem)
 {
-	SetDlgItemText(hDlg, IDC_TIMERNAME, pTS ? pTS->name : "");
-	SetDlgItemInt(hDlg,  IDC_TIMERMINUTE, pTS ? pTS->minute : 0, FALSE);
-	SetDlgItemInt(hDlg,  IDC_TIMERSECOND, pTS ? pTS->second : 0, FALSE);
-	SetDlgItemText(hDlg, IDC_TIMERFILE, pTS ? pTS->fname : "");
-	CheckDlgButton(hDlg, IDC_TIMERREPEAT, pTS ? pTS->bRepeat : FALSE);
-	CheckDlgButton(hDlg, IDC_TIMERBLINK, pTS ? pTS->bBlink : FALSE);
-	CheckDlgButton(hDlg, IDC_SHOWTIME, pTS ? pTS->bDisp : FALSE);
-	if(pTS)
-	{
-		if(pTS->nDispType == 0)
-			CheckRadioButton(hDlg, IDC_SHOWWHOLE, IDC_SHOWUSTR, IDC_SHOWWHOLE);
-		else if(pTS->nDispType == 2)
-			CheckRadioButton(hDlg, IDC_SHOWWHOLE, IDC_SHOWUSTR, IDC_SHOWUSTR);
-		else
-			CheckRadioButton(hDlg, IDC_SHOWWHOLE, IDC_SHOWUSTR, IDC_SHOWADD);
-	}
-	else CheckRadioButton(hDlg, IDC_SHOWWHOLE, IDC_SHOWUSTR, IDC_SHOWADD);
+	TIMERSTRUCT item;
 	
-	SetDlgItemInt(hDlg,  IDC_SHOWUSTRNUM, pTS ? pTS->nUserStr : 1, FALSE);
+	if(!pitem)
+	{
+		memset(&item, 0, sizeof(TIMERSTRUCT));
+		item.nDispType = 1;
+		pitem = &item;
+	}
+	
+	SetDlgItemText(hDlg, IDC_TIMERNAME, pitem->name);
+	SetDlgItemInt(hDlg,  IDC_TIMERMINUTE, pitem->minute, FALSE);
+	SetDlgItemInt(hDlg,  IDC_TIMERSECOND, pitem->second, FALSE);
+	SetDlgItemText(hDlg, IDC_TIMERFILE, pitem->fname);
+	CheckDlgButton(hDlg, IDC_TIMERREPEAT, pitem->bRepeat);
+	CheckDlgButton(hDlg, IDC_TIMERBLINK, pitem->bBlink);
+	CheckDlgButton(hDlg, IDC_SHOWTIME, pitem->bDisp);
+	if(pitem->nDispType == 0)
+		CheckRadioButton(hDlg, IDC_SHOWWHOLE, IDC_SHOWUSTR, IDC_SHOWWHOLE);
+	else if(pitem->nDispType == 2)
+		CheckRadioButton(hDlg, IDC_SHOWWHOLE, IDC_SHOWUSTR, IDC_SHOWUSTR);
+	else
+		CheckRadioButton(hDlg, IDC_SHOWWHOLE, IDC_SHOWUSTR, IDC_SHOWADD);
+	
+	SetDlgItemInt(hDlg,  IDC_SHOWUSTRNUM, pitem->nUserStr, FALSE);
 	
 	OnShowTime(hDlg);
 }
