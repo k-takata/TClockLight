@@ -472,6 +472,6 @@ void PopupTooltip(HWND hwndClock, const wchar_t *p)
 		if(rcClock.top > hscreen / 2) y = rcClock.top;
 		
 		SendMessage(m_hwndTip, TTM_TRACKPOSITION, 0,
-			(LPARAM)(x | (y << 16)));
+			(LPARAM)MAKELONG(x, y));
 	}
 }
