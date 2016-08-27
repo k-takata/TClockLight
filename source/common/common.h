@@ -331,7 +331,6 @@ DWORDLONG r_M32x32to64(DWORD a, DWORD b);
 
 BOOL PlayFile(HWND hwnd, const char *fname, int loops);
 BOOL PlayFileCmdLine(HWND hwnd, const char *str);
-BOOL Player(HWND hwnd, const char *fname);
 void StopFile(void);
 void OnMCINotify(HWND hwnd, WPARAM wFlags, LONG lDevID);
 BOOL IsSoundFile(const char* fname);
