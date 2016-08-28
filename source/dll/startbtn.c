@@ -27,8 +27,8 @@ static BOOL SubClassStartButton(void);
 static void UnSubclassStartButton(void);
 static void InitStartButtonPos(HWND hwndClock);
 static void SetTaskWinPos(HWND hwndClock, HWND hwndStart, HWND hwndTask);
-static LRESULT CALLBACK WndProcStart(HWND, UINT, WPARAM, LPARAM);
-static LRESULT CALLBACK WndProcTask(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK SubclassProcStart(HWND, UINT, WPARAM, LPARAM, UINT_PTR, DWORD_PTR);
+static LRESULT CALLBACK SubclassProcTask(HWND, UINT, WPARAM, LPARAM, UINT_PTR, DWORD_PTR);
 static void SetStartButtonBmp(HWND hwnd);
 static void ReadStartButtonIcon(HWND hwnd,
 	HBITMAP* phbmp, HICON* phicon, const char* fname);
@@ -46,7 +46,8 @@ static void DrawStartButtonFrame(HDC hdc, const RECT* prc,
 
 static HWND m_hwndStart = NULL, m_hwndTask = NULL;
 static HWND m_hwndClock = NULL;
-static WNDPROC m_oldWndProcStart = NULL, m_oldWndProcTask = NULL;
+static BOOL m_bStartSubclassed = FALSE;
+static BOOL m_bTaskSubclassed = FALSE;
 static BOOL m_bCustomize = FALSE;
 static BOOL m_bUseBackBmp = FALSE;
 static BOOL m_bFlat = FALSE;
@@ -119,7 +120,7 @@ void InitStartButton(HWND hwndClock)
 ----------------------------------------------------*/
 void ResetStartButton(HWND hwndClock)
 {
-	BOOL bOld = (m_oldWndProcStart && m_oldWndProcTask);
+	BOOL bOld = (m_bStartSubclassed && m_bTaskSubclassed);
 	
 	ClearStartButtonResource();
 	
@@ -254,8 +255,10 @@ BOOL SubClassStartButton(void)
 	SetClassLong(m_hwndStart, GCL_STYLE,
 			m_oldClassStyle & ~(CS_HREDRAW|CS_VREDRAW));
 	
-	m_oldWndProcStart = SubclassWindow(m_hwndStart, WndProcStart);
-	m_oldWndProcTask = SubclassWindow(m_hwndTask, WndProcTask);
+	m_bStartSubclassed = SetWindowSubclass(m_hwndStart,
+			SubclassProcStart, 0, 0);
+	m_bTaskSubclassed = SetWindowSubclass(m_hwndTask,
+			SubclassProcTask, 0, 0);
 	
 	return TRUE;
 }
@@ -265,22 +268,22 @@ BOOL SubClassStartButton(void)
 ------------------------------------------------------------*/
 void UnSubclassStartButton(void)
 {
-	if(m_hwndStart && IsWindow(m_hwndStart) && m_oldWndProcStart)
+	if(m_hwndStart && IsWindow(m_hwndStart) && m_bStartSubclassed)
 	{
 		SetClassLong(m_hwndStart, GCL_STYLE, m_oldClassStyle);
 		
-		SubclassWindow(m_hwndStart, m_oldWndProcStart);
+		RemoveWindowSubclass(m_hwndStart, SubclassProcStart, 0);
 		
 		SetWindowPos(m_hwndStart, NULL, 0, 0, 0, 0,
 			SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE|SWP_SHOWWINDOW);
 	}
-	m_oldWndProcStart = NULL;
+	m_bStartSubclassed = FALSE;
 	
-	if(m_hwndTask && IsWindow(m_hwndTask) && m_oldWndProcTask)
+	if(m_hwndTask && IsWindow(m_hwndTask) && m_bTaskSubclassed)
 	{
-		SubclassWindow(m_hwndTask, m_oldWndProcTask);
+		RemoveWindowSubclass(m_hwndTask, SubclassProcTask, 0);
 	}
-	m_oldWndProcTask = NULL;
+	m_bTaskSubclassed = FALSE;
 }
 
 /*----------------------------------------------------------
@@ -690,8 +693,8 @@ void DrawStartButtonBack(HWND hwnd, HDC hdc, HDC hdcMem,
 /*------------------------------------------------
   subclass procedure of start button
 --------------------------------------------------*/
-LRESULT CALLBACK WndProcStart(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK SubclassProcStart(HWND hwnd, UINT message,
+	WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 	switch(message)
 	{
@@ -742,7 +745,7 @@ LRESULT CALLBACK WndProcStart(HWND hwnd, UINT message,
 		case BM_SETSTATE: // button status is changed
 		{
 			HDC hdc;
-			CallWindowProc(m_oldWndProcStart, hwnd, message, wParam, lParam);
+			DefSubclassProc(hwnd, message, wParam, lParam);
 			hdc = GetDC(hwnd);
 			OnPaintButton(hwnd, hdc);
 			ReleaseDC(hwnd, hdc);
@@ -758,14 +761,14 @@ LRESULT CALLBACK WndProcStart(HWND hwnd, UINT message,
 			break;
 	}
 	
-	return CallWindowProc(m_oldWndProcStart, hwnd, message, wParam, lParam);
+	return DefSubclassProc(hwnd, message, wParam, lParam);
 }
 
 /*--------------------------------------------------
   subclass procedure of MSTaskSwWClass/ReBarWindow32
 ----------------------------------------------------*/
-LRESULT CALLBACK WndProcTask(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK SubclassProcTask(HWND hwnd, UINT message,
+	WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 	switch(message)
 	{
@@ -774,7 +777,7 @@ LRESULT CALLBACK WndProcTask(HWND hwnd, UINT message,
 			LPWINDOWPOS pwp;
 			RECT rcBar, rcTray;
 			
-			if(!m_hwndStart || !m_oldWndProcStart) break;
+			if(!m_hwndStart || !m_bStartSubclassed) break;
 			
 			if(!(m_bCustomize || m_bHide)) break;
 			
@@ -813,7 +816,7 @@ LRESULT CALLBACK WndProcTask(HWND hwnd, UINT message,
 			break;
 		}
 	}
-	return CallWindowProc(m_oldWndProcTask, hwnd, message, wParam, lParam);
+	return DefSubclassProc(hwnd, message, wParam, lParam);
 }
 
 /*--------------------------------------------------

@@ -18,7 +18,7 @@ void EndTaskSwitch(void);
 
 /* Statics */
 
-static LRESULT CALLBACK WndProcTab(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK SubclassProcTab(HWND, UINT, WPARAM, LPARAM, UINT_PTR, DWORD_PTR);
 
 static BOOL    m_bTaskSwitchFlat = FALSE;
 static BOOL    m_bTaskSwitchIcons = FALSE;
@@ -28,7 +28,6 @@ static LONG    m_oldStyle;
 static DWORD   m_oldExStyle;
 static DWORD   m_oldTBStyle;
 static LONG    m_oldTaskWidth;
-static WNDPROC m_oldWndProcTab = NULL;
 
 /*--------------------------------------------------
    initialize
@@ -84,7 +83,7 @@ void InitTaskSwitch(HWND hwndClock)
 				0, m_oldTBStyle|TBSTYLE_EX_MIXEDBUTTONS);
 	}
 	
-	m_oldWndProcTab = SubclassWindow(m_hwndTab, WndProcTab);
+	SetWindowSubclass(m_hwndTab, SubclassProcTab, 0, 0);
 	
 	PostMessage(m_hwndTab, WM_SIZE, SIZE_RESTORED, 0);
 }
@@ -96,9 +95,7 @@ void EndTaskSwitch(void)
 {
 	if(!m_hwndTab || !IsWindow(m_hwndTab)) return;
 	
-	if(m_oldWndProcTab)
-		SubclassWindow(m_hwndTab, m_oldWndProcTab);
-	m_oldWndProcTab = NULL;
+	RemoveWindowSubclass(m_hwndTab, SubclassProcTab, 0);
 	
 	if(m_bTaskSwitchFlat)
 		SetWindowLong(m_hwndTab, GWL_STYLE, m_oldStyle);
@@ -120,8 +117,8 @@ void EndTaskSwitch(void)
 /*---------------------------------------------------------
    subclass procedure of SysTabControl32/ToobarWindow32
 -----------------------------------------------------------*/
-LRESULT CALLBACK WndProcTab(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK SubclassProcTab(HWND hwnd, UINT message,
+	WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 	switch(message)
 	{
@@ -162,7 +159,7 @@ LRESULT CALLBACK WndProcTab(HWND hwnd, UINT message,
 			break;
 		*/
 	}
-	return CallWindowProc(m_oldWndProcTab, hwnd, message, wParam, lParam);
+	return DefSubclassProc(hwnd, message, wParam, lParam);
 }
 
 #endif	/* TC_ENABLE_TASKSWITCH */

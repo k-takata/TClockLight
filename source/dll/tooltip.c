@@ -30,10 +30,9 @@ void PopupTooltip(HWND hwndClock, const wchar_t *p);
 
 static void InitTooltipFormat(void);
 static void ReadTooltipFormatFromFile(const char *fname, BOOL bInit);
-static LRESULT CALLBACK WndProcTip(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK SubclassProcTip(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 
 static HWND m_hwndTip = NULL;
-static WNDPROC m_oldWndProc = NULL;
 static BOOL m_bTooltipShow = FALSE;
 static BOOL m_bUpdate = FALSE;
 static BOOL m_bTip1 = TRUE;
@@ -87,7 +86,7 @@ void InitTooltip(HWND hwndClock)
 	ti.uId = 2;
 	SendMessage(m_hwndTip, TTM_ADDTOOL, 0, (LPARAM)&ti);
 	
-	m_oldWndProc = SubclassWindow(m_hwndTip, WndProcTip);
+	SetWindowSubclass(m_hwndTip, SubclassProcTip, 0, 0);
 	
 	m_bTip1 = GetMyRegLong(m_section, "Tip1Use", TRUE);
 	
@@ -214,8 +213,8 @@ void EndTooltip(HWND hwndClock)
 /*------------------------------------------------
   window procedure of subclassified tooltip
 --------------------------------------------------*/
-LRESULT CALLBACK WndProcTip(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK SubclassProcTip(HWND hwnd, UINT message,
+	WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 	if(message == WM_WINDOWPOSCHANGING)
 	{
@@ -256,7 +255,7 @@ LRESULT CALLBACK WndProcTip(HWND hwnd, UINT message,
 	}
 	else if(message == WM_MOUSEMOVE) return 0;
 	
-	return CallWindowProc(m_oldWndProc, hwnd, message, wParam, lParam);
+	return DefSubclassProc(hwnd, message, wParam, lParam);
 }
 
 /*------------------------------------------------

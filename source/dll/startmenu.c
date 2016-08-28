@@ -30,20 +30,20 @@ static void SubclassUserPaneXP(void);
 static void UnSubclassUserPaneXP(void);
 static void TransStartMenu(void);
 static void UnTransStartMenu(void);
-static LRESULT CALLBACK WndProcBaseBar(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK SubclassProcBaseBar(HWND hwnd, UINT message,
+	WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 static void OnPaintStartmenuIE4(HWND hwnd, HDC hdc, BOOL bPrint);
-static LRESULT CALLBACK WndProcUserPaneXP(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam);
+static LRESULT CALLBACK SubclassProcUserPaneXP(HWND hwnd, UINT message,
+	WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 static void OnPaintUserPaneXP(HWND hwnd, HDC hdc);
 
 // Start menu (BaseBar) of IE 4 or later
 static HWND m_hwndBaseBar = NULL;           // window handle
-static WNDPROC m_oldWndProcBaseBar = NULL;  // window procedure
+static BOOL m_bBaseBarSubclassed = FALSE;
 // Start menu (DV2ControlHost) of Windows XP
 static HWND m_hwndDV2ContHost = NULL;       // window handle
 static HWND m_hwndUserPaneXP = NULL;        // window handle of top pane
-static WNDPROC m_oldWndProcUserPaneXP = NULL; // window procedure of top pane
+static BOOL m_bUserPaneXPSubclassed = FALSE;
 
 static BOOL m_bStartMenu = FALSE;  // customize start menu
 static BOOL m_bSubclass = FALSE;   // subclassify
@@ -378,7 +378,8 @@ void SubclassBaseBar(void)
 	
 	// if(IsSubclassed(m_hwndBaseBar)) return;
 	
-	m_oldWndProcBaseBar = SubclassWindow(m_hwndBaseBar, WndProcBaseBar);
+	m_bBaseBarSubclassed = SetWindowSubclass(m_hwndBaseBar,
+			SubclassProcBaseBar, 0, 0);
 }
 
 /*--------------------------------------------------
@@ -386,12 +387,11 @@ void SubclassBaseBar(void)
 ----------------------------------------------------*/
 void UnSubclassBaseBar(void)
 {
-	if(m_hwndBaseBar && IsWindow(m_hwndBaseBar))
+	if(m_hwndBaseBar && IsWindow(m_hwndBaseBar) && m_bBaseBarSubclassed)
 	{
-		if(m_oldWndProcBaseBar)
-			SubclassWindow(m_hwndBaseBar, m_oldWndProcBaseBar);
+		RemoveWindowSubclass(m_hwndBaseBar, SubclassProcBaseBar, 0);
 	}
-	m_oldWndProcBaseBar = NULL;
+	m_bBaseBarSubclassed = FALSE;
 }
 
 /*--------------------------------------------------
@@ -409,8 +409,8 @@ void SubclassUserPaneXP(void)
 	
 	if(IsSubclassed(m_hwndUserPaneXP)) return;
 	
-	m_oldWndProcUserPaneXP = SubclassWindow(m_hwndUserPaneXP,
-		WndProcUserPaneXP);
+	m_bUserPaneXPSubclassed = SetWindowSubclass(m_hwndUserPaneXP,
+			SubclassProcUserPaneXP, 0, 0);
 }
 
 /*--------------------------------------------------
@@ -418,15 +418,13 @@ void SubclassUserPaneXP(void)
 ----------------------------------------------------*/
 void UnSubclassUserPaneXP(void)
 {
-	if(m_hwndUserPaneXP && IsWindow(m_hwndUserPaneXP))
+	if(m_hwndUserPaneXP && IsWindow(m_hwndUserPaneXP)
+			&& m_bUserPaneXPSubclassed)
 	{
-		if(m_oldWndProcUserPaneXP)
-		{
-			SubclassWindow(m_hwndUserPaneXP, m_oldWndProcUserPaneXP);
-			SendMessage(GetParent(m_hwndUserPaneXP), WM_SYSCOLORCHANGE, 0, 0);
-		}
+		RemoveWindowSubclass(m_hwndUserPaneXP, SubclassProcUserPaneXP, 0);
+		SendMessage(GetParent(m_hwndUserPaneXP), WM_SYSCOLORCHANGE, 0, 0);
 	}
-	m_oldWndProcUserPaneXP = NULL;
+	m_bUserPaneXPSubclassed = FALSE;
 }
 
 /*--------------------------------------------------
@@ -487,8 +485,8 @@ void UnTransStartMenu(void)
   window procedure of Start Menu (BaseBar)
   of IE 4 or later
 --------------------------------------------------*/
-LRESULT CALLBACK WndProcBaseBar(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK SubclassProcBaseBar(HWND hwnd, UINT message,
+	WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 	switch(message)
 	{
@@ -506,8 +504,7 @@ LRESULT CALLBACK WndProcBaseBar(HWND hwnd, UINT message,
 		{
 			LRESULT r;
 			if(!m_bStartMenu) break;
-			r = CallWindowProc(m_oldWndProcBaseBar,
-				hwnd, message, wParam, lParam);
+			r = DefSubclassProc(hwnd, message, wParam, lParam);
 			OnPaintStartmenuIE4(hwnd, (HDC)wParam, TRUE);
 			return r;
 		}
@@ -523,7 +520,7 @@ LRESULT CALLBACK WndProcBaseBar(HWND hwnd, UINT message,
 			break;
 		}
 	}
-	return CallWindowProc(m_oldWndProcBaseBar, hwnd, message, wParam, lParam);
+	return DefSubclassProc(hwnd, message, wParam, lParam);
 }
 
 /*------------------------------------------------
@@ -601,8 +598,8 @@ void OnPaintStartmenuIE4(HWND hwnd, HDC hdc, BOOL bPrint)
   window procedure of
   top child window of XP Start Menu
 --------------------------------------------------*/
-LRESULT CALLBACK WndProcUserPaneXP(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK SubclassProcUserPaneXP(HWND hwnd, UINT message,
+	WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 	switch(message)
 	{
@@ -643,8 +640,7 @@ LRESULT CALLBACK WndProcUserPaneXP(HWND hwnd, UINT message,
 			if(m_bStartMenu) return 0;
 			break;
 	}
-	return CallWindowProc(m_oldWndProcUserPaneXP,
-		hwnd, message, wParam, lParam);
+	return DefSubclassProc(hwnd, message, wParam, lParam);
 }
 
 /*----------------------------------------------------

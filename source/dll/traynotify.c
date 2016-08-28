@@ -18,13 +18,12 @@ void EndTrayNotify(void);
 
 /* Statics */
 
-static LRESULT CALLBACK WndProcTrayNotify(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK SubclassProcTrayNotify(HWND, UINT, WPARAM, LPARAM, UINT_PTR, DWORD_PTR);
 static void OnPaintTray(HWND hwnd, HDC hdc);
 static void OnCustomDraw(HWND hwnd, HWND hwndFrom, const LPNMCUSTOMDRAW pnmcd);
 
 static HWND m_hwndTrayNotify = NULL, m_hwndToolbar = NULL;
 static HWND m_hwndClock = NULL;
-static WNDPROC m_oldWndProcTrayNotify = NULL;
 static LONG m_oldClassStyle, m_oldStyle;
 
 
@@ -66,7 +65,7 @@ void InitTrayNotify(HWND hwndClock)
 	SetClassLong(m_hwndTrayNotify, GCL_STYLE,
 		m_oldClassStyle|CS_HREDRAW|CS_VREDRAW);
 	
-	m_oldWndProcTrayNotify = SubclassWindow(m_hwndTrayNotify, WndProcTrayNotify);
+	SetWindowSubclass(m_hwndTrayNotify, SubclassProcTrayNotify, 0, 0);
 	
 	m_oldStyle = GetWindowLong(m_hwndTrayNotify, GWL_STYLE);
 	SetWindowLong(m_hwndTrayNotify, GWL_STYLE,
@@ -89,8 +88,7 @@ void EndTrayNotify(void)
 	{
 		SetWindowLong(m_hwndTrayNotify, GWL_STYLE, m_oldStyle);
 		
-		if(m_oldWndProcTrayNotify)
-			SubclassWindow(m_hwndTrayNotify, m_oldWndProcTrayNotify);
+		RemoveWindowSubclass(m_hwndTrayNotify, SubclassProcTrayNotify, 0);
 		
 		SetClassLong(m_hwndTrayNotify, GCL_STYLE, m_oldClassStyle);
 		
@@ -105,14 +103,13 @@ void EndTrayNotify(void)
 	
 	m_hwndTrayNotify = NULL;
 	m_hwndToolbar = NULL;
-	m_oldWndProcTrayNotify = NULL;
 }
 
 /*------------------------------------------------
    subclass procedure of TrayNotifyWnd
 --------------------------------------------------*/
-LRESULT CALLBACK WndProcTrayNotify(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK SubclassProcTrayNotify(HWND hwnd, UINT message,
+	WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 	switch(message)
 	{
@@ -147,8 +144,7 @@ LRESULT CALLBACK WndProcTrayNotify(HWND hwnd, UINT message,
 			break;
 		}
 	}
-	return CallWindowProc(m_oldWndProcTrayNotify, hwnd,
-		message, wParam, lParam);
+	return DefSubclassProc(hwnd, message, wParam, lParam);
 }
 
 /*------------------------------------------------
