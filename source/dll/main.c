@@ -11,11 +11,6 @@
 
 /* Globals */
 
-/* APIs of tcdll.tclock */
-BOOL WINAPI HookStart(HWND hwnd);
-void WINAPI HookEnd(void);
-void WINAPI GetTClockVersion(char* dst);
-
 /* shared data among processes */
 #ifdef _MSC_VER
 #pragma data_seg("MYDATA")

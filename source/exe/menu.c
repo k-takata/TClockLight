@@ -9,14 +9,6 @@
 #include "tclock.h"
 #include "../common/command.h"
 
-/* Globals */
-
-void ContextMenuCommand(HWND hwnd, int id);
-void EndContextMenu(void);
-void OnContextMenu(HWND hwnd, HWND hwndClicked, int xPos, int yPos);
-void OnExitMenuLoop(HWND hwnd);
-void SetFocusTClockMain(HWND hwnd);
-
 /* Statics */
 
 typedef struct _tagMenuStruct

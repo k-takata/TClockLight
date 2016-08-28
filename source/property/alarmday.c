@@ -8,10 +8,6 @@
 
 #include "tcprop.h"
 
-/* Globals */
-
-int SetAlarmDay(HWND hDlg, PALARMSTRUCT pAS);
-
 /* Statics */
 
 static INT_PTR CALLBACK AlarmDayProc(HWND, UINT, WPARAM, LPARAM);

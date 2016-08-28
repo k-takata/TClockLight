@@ -10,11 +10,6 @@
 
 #if TC_ENABLE_MOUSEDROP
 
-/* Globals */
-
-INT_PTR CALLBACK PageMouse2Proc(HWND hDlg, UINT message,
-	WPARAM wParam, LPARAM lParam);
-
 /* Statics */
 
 static void SendPSChanged(HWND hDlg);

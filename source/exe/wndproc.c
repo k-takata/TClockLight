@@ -10,8 +10,6 @@
 
 /* Globals */
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam);
 HWND g_hwndClock = NULL; // clock window
 
 /* Statics */

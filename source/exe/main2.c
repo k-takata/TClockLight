@@ -10,8 +10,6 @@
 
 /* Globals */
 
-int TClockExeMain(void);
-
 char g_mydir[MAX_PATH];     // path to tclock.exe
 BOOL g_bIniSetting = FALSE; // save setting to ini file?
 char g_inifile[MAX_PATH];   // ini file name

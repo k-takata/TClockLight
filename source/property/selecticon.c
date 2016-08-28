@@ -8,10 +8,6 @@
 
 #include "tcprop.h"
 
-/* Globals */
-
-BOOL SelectIconInDLL(HINSTANCE hInst, HWND hDlg, char* fname_index);
-
 /* Statics */
 
 INT_PTR CALLBACK DlgProcSelectIcon(HWND hDlg, UINT message,

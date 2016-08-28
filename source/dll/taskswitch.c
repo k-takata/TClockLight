@@ -11,11 +11,6 @@
 
 #if TC_ENABLE_TASKSWITCH
 
-/* Globals */
-
-void InitTaskSwitch(HWND hwndClock);
-void EndTaskSwitch(void);
-
 /* Statics */
 
 static LRESULT CALLBACK SubclassProcTab(HWND, UINT, WPARAM, LPARAM, UINT_PTR, DWORD_PTR);

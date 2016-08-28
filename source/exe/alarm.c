@@ -8,12 +8,6 @@
 
 #include "tclock.h"
 
-/* Globals */
-
-void InitAlarm(void);
-void EndAlarm(void);
-void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason);
-
 /* Statics */
 
 static PALARMSTRUCT m_pAlarm = NULL;

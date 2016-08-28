@@ -11,11 +11,6 @@
 
 #if TC_ENABLE_TRAYNOTIFY
 
-/* Globals */
-
-void InitTrayNotify(HWND hwnd);
-void EndTrayNotify(void);
-
 /* Statics */
 
 static LRESULT CALLBACK SubclassProcTrayNotify(HWND, UINT, WPARAM, LPARAM, UINT_PTR, DWORD_PTR);

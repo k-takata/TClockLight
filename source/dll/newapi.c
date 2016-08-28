@@ -9,22 +9,6 @@
 #include "tcdll.h"
 #include "newapi.h"
 
-/* Globals */
-
-void EndNewAPI(void);
-BOOL MyGradientFill(HDC hdc, PTRIVERTEX pVertex, ULONG dwNumVertex,
-	PVOID pMesh, ULONG dwNumMesh, ULONG dwMode);
-BOOL MyAlphaBlend(HDC hdcDest, int nXOriginDest, int nYOriginDest,
-	int nWidthDest, int nHeightDest,
-	HDC hdcSrc, int nXOriginSrc, int nYOriginSrc,
-	int nWidthSrc, int nHeightSrc, BLENDFUNCTION blendFunction);
-BOOL MyTransparentBlt(HDC hdcDest, int nXOriginDest, int nYOriginDest,
-	int nWidthDest, int hHeightDest,
-	HDC hdcSrc, int nXOriginSrc, int nYOriginSrc,
-	int nWidthSrc, int nHeightSrc, UINT crTransparent);
-BOOL MySetLayeredWindowAttributes(HWND hwnd, COLORREF crKey,
-	BYTE bAlpha, DWORD dwFlags);
-
 /* Statics */
 
 static void InitMsimg32(void);

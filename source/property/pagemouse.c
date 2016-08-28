@@ -9,11 +9,6 @@
 #include "tcprop.h"
 #include "../common/command.h"
 
-/* Globals */
-
-INT_PTR CALLBACK PageMouseProc(HWND hDlg, UINT message,
-	WPARAM wParam, LPARAM lParam);
-
 /* Statics */
 
 static void SendPSChanged(HWND hDlg);

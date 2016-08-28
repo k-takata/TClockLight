@@ -10,8 +10,6 @@
 
 /* Globals */
 
-void OnShowDialog(HWND hwnd);
-
 HWND g_hDlg = NULL;
 
 /* Statics */

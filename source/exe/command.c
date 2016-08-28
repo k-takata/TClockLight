@@ -9,12 +9,6 @@
 #include "tclock.h"
 #include "../common/command.h"
 
-/* Globals */
-
-void OnTClockCommand(HWND hwnd, int id, int code);
-BOOL ExecCommandString(HWND hwnd, const char *command);
-void CopyToClipBoard(HWND hwnd, const char *pfmt);
-
 /* Statics */
 
 typedef struct{

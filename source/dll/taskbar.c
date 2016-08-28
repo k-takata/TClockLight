@@ -11,13 +11,6 @@
 
 #if TC_ENABLE_TASKBAR
 
-/* Globals */
-void RefreshTaskbar(HWND hwndClock);
-void InitTaskbar(HWND hwndClock);
-void EndTaskbar(HWND hwndClock);
-LRESULT CallOldTaskbarWndProc(HWND hwnd, UINT message,
-	WPARAM wParam, LPARAM lParam);
-
 /* Statics */
 static void SubclassTaskbar(HWND hwndTaskbar);
 static void UnSubclassTaskbar(HWND hwndTaskbar);

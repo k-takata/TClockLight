@@ -10,11 +10,6 @@
 
 #if TC_ENABLE_ANALOGCLOCK
 
-/* Globals */
-
-INT_PTR CALLBACK PageAnalogClockProc(HWND hDlg, UINT message,
-	WPARAM wParam, LPARAM lParam);
-
 /* Statics */
 
 static void SendPSChanged(HWND hDlg);

@@ -8,11 +8,6 @@
 
 #include "tcprop.h"
 
-/* Globals */
-
-INT_PTR CALLBACK PageTooltipProc(HWND hDlg, UINT message,
-	WPARAM wParam, LPARAM lParam);
-
 /* Statics */
 
 static void SendPSChanged(HWND hDlg);

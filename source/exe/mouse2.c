@@ -10,9 +10,6 @@
 
 #if TC_ENABLE_MOUSEDROP
 
-/* Globals */
-void OnDropFiles(HWND hwnd, HDROP hdrop);
-
 /* Statics */
 static char *m_section = "Mouse";
 

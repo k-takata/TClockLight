@@ -8,12 +8,6 @@
 
 #include "tcdll.h"
 
-/* Globals */
-
-void LoadFormatSetting(HWND hwnd);
-void MakeFormat(wchar_t* dst, const SYSTEMTIME* pt,
-	const wchar_t* fmt, int nMax);
-
 /* Statics */
 
 static wchar_t m_format[BUFSIZE_FORMAT];

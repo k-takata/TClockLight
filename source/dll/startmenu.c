@@ -11,15 +11,6 @@
 
 #if TC_ENABLE_STARTMENU
 
-/* Globals */
-
-void InitStartMenu(HWND hwndClock);
-void EndStartMenu(void);
-void ResetStartMenu(HWND hwndClock);
-void ClearStartMenuResource(void);
-void CheckStartMenu(void);
-BOOL OnDrawItemStartMenu(HWND hwnd, DRAWITEMSTRUCT* pdis);
-
 /* Statics */
 
 static void InitStartMenuSetting(HWND hwndClock);

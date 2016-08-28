@@ -8,17 +8,6 @@
 
 #include "tcplayer.h"
 
-/* Globals */
-
-void InitPlayer(HWND hwnd);
-void OnTimerPlayer(HWND hwnd);
-BOOL Player(HWND hwnd, const char *fname);
-BOOL IsPlayerPlaying(void);
-void OnMCINotifyPlayer(HWND hwnd, WPARAM wFlags, LONG lDevID);
-void StopPlayer(HWND hwnd);
-void PausePlayer(HWND hwnd);
-void PrevNextPlayer(HWND hwnd, BOOL bNext);
-
 /* Statics */
 
 static BOOL PlayByNumber(HWND hwnd, int n);

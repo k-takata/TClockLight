@@ -8,11 +8,6 @@
 
 #include "tcprop.h"
 
-/* Globals */
-
-INT_PTR CALLBACK DlgProcFormat2(HWND hDlg, UINT message,
-	WPARAM wParam, LPARAM lParam);
-
 /* Statics */
 
 static void OnInit(HWND hDlg, LPARAM lParam);

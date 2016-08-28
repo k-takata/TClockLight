@@ -9,8 +9,6 @@
 #include "tcdll.h"
 
 /* Globals */
-void InitUserStr(void);
-void UStrHandler(FORMATHANDLERSTRUCT* pstruc);
 
 // user string
 wchar_t g_userstr[10][BUFSIZE_USTR];

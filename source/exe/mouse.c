@@ -9,15 +9,6 @@
 #include "tclock.h"
 #include "../common/command.h"
 
-/* Globals */
-
-void InitMouseFunction(HWND hwnd);
-void EndMouseFunction(HWND hwnd);
-void OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-void OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-void OnTimerMouse(HWND hwnd);
-void OnMouseWheel(HWND hwnd, WPARAM wParam, LPARAM lParam);
-
 /* Statics */
 
 static void ExecuteMouseFunction(HWND hwnd, const PMOUSESTRUCT pMSS);

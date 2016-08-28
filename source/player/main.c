@@ -10,8 +10,6 @@
 
 /* Globals */
 
-BOOL ExecCommandString(HWND hwnd, const char *command);
-
 HINSTANCE g_hInst;                 // instance handle
 char      g_mydir[MAX_PATH];       // path to this exe file
 BOOL      g_bIniSetting = FALSE;   // save setting to ini file?

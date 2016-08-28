@@ -12,14 +12,6 @@
 
 /* Globals */
 
-void LoadDrawingSetting(HWND hwnd);
-void ClearDrawing(void);
-void ClearClockDC(void);
-HDC GetClockBackDC(void);
-void OnPaint(HWND hwnd, HDC hdc, const SYSTEMTIME* pt);
-LRESULT OnCalcRect(HWND hwnd);
-void CreateClockDC(HWND hwnd);
-
 BOOL g_bFitClock = FALSE; // Fit clock to tray
 
 /* Statics */

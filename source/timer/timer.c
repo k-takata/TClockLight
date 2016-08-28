@@ -8,14 +8,6 @@
 
 #include "tctimer.h"
 
-/* Globals */
-void TimerStart(PTIMERSTRUCT pTS);
-void ClearTimer(void);
-BOOL IsTimerRunning(void);
-void OnTimerTimer(HWND hDlg);
-void OnRequestMenu(HWND hDlg, BOOL bClear);
-void OnStopTimer(HWND hDlg, int id);
-
 /* Statics */
 
 static void DoTimer(HWND hwnd, PTIMERSTRUCT pitem);

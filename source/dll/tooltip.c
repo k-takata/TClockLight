@@ -17,15 +17,6 @@
 #define TTM_TRACKPOSITION  (WM_USER + 18)
 #define TTM_SETMAXTIPWIDTH (WM_USER + 24)
 
-/* Globals */
-void InitTooltip(HWND hwndClock);
-void EndTooltip(HWND hwndClock);
-void OnTooltipMouseMsg(HWND hwndClock,
-	UINT message, WPARAM wParam, LPARAM lParam);
-BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh);
-void OnTimerTooltip(HWND hwndClock, BOOL forceFlg);
-void PopupTooltip(HWND hwndClock, const wchar_t *p);
-
 /* Statics */
 
 static void InitTooltipFormat(void);

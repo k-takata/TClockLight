@@ -8,29 +8,6 @@
 
 #include "tcdll.h"
 
-/* Globals */
-
-void InitFormatTime(void);
-void SDateHandler(FORMATHANDLERSTRUCT* pstruc);
-void STimeHandler(FORMATHANDLERSTRUCT* pstruc);
-void YearHandler(FORMATHANDLERSTRUCT* pstruc);
-void MonthHandler(FORMATHANDLERSTRUCT* pstruc);
-void DateHandler(FORMATHANDLERSTRUCT* pstruc);
-void DayOfWeekHandler(FORMATHANDLERSTRUCT* pstruc);
-void HourHandler(FORMATHANDLERSTRUCT* pstruc);
-void MinuteHandler(FORMATHANDLERSTRUCT* pstruc);
-void SecondHandler(FORMATHANDLERSTRUCT* pstruc);
-void AMPMHandler(FORMATHANDLERSTRUCT* pstruc);
-void CRLFHandler(FORMATHANDLERSTRUCT* pstruc);
-void CharaHandler(FORMATHANDLERSTRUCT* pstruc);
-void AltYearHandler(FORMATHANDLERSTRUCT* pstruc);
-void EraHandler(FORMATHANDLERSTRUCT* pstruc);
-void TimeDifHandler(FORMATHANDLERSTRUCT* pstruc);
-void LDATEHandler(FORMATHANDLERSTRUCT* pstruc);
-void DATEHandler(FORMATHANDLERSTRUCT* pstruc);
-void TIMEHandler(FORMATHANDLERSTRUCT* pstruc);
-void MSecondHandler(FORMATHANDLERSTRUCT* pstruc);
-
 /* Statics */
 
 static BOOL m_bHour12, m_bHourZero;

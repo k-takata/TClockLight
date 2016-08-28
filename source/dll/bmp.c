@@ -8,10 +8,6 @@
 
 #include "tcdll.h"
 
-/* Globals */
-
-HBITMAP ReadBitmap(HWND hwnd, const char* fname, BOOL b);
-
 /* Static */
 
 static int GetDibNumColors(const LPBITMAPINFOHEADER pbmih);

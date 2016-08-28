@@ -11,15 +11,6 @@
 
 #if TC_ENABLE_STARTBUTTON
 
-/* Globals */
-
-void InitStartButton(HWND hwndClock);
-void ResetStartButton(HWND hwndClock);
-void EndStartButton(void);
-void ClearStartButtonResource(void);
-void CheckCursorOnStartButton(void);
-BOOL StartMenuFromClock(UINT message, WPARAM wParam, LPARAM lParam);
-
 /* Statics */
 
 static BOOL LoadStartButtonSetting(void);

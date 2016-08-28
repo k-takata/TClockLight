@@ -8,10 +8,6 @@
 
 #include "tclock.h"
 
-/* Globals */
-void CheckCommandLine(HWND hwnd, BOOL bPrev);
-void SendStringToClock(HWND hwndClock, const char *value, int type);
-
 /*-------------------------------------------
    process command line option
 ---------------------------------------------*/

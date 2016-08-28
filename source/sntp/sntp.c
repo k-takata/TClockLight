@@ -12,18 +12,6 @@
 #include <winsock.h>
 #include <ras.h>
 
-/* Globals */
-
-BOOL InitSNTP(HWND hwndParent);
-void EndSNTP(HWND hwndParent);
-// void SNTPCommand(HWND hwndMain, const char *pCommand);
-void SetSNTPParam(const char *servername, int nTimeout, BOOL bLog,
-	const char *soundfile);
-BOOL StartSyncTime(HWND hwnd, BOOL bRAS);
-void OnTimerSNTP(HWND hwndMain);
-void OnGetHost(HWND hwnd, WPARAM wParam, LPARAM lParam);
-void OnReceive(HWND hwnd, WPARAM wParam, LPARAM lParam);
-
 /* Statics */
 
 typedef __int64 HOSTTIME;

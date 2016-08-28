@@ -15,7 +15,6 @@
 
 /* Globals */
 
-void ShowAboutBox(HWND hwnd);
 HWND g_hDlgAbout = NULL;      // dialog window handle, used in main2.c
 
 /* Statics */

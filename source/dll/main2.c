@@ -10,11 +10,6 @@
 
 /* Globals */
 
-void InitClock(HWND hwnd);
-void EndClock(HWND hwnd);
-void OnDestroy(HWND hwnd);
-void LoadSetting(HWND hwnd);
-
 BOOL    g_bInitClock = FALSE;  // InitTClock() has been called
 HANDLE  g_hInst;               // instanse handle
 BOOL    g_bIniSetting;         // use tclock.ini
