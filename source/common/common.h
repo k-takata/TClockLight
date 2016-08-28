@@ -249,9 +249,9 @@ int r_strnicmp(const char* d, const char* s, size_t n);
 int r_atoi(const char *p);
 int r_atox(const char *p);
 int r__wtoi(const WCHAR *p);
-int r_wcslen(const wchar_t *p);
+size_t r_wcslen(const wchar_t *p);
 wchar_t *r_wcscpy(wchar_t *dp, const wchar_t *sp);
-int r_wcsncmp(const wchar_t *p1, const wchar_t *p2, int count);
+int r_wcsncmp(const wchar_t *p1, const wchar_t *p2, size_t count);
 wchar_t *r_wcscat(wchar_t *dp, const wchar_t *sp);
 wchar_t *r_wcsstr(const wchar_t *string, const wchar_t *strCharSet);
 
