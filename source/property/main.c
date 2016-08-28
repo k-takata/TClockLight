@@ -48,6 +48,9 @@ static int m_lastTreeItem;
 
 enum {
 	PAGE_COLOR, PAGE_SIZE, PAGE_FORMAT,
+#if TC_ENABLE_ANALOGCLOCK
+	PAGE_ANALOGCLOCK,
+#endif
 	PAGE_ALARM, PAGE_CUCKOO,
 	PAGE_MOUSE,
 #if TC_ENABLE_MOUSEDROP
@@ -79,6 +82,9 @@ static struct {
   { NULL, IDD_PAGECOLOR,       PageColorProc },  /* PAGE_COLOR */
   { NULL, IDD_PAGESIZE,        PageSizeProc },   /* PAGE_SIZE */
   { NULL, IDD_PAGEFORMAT,      PageFormatProc }, /* PAGE_FORMAT */
+#if TC_ENABLE_ANALOGCLOCK
+  { NULL, IDD_PAGEANALOGCLOCK, PageAnalogClockProc }, /* PAGE_ANALOGCLOCK */
+#endif
   { NULL, IDD_PAGEALARM,       PageAlarmProc },  /* PAGE_ALARM */
   { NULL, IDD_PAGECUCKOO,      PageCuckooProc }, /* PAGE_CUCKOO */
   { NULL, IDD_PAGEMOUSE,       PageMouseProc },  /* PAGE_MOUSE */
@@ -105,6 +111,9 @@ static struct {
 
 enum {
 	ITEM_PARENTCLOCK, ITEM_COLOR, ITEM_SIZE, ITEM_FORMAT,
+#if TC_ENABLE_ANALOGCLOCK
+	ITEM_ANALOGCLOCK,
+#endif
 	ITEM_PARENTALARM, ITEM_ALARM, ITEM_CUCKOO,
 	ITEM_PARENTMOUSE, ITEM_CLICK,
 #if TC_ENABLE_MOUSEDROP
@@ -144,6 +153,10 @@ static struct {
         IDS_SIZEPOS, "SizePos", PAGE_SIZE  },
   { ITEM_PARENTCLOCK,                              /* ITEM_FORMAT */
         IDS_FORMAT,  "Format",  PAGE_FORMAT },
+#if TC_ENABLE_ANALOGCLOCK
+  { ITEM_PARENTCLOCK,                              /* ITEM_ANALOGCLOCK */
+        IDS_ANALOGCLOCK, "AnalogClock", PAGE_ANALOGCLOCK },
+#endif
   
   /* ITEM_PARENTALARM */
   { -1, IDS_ALARM,  "Alarm",  PAGE_ALARM },
@@ -153,7 +166,7 @@ static struct {
         IDS_CUCKOO, "Cuckoo", PAGE_CUCKOO },
   
   /* ITEM_PARENTMOUSE */
-  { -1, IDS_MOUSE, "Mouse", PAGE_MOUSE }, 
+  { -1, IDS_MOUSE, "Mouse", PAGE_MOUSE },
   { ITEM_PARENTMOUSE,                                /* ITEM_CLICK */
         IDS_CLICK, "Click", PAGE_MOUSE },
 #if TC_ENABLE_MOUSEDROP
@@ -302,7 +315,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message,
 					if(g_hfontDialog)
 						DeleteObject(g_hfontDialog);
 					SetMyRegLong(NULL, "LastTreeItem", m_lastTreeItem);
-					EndDialog(hDlg, LOWORD(wParam));
+					EndDialog(hDlg, id);
 					break;
 			}
 			return TRUE;

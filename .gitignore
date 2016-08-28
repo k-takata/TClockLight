@@ -26,6 +26,8 @@ work64/
 tags
 
 /source_all/*
+!/source_all/Makefile
 !/source_all/config.h
 /source_custom/*
+!/source_custom/Makefile
 !/source_custom/config.h

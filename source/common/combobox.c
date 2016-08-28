@@ -16,8 +16,7 @@ void InitColorCombo(HWND hDlg, int idCombo,
 	const COLORREF* pColAdd, int nAdd, COLORREF colDef);
 void OnMeasureItemColorCombo(LPMEASUREITEMSTRUCT pmis);
 void OnDrawItemColorCombo(LPDRAWITEMSTRUCT pdis, char (*pTexts)[80]);
-void ChooseColorWithCombo(HINSTANCE hInst, HWND hDlg,
-	int idCombo);
+BOOL ChooseColorWithCombo(HWND hDlg, int idCombo);
 
 /*------------------------------------------------
    initialize
@@ -131,8 +130,7 @@ void OnDrawItemColorCombo(LPDRAWITEMSTRUCT pdis, char (*pTexts)[80])
 /*--------------------------------------------------------
   open a choose color dialog and set color to combobox
 ----------------------------------------------------------*/
-void ChooseColorWithCombo(HINSTANCE hInst, HWND hDlg,
-	int idCombo)
+BOOL ChooseColorWithCombo(HWND hDlg, int idCombo)
 {
 	CHOOSECOLOR cc;
 	COLORREF col, colarray[16];
@@ -146,12 +144,11 @@ void ChooseColorWithCombo(HINSTANCE hInst, HWND hDlg,
 	memset(&cc, 0, sizeof(CHOOSECOLOR));
 	cc.lStructSize = sizeof(CHOOSECOLOR);
 	cc.hwndOwner = hDlg;
-	cc.hInstance = (HWND)hInst;
 	cc.rgbResult = col;
 	cc.lpCustColors = colarray;
 	cc.Flags = CC_FULLOPEN | CC_RGBINIT;
 	
-	if(!ChooseColor(&cc)) return;
+	if(!ChooseColor(&cc)) return FALSE;
 	
 	for(i = 0; i < CBGetCount(hDlg, idCombo); i++)
 	{
@@ -162,6 +159,8 @@ void ChooseColorWithCombo(HINSTANCE hInst, HWND hDlg,
 		CBAddString(hDlg, idCombo, cc.rgbResult);
 	
 	CBSetCurSel(hDlg, idCombo, i);
+	
+	return TRUE;
 }
 
 /* ---------------------- Font combobox -------------------------------*/

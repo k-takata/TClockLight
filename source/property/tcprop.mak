@@ -22,7 +22,7 @@ TCPROPH=$(SRCDIR)\tcprop.h $(SRCDIR)\resource.h $(COMMONDIR)\common.h
 COMMONH=$(COMMONDIR)\common.h
 
 OBJS=pagecolor.obj pagesize.obj pageformat.obj pageformat2.obj\
-	pagealarm.obj alarmday.obj pagecuckoo.obj\
+	pageanalog.obj pagealarm.obj alarmday.obj pagecuckoo.obj\
 	pagemouse.obj pagemouse2.obj pagetooltip.obj\
 	pagestartbtn.obj selecticon.obj pagestartmenu.obj\
 	pagetaskbar.obj pagemisc.obj\
@@ -83,6 +83,7 @@ pagecolor.obj: $(SRCDIR)\pagecolor.c $(TCPROPH)
 pagesize.obj: $(SRCDIR)\pagesize.c $(TCPROPH)
 pageformat.obj: $(SRCDIR)\pageformat.c $(TCPROPH) ..\config.h
 pageformat2.obj: $(SRCDIR)\pageformat2.c $(TCPROPH)
+pageanalog.obj: $(SRCDIR)\pageanalog.c $(TCPROPH)
 pagemouse.obj: $(SRCDIR)\pagemouse.c $(TCPROPH) $(COMMONDIR)\command.h ..\config.h
 pagemouse2.obj: $(SRCDIR)\pagemouse2.c $(TCPROPH) ..\config.h
 pagealarm.obj: $(SRCDIR)\pagealarm.c $(TCPROPH)

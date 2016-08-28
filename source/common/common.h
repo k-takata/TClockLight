@@ -15,7 +15,7 @@
 #include <shlobj.h>
 #include "../config.h"
 
-#define TCLOCKVERSION     "TClock Light kt160827"
+#define TCLOCKVERSION     "TClock Light kt160828"
 
 #define CLASS_TCLOCKMAIN   "TClockMainClass"
 #define CLASS_TCLOCKPROP   "TClockPropertyClass"
@@ -177,8 +177,7 @@ void InitColorCombo(HWND hDlg, int idCombo,
 	const COLORREF *pColAdd, int nAdd, COLORREF colDef);
 void OnMeasureItemColorCombo(LPMEASUREITEMSTRUCT pmis);
 void OnDrawItemColorCombo(LPDRAWITEMSTRUCT pdis, char (*pTexts)[80]);
-void ChooseColorWithCombo(HINSTANCE hInst, HWND hDlg,
-	int idCombo);
+BOOL ChooseColorWithCombo(HWND hDlg, int idCombo);
 void InitFontNameCombo(HWND hDlg, int idCombo, const char* deffont);
 void InitFontSizeCombo(HWND hDlg, int idCombo,
 	const char *fontname, int charset);
