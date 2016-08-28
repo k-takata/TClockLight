@@ -16,7 +16,6 @@ char g_mydir[MAX_PATH];     // path to tclock.exe
 BOOL g_bIniSetting = FALSE; // save setting to ini file?
 char g_inifile[MAX_PATH];   // ini file name
 int  g_winver;              // windows version
-UINT g_uTaskbarRestart;     // taskbar recreating message
 
 /* Statics */
 
@@ -140,10 +139,6 @@ void InitTClockMain(void)
 /*  g_bIniSetting = IsFile(g_inifile); */
 	
 	g_winver = CheckWinVersion();
-	
-	// Message of the taskbar recreating
-	// Special thanks to Mr.Inuya
-	g_uTaskbarRestart = RegisterWindowMessage("TaskbarCreated");
 	
 	DelMyRegKey("OnContextMenu"); // temporarily
 	

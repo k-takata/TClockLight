@@ -49,7 +49,6 @@ extern char  g_mydir[MAX_PATH];
 extern BOOL  g_bIniSetting;
 extern char  g_inifile[MAX_PATH];
 extern int   g_winver;
-extern UINT  g_uTaskbarRestart;
 
 /* ---------- wndproc.c ------------- */
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

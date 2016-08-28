@@ -30,6 +30,7 @@ static void OnTaskbarRestart(HWND hwnd);
 static void OnCopyData(HWND hwnd, HWND hwndFrom, COPYDATASTRUCT* pcds);
 static void InitError(int n);
 
+static UINT m_uTaskbarRestart;     // taskbar recreating message
 static BOOL m_bHook = FALSE;
 static BOOL m_bStartTimer = FALSE;
 
@@ -147,7 +148,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return 0;
 	}
 	
-	if(message == g_uTaskbarRestart)
+	if(message == m_uTaskbarRestart)
 		OnTaskbarRestart(hwnd);
 	
 	return DefWindowProc(hwnd, message, wParam, lParam);
@@ -161,6 +162,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 void OnCreate(HWND hwnd)
 {
 	int nDelay;
+	
+	// Message of the taskbar recreating
+	// Special thanks to Mr.Inuya
+	m_uTaskbarRestart = RegisterWindowMessage("TaskbarCreated");
 	
 	InitAlarm();  // alarm.c
 	InitMouseFunction(hwnd); // mouse.c
