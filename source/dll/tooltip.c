@@ -28,9 +28,9 @@ void PopupTooltip(HWND hwndClock, const wchar_t *p);
 
 /* Statics */
 
-void InitTooltipFormat(void);
-void ReadTooltipFormatFromFile(const char *fname, BOOL bInit);
-LRESULT CALLBACK WndProcTip(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+static void InitTooltipFormat(void);
+static void ReadTooltipFormatFromFile(const char *fname, BOOL bInit);
+static LRESULT CALLBACK WndProcTip(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 static HWND m_hwndTip = NULL;
 static WNDPROC m_oldWndProc = NULL;
@@ -188,10 +188,10 @@ void ReadTooltipFormatFromFile(const char *fname, BOOL bInit)
 	
 	size2 = MultiByteToWideChar(CP_ACP, 0, temp, -1, NULL, 0);
 	
-	m_format = malloc(sizeof(wchar_t) * (size2 + 1));
+	m_format = malloc(sizeof(wchar_t) * size2);
 	MultiByteToWideChar(CP_ACP, 0, temp, -1, m_format, size2);
-	free(temp);
 	
+	free(temp);
 }
 
 /*------------------------------------------------
@@ -199,15 +199,16 @@ void ReadTooltipFormatFromFile(const char *fname, BOOL bInit)
 --------------------------------------------------*/
 void EndTooltip(HWND hwndClock)
 {
-	DestroyWindow(m_hwndTip);
+	if(m_hwndTip) { DestroyWindow(m_hwndTip); m_hwndTip = NULL; }
 	
-	if(m_format) free(m_format); m_format = NULL;
-	if(m_format_temp) free(m_format_temp); m_format_temp = NULL;
-	if(m_textToolTip) free(m_textToolTip); m_textToolTip = NULL;
+	if(m_format) { free(m_format); m_format = NULL; }
+	if(m_format_temp) { free(m_format_temp); m_format_temp = NULL; }
+	if(m_textToolTip) { free(m_textToolTip); m_textToolTip = NULL; }
 	m_textlen = 0;
 	
-	if(m_hFont) DeleteObject(m_hFont);
-	m_hFont = NULL;
+	m_bTrackActive = FALSE;
+	
+	if(m_hFont) { DeleteObject(m_hFont); m_hFont = NULL; }
 }
 
 /*------------------------------------------------
@@ -337,7 +338,7 @@ BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh)
 			
 			SendMessage(m_hwndTip, TTM_SETMAXTIPWIDTH, 0, 1024);
 			
-			len = wcslen(pfmt) * 2;
+			len = (int)wcslen(pfmt) * 2;
 			if(len > m_textlen || !m_textToolTip)
 			{
 				if(m_textToolTip) free(m_textToolTip);

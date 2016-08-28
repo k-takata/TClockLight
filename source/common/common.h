@@ -15,7 +15,7 @@
 #include <shlobj.h>
 #include "../config.h"
 
-#define TCLOCKVERSION     "TClock Light kt160827"
+#define TCLOCKVERSION     "TClock Light kt160828"
 
 #define CLASS_TCLOCKMAIN   "TClockMainClass"
 #define CLASS_TCLOCKPROP   "TClockPropertyClass"
@@ -177,8 +177,7 @@ void InitColorCombo(HWND hDlg, int idCombo,
 	const COLORREF *pColAdd, int nAdd, COLORREF colDef);
 void OnMeasureItemColorCombo(LPMEASUREITEMSTRUCT pmis);
 void OnDrawItemColorCombo(LPDRAWITEMSTRUCT pdis, char (*pTexts)[80]);
-void ChooseColorWithCombo(HINSTANCE hInst, HWND hDlg,
-	int idCombo);
+BOOL ChooseColorWithCombo(HWND hDlg, int idCombo);
 void InitFontNameCombo(HWND hDlg, int idCombo, const char* deffont);
 void InitFontSizeCombo(HWND hDlg, int idCombo,
 	const char *fontname, int charset);
@@ -249,9 +248,9 @@ int r_strnicmp(const char* d, const char* s, size_t n);
 int r_atoi(const char *p);
 int r_atox(const char *p);
 int r__wtoi(const WCHAR *p);
-int r_wcslen(const wchar_t *p);
+size_t r_wcslen(const wchar_t *p);
 wchar_t *r_wcscpy(wchar_t *dp, const wchar_t *sp);
-int r_wcsncmp(const wchar_t *p1, const wchar_t *p2, int count);
+int r_wcsncmp(const wchar_t *p1, const wchar_t *p2, size_t count);
 wchar_t *r_wcscat(wchar_t *dp, const wchar_t *sp);
 wchar_t *r_wcsstr(const wchar_t *string, const wchar_t *strCharSet);
 
@@ -331,7 +330,6 @@ DWORDLONG r_M32x32to64(DWORD a, DWORD b);
 
 BOOL PlayFile(HWND hwnd, const char *fname, int loops);
 BOOL PlayFileCmdLine(HWND hwnd, const char *str);
-BOOL Player(HWND hwnd, const char *fname);
 void StopFile(void);
 void OnMCINotify(HWND hwnd, WPARAM wFlags, LONG lDevID);
 BOOL IsSoundFile(const char* fname);

@@ -36,6 +36,10 @@ INT_PTR CALLBACK PageSizeProc(HWND hDlg, UINT message,
 INT_PTR CALLBACK PageFormatProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
+/* ---------- pageanalog.c ---------- */
+INT_PTR CALLBACK PageAnalogClockProc(HWND hDlg, UINT message,
+	WPARAM wParam, LPARAM lParam);
+
 /* ---------- pageformat2.c -------- */
 INT_PTR CALLBACK DlgProcFormat2(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);

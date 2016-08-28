@@ -244,7 +244,7 @@ void OnBrowse(HWND hDlg)
 void OnChooseColor(HWND hDlg)
 {
 	// common/combobox.c
-	ChooseColorWithCombo(g_hInst, hDlg, IDC_STARTMENUCOLOR);
+	ChooseColorWithCombo(hDlg, IDC_STARTMENUCOLOR);
 	
 	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
 	SendPSChanged(hDlg);

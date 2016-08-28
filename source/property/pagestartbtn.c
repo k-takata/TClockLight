@@ -446,10 +446,11 @@ void OnSansho(HWND hDlg)
 void OnChooseColor(HWND hDlg)
 {
 	// common/combobox.c
-	ChooseColorWithCombo(g_hInst, hDlg, IDC_STARTBTNCOL);
-	
-	PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
-	SendPSChanged(hDlg);
+	if(ChooseColorWithCombo(hDlg, IDC_STARTBTNCOL))
+	{
+		PostMessage(hDlg, WM_NEXTDLGCTL, 1, FALSE);
+		SendPSChanged(hDlg);
+	}
 }
 
 /*------------------------------------------------

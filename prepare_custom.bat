@@ -14,7 +14,6 @@ goto :eof
 
 
 :createlink
-if exist Makefile del   Makefile
 if exist common   rmdir common
 if exist dll      rmdir dll
 if exist exe      rmdir exe
@@ -23,7 +22,6 @@ if exist property rmdir property
 if exist sntp     rmdir sntp
 if exist timer    rmdir timer
 
-mklink    Makefile ..\source\Makefile
 mklink /d common   ..\source\common
 mklink /d dll      ..\source\dll
 mklink /d exe      ..\source\exe

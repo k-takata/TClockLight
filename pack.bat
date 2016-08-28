@@ -5,7 +5,7 @@ setlocal DISABLEDELAYEDEXPANSION
 :: Normal version
 set execfiles=tcdll.tclock tclock.exe tcplayer.exe tcprop.exe tcsntp.exe tctimer.exe
 set pkgfiles=readme-kt.txt config-kt.txt format-kt.txt readme.html
-set srcfiles=source source_all\config.h source_custom\config.h pack.bat make_all.bat prepare_custom.bat
+set srcfiles=source source_all\Makefile source_all\config.h source_custom\Makefile source_custom\config.h pack.bat make_all.bat prepare_custom.bat
 
 if not exist pkg mkdir pkg
 
