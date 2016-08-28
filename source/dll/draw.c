@@ -454,14 +454,14 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	
 	if(g_scat1[0])
 	{
-		len = wcslen(s);
+		len = (int)wcslen(s);
 		if(len > 0 && s[len - 1] != 0x0a && s[len - 1] != ' ')
 			wcscat(s, L" ");
 		wcscat(s, g_scat1);
 	}
 	if(g_scat2[0])
 	{
-		len = wcslen(s);
+		len = (int)wcslen(s);
 		if(len > 0 && s[len - 1] != 0x0a && s[len - 1] != ' ')
 			wcscat(s, L" ");
 		wcscat(s, g_scat2);
@@ -796,12 +796,12 @@ void DrawAnalogClock(HWND hwnd, HDC hdcClock, const SYSTEMTIME *pt,
 		m_lastMin = st.wMinute;
 
 		// calculate hands' pos
-		ptHour.x = 0.5 + center
-			+ sin((m_lastHour * 60 + m_lastMin) * PI_360) * center * 0.7;
-		ptHour.y = 0.5 + center
-			- cos((m_lastHour * 60 + m_lastMin) * PI_360) * center * 0.7;
-		ptMin.x = 0.5 + center + sin(m_lastMin * PI_30) * center;
-		ptMin.y = 0.5 + center - cos(m_lastMin * PI_30) * center;
+		ptHour.x = (LONG)(0.5 + center
+			+ sin((m_lastHour * 60 + m_lastMin) * PI_360) * center * 0.7);
+		ptHour.y = (LONG)(0.5 + center
+			- cos((m_lastHour * 60 + m_lastMin) * PI_360) * center * 0.7);
+		ptMin.x = (LONG)(0.5 + center + sin(m_lastMin * PI_30) * center);
+		ptMin.y = (LONG)(0.5 + center - cos(m_lastMin * PI_30) * center);
 
 		// draw hands
 		BitBlt(m_hdcAclk, 0, 0, m_nAClockSize, m_nAClockSize,

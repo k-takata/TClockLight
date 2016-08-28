@@ -338,7 +338,7 @@ BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh)
 			
 			SendMessage(m_hwndTip, TTM_SETMAXTIPWIDTH, 0, 1024);
 			
-			len = wcslen(pfmt) * 2;
+			len = (int)wcslen(pfmt) * 2;
 			if(len > m_textlen || !m_textToolTip)
 			{
 				if(m_textToolTip) free(m_textToolTip);

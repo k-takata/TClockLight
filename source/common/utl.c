@@ -301,7 +301,7 @@ void SendStringToOtherW(HWND hwnd, HWND hwndFrom,
 	COPYDATASTRUCT cds;
 	
 	cds.dwData = type;
-	cds.cbData = (wcslen(s) + 1) * sizeof(wchar_t);
+	cds.cbData = ((int)wcslen(s) + 1) * sizeof(wchar_t);
 	cds.lpData = (LPVOID)s;
 	
 	if(hwnd && IsWindow(hwnd))
@@ -538,8 +538,8 @@ void WriteDebugW(const wchar_t* s)
 		hf = _lcreat(fname, 0);
 	if(hf == HFILE_ERROR) return;
 	_llseek(hf, 0, 2);
-	_lwrite(hf, (LPCSTR)s, wcslen(s)*sizeof(wchar_t));
-	_lwrite(hf, (LPCSTR)L"\x0d\x0a", wcslen(L"\x0d\x0a")*sizeof(wchar_t));
+	_lwrite(hf, (LPCSTR)s, (int)wcslen(s)*sizeof(wchar_t));
+	_lwrite(hf, (LPCSTR)L"\x0d\x0a", 2*sizeof(wchar_t));
 	_lclose(hf);
 }
 
