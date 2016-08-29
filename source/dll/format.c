@@ -104,6 +104,12 @@ void LoadFormatSetting(HWND hwnd)
 void MakeFormat(wchar_t* dst, const SYSTEMTIME* pt,
 	const wchar_t* pfmt, int nMax)
 {
+	MakeFormatEx(dst, pt, pfmt, nMax, FALSE);
+}
+
+void MakeFormatEx(wchar_t* dst, const SYSTEMTIME* pt,
+	const wchar_t* pfmt, int nMax, BOOL bZeroPad)
+{
 	SYSTEMTIME st;
 	FORMATHANDLERSTRUCT struc;
 	int i;
@@ -116,6 +122,7 @@ void MakeFormat(wchar_t* dst, const SYSTEMTIME* pt,
 	struc.dp = dst;
 	struc.sp = pfmt;
 	struc.pt = &st;
+	struc.bZeroPad = bZeroPad;	// force zero padding instead of space
 	
 	for(i = 0; i < nMax-1; i++) dst[i] = ' ';
 	dst[i] = 0;

@@ -168,7 +168,7 @@ void YearHandler(FORMATHANDLERSTRUCT* pstruc)
 void MonthHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	int keta = 0;
-	BOOL padsp = (*pstruc->sp == '_');
+	BOOL padsp = (*pstruc->sp == '_' && !pstruc->bZeroPad);
 	
 	while(*pstruc->sp == 'm' || *pstruc->sp == '_')
 	{
@@ -215,7 +215,7 @@ void MonthHandler(FORMATHANDLERSTRUCT* pstruc)
 void DateHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	int keta = 0;
-	BOOL padsp = (*pstruc->sp == '_');
+	BOOL padsp = (*pstruc->sp == '_' && !pstruc->bZeroPad);
 	
 	while(*pstruc->sp == 'd' || *pstruc->sp == '_')
 	{
@@ -278,7 +278,7 @@ void HourHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	int keta = 1;
 	int hour = (int)pstruc->pt->wHour;
-	BOOL padsp = (*pstruc->sp == '_');
+	BOOL padsp = (*pstruc->sp == '_' && !pstruc->bZeroPad);
 	
 	if(m_bHour12)
 	{
@@ -307,7 +307,7 @@ void MinuteHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	int keta = 1;
 	int min = (int)pstruc->pt->wMinute;
-	BOOL padsp = (*pstruc->sp == '_');
+	BOOL padsp = (*pstruc->sp == '_' && !pstruc->bZeroPad);
 	
 	pstruc->sp++;
 	if(*pstruc->sp == 'n') { keta++; pstruc->sp++; }

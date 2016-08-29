@@ -208,7 +208,6 @@ LRESULT CalcRect(HWND hwnd, int *textwidth, int *textheight)
 	HDC hdc;
 	HFONT hOldFont = NULL;
 	wchar_t s[BUFSIZE_FORMAT+BUFSIZE_DISP*2];
-	wchar_t *p;
 	int wclock, hclock;
 	
 	if(!(GetWindowLong(hwnd, GWL_STYLE) & WS_VISIBLE))
@@ -216,20 +215,10 @@ LRESULT CalcRect(HWND hwnd, int *textwidth, int *textheight)
 	
 	if(g_sdisp2[0]) wcscpy(s, g_sdisp2);
 	else if(g_sdisp1[0]) wcscpy(s, g_sdisp1);
-	else MakeFormat(s, NULL, NULL, BUFSIZE_FORMAT);
+	else MakeFormatEx(s, NULL, NULL, BUFSIZE_FORMAT, TRUE);
 	
 	if(g_scat1[0]) wcscat(s, g_scat1);
 	if(g_scat2[0]) wcscat(s, g_scat2);
-	
-	p = s;
-	while(*p != L'\0')
-	{
-		// Replace all spaces to '0' to avoid changing the width when
-		// number of digits is changed.  E.g.: ' 9:59' -> '10:00'
-		if(*p == L' ')
-			*p = L'0';
-		++p;
-	}
 	
 	hdc = GetDC(hwnd);
 	if(m_hFont) hOldFont = SelectObject(hdc, m_hFont);

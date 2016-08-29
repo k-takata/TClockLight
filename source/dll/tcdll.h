@@ -30,6 +30,7 @@ typedef struct {
 	wchar_t* dp;
 	const wchar_t* sp;
 	SYSTEMTIME* pt;
+	BOOL bZeroPad;
 } FORMATHANDLERSTRUCT;
 
 /* ---------- main.c -------------- */
@@ -76,6 +77,8 @@ extern BOOL g_bFitClock;
 void LoadFormatSetting(HWND hwnd);
 void MakeFormat(wchar_t* dst, const SYSTEMTIME* pt,
 	const wchar_t* fmt, int nMax);
+void MakeFormatEx(wchar_t* dst, const SYSTEMTIME* pt,
+	const wchar_t* fmt, int nMax, BOOL bZeroPad);
 
 /* ---------- formattime.c -------- */
 void InitFormatTime(void);

@@ -12,10 +12,11 @@
 static BOOL GetNumFormat(const wchar_t **sp, wchar_t x, wchar_t c,
 	int *len, int *slen, BOOL *bComma);
 static void SetNumFormat(wchar_t **dp, unsigned n,
-	int len, int slen, BOOL bComma);
-static void FormatNum(const wchar_t **sp, wchar_t **dp, unsigned n);
+	int len, int slen, BOOL bComma, BOOL bZeroPad);
+static void FormatNum(const wchar_t **sp, wchar_t **dp, unsigned n,
+	BOOL bZeroPad);
 static void FormatFixedPointNum(const wchar_t **sp, wchar_t **dp,
-	ULONGLONG d, int multiplier);
+	ULONGLONG d, int multiplier, BOOL bZeroPad);
 
 #if TC_ENABLE_BATTERY
 static BOOL m_bBattery;
@@ -162,11 +163,11 @@ void ElapsedTimeHandler(FORMATHANDLERSTRUCT* pstruc)
 	pstruc->sp++;
 	if (*pstruc->sp == 'T') {
 		pstruc->sp++;
-		SetNumFormat(&pstruc->dp, (unsigned)(t / 3600000), 1, 0, FALSE);
+		SetNumFormat(&pstruc->dp, (unsigned)(t / 3600000), 1, 0, FALSE, pstruc->bZeroPad);
 		*pstruc->dp++ = ':';
-		SetNumFormat(&pstruc->dp, (unsigned)(t / 60000 % 60), 2, 0, FALSE);
+		SetNumFormat(&pstruc->dp, (unsigned)(t / 60000 % 60), 2, 0, FALSE, pstruc->bZeroPad);
 		*pstruc->dp++ = ':';
-		SetNumFormat(&pstruc->dp, (unsigned)(t / 1000 % 60), 2, 0, FALSE);
+		SetNumFormat(&pstruc->dp, (unsigned)(t / 1000 % 60), 2, 0, FALSE, pstruc->bZeroPad);
 		g_bDispSecond = TRUE;
 		return;
 	} else if (GetNumFormat(&pstruc->sp, 'd', 'd', &len, &slen, &bComma)) {
@@ -183,7 +184,7 @@ void ElapsedTimeHandler(FORMATHANDLERSTRUCT* pstruc)
 		*pstruc->dp++ = 'S';
 		return;
 	}
-	SetNumFormat(&pstruc->dp, st, len, slen, FALSE);
+	SetNumFormat(&pstruc->dp, st, len, slen, FALSE, pstruc->bZeroPad);
 
 	g_bDispSecond = TRUE;
 }
@@ -223,7 +224,7 @@ void NetworkHandler(FORMATHANDLERSTRUCT* pstruc)
 		else if (*(pstruc->sp + 3) == 'G') ntd /= 1048576 * 1024;
 
 		pstruc->sp += 4;
-		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, ntd, 1000);
+		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, ntd, 1000, pstruc->bZeroPad);
 	} else
 		*pstruc->dp++ = *pstruc->sp++;
 }
@@ -342,7 +343,7 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 	if (bValid) {
 		pstruc->sp += 4;
 	//	FormatNum(&pstruc->sp, &pstruc->dp, (unsigned)(int) m);
-		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, m, 1000);
+		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, m, 1000, pstruc->bZeroPad);
 	} else
 		*pstruc->dp++ = *pstruc->sp++;
 }
@@ -411,7 +412,7 @@ void HDDHandler(FORMATHANDLERSTRUCT* pstruc)
 
 	if (d >= 0) {
 		pstruc->sp += 4;
-		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, d, 1000);
+		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, d, 1000, pstruc->bZeroPad);
 	} else
 		*pstruc->dp++ = *pstruc->sp++;
 }
@@ -429,7 +430,7 @@ void CPUHandler(FORMATHANDLERSTRUCT* pstruc)
 	}
 
 	pstruc->sp += 2;
-	FormatNum(&pstruc->sp, &pstruc->dp, iCPUUsage);
+	FormatNum(&pstruc->sp, &pstruc->dp, iCPUUsage, pstruc->bZeroPad);
 }
 #endif
 
@@ -444,7 +445,7 @@ void BatteryHandler(FORMATHANDLERSTRUCT* pstruc)
 	}
 
 	pstruc->sp += 2;
-	FormatNum(&pstruc->sp, &pstruc->dp, iBatteryLife);
+	FormatNum(&pstruc->sp, &pstruc->dp, iBatteryLife, pstruc->bZeroPad);
 }
 
 void ACStatusHandler(FORMATHANDLERSTRUCT* pstruc)
@@ -507,7 +508,7 @@ void VolumeMuteHandler(FORMATHANDLERSTRUCT* pstruc)
 	if ( bMuteFlg )
 		vol = 0;
 	pstruc->sp += 2;
-	FormatNum(&pstruc->sp, &pstruc->dp, vol);
+	FormatNum(&pstruc->sp, &pstruc->dp, vol, pstruc->bZeroPad);
 }
 
 void VolumeHandler(FORMATHANDLERSTRUCT* pstruc)
@@ -527,7 +528,7 @@ void VolumeHandler(FORMATHANDLERSTRUCT* pstruc)
 	}
 
 	pstruc->sp += 3;
-	FormatNum(&pstruc->sp, &pstruc->dp, iVolume);
+	FormatNum(&pstruc->sp, &pstruc->dp, iVolume, pstruc->bZeroPad);
 }
 
 void MuteHandler(FORMATHANDLERSTRUCT* pstruc)
@@ -629,7 +630,8 @@ BOOL GetNumFormat(const wchar_t **sp, wchar_t x, wchar_t c,
 	}
 }
 
-void SetNumFormat(wchar_t **dp, unsigned n, int len, int slen, BOOL bComma)
+void SetNumFormat(wchar_t **dp, unsigned n, int len, int slen,
+	BOOL bComma, BOOL bZeroPad)
 {
 	unsigned u;
 	int minlen,i;
@@ -655,23 +657,23 @@ void SetNumFormat(wchar_t **dp, unsigned n, int len, int slen, BOOL bComma)
 	*dp = p + minlen;
 }
 
-void FormatNum(const wchar_t **sp, wchar_t **dp, unsigned n)
+void FormatNum(const wchar_t **sp, wchar_t **dp, unsigned n, BOOL bZeroPad)
 {
 	int len, slen;
 	BOOL bComma;
 	
 	GetNumFormat(sp, 'x', ',', &len, &slen, &bComma);
-	SetNumFormat(dp, n, len, slen, bComma);
+	SetNumFormat(dp, n, len, slen, bComma, bZeroPad);
 }
 
 void FormatFixedPointNum(const wchar_t **sp, wchar_t **dp,
-	ULONGLONG d, int multiplier)
+	ULONGLONG d, int multiplier, BOOL bZeroPad)
 {
 	int len, slen, i;
 	BOOL bComma;
 	ULONGLONG n = d / multiplier;
 	
-	FormatNum(sp, dp, (unsigned) n);
+	FormatNum(sp, dp, (unsigned) n, bZeroPad);
 	if (**sp == '.') {
 		(*sp)++;
 		if (GetNumFormat(sp, 'x', 'x', &len, &slen, &bComma)) {
@@ -681,7 +683,7 @@ void FormatFixedPointNum(const wchar_t **sp, wchar_t **dp,
 			d -= n * multiplier;
 			for (i = 0; i < len; i++) d *= 10;
 			n = d / multiplier;
-			SetNumFormat(dp, (unsigned) n, len, 0, FALSE);
+			SetNumFormat(dp, (unsigned) n, len, 0, FALSE, bZeroPad);
 		}
 	}
 }
