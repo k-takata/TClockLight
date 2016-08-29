@@ -308,23 +308,21 @@ BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh)
 	
 	switch(code)
 	{
-		case TTN_NEEDTEXT:
 		case TTN_NEEDTEXTW:
 		{
-			wchar_t *pfmt;
+			wchar_t *pfmt = m_format_temp;
 			int len;
 			
 			*pres = 0;
 			
-			if(m_format_temp) pfmt = m_format_temp;
-			else
+			if(!pfmt)
 			{
 				if(m_formatfile[0])
 					ReadTooltipFormatFromFile(m_formatfile, FALSE);
 				pfmt = m_format;
 			}
 			
-			if(!pfmt || *pfmt == 0)
+			if(*pfmt == 0)
 			{
 				((LPTOOLTIPTEXTW)pnmh)->lpszText = L"";
 				return TRUE;
@@ -342,27 +340,7 @@ BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh)
 			
 			MakeFormat(m_textToolTip, NULL, pfmt, m_textlen);
 			
-			if(code == TTN_NEEDTEXT)
-			{
-				char *temp;
-				int len;
-				
-				len = WideCharToMultiByte(CP_ACP, 0, m_textToolTip, -1,
-					NULL, 0, NULL, NULL);
-				temp = malloc(len);
-				WideCharToMultiByte(CP_ACP, 0, m_textToolTip, -1,
-					temp, len, NULL, NULL);
-				temp[len] = 0;
-				
-				strcpy((char*)m_textToolTip, temp);
-				((LPTOOLTIPTEXT)pnmh)->lpszText = (char*)m_textToolTip;
-				
-				free(temp);
-			}
-			else if(code == TTN_NEEDTEXTW)
-			{
-				((LPTOOLTIPTEXTW)pnmh)->lpszText = m_textToolTip;
-			}
+			((LPTOOLTIPTEXTW)pnmh)->lpszText = m_textToolTip;
 			
 			return TRUE;
 		}
