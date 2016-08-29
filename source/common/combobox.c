@@ -94,6 +94,9 @@ void OnDrawItemColorCombo(LPDRAWITEMSTRUCT pdis, char (*pTexts)[80])
 			// print color names
 			if(p)
 			{
+				int len;
+				wchar_t *ws;
+				
 				SetBkMode(pdis->hDC, TRANSPARENT);
 				GetTextMetrics(pdis->hDC, &tm);
 				if(pdis->itemID == 19)
@@ -101,8 +104,17 @@ void OnDrawItemColorCombo(LPDRAWITEMSTRUCT pdis, char (*pTexts)[80])
 				else
 					SetTextColor(pdis->hDC, RGB(0,0,0));
 				y = (pdis->rcItem.bottom - pdis->rcItem.top - tm.tmHeight)/2;
-				TextOut(pdis->hDC, pdis->rcItem.left + 4, pdis->rcItem.top + y,
-					p, (int)strlen(p));
+				
+				len = MultiByteToWideChar(CP_ACP, 0, p, -1, NULL, 0);
+				ws = malloc(sizeof(wchar_t) * len);
+				if(ws)
+				{
+					MultiByteToWideChar(CP_ACP, 0, p, -1, ws, len);
+					TextOutW(pdis->hDC,
+						pdis->rcItem.left + 4, pdis->rcItem.top + y,
+						ws, len - 1);
+					free(ws);
+				}
 			}
 			if(!(pdis->itemState & ODS_FOCUS)) break;
 		}
