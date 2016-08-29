@@ -12,7 +12,32 @@ extern BOOL g_bIniSetting;
 extern char g_inifile[];
 
 // registry key
-static char *m_mykey = REGMYKEY;
+static const char *m_mykey = REGMYKEY;
+static const char *GetKey(const char *section, char *buf);
+
+/*------------------------------------------------
+  get registory key from section name
+--------------------------------------------------*/
+const char *GetKey(const char *section, char *buf)
+{
+	if(g_bIniSetting)
+	{
+		if(section && *section)
+			return section;
+		else
+			return "Main";
+	}
+	else
+	{
+		if(section && *section)
+		{
+			wsprintf(buf, "%s\\%s", m_mykey, section);
+			return buf;
+		}
+		else
+			return m_mykey;
+	}
+}
 
 /*------------------------------------------------
   get a string from TClock setting
@@ -20,25 +45,11 @@ static char *m_mykey = REGMYKEY;
 int GetMyRegStr(const char *section, const char *entry,
 	char *val, int cbData, const char *defval)
 {
-	char key[80];
-	HKEY hkey;
-	DWORD regtype;
-	DWORD size;
-	BOOL b;
+	char buf[80];
+	const char *key;
 	int r;
 	
-	if(g_bIniSetting) key[0] = 0;
-	else strcpy(key, m_mykey);
-	
-	if(section && *section)
-	{
-		if(!g_bIniSetting) strcat(key, "\\");
-		strcat(key, section);
-	}
-	else
-	{
-		if(g_bIniSetting) strcpy(key, "Main");
-	}
+	key = GetKey(section, buf);
 	
 	if(g_bIniSetting)
 	{
@@ -47,24 +58,7 @@ int GetMyRegStr(const char *section, const char *entry,
 	}
 	else
 	{
-		b = FALSE;
-		if(RegOpenKey(HKEY_CURRENT_USER, key, &hkey) == 0)
-		{
-			size = cbData;
-			if(RegQueryValueEx(hkey, entry, 0, &regtype,
-				(LPBYTE)val, &size) == 0)
-			{
-				if(size == 0) *val = 0;
-				r = size;
-				b = TRUE;
-			}
-			RegCloseKey(hkey);
-		}
-		if(b == FALSE)
-		{
-			strcpy(val, defval);
-			r = (int)strlen(defval);
-		}
+		r = GetRegStr(HKEY_CURRENT_USER, key, entry, val, cbData, defval);
 	}
 	
 	return r;
@@ -99,20 +93,10 @@ BOOL SetMyRegStr(const char *section, const char *entry, const char *val)
 {
 	HKEY hkey;
 	BOOL r;
-	char key[80];
+	char buf[80];
+	const char *key;
 	
-	if(g_bIniSetting) key[0] = 0;
-	else strcpy(key, m_mykey);
-	
-	if(section && *section)
-	{
-		if(!g_bIniSetting) strcat(key, "\\");
-		strcat(key, section);
-	}
-	else
-	{
-		if(g_bIniSetting) strcpy(key, "Main");
-	}
+	key = GetKey(section, buf);
 	
 	if(g_bIniSetting)
 	{
@@ -167,25 +151,11 @@ BOOL SetMyRegStr(const char *section, const char *entry, const char *val)
 --------------------------------------------------*/
 LONG GetMyRegLong(const char *section, const char *entry, LONG defval)
 {
-	char key[80];
-	HKEY hkey;
-	DWORD regtype;
-	DWORD size;
-	BOOL b;
+	char buf[80];
+	const char *key;
 	LONG r;
 	
-	if(g_bIniSetting) key[0] = 0;
-	else strcpy(key, m_mykey);
-	
-	if(section && *section)
-	{
-		if(!g_bIniSetting) strcat(key, "\\");
-		strcat(key, section);
-	}
-	else
-	{
-		if(g_bIniSetting) strcpy(key, "Main");
-	}
+	key = GetKey(section, buf);
 	
 	if(g_bIniSetting)
 	{
@@ -193,18 +163,7 @@ LONG GetMyRegLong(const char *section, const char *entry, LONG defval)
 	}
 	else
 	{
-		b = FALSE;
-		if(RegOpenKey(HKEY_CURRENT_USER, key, &hkey) == 0)
-		{
-			size = 4;
-			if(RegQueryValueEx(hkey, entry, 0, &regtype,
-				(LPBYTE)&r, &size) == 0)
-			{
-				if(size == 4) b = TRUE;
-			}
-			RegCloseKey(hkey);
-		}
-		if(b == FALSE) r = defval;
+		r = GetRegLong(HKEY_CURRENT_USER, key, entry, defval);
 	}
 	return r;
 }
@@ -216,28 +175,16 @@ BOOL SetMyRegLong(const char *section, const char *entry, DWORD val)
 {
 	HKEY hkey;
 	BOOL r;
-	char key[80];
+	char buf[80];
+	const char *key;
 	
-	if(g_bIniSetting) key[0] = 0;
-	else strcpy(key, m_mykey);
-	
-	if(section && *section)
-	{
-		if(!g_bIniSetting) strcat(key, "\\");
-		strcat(key, section);
-	}
-	else
-	{
-		if(g_bIniSetting) strcpy(key, "Main");
-	}
+	key = GetKey(section, buf);
 	
 	if(g_bIniSetting)
 	{
 		char s[20];
 		wsprintf(s, "%d", val);
-		r = FALSE;
-		if(WritePrivateProfileString(key, entry, s, g_inifile))
-			r = TRUE;
+		r = WritePrivateProfileString(key, entry, s, g_inifile);
 	}
 	else
 	{
@@ -261,27 +208,15 @@ BOOL SetMyRegLong(const char *section, const char *entry, DWORD val)
 BOOL DelMyReg(const char *section, const char *entry)
 {
 	BOOL r;
-	char key[80];
+	char buf[80];
+	const char *key;
 	HKEY hkey;
 	
-	if(g_bIniSetting) key[0] = 0;
-	else strcpy(key, m_mykey);
-	
-	if(section && *section)
-	{
-		if(!g_bIniSetting) strcat(key, "\\");
-		strcat(key, section);
-	}
-	else
-	{
-		if(g_bIniSetting) strcpy(key, "Main");
-	}
+	key = GetKey(section, buf);
 	
 	if(g_bIniSetting)
 	{
-		r = FALSE;
-		if(WritePrivateProfileString(key, entry, NULL, g_inifile))
-			r = TRUE;
+		r = WritePrivateProfileString(key, entry, NULL, g_inifile);
 	}
 	else
 	{
@@ -302,26 +237,14 @@ BOOL DelMyReg(const char *section, const char *entry)
 BOOL DelMyRegKey(const char *section)
 {
 	BOOL r;
-	char key[80];
+	char buf[80];
+	const char *key;
 	
-	if(g_bIniSetting) key[0] = 0;
-	else strcpy(key, m_mykey);
-	
-	if(section && *section)
-	{
-		if(!g_bIniSetting) strcat(key, "\\");
-		strcat(key, section);
-	}
-	else
-	{
-		if(g_bIniSetting) strcpy(key, "Main");
-	}
+	key = GetKey(section, buf);
 	
 	if(g_bIniSetting)
 	{
-		r = FALSE;
-		if(WritePrivateProfileSection(key, NULL, g_inifile))
-			r = TRUE;
+		r = WritePrivateProfileSection(key, NULL, g_inifile);
 	}
 	else
 	{
