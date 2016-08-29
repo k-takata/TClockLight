@@ -43,7 +43,7 @@ void InitTooltip(HWND hwndClock)
 {
 	TOOLINFO ti;
 	LONG style;
-	char s[80];
+	char s[LF_FACESIZE];
 	int n;
 	
 	m_bTrackActive = FALSE;
@@ -51,14 +51,11 @@ void InitTooltip(HWND hwndClock)
 	style = GetMyRegLong(NULL, "BalloonFlg", 0);
 	style = GetMyRegLong(m_section, "Style", style);
 	
-	m_hwndTip = CreateWindow(TOOLTIPS_CLASS, (LPSTR)NULL,
+	m_hwndTip = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, "",
 		WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP |
 			((style == 1)? TTS_BALLOON : 0),
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 		NULL, NULL, g_hInst, NULL);
-	
-	SetWindowPos(m_hwndTip, HWND_TOPMOST, 0, 0, 0, 0,
-		SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
 	
 	ti.cbSize = sizeof(TOOLINFO);
 	ti.uFlags = 0;
@@ -81,7 +78,7 @@ void InitTooltip(HWND hwndClock)
 	
 	m_bTip1 = GetMyRegLong(m_section, "Tip1Use", TRUE);
 	
-	GetMyRegStr(m_section, "Font", s, 80, "");
+	GetMyRegStr(m_section, "Font", s, LF_FACESIZE, "");
 	if(s[0])
 	{
 		int size, weight, italic;
@@ -218,6 +215,13 @@ LRESULT CALLBACK SubclassProcTip(HWND hwnd, UINT message,
 			GetWindowRect(GetClockWindow(), &rcClock);
 			wscreen = GetSystemMetrics(SM_CXSCREEN);
 			hscreen = GetSystemMetrics(SM_CYSCREEN);
+			if (pwp->cx == 0 || pwp->cy == 0)
+			{
+				RECT rcTip;
+				GetWindowRect(hwnd, &rcTip);
+				pwp->cx = rcTip.right - rcTip.left;
+				pwp->cy = rcTip.bottom - rcTip.top;
+			}
 			
 			if(m_bTrackActive)
 			{
@@ -345,7 +349,7 @@ BOOL OnTooltipNotify(HWND hwndClock, LRESULT *pres, const LPNMHDR pnmh)
 				
 				len = WideCharToMultiByte(CP_ACP, 0, m_textToolTip, -1,
 					NULL, 0, NULL, NULL);
-				temp = malloc(len + 1);
+				temp = malloc(len);
 				WideCharToMultiByte(CP_ACP, 0, m_textToolTip, -1,
 					temp, len, NULL, NULL);
 				temp[len] = 0;
