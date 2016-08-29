@@ -16,28 +16,30 @@
 void InitColorCombo(HWND hDlg, int idCombo,
 	const COLORREF *pColAdd, int nAdd, COLORREF colDef)
 {
-	int i;
+	int i, count;
 	
 	// Windows 16 colors 
-	int rgb[16][3] = {{0,0,0}, {128,0,0}, {0,128,0}, {128,128,0},
-		{0,0,128}, {128,0,128}, {0,128,128}, {192,192,192},
-		{128,128,128}, {255,0,0}, {0,255,0}, {255,255,0},
-		{0,0,255},{255,0,255}, {0,255,255}, {255,255,255}};
+	const COLORREF rgb[16] = {
+		RGB(0,0,0),       RGB(128,0,0),   RGB(0,128,0),   RGB(128,128,0),
+		RGB(0,0,128),     RGB(128,0,128), RGB(0,128,128), RGB(192,192,192),
+		RGB(128,128,128), RGB(255,0,0),   RGB(0,255,0),   RGB(255,255,0),
+		RGB(0,0,255),     RGB(255,0,255), RGB(0,255,255), RGB(255,255,255),
+	};
 	
 	for(i = 0; i < 16; i++) // 16 colors
-		CBAddString(hDlg, idCombo,
-			RGB(rgb[i][0], rgb[i][1], rgb[i][2]));
+		CBAddString(hDlg, idCombo, rgb[i]);
 	
 	for(i = 0; i < nAdd && pColAdd; i++)
 		CBAddString(hDlg, idCombo, pColAdd[i]);
 	
-	for(i = 0; i < CBGetCount(hDlg, idCombo); i++)
+	count = CBGetCount(hDlg, idCombo);
+	for(i = 0; i < count; i++)
 	{
 		if(colDef == (COLORREF)CBGetItemData(hDlg, idCombo, i))
 			break;
 	}
 	
-	if(i == CBGetCount(hDlg, idCombo))
+	if(i == count)
 		CBAddString(hDlg, idCombo, colDef);
 	
 	CBSetCurSel(hDlg, idCombo, i);
