@@ -7,7 +7,8 @@ set execfiles=tcdll.tclock tclock.exe tcplayer.exe tcprop.exe tcsntp.exe tctimer
 set pkgfiles=readme-kt.txt config-kt.txt format-kt.txt readme.html
 set srcfiles=source source_all\Makefile source_all\config.h source_custom\Makefile source_custom\config.h pack.bat make_all.bat prepare_custom.bat
 
-if not exist pkg mkdir pkg
+if exist pkg rd /s /q pkg
+mkdir pkg
 
 rem 7-zip32 a -mx=9 -m0=PPMd source.7z %srcfiles% -xr!out -xr!out64 -xr!work -xr!work64 -xr!*.bak -xr!*.old -xr!*.sw? -xr!*~ -xr!*.aps -xr!tags
 7-zip32 a -m0=PPMd:o=31:mem=25 source.7z %srcfiles% -xr!out -xr!out64 -xr!work -xr!work64 -xr!*.bak -xr!*.old -xr!*.sw? -xr!*~ -xr!*.aps -xr!tags
