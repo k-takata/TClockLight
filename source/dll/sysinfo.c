@@ -58,7 +58,7 @@ static int m_sec;
 void InitSysInfo(HWND hwnd)
 {
 	m_sec = GetMyRegLong(NULL, "IntervalSysInfo", TC_DEFAULT_INTERVALSYSINFO);	// default 4
-	if (m_sec < 1 || 60 < m_sec) m_sec = TC_DEFAULT_INTERVALSYSINFO;			// default 1<=n<=60
+	if(m_sec < 1 || 60 < m_sec) m_sec = TC_DEFAULT_INTERVALSYSINFO;			// default 1<=n<=60
 	SetTimer(hwnd, IDTIMER_SYSINFO, m_sec * 1000, NULL);
 }
 
@@ -67,21 +67,24 @@ void EndSysInfo(HWND hwnd)
 	KillTimer(hwnd, IDTIMER_SYSINFO);
 
 #if TC_ENABLE_NETWORK
-	if (m_bNet) {
+	if(m_bNet)
+	{
 		Net_end(); // net.c
 	}
 	m_bNet = FALSE;
 #endif
 #if TC_ENABLE_HDD
-	if (m_bHDD) {
+	if(m_bHDD)
+	{
 		int i;
-		for (i = 0; i < 26; i++)
+		for(i = 0; i < 26; i++)
 			actdvl[i] = FALSE;
 	}
 	m_bHDD = FALSE;
 #endif
 #if TC_ENABLE_CPU
-	if (m_bCPU) {
+	if(m_bCPU)
+	{
 		CpuMoni_end(); // cpu.c
 	}
 	m_bCPU = FALSE;
@@ -100,7 +103,8 @@ void EndSysInfo(HWND hwnd)
 void OnTimerSysInfo(void)
 {
 #if TC_ENABLE_NETWORK
-	if (m_bNet) {
+	if(m_bNet)
+	{
 		ULONGLONG recv, send;
 		Net_get(&recv, &send); // net.c
 		net[2] = (recv - net[0]) / m_sec;
@@ -110,32 +114,38 @@ void OnTimerSysInfo(void)
 	}
 #endif
 #if TC_ENABLE_MEMORY
-	if (m_bMem) {
+	if(m_bMem)
+	{
 		ms.dwLength = sizeof(ms);
 		GlobalMemoryStatusEx(&ms);
 	}
 #endif
 #if TC_ENABLE_HDD
-	if (m_bHDD) {
+	if(m_bHDD)
+	{
 		int i;
-		for (i = 0; i < 26; i++) {
-			if (actdvl[i])
+		for(i = 0; i < 26; i++)
+		{
+			if(actdvl[i])
 				GetDiskSpace(i, &diskAll[i], &diskFree[i]); // hdd.c
 		}
 	}
 #endif
 #if TC_ENABLE_CPU
-	if (m_bCPU) {
+	if(m_bCPU)
+	{
 		iCPUUsage = CpuMoni_get(); // cpu.c
 	}
 #endif
 #if TC_ENABLE_BATTERY
-	if (m_bBattery) {
+	if(m_bBattery)
+	{
 		GetBatteryLifePercent(&iBatteryLife, &iBatteryMode); // battery.c
 	}
 #endif
 #if TC_ENABLE_VOLUME
-	if (m_bVolume) {
+	if(m_bVolume)
+	{
 		int vol;
 		BOOL bMute;
 		GetMasterVolume(&vol); // mixer.c
@@ -155,13 +165,15 @@ void ElapsedTimeHandler(FORMATHANDLERSTRUCT* pstruc)
 	int len, slen;
 	BOOL bComma;
 
-	if (pstruc->pt->wSecond != sec) {
+	if(pstruc->pt->wSecond != sec)
+	{
 		sec = pstruc->pt->wSecond;
 		t = GetTickCount64();
 	}
 
 	pstruc->sp++;
-	if (*pstruc->sp == 'T') {
+	if(*pstruc->sp == 'T')
+	{
 		pstruc->sp++;
 		SetNumFormat(&pstruc->dp, (unsigned)(t / 3600000), 1, 0, FALSE, pstruc->bZeroPad);
 		*pstruc->dp++ = ':';
@@ -170,17 +182,19 @@ void ElapsedTimeHandler(FORMATHANDLERSTRUCT* pstruc)
 		SetNumFormat(&pstruc->dp, (unsigned)(t / 1000 % 60), 2, 0, FALSE, pstruc->bZeroPad);
 		g_bDispSecond = TRUE;
 		return;
-	} else if (GetNumFormat(&pstruc->sp, 'd', 'd', &len, &slen, &bComma)) {
+	}
+	else if(GetNumFormat(&pstruc->sp, 'd', 'd', &len, &slen, &bComma))
 		st = (unsigned)(t / 86400000);
-	} else if (GetNumFormat(&pstruc->sp, 'a', 'a', &len, &slen, &bComma)) {
+	else if(GetNumFormat(&pstruc->sp, 'a', 'a', &len, &slen, &bComma))
 		st = (unsigned)(t / 3600000);
-	} else if (GetNumFormat(&pstruc->sp, 'h', 'h', &len, &slen, &bComma)) {
+	else if(GetNumFormat(&pstruc->sp, 'h', 'h', &len, &slen, &bComma))
 		st = (unsigned)(t / 3600000 % 24);
-	} else if (GetNumFormat(&pstruc->sp, 'n', 'n', &len, &slen, &bComma)) {
+	else if(GetNumFormat(&pstruc->sp, 'n', 'n', &len, &slen, &bComma))
 		st = (unsigned)(t / 60000 % 60);
-	} else if (GetNumFormat(&pstruc->sp, 's', 's', &len, &slen, &bComma)) {
+	else if(GetNumFormat(&pstruc->sp, 's', 's', &len, &slen, &bComma))
 		st = (unsigned)(t / 1000 % 60);
-	} else {
+	else
+	{
 		*pstruc->dp++ = 'S';
 		return;
 	}
@@ -195,22 +209,24 @@ void NetworkHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	int i;
 
-	if (*(pstruc->sp + 1) == 'R') i = 0;
-	else if (*(pstruc->sp + 1) == 'S') i = 1;
+	if(*(pstruc->sp + 1) == 'R') i = 0;
+	else if(*(pstruc->sp + 1) == 'S') i = 1;
 	else i = -4;
 
-	if (*(pstruc->sp + 2) == 'A');
-	else if (*(pstruc->sp + 2) == 'S') i += 2;
+	if(*(pstruc->sp + 2) == 'A');
+	else if(*(pstruc->sp + 2) == 'S') i += 2;
 	else i = -4;
 
-	if (!(*(pstruc->sp+3)=='B' || *(pstruc->sp+3)=='K'
+	if(!(*(pstruc->sp+3)=='B' || *(pstruc->sp+3)=='K'
 				|| *(pstruc->sp+3)=='M' || *(pstruc->sp+3)=='G'))
 		i = -4;
 
-	if (i >= 0) {
+	if(i >= 0)
+	{
 		ULONGLONG ntd;
 
-		if (!m_bNet) {
+		if(!m_bNet)
+		{
 			m_bNet = TRUE;
 			Net_start(); // net.c
 			Net_get(&net[0], &net[1]);
@@ -219,13 +235,14 @@ void NetworkHandler(FORMATHANDLERSTRUCT* pstruc)
 		}
 
 		ntd = 1000 * net[i];
-		if (*(pstruc->sp + 3) == 'K') ntd /= 1024;
-		else if (*(pstruc->sp + 3) == 'M') ntd /= 1048576;
-		else if (*(pstruc->sp + 3) == 'G') ntd /= 1048576 * 1024;
+		if(*(pstruc->sp + 3) == 'K') ntd /= 1024;
+		else if(*(pstruc->sp + 3) == 'M') ntd /= 1048576;
+		else if(*(pstruc->sp + 3) == 'G') ntd /= 1048576 * 1024;
 
 		pstruc->sp += 4;
 		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, ntd, 1000, pstruc->bZeroPad);
-	} else
+	}
+	else
 		*pstruc->dp++ = *pstruc->sp++;
 }
 #endif
@@ -236,8 +253,9 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 	DWORDLONG m, t;
 	BOOL bValid = TRUE;
 
-	if (!m_bMem) {
-		if (*(pstruc->sp+1) == 'K' || *(pstruc->sp+1) == 'M' || *(pstruc->sp+1) == 'G' || (
+	if(!m_bMem)
+	{
+		if(*(pstruc->sp+1) == 'K' || *(pstruc->sp+1) == 'M' || *(pstruc->sp+1) == 'G' || (
 			(*(pstruc->sp+1)=='T'||*(pstruc->sp+1)=='A'||*(pstruc->sp+1)=='U')&&
 			(*(pstruc->sp+2)=='P'||*(pstruc->sp+2)=='F'||*(pstruc->sp+2)=='V')&&
 			(*(pstruc->sp+3)=='K'||*(pstruc->sp+3)=='M'||*(pstruc->sp+3)=='G'||*(pstruc->sp+3)=='P')))
@@ -246,54 +264,56 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 			ms.dwLength = sizeof(ms);
 			GlobalMemoryStatusEx(&ms);
 			g_bDispSecond = TRUE;
-		} else {
+		}
+		else
+		{
 			*pstruc->dp++ = *pstruc->sp++;
 			return;
 		}
 	}
 
-	if (*(pstruc->sp + 1) == 'K')				// MK
+	if(*(pstruc->sp + 1) == 'K')				// MK
 	{
 		m = (1000 * ms.ullAvailPhys) >> 10;
 		pstruc->sp -= 2;
 	}
-	else if (*(pstruc->sp + 1) == 'M')			// MM
+	else if(*(pstruc->sp + 1) == 'M')			// MM
 	{
 		m = (1000 * ms.ullAvailPhys) >> 20;
 		pstruc->sp -= 2;
 	}
-	else if (*(pstruc->sp + 1) == 'G')			// MG
+	else if(*(pstruc->sp + 1) == 'G')			// MG
 	{
 		m = (1000 * ms.ullAvailPhys) >> 30;
 		pstruc->sp -= 2;
 	}
 	else
 	{
-		if (*(pstruc->sp + 1) == 'T')				// MT**
+		if(*(pstruc->sp + 1) == 'T')				// MT**
 		{
 			t = 0;
-			if (*(pstruc->sp + 2) == 'P')			// MTP*
+			if(*(pstruc->sp + 2) == 'P')			// MTP*
 				m = ms.ullTotalPhys;
-			else if (*(pstruc->sp + 2) == 'F')		// MTF*
+			else if(*(pstruc->sp + 2) == 'F')		// MTF*
 				m = ms.ullTotalPageFile;
-			else if (*(pstruc->sp + 2) == 'V')		// MTV*
+			else if(*(pstruc->sp + 2) == 'V')		// MTV*
 				m = ms.ullTotalVirtual;
 			else
 				bValid = FALSE;
 		}
-		else if (*(pstruc->sp + 1) == 'A')			// MA**
+		else if(*(pstruc->sp + 1) == 'A')			// MA**
 		{
-			if (*(pstruc->sp + 2) == 'P')			// MAP*
+			if(*(pstruc->sp + 2) == 'P')			// MAP*
 			{
 				m = ms.ullAvailPhys;
 				t = ms.ullTotalPhys;
 			}
-			else if (*(pstruc->sp + 2) == 'F')		// MAF*
+			else if(*(pstruc->sp + 2) == 'F')		// MAF*
 			{
 				m = ms.ullAvailPageFile;
 				t = ms.ullTotalPageFile;
 			}
-			else if (*(pstruc->sp + 2) == 'V')		// MAV*
+			else if(*(pstruc->sp + 2) == 'V')		// MAV*
 			{
 				m = ms.ullAvailVirtual;
 				t = ms.ullTotalVirtual;
@@ -301,19 +321,19 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 			else
 				bValid = FALSE;
 		}
-		else if (*(pstruc->sp + 1) == 'U')			// MU**
+		else if(*(pstruc->sp + 1) == 'U')			// MU**
 		{
-			if (*(pstruc->sp + 2) == 'P')			// MUP*
+			if(*(pstruc->sp + 2) == 'P')			// MUP*
 			{
 				m = ms.ullTotalPhys - ms.ullAvailPhys;
 				t = ms.ullTotalPhys;
 			}
-			else if (*(pstruc->sp + 2) == 'F')		// MUF*
+			else if(*(pstruc->sp + 2) == 'F')		// MUF*
 			{
 				m = ms.ullTotalPageFile - ms.ullAvailPageFile;
 				t = ms.ullTotalPageFile;
 			}
-			else if (*(pstruc->sp + 2) == 'V')		// MUV*
+			else if(*(pstruc->sp + 2) == 'V')		// MUV*
 			{
 				m = ms.ullTotalVirtual - ms.ullAvailVirtual;
 				t = ms.ullTotalVirtual;
@@ -325,26 +345,28 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 		{
 			bValid = FALSE;
 		}
-		if (bValid)
+		if(bValid)
 		{
-			if (*(pstruc->sp + 3) == 'K')		// M**K
+			if(*(pstruc->sp + 3) == 'K')		// M**K
 				m = (1000 * m) >> 10;
-			else if (*(pstruc->sp + 3) == 'M')	// M**M
+			else if(*(pstruc->sp + 3) == 'M')	// M**M
 				m = (1000 * m) >> 20;
-			else if (*(pstruc->sp + 3) == 'G')	// M**G
+			else if(*(pstruc->sp + 3) == 'G')	// M**G
 				m = (1000 * m) >> 30;
-			else if ((*(pstruc->sp + 3) == 'P') && (t != 0))	// M**P
+			else if((*(pstruc->sp + 3) == 'P') && (t != 0))	// M**P
 				m = 1000 * m * 100 / t;
 			else
 				bValid = FALSE;
 		}
 	}
 
-	if (bValid) {
+	if(bValid)
+	{
 		pstruc->sp += 4;
 	//	FormatNum(&pstruc->sp, &pstruc->dp, (unsigned)(int) m);
 		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, m, 1000, pstruc->bZeroPad);
-	} else
+	}
+	else
 		*pstruc->dp++ = *pstruc->sp++;
 }
 #endif
@@ -354,66 +376,73 @@ void HDDHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	LONGLONG d = -1;
 
-	if (!m_bHDD) {
-		if ((*(pstruc->sp+1)=='T'||*(pstruc->sp+1)=='A'||*(pstruc->sp+1)=='U')&&
+	if(!m_bHDD)
+	{
+		if((*(pstruc->sp+1)=='T'||*(pstruc->sp+1)=='A'||*(pstruc->sp+1)=='U')&&
 			(*(pstruc->sp+3)=='M'||*(pstruc->sp+3)=='G'||
 				*(pstruc->sp+3)=='T'||*(pstruc->sp+3)=='P')&&
 			(*(pstruc->sp + 2) >= 'A' && *(pstruc->sp + 2) <= 'Z'))
 		{
 			m_bHDD = TRUE;
 			g_bDispSecond = TRUE;
-		} else {
+		}
+		else
+		{
 			*pstruc->dp++ = *pstruc->sp++;
 			return;
 		}
 	}
 
-	if ((*(pstruc->sp + 2) >= 'A') && (*(pstruc->sp + 2) <= 'Z')) {
+	if((*(pstruc->sp + 2) >= 'A') && (*(pstruc->sp + 2) <= 'Z'))
+	{
 		int drv = *(pstruc->sp + 2) - 'A';
 
-		if (!actdvl[drv]) {
+		if(!actdvl[drv])
+		{
 			actdvl[drv] = TRUE;
 			GetDiskSpace(drv, &diskAll[drv], &diskFree[drv]); // hdd.c
 		}
 
-		if (*(pstruc->sp + 1) == 'T')
+		if(*(pstruc->sp + 1) == 'T')
 		{
-			if (*(pstruc->sp + 3) == 'M')
+			if(*(pstruc->sp + 3) == 'M')
 				d = 1000 * diskAll[drv] / 1048576;
-			else if (*(pstruc->sp + 3) == 'G')
+			else if(*(pstruc->sp + 3) == 'G')
 				d = 1000 * diskAll[drv] / 1048576 / 1024;
-			else if (*(pstruc->sp + 3) == 'T')
+			else if(*(pstruc->sp + 3) == 'T')
 				d = 1000 * diskAll[drv] / 1048576 / 1048576;
 		}
-		else if (*(pstruc->sp + 1) == 'A')
+		else if(*(pstruc->sp + 1) == 'A')
 		{
-			if (*(pstruc->sp + 3) == 'M')
+			if(*(pstruc->sp + 3) == 'M')
 				d = 1000 * diskFree[drv] / 1048576;
-			else if (*(pstruc->sp + 3) == 'G')
+			else if(*(pstruc->sp + 3) == 'G')
 				d = 1000 * diskFree[drv] / 1048576 / 1024;
-			else if (*(pstruc->sp + 3) == 'T')
+			else if(*(pstruc->sp + 3) == 'T')
 				d = 1000 * diskFree[drv] / 1048576 / 1048576;
-			else if (*(pstruc->sp + 3) == 'P')
+			else if(*(pstruc->sp + 3) == 'P')
 				d = diskAll[drv] ? 1000 * diskFree[drv] * 100 / diskAll[drv] : 0;
 		}
-		else if (*(pstruc->sp + 1) == 'U')
+		else if(*(pstruc->sp + 1) == 'U')
 		{
-			if (*(pstruc->sp + 3) == 'M')
+			if(*(pstruc->sp + 3) == 'M')
 				d = 1000 * (diskAll[drv] - diskFree[drv]) / 1048576;
-			else if (*(pstruc->sp + 3) == 'G')
+			else if(*(pstruc->sp + 3) == 'G')
 				d = 1000 * (diskAll[drv] - diskFree[drv]) / 1048576 / 1024;
-			else if (*(pstruc->sp + 3) == 'T')
+			else if(*(pstruc->sp + 3) == 'T')
 				d = 1000 * (diskAll[drv] - diskFree[drv]) / 1048576 / 1048576;
-			else if (*(pstruc->sp + 3) == 'P')
+			else if(*(pstruc->sp + 3) == 'P')
 				d = diskAll[drv] ?
 					1000 * (diskAll[drv] - diskFree[drv]) * 100 / diskAll[drv] : 0;
 		}
 	}
 
-	if (d >= 0) {
+	if(d >= 0)
+	{
 		pstruc->sp += 4;
 		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, d, 1000, pstruc->bZeroPad);
-	} else
+	}
+	else
 		*pstruc->dp++ = *pstruc->sp++;
 }
 #endif
@@ -459,28 +488,28 @@ void ACStatusHandler(FORMATHANDLERSTRUCT* pstruc)
 	}
 	
 	pstruc->sp += 2;
-	if ( *pstruc->sp++ != '(' )
+	if(*pstruc->sp++ != '(')
 		return;
 	sl = iBatteryMode;
 	
-	while ( sl > 0 )
+	while(sl > 0)
 	{
-		while ( *pstruc->sp != '|' )
+		while(*pstruc->sp != '|')
 		{
 			pstruc->sp++;
-			if ( *pstruc->sp == '\0' )
+			if(*pstruc->sp == '\0')
 				return;
 		}
 		pstruc->sp++;
 		sl--;
 	}
 	
-	while ( *pstruc->sp != '|' && *pstruc->sp != ')' && *pstruc->sp != '\0' )
+	while(*pstruc->sp != '|' && *pstruc->sp != ')' && *pstruc->sp != '\0')
 	{
 		*pstruc->dp++ = *pstruc->sp++;
 	}
 	
-	while ( *pstruc->sp != ')' && *pstruc->sp != '\0' )
+	while(*pstruc->sp != ')' && *pstruc->sp != '\0')
 	{
 		pstruc->sp++;
 	}
@@ -505,7 +534,7 @@ void VolumeMuteHandler(FORMATHANDLERSTRUCT* pstruc)
 		g_bDispSecond = TRUE;
 	}
 	vol = iVolume;
-	if ( bMuteFlg )
+	if(bMuteFlg)
 		vol = 0;
 	pstruc->sp += 2;
 	FormatNum(&pstruc->sp, &pstruc->dp, vol, pstruc->bZeroPad);
@@ -549,29 +578,29 @@ void MuteHandler(FORMATHANDLERSTRUCT* pstruc)
 	}
 	
 	pstruc->sp += 3;
-	if ( *pstruc->sp++ != '(' )
+	if(*pstruc->sp++ != '(')
 		return;
-	if ( bMuteFlg )
+	if(bMuteFlg)
 		sl = 1;
 	
-	while ( sl > 0 )
+	while(sl > 0)
 	{
-		while ( *pstruc->sp != '|' )
+		while(*pstruc->sp != '|')
 		{
 			pstruc->sp++;
-			if ( *pstruc->sp == '\0' )
+			if(*pstruc->sp == '\0')
 				return;
 		}
 		pstruc->sp++;
 		sl--;
 	}
 	
-	while ( *pstruc->sp != '|' && *pstruc->sp != ')' && *pstruc->sp != '\0' )
+	while(*pstruc->sp != '|' && *pstruc->sp != ')' && *pstruc->sp != '\0')
 	{
 		*pstruc->dp++ = *pstruc->sp++;
 	}
 	
-	while ( *pstruc->sp != ')' && *pstruc->sp != '\0' )
+	while(*pstruc->sp != ')' && *pstruc->sp != '\0')
 	{
 		pstruc->sp++;
 	}
@@ -601,29 +630,32 @@ BOOL GetNumFormat(const wchar_t **sp, wchar_t x, wchar_t c,
 
 	*bComma = FALSE;
 
-	while (*p == '_')
+	while(*p == '_')
 	{
 		ns++;
 		p++;
 	}
-	while (*p == x)
+	while(*p == x)
 	{
 		n++;
 		p++;
 	}
-	while (*p == c)
+	while(*p == c)
 	{
 		n++;
 		p++;
 		*bComma = TRUE;
 	}
 
-	if (n > 0) {
+	if(n > 0)
+	{
 		*len = n+ns;
 		*slen = ns;
 		*sp = p;
 		return TRUE;
-	} else {
+	}
+	else
+	{
 		*len = 1;
 		*slen = 0;
 		return FALSE;
@@ -637,19 +669,19 @@ void SetNumFormat(wchar_t **dp, unsigned n, int len, int slen,
 	int minlen,i;
 	wchar_t *p = *dp;
 
-	for (u=n, minlen=1; u>=10; u/=10, minlen++);
-	if (bComma) minlen += (minlen-1) / 3;
+	for(u=n, minlen=1; u>=10; u/=10, minlen++);
+	if(bComma) minlen += (minlen-1) / 3;
 
-	while (minlen < len)
+	while(minlen < len)
 	{
-		if (slen > 0) { *p++ = ' '; slen--; }
+		if(slen > 0) { *p++ = ' '; slen--; }
 		else { *p++ = '0'; }
 		len--;
 	}
-	for (i=minlen-1, u=1; i>=0; i--, u++)
+	for(i=minlen-1, u=1; i>=0; i--, u++)
 	{
 		*(p+i) = (wchar_t)((n%10)+'0');
-		if (bComma && u%3 == 0 && i != 0)
+		if(bComma && u%3 == 0 && i != 0)
 			*(p+ --i) = ',';
 		n/=10;
 	}
@@ -674,14 +706,16 @@ void FormatFixedPointNum(const wchar_t **sp, wchar_t **dp,
 	ULONGLONG n = d / multiplier;
 	
 	FormatNum(sp, dp, (unsigned) n, bZeroPad);
-	if (**sp == '.') {
+	if(**sp == '.')
+	{
 		(*sp)++;
-		if (GetNumFormat(sp, 'x', 'x', &len, &slen, &bComma)) {
+		if(GetNumFormat(sp, 'x', 'x', &len, &slen, &bComma))
+		{
 			**dp = '.';
 			(*dp)++;
-			if (len > 3) len = 3;
+			if(len > 3) len = 3;
 			d -= n * multiplier;
-			for (i = 0; i < len; i++) d *= 10;
+			for(i = 0; i < len; i++) d *= 10;
 			n = d / multiplier;
 			SetNumFormat(dp, (unsigned) n, len, 0, FALSE, bZeroPad);
 		}
