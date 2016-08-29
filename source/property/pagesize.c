@@ -110,11 +110,11 @@ void OnInit(HWND hDlg)
 	CheckDlgButton(hDlg, IDC_FITCLOCK,
 		GetMyRegLong(NULL, "FitClock", TRUE));
 	
-	UpDown_SetRange(hDlg, IDC_SPINCWIDTH, 32, -32);
+	UpDown_SetRange(hDlg, IDC_SPINCWIDTH, 64, -64);
 	UpDown_SetPos(hDlg, IDC_SPINCWIDTH,
 		GetMyRegLong(NULL, "ClockWidth", 0));
 	
-	UpDown_SetRange(hDlg, IDC_SPINCHEIGHT, 32, -32);
+	UpDown_SetRange(hDlg, IDC_SPINCHEIGHT, 64, -64);
 	UpDown_SetPos(hDlg, IDC_SPINCHEIGHT,
 		GetMyRegLong(NULL, "ClockHeight", 0));
 	
