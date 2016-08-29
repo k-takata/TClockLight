@@ -8,12 +8,6 @@
 
 #include "common.h"
 
-/* Globals */
-
-HFONT CreateMyFont(const char *fontname, int size,
-	LONG weight, LONG italic, int codepage);
-void GetDefaultFontName(char *fontname, const char *defaultfontname);
-
 /* Statics */
 
 static const struct {

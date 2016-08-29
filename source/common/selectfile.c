@@ -13,13 +13,6 @@
 #define BIF_NEWDIALOGSTYLE     0x0040
 #endif
 
-/* Globals */
-
-BOOL SelectMyFile(HINSTANCE hInst, HWND hDlg,
-	const char *filter, DWORD nFilterIndex,
-	const char *deffile, char *retfile);
-BOOL SelectFolder(HWND hDlg, const char *def, char *ret);
-
 /* Statics */
 
 static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg,

@@ -8,11 +8,6 @@
 
 #include "common.h"
 
-/* Globals */
-
-BOOL BrowseSoundFile(HINSTANCE hInst, HWND hDlg,
-	const char *deffile, char *fname);
-
 /* Statics */
 
 #define IDC_LABTESTSOUND                1

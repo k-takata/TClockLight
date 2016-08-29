@@ -9,12 +9,6 @@
 #include "common.h"
 #include "command.h"
 
-/* Globals */
-
-PMOUSESTRUCT LoadMouseFunc(void);
-void SaveMouseFunc(const PMOUSESTRUCT plist);
-void ImportOldMouseFunc(void);
-
 /*------------------------------------------------
   read settings of Mouse
 --------------------------------------------------*/

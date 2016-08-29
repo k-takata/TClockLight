@@ -8,12 +8,6 @@
 
 #include "common.h"
 
-/* Globals */
-
-PALARMSTRUCT LoadAlarm(void);
-void SaveAlarm(const PALARMSTRUCT plist);
-void SetAlarmTime(PALARMSTRUCT pAS);
-
 /* Statics */
 
 static void ParseAlarmFormat(char* dst, const char* src, int first, int last);

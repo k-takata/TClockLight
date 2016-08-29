@@ -8,11 +8,6 @@
 
 #include "common.h"
 
-/* Globals */
-
-BOOL LangIDToLangCode(char *dst, int langid, BOOL bCountry);
-BOOL FindFileWithLangCode(char *dst, int langid, const char* fname);
-
 /* Statics */
 
 static BOOL FindFileChinese(char *dst, int langid, const char* fname);

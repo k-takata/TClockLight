@@ -8,19 +8,6 @@
 
 #include "common.h"
 
-/* Globals */
-
-BOOL PlayFile(HWND hwnd, const char *fname, int loops);
-BOOL PlayFileCmdLine(HWND hwnd, const char *str);
-void StopFile(void);
-void OnMCINotify(HWND hwnd, WPARAM wFlags, LONG lDevID);
-BOOL IsSoundFile(const char* fname);
-BOOL PauseResume(HWND hwnd);
-BOOL GetPlayingPosition(char *dst);
-BOOL PrevNextTrack(HWND hwnd, BOOL bNext);
-BOOL IsPrevNext(BOOL bNext);
-BOOL PlayMCI(HWND hwnd, const char *fname, int loops);
-
 /* Statics */
 
 static BOOL StartMCI(HWND hwnd);

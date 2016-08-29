@@ -10,11 +10,6 @@
 
 #include "common.h"
 
-/* Globals */
-
-void InitAutoFormat(int ilang);
-void AutoFormat(char* dst, BOOL* parts);
-
 /* Statics */
 
 static int  m_idate;              // 0: mm/dd/yy 1: dd/mm/yy 2: yy/mm/dd

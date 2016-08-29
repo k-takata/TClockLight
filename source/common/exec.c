@@ -12,11 +12,6 @@
 #define PATH_ABS 1
 #define PATH_URL 2
 
-/* Globals */
-void RelToAbs(char *dst, const char *src);
-void GetFileAndOption(const char* command, char* fname, char* option);
-BOOL ExecFile(HWND hwnd, const char* command);
-
 /* Statics */
 static int GetPathType(const char *src);
 static BOOL GetRealFileName(char *dst, const char *src);

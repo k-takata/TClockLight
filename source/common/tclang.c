@@ -8,13 +8,6 @@
 
 #include "common.h"
 
-/* Globals */
-
-void CheckTCLangVersion(void);
-char* MyString(UINT uID, const char *entry);
-HFONT CreateDialogFont(void);
-void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont);
-
 /* Statics */
 static const char *GetControlTitle(char *dst, const char *src, int nMax, int *ccAmp);
 

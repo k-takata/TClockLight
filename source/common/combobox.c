@@ -10,14 +10,6 @@
 
 /* -------------Owner-drawn Color combobox -------------------------------*/
 
-/* Globals */
-
-void InitColorCombo(HWND hDlg, int idCombo,
-	const COLORREF* pColAdd, int nAdd, COLORREF colDef);
-void OnMeasureItemColorCombo(LPMEASUREITEMSTRUCT pmis);
-void OnDrawItemColorCombo(LPDRAWITEMSTRUCT pdis, char (*pTexts)[80]);
-BOOL ChooseColorWithCombo(HWND hDlg, int idCombo);
-
 /*------------------------------------------------
    initialize
 --------------------------------------------------*/

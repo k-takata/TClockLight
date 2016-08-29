@@ -8,20 +8,6 @@
 
 #include "common.h"
 
-/* Globals */
-
-int GetCodePage(int ilang);
-int MyGetLocaleInfoW(int ilang, int codepage,
-	LCTYPE lctype, wchar_t* dst, int n);
-int MyGetLocaleInfoA(int ilang, int codepage,
-	LCTYPE lctype, char* dst, int n);
-int MyGetDateFormatW(int ilang, int codepage,
-	DWORD dwFlags, CONST SYSTEMTIME *t,
-	wchar_t* fmt, wchar_t* dst, int n);
-int MyGetTimeFormatW(int ilang, int codepage,
-	DWORD dwFlags, CONST SYSTEMTIME *t,
-	wchar_t* fmt, wchar_t* dst, int n);
-
 /*------------------------------------------------
   get codepage from locale
 --------------------------------------------------*/
