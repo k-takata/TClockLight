@@ -146,12 +146,8 @@ void OnTimerSysInfo(void)
 #if TC_ENABLE_VOLUME
 	if(m_bVolume)
 	{
-		int vol;
-		BOOL bMute;
-		GetMasterVolume(&vol); // mixer.c
-		GetMasterMute(&bMute);
-		bMuteFlg = bMute;
-		iVolume = vol;
+		GetMasterVolume(&iVolume); // mixer.c
+		GetMasterMute(&bMuteFlg);
 	}
 #endif
 }
@@ -209,16 +205,16 @@ void NetworkHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	int i;
 
-	if(*(pstruc->sp + 1) == 'R') i = 0;
-	else if(*(pstruc->sp + 1) == 'S') i = 1;
+	if(pstruc->sp[1] == 'R') i = 0;
+	else if(pstruc->sp[1] == 'S') i = 1;
 	else i = -4;
 
-	if(*(pstruc->sp + 2) == 'A');
-	else if(*(pstruc->sp + 2) == 'S') i += 2;
+	if(pstruc->sp[2] == 'A');
+	else if(pstruc->sp[2] == 'S') i += 2;
 	else i = -4;
 
-	if(!(*(pstruc->sp+3)=='B' || *(pstruc->sp+3)=='K'
-				|| *(pstruc->sp+3)=='M' || *(pstruc->sp+3)=='G'))
+	if(!(pstruc->sp[3]=='B' || pstruc->sp[3]=='K'
+				|| pstruc->sp[3]=='M' || pstruc->sp[3]=='G'))
 		i = -4;
 
 	if(i >= 0)
@@ -235,9 +231,9 @@ void NetworkHandler(FORMATHANDLERSTRUCT* pstruc)
 		}
 
 		ntd = 1000 * net[i];
-		if(*(pstruc->sp + 3) == 'K') ntd /= 1024;
-		else if(*(pstruc->sp + 3) == 'M') ntd /= 1048576;
-		else if(*(pstruc->sp + 3) == 'G') ntd /= 1048576 * 1024;
+		if(pstruc->sp[3] == 'K') ntd /= 1024;
+		else if(pstruc->sp[3] == 'M') ntd /= 1048576;
+		else if(pstruc->sp[3] == 'G') ntd /= 1048576 * 1024;
 
 		pstruc->sp += 4;
 		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, ntd, 1000, pstruc->bZeroPad);
@@ -255,10 +251,10 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 
 	if(!m_bMem)
 	{
-		if(*(pstruc->sp+1) == 'K' || *(pstruc->sp+1) == 'M' || *(pstruc->sp+1) == 'G' || (
-			(*(pstruc->sp+1)=='T'||*(pstruc->sp+1)=='A'||*(pstruc->sp+1)=='U')&&
-			(*(pstruc->sp+2)=='P'||*(pstruc->sp+2)=='F'||*(pstruc->sp+2)=='V')&&
-			(*(pstruc->sp+3)=='K'||*(pstruc->sp+3)=='M'||*(pstruc->sp+3)=='G'||*(pstruc->sp+3)=='P')))
+		if(pstruc->sp[1]=='K'||pstruc->sp[1]=='M'||pstruc->sp[1]=='G' || (
+			(pstruc->sp[1]=='T'||pstruc->sp[1]=='A'||pstruc->sp[1]=='U')&&
+			(pstruc->sp[2]=='P'||pstruc->sp[2]=='F'||pstruc->sp[2]=='V')&&
+			(pstruc->sp[3]=='K'||pstruc->sp[3]=='M'||pstruc->sp[3]=='G'||pstruc->sp[3]=='P')))
 		{
 			m_bMem = TRUE;
 			ms.dwLength = sizeof(ms);
@@ -272,48 +268,48 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 		}
 	}
 
-	if(*(pstruc->sp + 1) == 'K')				// MK
+	if(pstruc->sp[1] == 'K')				// MK
 	{
 		m = (1000 * ms.ullAvailPhys) >> 10;
 		pstruc->sp -= 2;
 	}
-	else if(*(pstruc->sp + 1) == 'M')			// MM
+	else if(pstruc->sp[1] == 'M')			// MM
 	{
 		m = (1000 * ms.ullAvailPhys) >> 20;
 		pstruc->sp -= 2;
 	}
-	else if(*(pstruc->sp + 1) == 'G')			// MG
+	else if(pstruc->sp[1] == 'G')			// MG
 	{
 		m = (1000 * ms.ullAvailPhys) >> 30;
 		pstruc->sp -= 2;
 	}
 	else
 	{
-		if(*(pstruc->sp + 1) == 'T')				// MT**
+		if(pstruc->sp[1] == 'T')				// MT**
 		{
 			t = 0;
-			if(*(pstruc->sp + 2) == 'P')			// MTP*
+			if(pstruc->sp[2] == 'P')			// MTP*
 				m = ms.ullTotalPhys;
-			else if(*(pstruc->sp + 2) == 'F')		// MTF*
+			else if(pstruc->sp[2] == 'F')		// MTF*
 				m = ms.ullTotalPageFile;
-			else if(*(pstruc->sp + 2) == 'V')		// MTV*
+			else if(pstruc->sp[2] == 'V')		// MTV*
 				m = ms.ullTotalVirtual;
 			else
 				bValid = FALSE;
 		}
-		else if(*(pstruc->sp + 1) == 'A')			// MA**
+		else if(pstruc->sp[1] == 'A')			// MA**
 		{
-			if(*(pstruc->sp + 2) == 'P')			// MAP*
+			if(pstruc->sp[2] == 'P')			// MAP*
 			{
 				m = ms.ullAvailPhys;
 				t = ms.ullTotalPhys;
 			}
-			else if(*(pstruc->sp + 2) == 'F')		// MAF*
+			else if(pstruc->sp[2] == 'F')		// MAF*
 			{
 				m = ms.ullAvailPageFile;
 				t = ms.ullTotalPageFile;
 			}
-			else if(*(pstruc->sp + 2) == 'V')		// MAV*
+			else if(pstruc->sp[2] == 'V')		// MAV*
 			{
 				m = ms.ullAvailVirtual;
 				t = ms.ullTotalVirtual;
@@ -321,19 +317,19 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 			else
 				bValid = FALSE;
 		}
-		else if(*(pstruc->sp + 1) == 'U')			// MU**
+		else if(pstruc->sp[1] == 'U')			// MU**
 		{
-			if(*(pstruc->sp + 2) == 'P')			// MUP*
+			if(pstruc->sp[2] == 'P')			// MUP*
 			{
 				m = ms.ullTotalPhys - ms.ullAvailPhys;
 				t = ms.ullTotalPhys;
 			}
-			else if(*(pstruc->sp + 2) == 'F')		// MUF*
+			else if(pstruc->sp[2] == 'F')		// MUF*
 			{
 				m = ms.ullTotalPageFile - ms.ullAvailPageFile;
 				t = ms.ullTotalPageFile;
 			}
-			else if(*(pstruc->sp + 2) == 'V')		// MUV*
+			else if(pstruc->sp[2] == 'V')		// MUV*
 			{
 				m = ms.ullTotalVirtual - ms.ullAvailVirtual;
 				t = ms.ullTotalVirtual;
@@ -347,13 +343,13 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 		}
 		if(bValid)
 		{
-			if(*(pstruc->sp + 3) == 'K')		// M**K
+			if(pstruc->sp[3] == 'K')		// M**K
 				m = (1000 * m) >> 10;
-			else if(*(pstruc->sp + 3) == 'M')	// M**M
+			else if(pstruc->sp[3] == 'M')	// M**M
 				m = (1000 * m) >> 20;
-			else if(*(pstruc->sp + 3) == 'G')	// M**G
+			else if(pstruc->sp[3] == 'G')	// M**G
 				m = (1000 * m) >> 30;
-			else if((*(pstruc->sp + 3) == 'P') && (t != 0))	// M**P
+			else if((pstruc->sp[3] == 'P') && (t != 0))	// M**P
 				m = 1000 * m * 100 / t;
 			else
 				bValid = FALSE;
@@ -378,10 +374,10 @@ void HDDHandler(FORMATHANDLERSTRUCT* pstruc)
 
 	if(!m_bHDD)
 	{
-		if((*(pstruc->sp+1)=='T'||*(pstruc->sp+1)=='A'||*(pstruc->sp+1)=='U')&&
-			(*(pstruc->sp+3)=='M'||*(pstruc->sp+3)=='G'||
-				*(pstruc->sp+3)=='T'||*(pstruc->sp+3)=='P')&&
-			(*(pstruc->sp + 2) >= 'A' && *(pstruc->sp + 2) <= 'Z'))
+		if((pstruc->sp[1]=='T'||pstruc->sp[1]=='A'||pstruc->sp[1]=='U')&&
+			(pstruc->sp[3]=='M'||pstruc->sp[3]=='G'||
+				pstruc->sp[3]=='T'||pstruc->sp[3]=='P')&&
+			(pstruc->sp[2] >= 'A' && pstruc->sp[2] <= 'Z'))
 		{
 			m_bHDD = TRUE;
 			g_bDispSecond = TRUE;
@@ -393,9 +389,9 @@ void HDDHandler(FORMATHANDLERSTRUCT* pstruc)
 		}
 	}
 
-	if((*(pstruc->sp + 2) >= 'A') && (*(pstruc->sp + 2) <= 'Z'))
+	if((pstruc->sp[2] >= 'A') && (pstruc->sp[2] <= 'Z'))
 	{
-		int drv = *(pstruc->sp + 2) - 'A';
+		int drv = pstruc->sp[2] - 'A';
 
 		if(!actdvl[drv])
 		{
@@ -403,35 +399,35 @@ void HDDHandler(FORMATHANDLERSTRUCT* pstruc)
 			GetDiskSpace(drv, &diskAll[drv], &diskFree[drv]); // hdd.c
 		}
 
-		if(*(pstruc->sp + 1) == 'T')
+		if(pstruc->sp[1] == 'T')
 		{
-			if(*(pstruc->sp + 3) == 'M')
+			if(pstruc->sp[3] == 'M')
 				d = 1000 * diskAll[drv] / 1048576;
-			else if(*(pstruc->sp + 3) == 'G')
+			else if(pstruc->sp[3] == 'G')
 				d = 1000 * diskAll[drv] / 1048576 / 1024;
-			else if(*(pstruc->sp + 3) == 'T')
+			else if(pstruc->sp[3] == 'T')
 				d = 1000 * diskAll[drv] / 1048576 / 1048576;
 		}
-		else if(*(pstruc->sp + 1) == 'A')
+		else if(pstruc->sp[1] == 'A')
 		{
-			if(*(pstruc->sp + 3) == 'M')
+			if(pstruc->sp[3] == 'M')
 				d = 1000 * diskFree[drv] / 1048576;
-			else if(*(pstruc->sp + 3) == 'G')
+			else if(pstruc->sp[3] == 'G')
 				d = 1000 * diskFree[drv] / 1048576 / 1024;
-			else if(*(pstruc->sp + 3) == 'T')
+			else if(pstruc->sp[3] == 'T')
 				d = 1000 * diskFree[drv] / 1048576 / 1048576;
-			else if(*(pstruc->sp + 3) == 'P')
+			else if(pstruc->sp[3] == 'P')
 				d = diskAll[drv] ? 1000 * diskFree[drv] * 100 / diskAll[drv] : 0;
 		}
-		else if(*(pstruc->sp + 1) == 'U')
+		else if(pstruc->sp[1] == 'U')
 		{
-			if(*(pstruc->sp + 3) == 'M')
+			if(pstruc->sp[3] == 'M')
 				d = 1000 * (diskAll[drv] - diskFree[drv]) / 1048576;
-			else if(*(pstruc->sp + 3) == 'G')
+			else if(pstruc->sp[3] == 'G')
 				d = 1000 * (diskAll[drv] - diskFree[drv]) / 1048576 / 1024;
-			else if(*(pstruc->sp + 3) == 'T')
+			else if(pstruc->sp[3] == 'T')
 				d = 1000 * (diskAll[drv] - diskFree[drv]) / 1048576 / 1048576;
-			else if(*(pstruc->sp + 3) == 'P')
+			else if(pstruc->sp[3] == 'P')
 				d = diskAll[drv] ?
 					1000 * (diskAll[drv] - diskFree[drv]) * 100 / diskAll[drv] : 0;
 		}
