@@ -182,25 +182,8 @@ wchar_t *r_wcsstr(const wchar_t *string, const wchar_t *strCharSet)
   32bit x 32bit = 64bit
 ---------------------------------------------*/
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1200)
 typedef LARGE_INTEGER TC_SINT64;
 typedef ULARGE_INTEGER TC_UINT64;
-#else
-typedef union _TC_SINT64 {
-    struct {
-        DWORD LowPart;
-        LONG HighPart;
-    } u;
-    LONGLONG QuadPart;
-} TC_SINT64;
-typedef union _TC_UINT64 {
-    struct {
-        DWORD LowPart;
-        DWORD HighPart;
-    } u;
-    ULONGLONG QuadPart;
-} TC_UINT64;
-#endif
 
 DWORDLONG r_M32x32to64(DWORD a, DWORD b)
 {

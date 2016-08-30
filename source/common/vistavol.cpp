@@ -6,6 +6,8 @@
 #define INITGUID
 #include "../config.h"
 #include <windows.h>
+#include <mmdeviceapi.h>
+#include <endpointvolume.h>
 
 #if TC_ENABLE_VOLUME
 
@@ -21,97 +23,6 @@ DEFINE_GUID(IID_IMMDeviceEnumerator, 0xA95664D2, 0x9614, 0x4F35,
 DEFINE_GUID(IID_IAudioEndpointVolume, 0x5CDF2C82, 0x841E, 0x4546,
 	0x97, 0x22, 0x0C, 0xF7, 0x40, 0x78, 0x22, 0x9A);
 
-/* mmdeviceapi.h */
-
-typedef enum {
-	eRender = 0, eCapture, eAll, EDataFlow_enum_count
-} EDataFlow;
-
-typedef enum {
-	eConsole = 0, eMultimedia, eCommunications, ERole_enum_count
-} ERole;
-
-typedef void IPropertyStore;
-typedef void IMMDeviceCollection;
-typedef void IMMNotificationClient;
-typedef void IAudioEndpointVolumeCallback;
-
-MIDL_INTERFACE("D666063F-1587-4E43-81F1-B948E807363F")
-IMMDevice : public IUnknown
-{
-public:
-	virtual HRESULT STDMETHODCALLTYPE Activate(
-		REFIID iid, DWORD dwClsCtx,
-		PROPVARIANT *pActivationParams,
-		void **ppInterface) = 0;
-	virtual HRESULT STDMETHODCALLTYPE OpenPropertyStore(
-		DWORD stgmAccess, IPropertyStore **ppProperties) = 0;
-	virtual HRESULT STDMETHODCALLTYPE GetId(LPWSTR *ppstrId) = 0;
-	virtual HRESULT STDMETHODCALLTYPE GetState(DWORD *pdwState) = 0;
-};
-
-MIDL_INTERFACE("A95664D2-9614-4F35-A746-DE8DB63617E6")
-IMMDeviceEnumerator : public IUnknown
-{
-public:
-	virtual HRESULT STDMETHODCALLTYPE EnumAudioEndpoints(
-		EDataFlow dataFlow, DWORD dwStateMask,
-		IMMDeviceCollection **ppDevices) = 0;
-	virtual HRESULT STDMETHODCALLTYPE GetDefaultAudioEndpoint(
-		EDataFlow dataFlow, ERole role, IMMDevice **ppEndpoint) = 0;
-	virtual HRESULT STDMETHODCALLTYPE GetDevice(
-		LPCWSTR pwstrId, IMMDevice **ppDevice) = 0;
-	virtual HRESULT STDMETHODCALLTYPE RegisterEndpointNotificationCallback(
-		IMMNotificationClient *pClient) = 0;
-	virtual HRESULT STDMETHODCALLTYPE UnregisterEndpointNotificationCallback(
-		IMMNotificationClient *pClient) = 0;
-};
-
-/* endpointvolume.h */
-
-MIDL_INTERFACE("5CDF2C82-841E-4546-9722-0CF74078229A")
-IAudioEndpointVolume : public IUnknown
-{
-public:
-	virtual HRESULT STDMETHODCALLTYPE RegisterControlChangeNotify(
-		IAudioEndpointVolumeCallback *pNotify) = 0;
-	virtual HRESULT STDMETHODCALLTYPE UnregisterControlChangeNotify(
-		IAudioEndpointVolumeCallback *pNotify) = 0;
-	virtual HRESULT STDMETHODCALLTYPE GetChannelCount(
-		UINT *pnChannelCount) = 0;
-	virtual HRESULT STDMETHODCALLTYPE SetMasterVolumeLevel(
-		float fLevelDB, const GUID *pguidEventContext) = 0;
-	virtual HRESULT STDMETHODCALLTYPE SetMasterVolumeLevelScalar(
-		float fLevel, const GUID *pguidEventContext) = 0;
-	virtual HRESULT STDMETHODCALLTYPE GetMasterVolumeLevel(
-		float *pfLevelDB) = 0;
-	virtual HRESULT STDMETHODCALLTYPE GetMasterVolumeLevelScalar(
-		float *pfLevel) = 0;
-	virtual HRESULT STDMETHODCALLTYPE SetChannelVolumeLevel(
-		UINT nChannel, float fLevelDB, const GUID *pguidEventContext) = 0;
-	virtual HRESULT STDMETHODCALLTYPE SetChannelVolumeLevelScalar(
-		UINT nChannel, float fLevel, const GUID *pguidEventContext) = 0;
-	virtual HRESULT STDMETHODCALLTYPE GetChannelVolumeLevel(
-		UINT nChannel, float *pfLevelDB) = 0;
-	virtual HRESULT STDMETHODCALLTYPE GetChannelVolumeLevelScalar(
-		UINT nChannel, float *pfLevel) = 0;
-	virtual HRESULT STDMETHODCALLTYPE SetMute(
-		BOOL bMute, const GUID *pguidEventContext) = 0;
-	virtual HRESULT STDMETHODCALLTYPE GetMute(
-		BOOL *pbMute) = 0;
-	virtual HRESULT STDMETHODCALLTYPE GetVolumeStepInfo(
-		UINT *pnStep, UINT *pnStepCount) = 0;
-	virtual HRESULT STDMETHODCALLTYPE VolumeStepUp(
-		const GUID *pguidEventContext) = 0;
-	virtual HRESULT STDMETHODCALLTYPE VolumeStepDown(
-		const GUID *pguidEventContext) = 0;
-	virtual HRESULT STDMETHODCALLTYPE QueryHardwareSupport(
-		DWORD *pdwHardwareSupportMask) = 0;
-	virtual HRESULT STDMETHODCALLTYPE GetVolumeRange(
-		float *pflVolumeMindB,
-		float *pflVolumeMaxdB,
-		float *pflVolumeIncrementdB) = 0;
-};
 
 IAudioEndpointVolume* GetDefaultAudioEndpointVolume()
 {
