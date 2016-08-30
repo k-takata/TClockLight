@@ -207,14 +207,14 @@ LRESULT CALLBACK SubclassProcTip(HWND hwnd, UINT message,
 	if(message == WM_WINDOWPOSCHANGING)
 	{
 		LPWINDOWPOS pwp = (LPWINDOWPOS)lParam;
-		RECT rcClock;
-		int wscreen, hscreen;
+		RECT rcClock, rcScr;
+		HWND hwndClock;
 		
 		if(!(pwp->flags & SWP_NOMOVE))
 		{
-			GetWindowRect(GetClockWindow(), &rcClock);
-			wscreen = GetSystemMetrics(SM_CXSCREEN);
-			hscreen = GetSystemMetrics(SM_CYSCREEN);
+			hwndClock = GetClockWindow();
+			GetWindowRect(hwndClock, &rcClock);
+			GetScreenRect(hwndClock, &rcScr);
 			if (pwp->cx == 0 || pwp->cy == 0)
 			{
 				RECT rcTip;
@@ -225,18 +225,18 @@ LRESULT CALLBACK SubclassProcTip(HWND hwnd, UINT message,
 			
 			if(m_bTrackActive)
 			{
-				if(rcClock.left > wscreen / 2)
-					pwp->x = wscreen - pwp->cx - 1;
+				if(rcClock.left > (rcScr.left + rcScr.right) / 2)
+					pwp->x = rcScr.right - pwp->cx - 1;
 				else
 					pwp->x = 0;
-				if(rcClock.top > hscreen / 2)
+				if(rcClock.top > (rcScr.top + rcScr.bottom) / 2)
 					pwp->y = rcClock.top - pwp->cy;
 				else
 					pwp->y = rcClock.bottom;
 			}
 			else
 			{
-				if(rcClock.top > hscreen / 2)
+				if(rcClock.top > (rcScr.top + rcScr.bottom) / 2)
 					pwp->y = rcClock.top - pwp->cy;
 				else
 				{
@@ -394,8 +394,7 @@ void OnTimerTooltip(HWND hwndClock, BOOL forceFlg)
 void PopupTooltip(HWND hwndClock, const wchar_t *p)
 {
 	TOOLINFO ti;
-	RECT rcClock, rcTip;
-	int wscreen, hscreen;
+	RECT rcClock, rcTip, rcScr;
 	
 	if(!m_hwndTip) return;
 	if(!m_bTip1) return;
@@ -427,18 +426,19 @@ void PopupTooltip(HWND hwndClock, const wchar_t *p)
 	
 	GetWindowRect(hwndClock, &rcClock);
 	GetWindowRect(m_hwndTip, &rcTip);
-	
-	wscreen = GetSystemMetrics(SM_CXSCREEN);
-	hscreen = GetSystemMetrics(SM_CYSCREEN);
+	GetScreenRect(hwndClock, &rcScr);
 	
 	if(GetWindowLong(m_hwndTip, GWL_STYLE)&TTS_BALLOON)
 	{
 		int x, y;
 		x = rcClock.left;
-		if(x > wscreen / 2) x += rcClock.right-rcClock.left - 16;
-		else x += 16;
+		if(x > (rcScr.left + rcScr.right) / 2)
+			x += rcClock.right-rcClock.left - 16;
+		else
+			x += 16;
 		y = rcClock.bottom;
-		if(rcClock.top > hscreen / 2) y = rcClock.top;
+		if(rcClock.top > (rcScr.top + rcScr.bottom) / 2)
+			y = rcClock.top;
 		
 		SendMessage(m_hwndTip, TTM_TRACKPOSITION, 0,
 			(LPARAM)MAKELONG(x, y));

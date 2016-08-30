@@ -347,12 +347,19 @@ BOOL CALLBACK doKyu(HWND hwnd, LPARAM lParam)
 */
 	if(!IsZoomed(hwnd) && IsWindowVisible(hwnd))
 	{
-		int cxcenter = GetSystemMetrics(SM_CXSCREEN) / 2;
-		int cycenter = GetSystemMetrics(SM_CYSCREEN) / 2;
+		RECT rcScr, rcScrWnd;
+		int xcenter, ycenter;
 		
+		GetScreenRect(GetClockWindow(), &rcScr);
+		GetScreenRect(hwnd, &rcScrWnd);
+		if(rcScr.left != rcScrWnd.left || rcScr.top != rcScrWnd.top)
+			// Not in the same monitor. Skip it.
+			return TRUE;
 		GetWindowRect(hwnd, &rc);
+		xcenter = (rcScr.left + rcScr.right) / 2;
+		ycenter = (rcScr.top + rcScr.bottom) / 2;
 		
-		if (lprcTaskbar->bottom <= cycenter)
+		if (lprcTaskbar->bottom <= ycenter)
 		{
 			// Top taskbar
 			if (rc.top < lprcTaskbar->bottom)
@@ -361,7 +368,7 @@ BOOL CALLBACK doKyu(HWND hwnd, LPARAM lParam)
 							 SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
 			}
 		}
-		else if (lprcTaskbar->right <= cxcenter)
+		else if (lprcTaskbar->right <= xcenter)
 		{
 			// Left taskbar
 			if (rc.left < lprcTaskbar->right)
@@ -370,7 +377,7 @@ BOOL CALLBACK doKyu(HWND hwnd, LPARAM lParam)
 							 SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
 			}
 		}
-		else if (lprcTaskbar->left >= cxcenter)
+		else if (lprcTaskbar->left >= xcenter)
 		{
 			// Right taskbar
 			if (rc.right > lprcTaskbar->left)

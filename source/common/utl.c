@@ -465,16 +465,15 @@ void SetForegroundWindow98(HWND hwnd)
 void SetMyDialgPos(HWND hwnd, int xLen, int yLen)
 {
 	HWND hwndTray;
-	RECT rc, rcTray;
-	int wscreen, hscreen, wProp, hProp;
+	RECT rc, rcTray, rcScr;
+	int wProp, hProp;
 	int x, y;
 
 	GetWindowRect(hwnd, &rc);
 	wProp = rc.right - rc.left;
 	hProp = rc.bottom - rc.top;
 	
-	wscreen = GetSystemMetrics(SM_CXSCREEN);
-	hscreen = GetSystemMetrics(SM_CYSCREEN);
+	GetScreenRect(GetClockWindow(), &rcScr);
 	
 	hwndTray = FindWindow("Shell_TrayWnd", NULL);
 	if(hwndTray == NULL) return;
@@ -482,8 +481,8 @@ void SetMyDialgPos(HWND hwnd, int xLen, int yLen)
 	if(rcTray.right - rcTray.left > 
 		rcTray.bottom - rcTray.top)
 	{
-		x = wscreen - wProp - xLen;
-		if(rcTray.top < hscreen / 2)
+		x = rcScr.right - wProp - xLen;
+		if(rcTray.top < (rcScr.top + rcScr.bottom) / 2)
 			y = rcTray.bottom + yLen;
 		else
 			y = rcTray.top - hProp - yLen;
@@ -491,8 +490,8 @@ void SetMyDialgPos(HWND hwnd, int xLen, int yLen)
 	}
 	else
 	{
-		y = hscreen - hProp - yLen;
-		if(rcTray.left < wscreen / 2)
+		y = rcScr.bottom - hProp - yLen;
+		if(rcTray.left < (rcScr.left + rcScr.right) / 2)
 			x = rcTray.right + xLen;
 		else
 			x = rcTray.left - wProp - xLen;
@@ -502,6 +501,27 @@ void SetMyDialgPos(HWND hwnd, int xLen, int yLen)
 //	MoveWindow(hwnd, x, y, wProp, hProp, FALSE);
 	SetWindowPos(hwnd, NULL, x, y, wProp, hProp,
 		SWP_NOZORDER|SWP_NOACTIVATE|SWP_NOREDRAW);
+}
+
+/*------------------------------------------------
+   get screen rect
+--------------------------------------------------*/
+void GetScreenRect(HWND hwnd, RECT *prc)
+{
+	MONITORINFO mi = { sizeof(MONITORINFO) };
+	HMONITOR hMon;
+	
+	hMon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+	if(GetMonitorInfo(hMon, &mi))
+	{
+		*prc = mi.rcMonitor;
+	}
+	else
+	{
+		prc->left = prc->top = 0;
+		prc->right = GetSystemMetrics(SM_CXSCREEN);
+		prc->bottom = GetSystemMetrics(SM_CYSCREEN);
+	}
 }
 
 /*-------------------------------------------
