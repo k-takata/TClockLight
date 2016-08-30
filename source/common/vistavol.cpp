@@ -123,7 +123,7 @@ IAudioEndpointVolume* GetDefaultAudioEndpointVolume()
 	// オーディオデバイス一覧取得用のインターフェースを取得
 	hr = CoCreateInstance(
 			CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL,
-			IID_IMMDeviceEnumerator, (void**) &pEnumerator);
+			IID_PPV_ARGS(&pEnumerator));
 	if(FAILED(hr))
 	{
 		goto end;
