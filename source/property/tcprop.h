@@ -67,10 +67,6 @@ INT_PTR CALLBACK PageMouse2Proc(HWND hDlg, UINT message,
 INT_PTR CALLBACK PageTooltipProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);
 
-/* ---------- pagesntp.c ----------- */
-/* INT_PTR CALLBACK PageSNTPProc(HWND hDlg, UINT message,
-	WPARAM wParam, LPARAM lParam); */
-
 /* ---------- pagestartbtn.c ------- */
 INT_PTR CALLBACK PageStartButtonProc(HWND hDlg, UINT message,
 	WPARAM wParam, LPARAM lParam);

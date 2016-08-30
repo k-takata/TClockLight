@@ -25,7 +25,7 @@ static DWORD   m_oldTBStyle;
 static LONG    m_oldTaskWidth;
 
 /*--------------------------------------------------
-   initialize
+  initialize
 ----------------------------------------------------*/
 void InitTaskSwitch(HWND hwndClock)
 {
@@ -84,7 +84,7 @@ void InitTaskSwitch(HWND hwndClock)
 }
 
 /*--------------------------------------------------
-    undo
+  undo
 ----------------------------------------------------*/
 void EndTaskSwitch(void)
 {
@@ -110,7 +110,7 @@ void EndTaskSwitch(void)
 }
 
 /*---------------------------------------------------------
-   subclass procedure of SysTabControl32/ToobarWindow32
+  subclass procedure of SysTabControl32/ToobarWindow32
 -----------------------------------------------------------*/
 LRESULT CALLBACK SubclassProcTab(HWND hwnd, UINT message,
 	WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)

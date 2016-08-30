@@ -23,7 +23,7 @@ static char m_CustomFormat[BUFSIZE_FORMAT];
 static BOOL m_bInit = FALSE;
 static BOOL m_bChanged = FALSE;
 
-static char *m_entrydate[] = { "Year4", "Year", "Month", "MonthS",
+static const char *m_entrydate[] = { "Year4", "Year", "Month", "MonthS",
 	"Day", "Weekday", "Hour", "Minute", "Second", "Kaigyo",
 	"AMPM", "Hour12", "Custom",  };
 #define ENTRY(id) m_entrydate[(id)-IDC_YEAR4]
@@ -153,7 +153,7 @@ void OnInit(HWND hDlg)
 	UpDown_SetBuddy(hDlg, IDC_SYSIISPIN, IDC_SYSII);
 	UpDown_SetRange(hDlg, IDC_SYSIISPIN, 60, 1);
 	i = GetMyRegLong(NULL, "IntervalSysInfo", 4);
-	if (i < 1 || 60 < i) i = 4;
+	if(i < 1 || 60 < i) i = 4;
 	UpDown_SetPos(hDlg, IDC_SYSIISPIN, i);
 #endif
 	

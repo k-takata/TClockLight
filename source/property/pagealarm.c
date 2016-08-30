@@ -290,7 +290,7 @@ void OnAdd(HWND hDlg)
 	wsprintf(pitem->name, "Alarm%d", count + 1);
 	pitem->bEnable = TRUE;
 	// common/list.c
-	m_pListAlarm = add_listitem(m_pListAlarm, pitem); 
+	m_pListAlarm = add_listitem(m_pListAlarm, pitem);
 	
 	index = CBAddString(hDlg, IDC_COMBOALARM, (LPARAM)pitem->name);
 	CBSetCurSel(hDlg, IDC_COMBOALARM, index);

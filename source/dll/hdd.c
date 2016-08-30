@@ -27,10 +27,13 @@ void GetDiskSpace(int nDrive, ULONGLONG *all, ULONGLONG *free)
 	
 	szDrive[0] += (char)nDrive;
 	
-	if (GetDiskFreeSpaceEx(szDrive, &availableByte, &allByte, &freeByte)) {
+	if(GetDiskFreeSpaceEx(szDrive, &availableByte, &allByte, &freeByte))
+	{
 		*all = allByte.QuadPart;
 		*free = freeByte.QuadPart;
-	}else{
+	}
+	else
+	{
 		*all = 0;
 		*free = 0;
 	}

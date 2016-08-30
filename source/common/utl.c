@@ -124,7 +124,7 @@ void del_ext(char* ext, char *fname)
 }
 
 /*------------------------------------------------
-  retreive a token from a string with comma delimiter 
+  retrieve a token from a string with comma delimiter
 --------------------------------------------------*/
 int parse(char *dst, const char *src, int n, int nMax)
 {
@@ -159,7 +159,7 @@ int parse(char *dst, const char *src, int n, int nMax)
 }
 
 /*------------------------------------------------
-  retreive a token from a string with space delimiter 
+  retrieve a token from a string with space delimiter
 --------------------------------------------------*/
 void parsespace(char *dst, const char *src, int n, int nMax)
 {
@@ -380,12 +380,12 @@ int CheckWinVersion(void)
 			ret |= WIN8_1;
 		if(ver >= MAKEWORD(0, 10))	// 10.0
 		{
-			if(build >= 10240)
-				ret |= WIN10;
-			if(build >= 10586)
-				ret |= WIN10TH2;	// Ver.1511, Threshold 2
-			if(build >= 14393)
-				ret |= WIN10RS1;	// Ver.1607, Redstone 1, Anniversary Update
+			if(build >= 10240)		// Ver. 1507
+				ret |= WIN10;		// Threshold 1
+			if(build >= 10586)		// Ver. 1511
+				ret |= WIN10TH2;	// Threshold 2, November Update
+			if(build >= 14393)		// Ver. 1607
+				ret |= WIN10RS1;	// Redstone 1, Anniversary Update
 		}
 	}
 	
@@ -475,10 +475,10 @@ void SetMyDialgPos(HWND hwnd, int xLen, int yLen)
 	
 	GetScreenRect(GetClockWindow(), &rcScr);
 	
-	hwndTray = FindWindow("Shell_TrayWnd", NULL);
+	hwndTray = GetTaskbarWindow();
 	if(hwndTray == NULL) return;
 	GetWindowRect(hwndTray, &rcTray);
-	if(rcTray.right - rcTray.left > 
+	if(rcTray.right - rcTray.left >
 		rcTray.bottom - rcTray.top)
 	{
 		x = rcScr.right - wProp - xLen;

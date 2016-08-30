@@ -28,7 +28,7 @@ INT_PTR CALLBACK DlgProcFormat2(HWND hDlg, UINT message,
 		{
 			WORD id; // , code;
 			id = LOWORD(wParam); // code = HIWORD(wParam);
-			switch (id)
+			switch(id)
 			{
 				case IDOK: OnOK(hDlg); // fall through
 				case IDCANCEL: EndDialog(hDlg, id);

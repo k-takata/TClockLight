@@ -17,7 +17,7 @@ void *r_memcpy(void *d, const void *s, size_t l)
 {
 	size_t i;
 	void *start = d;
-	for (i = 0; i < l; i++) *((char*)d)++ = *((char*)s)++;
+	for(i = 0; i < l; i++) *((char*)d)++ = *((char*)s)++;
 	return start;
 }
 
@@ -29,7 +29,7 @@ void *memset(void *d, int c, size_t l)
 {
 	size_t i;
 	void *start = d;
-	for (i = 0; i < l; i++) *((char*)d)++ = (char)c;
+	for(i = 0; i < l; i++) *((char*)d)++ = (char)c;
 	return start;
 }
 
@@ -70,7 +70,7 @@ int r_atoi(const char *p)
 {
 	int r = 0;
 	BOOL sign = ( *p == '-' )? TRUE: FALSE;
-	if (*p =='+' || sign)
+	if(*p =='+' || sign)
 		p++;
 	
 	while(*p)
@@ -80,7 +80,7 @@ int r_atoi(const char *p)
 		else break;
 		p++;
 	}
-	if (sign)
+	if(sign)
 		r = -r;
 	return r;
 }

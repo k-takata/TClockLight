@@ -14,7 +14,8 @@ static BOOL StartMCI(HWND hwnd);
 static BOOL PlayWave(HWND hwnd, const char *fname, int loops);
 static void StopWave(void);
 
-static char *m_soundexts[] = { "wav", "mid", "cda", "mp3", "wma", "ogg", NULL };
+static const char *m_soundexts[] =
+	{ "wav", "mid", "cda", "mp3", "wma", "ogg", NULL };
 
 // MCI
 static BOOL m_bMCIPlaying = FALSE;
@@ -144,7 +145,7 @@ void OnMCINotify(HWND hwnd, WPARAM wFlags, LONG lDevID)
 BOOL IsCDROM(const char *p)
 {
 	if((('A' <= *p && *p <= 'Z') || ('a' <= *p && *p <= 'z')) &&
-		*(p + 1) == ':' && 
+		*(p + 1) == ':' &&
 		(*(p + 2) == 0 || (*(p + 2) == '\\' && *(p + 3) == 0)))
 	{
 		char temp[10];
@@ -473,11 +474,11 @@ BOOL PlayWave(HWND hwnd, const char *fname, int loops)
 	}
 	
 	mmioAscend(hmmio, &mmckinfoSubchunk, 0);
-    
+	
 	mmckinfoSubchunk.ckid = mmioFOURCC('d', 'a', 't', 'a');
 	if(mmioDescend(hmmio, &mmckinfoSubchunk, &mmckinfoParent,
 		MMIO_FINDCHUNK))
-    {
+	{
 		free(m_pWaveFormat); m_pWaveFormat = NULL;
 		mmioClose(hmmio, 0);
 		return FALSE;
@@ -485,7 +486,7 @@ BOOL PlayWave(HWND hwnd, const char *fname, int loops)
 	
 	lDataSize = mmckinfoSubchunk.cksize;
 	if(lDataSize == 0)
-    {
+	{
 		free(m_pWaveFormat); m_pWaveFormat = NULL;
 		mmioClose(hmmio, 0);
 		return FALSE;
@@ -510,7 +511,7 @@ BOOL PlayWave(HWND hwnd, const char *fname, int loops)
 	
 	if(waveOutOpen(&m_hWaveOut, WAVE_MAPPER,
 		m_pWaveFormat, (DWORD_PTR)hwnd, 0, CALLBACK_WINDOW))
-    {
+	{
 		free(m_pWaveFormat); m_pWaveFormat = NULL;
 		free(m_pWaveData); m_pWaveData = NULL;
 		return FALSE;

@@ -130,7 +130,7 @@ LRESULT CALLBACK SubclassProcTrayNotify(HWND hwnd, UINT message,
 		{
 			LPNMHDR pnmh;
 			pnmh = (LPNMHDR)lParam;
-			if (pnmh->code == NM_CUSTOMDRAW && pnmh->idFrom == 0)
+			if(pnmh->code == NM_CUSTOMDRAW && pnmh->idFrom == 0)
 			{
 				LPNMCUSTOMDRAW pnmcd = (LPNMCUSTOMDRAW)lParam;
 				if(pnmcd->dwDrawStage  == CDDS_ITEMPREPAINT)

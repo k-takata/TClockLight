@@ -144,7 +144,7 @@ void OnExitMenuLoop(HWND hwnd)
 }
 
 /*------------------------------------------------
-  set keyboard focus to the main window forcely
+  set keyboard focus to the main window forcedly
 --------------------------------------------------*/
 void SetFocusTClockMain(HWND hwnd)
 {

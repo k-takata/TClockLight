@@ -48,7 +48,7 @@ INT_PTR CALLBACK PageAnalogClockProc(HWND hDlg, UINT message,
 					break;
 				case IDC_COLHOUR:
 				case IDC_COLMIN:
-					if (code == CBN_SELCHANGE)
+					if(code == CBN_SELCHANGE)
 						SendPSChanged(hDlg);
 					break;
 				case IDC_CHOOSECOLHOUR:
@@ -66,7 +66,7 @@ INT_PTR CALLBACK PageAnalogClockProc(HWND hDlg, UINT message,
 				case IDC_ANALOGVPOS:
 				case IDC_ANALOGSIZE:
 				case IDC_ANALOGBMP:
-					if (code == EN_CHANGE)
+					if(code == EN_CHANGE)
 						SendPSChanged(hDlg);
 					break;
 				case IDC_ANALOGBMPBROWSE:
@@ -79,7 +79,7 @@ INT_PTR CALLBACK PageAnalogClockProc(HWND hDlg, UINT message,
 			OnDrawItem(hDlg, (LPDRAWITEMSTRUCT)lParam);
 			return TRUE;
 		case WM_MEASUREITEM:
-			// common/comobox.c
+			// common/combobox.c
 			OnMeasureItemColorCombo((LPMEASUREITEMSTRUCT)lParam);
 			return TRUE;
 		case WM_NOTIFY:
@@ -177,8 +177,8 @@ void OnApply(HWND hDlg)
 	SetMyRegLong(m_section, "MinHandBold",
 		IsDlgButtonChecked(hDlg, IDC_MINHANDBOLD));
 
-	if (IsDlgButtonChecked(hDlg, IDC_ANALOGPOSLEFT)) i = 1;
-	else if (IsDlgButtonChecked(hDlg, IDC_ANALOGPOSRIGHT)) i = 2;
+	if(IsDlgButtonChecked(hDlg, IDC_ANALOGPOSLEFT)) i = 1;
+	else if(IsDlgButtonChecked(hDlg, IDC_ANALOGPOSRIGHT)) i = 2;
 	else i = 0;
 	SetMyRegLong(m_section, "AnalogClockPos", i);
 
@@ -195,7 +195,7 @@ void OnApply(HWND hDlg)
 }
 
 /*------------------------------------------------
-   initizlize "Color" comoboxes
+   initiazlize "Color" comboboxes
 --------------------------------------------------*/
 void InitColor(HWND hDlg)
 {
@@ -211,7 +211,7 @@ void InitColor(HWND hDlg)
 --------------------------------------------------*/
 void OnDrawItem(HWND hDlg, LPDRAWITEMSTRUCT pdis)
 {
-	// common/comobox.c
+	// common/combobox.c
 	OnDrawItemColorCombo(pdis, NULL);
 }
 
@@ -223,7 +223,7 @@ void OnAnalogClock(HWND hDlg)
 	BOOL b = IsDlgButtonChecked(hDlg, IDC_ANALOGCLOCK);
 	HWND hwnd = GetDlgItem(hDlg, IDC_ANALOGCLOCK);
 
-	while ((hwnd = GetWindow(hwnd, GW_HWNDNEXT)) != NULL)
+	while((hwnd = GetWindow(hwnd, GW_HWNDNEXT)) != NULL)
 		EnableWindow(hwnd, b);
 }
 

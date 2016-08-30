@@ -14,7 +14,7 @@
 static void ExecuteMouseFunction(HWND hwnd, const PMOUSESTRUCT pMSS);
 static PMOUSESTRUCT GetMouseCommand(int button, int nclick);
 
-static char *m_section = "Mouse";
+static const char *m_section = "Mouse";
 static DWORD m_tickLast;
 static int  m_nClick = 0;       // clicking count
 static int  m_nButton = -1;     // last clicked button
@@ -42,7 +42,7 @@ void InitMouseFunction(HWND hwnd)
 	
 	m_bStartMenuFromClock = GetMyRegLong("StartButton", "Hide", FALSE);
 	if(m_bStartMenuFromClock)
-		m_bStartMenuFromClock = 
+		m_bStartMenuFromClock =
 			GetMyRegLong("StartButton", "StartMenuClock", FALSE);
 	
 	m_bRClickMenu = GetMyRegLong(NULL, "RightClickMenu", TRUE);
@@ -233,14 +233,14 @@ void OnMouseWheel(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	PMOUSESTRUCT pMSS;
 	
 	GetWindowRect(g_hwndClock, &rcClock);
-	xPos = GET_X_LPARAM(lParam); 
+	xPos = GET_X_LPARAM(lParam);
 	yPos = GET_Y_LPARAM(lParam);
-	if (!( (xPos >= rcClock.left) && (xPos <= rcClock.right)
+	if(!( (xPos >= rcClock.left) && (xPos <= rcClock.right)
 			&& (yPos >= rcClock.top) && (yPos <= rcClock.bottom) ))
 		return;
 	
 	zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-	if (zDelta > 0)
+	if(zDelta > 0)
 		button = 5;
 	else
 		button = 6;
@@ -273,7 +273,7 @@ void OnTimerMouse(HWND hwnd)
 --------------------------------------------------*/
 void ExecuteMouseFunction(HWND hwnd, const PMOUSESTRUCT pMSS)
 {
-	switch (pMSS->nCommand)
+	switch(pMSS->nCommand)
 	{
 		case IDC_OPENFILE:
 		case IDC_MOUSECOPY:
@@ -289,7 +289,7 @@ void ExecuteMouseFunction(HWND hwnd, const PMOUSESTRUCT pMSS)
 			m_nClick = 0; m_nButton = -1; m_bUpDown = FALSE;
 	}
 	
-	switch (pMSS->nCommand)
+	switch(pMSS->nCommand)
 	{
 		case IDC_OPENFILE:
 			if(pMSS->option[0])
@@ -304,8 +304,8 @@ void ExecuteMouseFunction(HWND hwnd, const PMOUSESTRUCT pMSS)
 		case IDC_MONOFF:
 		{
 			int delay = atoi(pMSS->option);
-			if (delay < 1)
-					delay = 1;
+			if(delay < 1)
+				delay = 1;
 			SetTimer(hwnd, IDTIMER_MONOFF, delay * 1000, NULL);
 			break;
 		}

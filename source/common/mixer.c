@@ -2,8 +2,6 @@
   mixer.c
 
   http://hp.vector.co.jp/authors/VA016117/mixer1.html
-
-  $Id:$
 ---------------------------------------------------------------*/
 
 #include "../common/common.h"

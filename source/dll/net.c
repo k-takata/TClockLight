@@ -162,9 +162,9 @@ void Net_get(ULONGLONG *recv, ULONGLONG *send)
 
 void Net_end(void)
 {
-	if (hmodIPHLP)
+	if(hmodIPHLP)
 	{
-		if (ift2)
+		if(ift2)
 		{
 			pFreeMibTable(ift2);
 			ift2 = NULL;

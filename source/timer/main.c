@@ -132,7 +132,7 @@ void InitTCTimer(void)
 LRESULT CALLBACK WndProcTimer(HWND hwnd, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
-    switch (message)
+	switch(message)
 	{
 		case WM_CREATE:
 			OnCreate(hwnd);
@@ -141,7 +141,7 @@ LRESULT CALLBACK WndProcTimer(HWND hwnd, UINT message,
 			OnDestroy(hwnd);
 			return 0;
 		case WM_TIMER:
-			switch (wParam)
+			switch(wParam)
 			{
 				case IDTIMER_TIMER:
 					OnTimerTimer(hwnd);

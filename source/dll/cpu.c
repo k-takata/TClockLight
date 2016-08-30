@@ -69,7 +69,7 @@ void CpuMoni_start(void)
 	
 	pNtQuerySystemInformation =
 		(PROCNTQSI)GetProcAddress(hmodNTDLL, "NtQuerySystemInformation");
-	if (pNtQuerySystemInformation == NULL)
+	if(pNtQuerySystemInformation == NULL)
 	{
 		hmodNTDLL = NULL;
 		return;
@@ -90,22 +90,22 @@ int CpuMoni_get(void)
 	int iCpuUsage;
 	LONG status;
 	
-	if (pNtQuerySystemInformation == NULL)
+	if(pNtQuerySystemInformation == NULL)
 		return 255;
 	
 	// get new system time
 	status = pNtQuerySystemInformation(SystemTimeInformation, &SysTimeInfo, sizeof(SysTimeInfo), NULL);
-	if (status != NO_ERROR)
+	if(status != NO_ERROR)
 		return 255;
 	
 	// get new CPU's idle time
 	status = pNtQuerySystemInformation(SystemPerformanceInformation, &SysPerfInfo, sizeof(SysPerfInfo), NULL);
-	if (status != NO_ERROR)
+	if(status != NO_ERROR)
 		return 255;
 	
 	// if it's a first call - skip it
 	iCpuUsage = 0;
-	if (llOldIdleTime != 0)
+	if(llOldIdleTime != 0)
 	{
 		// CurrentValue = NewValue - OldValue
 		llIdleTime = SysPerfInfo.liIdleTime.QuadPart - llOldIdleTime;
@@ -115,8 +115,8 @@ int CpuMoni_get(void)
 		// CurrentCpuUsage% = 100 - (CurrentCpuIdle * 100) / NumberOfProcessors
 		iCpuUsage = (1000 - (int)(llIdleTime * 1000
 					/ llSystemTime / numProcessors) + 5) / 10;
-		if (iCpuUsage < 0)   iCpuUsage = 0;
-		if (iCpuUsage > 100) iCpuUsage = 100;
+		if(iCpuUsage < 0)   iCpuUsage = 0;
+		if(iCpuUsage > 100) iCpuUsage = 100;
 	}
 	
 	// store new CPU's idle and system time

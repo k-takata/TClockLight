@@ -18,7 +18,7 @@ static BOOL m_bDayOfWeekIsLast;   // yy/mm/dd ddd
 static BOOL m_bTimeMarkerIsFirst; // AM/PM hh:nn:ss
 
 /*------------------------------------------------
-  initialize locale infomation
+  initialize locale information
 --------------------------------------------------*/
 void InitAutoFormat(int ilang)
 {
@@ -27,7 +27,7 @@ void InitAutoFormat(int ilang)
 	int i;
 	int aLangDayOfWeekIsLast[] =
 		{ LANG_JAPANESE, LANG_KOREAN, 0 };
-	int aTimeMarkerIsFirst[] = 
+	int aTimeMarkerIsFirst[] =
 		{ LANG_CHINESE, LANG_JAPANESE, LANG_KOREAN, 0 };
 	
 	codepage = GetCodePage(ilang);

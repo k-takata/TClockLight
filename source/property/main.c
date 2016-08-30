@@ -193,7 +193,7 @@ static struct {
 #endif	/* TC_ENABLE_TASKBAR */
   
   /* ITEM_MISC */
-  { -1, IDS_MISC, "Misc", PAGE_MISC }, 
+  { -1, IDS_MISC, "Misc", PAGE_MISC },
 };
 
 /*-------------------------------------------
@@ -493,7 +493,7 @@ void InitTreeView(HWND hDlg)
 		tv.item.lParam = i;
 		if(nParent < 0) tv.hParent = TVI_ROOT;
 		else tv.hParent = hTreeItem[nParent];
-		tv.item.pszText = 
+		tv.item.pszText =
 			MyString(g_treeItem[i].idStr, g_treeItem[i].entry);
 		hTreeItem[i] = TreeView_InsertItem(hTree, &tv);
 	}

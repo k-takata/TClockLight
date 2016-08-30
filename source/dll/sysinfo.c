@@ -1,7 +1,5 @@
 /*-------------------------------------------------------------
 	sysinfo.c
-
-	$Id: sysinfo.c,v e4eaa4f77596 2008/04/08 15:44:21 slic $
 ---------------------------------------------------------------*/
 
 #include "tcdll.h"
@@ -171,11 +169,14 @@ void ElapsedTimeHandler(FORMATHANDLERSTRUCT* pstruc)
 	if(*pstruc->sp == 'T')
 	{
 		pstruc->sp++;
-		SetNumFormat(&pstruc->dp, (unsigned)(t / 3600000), 1, 0, FALSE, pstruc->bZeroPad);
+		SetNumFormat(&pstruc->dp, (unsigned)(t / 3600000), 1, 0, FALSE,
+				pstruc->bZeroPad);
 		*pstruc->dp++ = ':';
-		SetNumFormat(&pstruc->dp, (unsigned)(t / 60000 % 60), 2, 0, FALSE, pstruc->bZeroPad);
+		SetNumFormat(&pstruc->dp, (unsigned)(t / 60000 % 60), 2, 0, FALSE,
+				pstruc->bZeroPad);
 		*pstruc->dp++ = ':';
-		SetNumFormat(&pstruc->dp, (unsigned)(t / 1000 % 60), 2, 0, FALSE, pstruc->bZeroPad);
+		SetNumFormat(&pstruc->dp, (unsigned)(t / 1000 % 60), 2, 0, FALSE,
+				pstruc->bZeroPad);
 		g_bDispSecond = TRUE;
 		return;
 	}
@@ -236,7 +237,8 @@ void NetworkHandler(FORMATHANDLERSTRUCT* pstruc)
 		else if(pstruc->sp[3] == 'G') ntd /= 1048576 * 1024;
 
 		pstruc->sp += 4;
-		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, ntd, 1000, pstruc->bZeroPad);
+		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, ntd, 1000,
+				pstruc->bZeroPad);
 	}
 	else
 		*pstruc->dp++ = *pstruc->sp++;
@@ -254,7 +256,8 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 		if(pstruc->sp[1]=='K'||pstruc->sp[1]=='M'||pstruc->sp[1]=='G' || (
 			(pstruc->sp[1]=='T'||pstruc->sp[1]=='A'||pstruc->sp[1]=='U')&&
 			(pstruc->sp[2]=='P'||pstruc->sp[2]=='F'||pstruc->sp[2]=='V')&&
-			(pstruc->sp[3]=='K'||pstruc->sp[3]=='M'||pstruc->sp[3]=='G'||pstruc->sp[3]=='P')))
+			(pstruc->sp[3]=='K'||pstruc->sp[3]=='M'||
+				pstruc->sp[3]=='G'||pstruc->sp[3]=='P')))
 		{
 			m_bMem = TRUE;
 			ms.dwLength = sizeof(ms);
@@ -359,8 +362,8 @@ void MemoryHandler(FORMATHANDLERSTRUCT* pstruc)
 	if(bValid)
 	{
 		pstruc->sp += 4;
-	//	FormatNum(&pstruc->sp, &pstruc->dp, (unsigned)(int) m);
-		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, m, 1000, pstruc->bZeroPad);
+		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, m, 1000,
+				pstruc->bZeroPad);
 	}
 	else
 		*pstruc->dp++ = *pstruc->sp++;
@@ -436,7 +439,8 @@ void HDDHandler(FORMATHANDLERSTRUCT* pstruc)
 	if(d >= 0)
 	{
 		pstruc->sp += 4;
-		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, d, 1000, pstruc->bZeroPad);
+		FormatFixedPointNum(&pstruc->sp, &pstruc->dp, d, 1000,
+				pstruc->bZeroPad);
 	}
 	else
 		*pstruc->dp++ = *pstruc->sp++;
@@ -559,7 +563,7 @@ void VolumeHandler(FORMATHANDLERSTRUCT* pstruc)
 void MuteHandler(FORMATHANDLERSTRUCT* pstruc)
 {
 	int vol;
-    int sl = 0;
+	int sl = 0;
 	BOOL bMute;
 	
 	if(!m_bVolume)

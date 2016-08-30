@@ -80,7 +80,7 @@ INT_PTR CALLBACK PageColorProc(HWND hDlg, UINT message,
 					SendPSChanged(hDlg);
 					break;
 				case IDC_SHADOWRANGE:
-					if (code == EN_CHANGE)
+					if(code == EN_CHANGE)
 						SendPSChanged(hDlg);
 					break;
 #endif
@@ -102,7 +102,7 @@ INT_PTR CALLBACK PageColorProc(HWND hDlg, UINT message,
 			}
 			return TRUE;
 		case WM_MEASUREITEM:
-			// common/comobox.c
+			// common/combobox.c
 			OnMeasureItemColorCombo((LPMEASUREITEMSTRUCT)lParam);
 			return TRUE;
 		case WM_DRAWITEM:
@@ -238,8 +238,8 @@ void OnApply(HWND hDlg)
 	
 #if TC_ENABLE_CLOCKDECORATION
 	// settings of decoration
-	if (IsDlgButtonChecked(hDlg, IDC_DECOSHADOW)) i = 1;
-	else if (IsDlgButtonChecked(hDlg, IDC_DECOBORDER)) i = 2;
+	if(IsDlgButtonChecked(hDlg, IDC_DECOSHADOW)) i = 1;
+	else if(IsDlgButtonChecked(hDlg, IDC_DECOBORDER)) i = 2;
 	else i = 0;
 	SetMyRegLong(NULL, "ClockDecoration", i);
 	SetMyRegLong(NULL, "ShadowColor",
@@ -303,24 +303,24 @@ void OnSelectDecoration(HWND hDlg)
 
 	b = !IsDlgButtonChecked(hDlg, IDC_DECONONE);
 	hwnd = GetDlgItem(hDlg, IDC_DECOBORDER);
-	while ((hwnd = GetWindow(hwnd, GW_HWNDNEXT)) != NULL)
+	while((hwnd = GetWindow(hwnd, GW_HWNDNEXT)) != NULL)
 	{
 		EnableWindow(hwnd, b);
-		if (GetDlgCtrlID(hwnd) == IDC_CHOOSECOLSHADOW) break;
+		if(GetDlgCtrlID(hwnd) == IDC_CHOOSECOLSHADOW) break;
 	}
 
 	b = IsDlgButtonChecked(hDlg, IDC_DECOSHADOW);
 	hwnd = GetDlgItem(hDlg, IDC_CHOOSECOLSHADOW);
-	while ((hwnd = GetWindow(hwnd, GW_HWNDNEXT)) != NULL)
+	while((hwnd = GetWindow(hwnd, GW_HWNDNEXT)) != NULL)
 	{
 		EnableWindow(hwnd, b);
-		if (GetDlgCtrlID(hwnd) == IDC_SHADOWRANGESPIN) break;
+		if(GetDlgCtrlID(hwnd) == IDC_SHADOWRANGESPIN) break;
 	}
 }
 #endif /* TC_ENABLE_CLOCKDECORATION */
 
 /*------------------------------------------------
-   initialize "Color" comoboxes
+   initialize "Color" comboboxes
 --------------------------------------------------*/
 void InitColor(HWND hDlg)
 {
@@ -357,7 +357,7 @@ void OnDrawItem(HWND hDlg, LPDRAWITEMSTRUCT pdis)
 	strcpy(texts[2], MyString(IDS_BTNLIGHT, "ButtonLight"));
 	strcpy(texts[3], MyString(IDS_BTNTEXT, "ButtonText"));
 	
-	// common/comobox.c
+	// common/combobox.c
 	OnDrawItemColorCombo(pdis, texts);
 }
 

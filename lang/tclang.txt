@@ -107,7 +107,7 @@ Line03="  [       File][                                       ][...]"
 
 [Tooltip]
 HelpURL=tooltip.html
-Line01=" [    Show toolip]"
+Line01=" [    Show tooltip]"
 Line02="       [Format ][                                           ][...]"
 Line03="       [Style ] [    Normal] [    Balloon]"
 Line04="  [Pop-up time ][        ][][seconds]"
@@ -143,7 +143,7 @@ Line05=" [Transparency of Start menu][        ][]"
 [Taskbar]
 HelpURL=taskbar.html
 Line01=" [    Flat Task switch]"
-Line02=" [    Separators of Task swtch]"
+Line02=" [    Separators of Task switch]"
 Line03=" [    Hide grippers]"
 Line04=" [    Flat Tray]"
 Line05=" [    Flat Task bar]"
@@ -187,7 +187,7 @@ Line07="          [  OK          ]  [ Cancel       ]  [  Help       ]"
 [Player]
 HelpURL=player.html
 Title=Player settings
-Line01="   [     Show elasped time on clock]"
+Line01="   [     Show elapsed time on clock]"
 Line02="       [    Whole ]   [    Add ]"
 Line03="       [  User string (0-9)][     ]"
 Line04="        [  OK          ]  [ Cancel       ]  [  Help       ]"

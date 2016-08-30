@@ -22,7 +22,7 @@ static void OnHelp(HWND hDlg);
 static void OnShowTime(HWND hDlg);
 static void OnUserStr(HWND hDlg);
 
-static char *m_section = "Player";
+static const char *m_section = "Player";
 
 /*-------------------------------------------------------
   PLAYERM_SHOWDLG message
@@ -120,7 +120,7 @@ void OnOK(HWND hDlg)
 			break;
 		}
 	}
-	SetMyRegLong(m_section, "UserStr", 
+	SetMyRegLong(m_section, "UserStr",
 		GetDlgItemInt(hDlg, IDC_SHOWUSTRNUM, NULL, FALSE));
 	
 	if(IsPlayerPlaying())
@@ -169,7 +169,7 @@ void OnHelp(HWND hDlg)
 }
 
 /*------------------------------------------------
-  "Show elasped time" is checked
+  "Show elapsed time" is checked
 --------------------------------------------------*/
 void OnShowTime(HWND hDlg)
 {

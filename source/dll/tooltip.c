@@ -34,7 +34,7 @@ static wchar_t *m_format_temp = NULL;
 static wchar_t *m_textToolTip = NULL;
 static int m_textlen = 0;
 static HFONT m_hFont = NULL;
-static char *m_section = "Tooltip";
+static const char *m_section = "Tooltip";
 
 /*------------------------------------------------
   create tooltip window
@@ -65,7 +65,7 @@ void InitTooltip(HWND hwndClock)
 	ti.lpszText = LPSTR_TEXTCALLBACK;
 	ti.rect.left = 0;
 	ti.rect.top = 0;
-	ti.rect.right = 480; 
+	ti.rect.right = 480;
 	ti.rect.bottom = 480;
 	
 	SendMessage(m_hwndTip, TTM_ADDTOOL, 0, (LPARAM)&ti);
@@ -215,7 +215,7 @@ LRESULT CALLBACK SubclassProcTip(HWND hwnd, UINT message,
 			hwndClock = GetClockWindow();
 			GetWindowRect(hwndClock, &rcClock);
 			GetScreenRect(hwndClock, &rcScr);
-			if (pwp->cx == 0 || pwp->cy == 0)
+			if(pwp->cx == 0 || pwp->cy == 0)
 			{
 				RECT rcTip;
 				GetWindowRect(hwnd, &rcTip);

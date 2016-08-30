@@ -18,7 +18,7 @@ void InitColorCombo(HWND hDlg, int idCombo,
 {
 	int i, count;
 	
-	// Windows 16 colors 
+	// Windows 16 colors
 	const COLORREF rgb[16] = {
 		RGB(0,0,0),       RGB(128,0,0),   RGB(0,128,0),   RGB(128,128,0),
 		RGB(0,0,128),     RGB(128,0,128), RGB(0,128,128), RGB(192,192,192),
@@ -171,19 +171,13 @@ BOOL ChooseColorWithCombo(HWND hDlg, int idCombo)
 
 /* ---------------------- Font combobox -------------------------------*/
 
-/* Globals */
-
-void InitFontNameCombo(HWND hDlg, int idCombo, const char* deffont);
-void InitFontSizeCombo(HWND hDlg, int idCombo,
-	const char *fontname, int charset);
-
 /* Statics */
 
-static BOOL CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf, 
-	NEWTEXTMETRICEX* lpntm, int FontType, LPARAM hCombo);
-static BOOL CALLBACK EnumSizeProcEx(ENUMLOGFONTEX* pelf, 
-	NEWTEXTMETRICEX* lpntm, int FontType, LPARAM hCombo);
-static int m_nFontSizes[] = 
+static int CALLBACK EnumFontFamExProc(const ENUMLOGFONTEX* pelf,
+	const NEWTEXTMETRICEX* lpntm, DWORD FontType, LPARAM hCombo);
+static int CALLBACK EnumSizeProcEx(const ENUMLOGFONTEX* pelf,
+	const NEWTEXTMETRICEX* lpntm, DWORD FontType, LPARAM hCombo);
+static const int m_nFontSizes[] =
 	{ 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72};
 static int m_logpixelsy;
 
@@ -248,12 +242,12 @@ void InitFontSizeCombo(HWND hDlg, int idCombo,
   Callback function for enumerating fonts.
   To set a font name in the combo box.
 --------------------------------------------------*/
-BOOL CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf, 
-	NEWTEXTMETRICEX* lpntm, int FontType, LPARAM hCombo)
+int CALLBACK EnumFontFamExProc(const ENUMLOGFONTEX* pelf,
+	const NEWTEXTMETRICEX* lpntm, DWORD FontType, LPARAM hCombo)
 {
 	// if(FontType & RASTER_FONTTYPE) return 1;
-	if(pelf->elfLogFont.lfFaceName[0] != '@' && 
-		SendMessage((HWND)hCombo, CB_FINDSTRINGEXACT, 0, 
+	if(pelf->elfLogFont.lfFaceName[0] != '@' &&
+		SendMessage((HWND)hCombo, CB_FINDSTRINGEXACT, 0,
 			(LPARAM)pelf->elfLogFont.lfFaceName) == LB_ERR)
 	{
 		int index;
@@ -270,17 +264,17 @@ BOOL CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf,
   Callback function for enumerating fonts.
   To set a font size in the combo box.
 --------------------------------------------------*/
-BOOL CALLBACK EnumSizeProcEx(ENUMLOGFONTEX* pelf, 
-	NEWTEXTMETRICEX* lpntm, int FontType, LPARAM hCombo)
+int CALLBACK EnumSizeProcEx(const ENUMLOGFONTEX* pelf,
+	const NEWTEXTMETRICEX* lpntm, DWORD FontType, LPARAM hCombo)
 {
 	char s[80];
 	int num, i, count;
 	
 	// TrueType font, or not TrueType nor Raster font
-	if((FontType & TRUETYPE_FONTTYPE) || 
+	if((FontType & TRUETYPE_FONTTYPE) ||
 		!( (FontType & TRUETYPE_FONTTYPE) || (FontType & RASTER_FONTTYPE) ))
 	{
-		for (i = 0; i < 16; i++)
+		for(i = 0; i < 16; i++)
 		{
 			wsprintf(s, "%d", m_nFontSizes[i]);
 			SendMessage((HWND)hCombo, CB_ADDSTRING, 0, (LPARAM)s);
@@ -310,10 +304,6 @@ BOOL CALLBACK EnumSizeProcEx(ENUMLOGFONTEX* pelf,
 }
 
 /* ---------------------- Locale combobox ------------------------------*/
-
-/* Globals */
-
-void InitLocaleCombo(HWND hDlg, int idCombo, int deflang);
 
 /* Statics */
 

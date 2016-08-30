@@ -32,7 +32,7 @@ INT_PTR CALLBACK PageMiscProc(HWND hDlg, UINT message,
 		{
 			WORD id, code;
 			id = LOWORD(wParam); code = HIWORD(wParam);
-			switch (id)
+			switch(id)
 			{
 				case IDC_NOCLOCK:
 					g_bApplyClock = TRUE;
@@ -153,7 +153,7 @@ void OnApply(HWND hDlg)
 void OnBrowse(HWND hDlg)
 {
 	char deffile[MAX_PATH], fname[MAX_PATH];
-	char *filter = "HTML\0*.html;*.htm\0\0";
+	const char *filter = "HTML\0*.html;*.htm\0\0";
 	
 	GetDlgItemText(hDlg, IDC_HELPURL, deffile, MAX_PATH);
 	

@@ -27,7 +27,7 @@ static BOOL GetLangFileName(char *dst, const char *fname, const char *code);
 static struct {
 	int primlang;
 	char *code;
-} m_langcode[] = 
+} m_langcode[] =
 
 {
 	{ LANG_NEUTRAL, NULL },
@@ -114,7 +114,7 @@ static struct {
 	int primlang;
 	int sublang;
 	char *code;
-} m_countrycode[] = 
+} m_countrycode[] =
 
 {
 	{ LANG_ARABIC, SUBLANG_ARABIC_SAUDI_ARABIA,        "sa" },
@@ -139,7 +139,7 @@ static struct {
 	{ LANG_CHINESE, SUBLANG_CHINESE_SINGAPORE,         "sg" },
 	{ LANG_CHINESE, SUBLANG_CHINESE_MACAU,             "mo" },
 	{ LANG_DUTCH,   SUBLANG_DUTCH,                     "nl" },
-	{ LANG_DUTCH,   SUBLANG_DUTCH_BELGIAN,             "be" }, 
+	{ LANG_DUTCH,   SUBLANG_DUTCH_BELGIAN,             "be" },
 	{ LANG_ENGLISH, SUBLANG_ENGLISH_US,                "us" },
 	{ LANG_ENGLISH, SUBLANG_ENGLISH_UK,                "gb" },
 	{ LANG_ENGLISH, SUBLANG_ENGLISH_AUS,               "au" },
@@ -274,7 +274,7 @@ BOOL FindFileChinese(char *dst, int langid, const char* fname)
 	char code[20];
 	int prim = PRIMARYLANGID((WORD)langid);
 	int sub = SUBLANGID((WORD)langid);
-	int trad[3] = { SUBLANG_CHINESE_TRADITIONAL, 
+	int trad[3] = { SUBLANG_CHINESE_TRADITIONAL,
 		  SUBLANG_CHINESE_HONGKONG,
 		  SUBLANG_CHINESE_MACAU };
 	int simp[2] = { SUBLANG_CHINESE_SIMPLIFIED,

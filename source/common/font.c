@@ -27,8 +27,8 @@ static const struct {
 	{ 0, 0}
 };
 
-static BOOL CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf, 
-	NEWTEXTMETRICEX* lpntm, int FontType, LPARAM fontname);
+static int CALLBACK EnumFontFamExProc(const ENUMLOGFONTEX* pelf,
+	const NEWTEXTMETRICEX* lpntm, DWORD FontType, LPARAM fontname);
 
 /*------------------------------------------------
    create a font of the clock
@@ -98,8 +98,8 @@ HFONT CreateMyFont(const char *fontname, int size,
    callback function for EnumFontFamiliesEx,
    to find a designated font
 --------------------------------------------------*/
-BOOL CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* pelf, 
-	NEWTEXTMETRICEX* lpntm, int FontType, LPARAM fontname)
+int CALLBACK EnumFontFamExProc(const ENUMLOGFONTEX* pelf,
+	const NEWTEXTMETRICEX* lpntm, DWORD FontType, LPARAM fontname)
 {
 	if(strcmp((LPSTR)fontname, pelf->elfLogFont.lfFaceName) == 0)
 		return FALSE;

@@ -11,7 +11,7 @@
 
 
 #define SAFE_RELEASE(punk) \
-		if ((punk) != NULL) { (punk)->Release(); (punk) = NULL; }
+		if((punk) != NULL) { (punk)->Release(); (punk) = NULL; }
 
 
 DEFINE_GUID(CLSID_MMDeviceEnumerator, 0xBCDE0395, 0xE52F, 0x467C,
@@ -124,7 +124,8 @@ IAudioEndpointVolume* GetDefaultAudioEndpointVolume()
 	hr = CoCreateInstance(
 			CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL,
 			IID_IMMDeviceEnumerator, (void**) &pEnumerator);
-	if (FAILED(hr)) {
+	if(FAILED(hr))
+	{
 		goto end;
 	}
 	
@@ -132,7 +133,8 @@ IAudioEndpointVolume* GetDefaultAudioEndpointVolume()
 	hr = pEnumerator->GetDefaultAudioEndpoint(
 			eRender, eConsole,
 			&pEndpoint);
-	if (FAILED(hr)) {
+	if(FAILED(hr))
+	{
 		goto end;
 	}
 	
@@ -140,7 +142,8 @@ IAudioEndpointVolume* GetDefaultAudioEndpointVolume()
 	hr = pEndpoint->Activate(
 			IID_IAudioEndpointVolume, CLSCTX_ALL,
 			NULL, (void**) &pAudioEndVol);
-	if (FAILED(hr)) {
+	if(FAILED(hr))
+	{
 		goto end;
 	}
 	
@@ -157,7 +160,8 @@ BOOL SetMasterVolumeVista(int iLevel)
 {
 	HRESULT hr;
 	IAudioEndpointVolume* pAudioEndVol = GetDefaultAudioEndpointVolume();
-	if (pAudioEndVol == NULL) {
+	if(pAudioEndVol == NULL)
+	{
 		return FALSE;
 	}
 	
@@ -173,7 +177,8 @@ BOOL GetMasterVolumeVista(int *piLevel)
 	HRESULT hr;
 	*piLevel = -1;
 	IAudioEndpointVolume* pAudioEndVol = GetDefaultAudioEndpointVolume();
-	if (pAudioEndVol == NULL) {
+	if(pAudioEndVol == NULL)
+	{
 		return FALSE;
 	}
 	
@@ -181,7 +186,8 @@ BOOL GetMasterVolumeVista(int *piLevel)
 	hr = pAudioEndVol->GetMasterVolumeLevelScalar(&fLevel);
 	SAFE_RELEASE(pAudioEndVol);
 	
-	if (FAILED(hr)) {
+	if(FAILED(hr))
+	{
 		return FALSE;
 	}
 	*piLevel = (int) (fLevel * 100 + 0.5);
@@ -193,7 +199,8 @@ BOOL SetMasterMuteVista(BOOL mute)
 {
 	HRESULT hr;
 	IAudioEndpointVolume* pAudioEndVol = GetDefaultAudioEndpointVolume();
-	if (pAudioEndVol == NULL) {
+	if(pAudioEndVol == NULL)
+	{
 		return FALSE;
 	}
 	
@@ -209,7 +216,8 @@ BOOL GetMasterMuteVista(BOOL *pmute)
 	HRESULT hr;
 	*pmute = FALSE;
 	IAudioEndpointVolume* pAudioEndVol = GetDefaultAudioEndpointVolume();
-	if (pAudioEndVol == NULL) {
+	if(pAudioEndVol == NULL)
+	{
 		return FALSE;
 	}
 	

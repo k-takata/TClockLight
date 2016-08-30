@@ -106,7 +106,7 @@ LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		/* -------- Timers ------------- */
 		
 		case WM_TIMER:
-			switch (wParam)
+			switch(wParam)
 			{
 				case IDTIMER_MAIN:
 					OnTimerMain(hwnd); return 0;
@@ -342,7 +342,7 @@ void OnTimerMain(HWND hwnd)
 	
 	if(g_nBlink > 0) bRedraw = TRUE;
 	else if(g_bDispSecond) bRedraw = TRUE;
-	else if(LastTime.wHour != (int)t.wHour 
+	else if(LastTime.wHour != (int)t.wHour
 		|| LastTime.wMinute != (int)t.wMinute) bRedraw = TRUE;
 	
 	

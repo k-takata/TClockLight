@@ -18,8 +18,9 @@ static void OnApply(HWND hDlg);
 static void OnDropFilesChange(HWND hDlg);
 static void OnBrowse(HWND hDlg);
 
-static BOOL  m_bInit = FALSE;
-static BOOL  m_bChanged = FALSE;
+static const char *m_section = "Mouse";
+static BOOL m_bInit = FALSE;
+static BOOL m_bChanged = FALSE;
 
 /*------------------------------------------------
   Dialog procedure
@@ -85,7 +86,6 @@ void SendPSChanged(HWND hDlg)
 void OnInit(HWND hDlg)
 {
 	char s[MAX_PATH];
-	char *section = "Mouse";
 	
 	m_bInit = FALSE;
 	
@@ -103,9 +103,9 @@ void OnInit(HWND hDlg)
 	CBAddString(hDlg, IDC_DROPFILES,
 		(LPARAM)MyString(IDS_MOVETO, "MoveTo"));
 	
-	CBSetCurSel(hDlg, IDC_DROPFILES, 
-		GetMyRegLong(section, "DropFiles", 0));
-	GetMyRegStr(section, "DropFilesApp", s, MAX_PATH, "");
+	CBSetCurSel(hDlg, IDC_DROPFILES,
+		GetMyRegLong(m_section, "DropFiles", 0));
+	GetMyRegStr(m_section, "DropFilesApp", s, MAX_PATH, "");
 	SetDlgItemText(hDlg, IDC_DROPFILESAPP, s);	
 	
 	OnDropFilesChange(hDlg);
@@ -120,16 +120,15 @@ void OnApply(HWND hDlg)
 {
 	char s[MAX_PATH];
 	int n;
-	char *section = "Mouse";
 	
 	if(!m_bChanged) return;
 	m_bChanged = FALSE;
 	
 	n = CBGetCurSel(hDlg, IDC_DROPFILES);
 	SetMyRegLong(NULL, "DropFiles", n > 0);
-	SetMyRegLong(section, "DropFiles", n);
+	SetMyRegLong(m_section, "DropFiles", n);
 	GetDlgItemText(hDlg, IDC_DROPFILESAPP, s, MAX_PATH);
-	SetMyRegStr(section, "DropFilesApp", s);
+	SetMyRegStr(m_section, "DropFilesApp", s);
 }
 
 /*------------------------------------------------

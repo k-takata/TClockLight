@@ -13,9 +13,9 @@
 static BOOL m_bHour12, m_bHourZero;
 static wchar_t m_DayOfWeekShort[7][11], m_DayOfWeekLong[7][31];
 static wchar_t m_MonthShort[12][11], m_MonthLong[12][31];
-static wchar_t *m_DayOfWeekEng[7] =
+static const wchar_t *m_DayOfWeekEng[7] =
   { L"Sun", L"Mon", L"Tue", L"Wed", L"Thu", L"Fri", L"Sat" };
-static wchar_t *m_MonthEng[12] =
+static const wchar_t *m_MonthEng[12] =
   { L"Jan", L"Feb", L"Mar", L"Apr", L"May", L"Jun",
     L"Jul", L"Aug", L"Sep", L"Oct", L"Nov", L"Dec" };
 static wchar_t m_AM[11], m_PM[11], m_SDate[5], m_STime[5];

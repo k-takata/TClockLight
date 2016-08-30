@@ -22,7 +22,7 @@ static BOOL  m_bInit = FALSE;
 static BOOL  m_bChanged = FALSE;
 static HFONT m_hfontb, m_hfonti;
 
-static char *m_section = "Tooltip";
+static const char *m_section = "Tooltip";
 
 /*------------------------------------------------
   Dialog procedure

@@ -38,7 +38,7 @@ static BOOL m_bStartTimer = FALSE;
 ---------------------------------------------*/
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    switch (message)
+	switch(message)
 	{
 		case WM_CREATE:
 			OnCreate(hwnd);
@@ -55,7 +55,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return TRUE;
 		
 		case WM_TIMER:
-			switch (wParam)
+			switch(wParam)
 			{
 				case IDTIMER_START:
 					OnTimerStart(hwnd); break;
@@ -66,8 +66,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 					OnTimerMouse(hwnd); break;
 				case IDTIMER_MONOFF:
 					KillTimer(hwnd, wParam);
-					PostMessage(hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, 2); 
-					// SendMessage(GetDesktopWindow(), WM_SYSCOMMAND,SC_MONITORPOWER, 2);
+					PostMessage(hwnd, WM_SYSCOMMAND, SC_MONITORPOWER, 2);
 					break;
 			}
 			return 0;
@@ -230,7 +229,8 @@ void ClearTClockMain(HWND hwnd)
 ---------------------------------------------------------*/
 void OnPowerBroadcast(HWND hwnd, WPARAM wParam)
 {
-	switch (wParam) {
+	switch(wParam)
+	{
 		case PBT_APMRESUMESUSPEND:
 			OnTimerAlarm(hwnd, NULL, 2);
 			break;

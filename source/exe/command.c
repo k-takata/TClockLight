@@ -41,7 +41,7 @@ void OnTClockCommand(HWND hwnd, int id, int code)
 		case IDC_TIMER:
 			ExecFile(hwnd, "tctimer.exe");
 			break;
-		case IDC_SYNCTIME: // Syncronize time
+		case IDC_SYNCTIME: // Synchronize time
 			ExecFile(hwnd, "tcsntp.exe /silent");
 			// StartSyncTime(hwnd, NULL, 0, FALSE);
 			break;
@@ -59,12 +59,12 @@ void OnTClockCommand(HWND hwnd, int id, int code)
 			PostMessage(g_hwndClock, CLOCKM_REFRESHCLOCK, 0, 0);
 			break;
 		case IDC_VISTACALENDAR:
-			if (FindWindowEx(NULL, NULL, "ClockFlyoutWindow", NULL) == NULL) {
+			if(FindWindowEx(NULL, NULL, "ClockFlyoutWindow", NULL) == NULL) {
 				PostMessage(g_hwndClock, CLOCKM_VISTACALENDAR, 1, 0);
 			}
 			break;
 		case IDC_VISTATOOLTIP:
-			if (FindWindowEx(NULL, NULL, "ClockTooltipWindow", NULL) == NULL) {
+			if(FindWindowEx(NULL, NULL, "ClockTooltipWindow", NULL) == NULL) {
 				PostMessage(g_hwndClock, CLOCKM_VISTATOOLTIP, 1, 0);
 			}
 			break;
@@ -359,28 +359,28 @@ BOOL CALLBACK doKyu(HWND hwnd, LPARAM lParam)
 		xcenter = (rcScr.left + rcScr.right) / 2;
 		ycenter = (rcScr.top + rcScr.bottom) / 2;
 		
-		if (lprcTaskbar->bottom <= ycenter)
+		if(lprcTaskbar->bottom <= ycenter)
 		{
 			// Top taskbar
-			if (rc.top < lprcTaskbar->bottom)
+			if(rc.top < lprcTaskbar->bottom)
 			{
 				SetWindowPos(hwnd, NULL, rc.left, lprcTaskbar->bottom, 0, 0,
 							 SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
 			}
 		}
-		else if (lprcTaskbar->right <= xcenter)
+		else if(lprcTaskbar->right <= xcenter)
 		{
 			// Left taskbar
-			if (rc.left < lprcTaskbar->right)
+			if(rc.left < lprcTaskbar->right)
 			{
 				SetWindowPos(hwnd, NULL, lprcTaskbar->right, rc.top, 0, 0,
 							 SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
 			}
 		}
-		else if (lprcTaskbar->left >= xcenter)
+		else if(lprcTaskbar->left >= xcenter)
 		{
 			// Right taskbar
-			if (rc.right > lprcTaskbar->left)
+			if(rc.right > lprcTaskbar->left)
 			{
 				SetWindowPos(hwnd, NULL, lprcTaskbar->left-(rc.right-rc.left), rc.top, 0, 0,
 							 SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
@@ -389,7 +389,7 @@ BOOL CALLBACK doKyu(HWND hwnd, LPARAM lParam)
 		else
 		{
 			// Bottom taskbar
-			if (rc.bottom > lprcTaskbar->top)
+			if(rc.bottom > lprcTaskbar->top)
 			{
 				SetWindowPos(hwnd, NULL, rc.left, lprcTaskbar->top-(rc.bottom-rc.top), 0, 0,
 							 SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);

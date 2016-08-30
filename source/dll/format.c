@@ -142,7 +142,7 @@ void MakeFormatEx(wchar_t* dst, const SYSTEMTIME* pt,
 				if(*struc.sp == '\"')
 				{
 					struc.sp++;
-					while(*struc.sp != '\"' && *struc.sp && *struc.dp)
+					while(*struc.sp && *struc.sp != '\"' && *struc.dp)
 						*struc.dp++ = *struc.sp++;
 					if(*struc.sp == '\"') struc.sp++;
 				}

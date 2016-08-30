@@ -155,7 +155,7 @@ void OnLinkClicked(HWND hDlg, UINT id)
 }
 
 /*-------------------------------------------
-  suclass window procedure of link label
+  subclass window procedure of link label
 ---------------------------------------------*/
 LRESULT CALLBACK LabLinkProc(HWND hwnd, UINT message,
 	WPARAM wParam, LPARAM lParam)

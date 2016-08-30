@@ -20,7 +20,7 @@ static void OnBrowse(HWND hDlg);
 static void OnChooseColor(HWND hDlg);
 static void SetColorFromBmp(HWND hDlg, int idCombo, const char* fname);
 
-static char *m_section = "StartMenu";
+static const char *m_section = "StartMenu";
 static BOOL m_bInit = FALSE;
 static BOOL m_bChanged = FALSE;
 
@@ -74,7 +74,7 @@ INT_PTR CALLBACK PageStartMenuProc(HWND hDlg, UINT message,
 			}
 			return TRUE;
 		case WM_MEASUREITEM:
-			// common/comobox.c
+			// common/combobox.c
 			OnMeasureItemColorCombo((LPMEASUREITEMSTRUCT)lParam);
 			return TRUE;
 		case WM_DRAWITEM:
@@ -171,7 +171,7 @@ void OnApply(HWND hDlg)
 }
 
 /*------------------------------------------------
-   initizlize "Color" comoboxes
+   initialize "Color" comboboxes
 --------------------------------------------------*/
 void InitColor(HWND hDlg)
 {
@@ -188,7 +188,7 @@ void InitColor(HWND hDlg)
 --------------------------------------------------*/
 void OnDrawItem(HWND hDlg, LPDRAWITEMSTRUCT pdis)
 {
-	// common/comobox.c
+	// common/combobox.c
 	OnDrawItemColorCombo(pdis, NULL);
 }
 
@@ -217,7 +217,7 @@ void OnStartMenu(HWND hDlg)
 --------------------------------------------------*/
 void OnBrowse(HWND hDlg)
 {
-	char *filter = "Bitmap (*.bmp)\0*.bmp\0\0";
+	const char *filter = "Bitmap (*.bmp)\0*.bmp\0\0";
 	char deffile[MAX_PATH], fname[MAX_PATH];
 	
 	GetDlgItemText(hDlg, IDC_STARTMENUBMP, deffile, MAX_PATH);

@@ -82,7 +82,8 @@ void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont)
 	HWND hwnd;
 	HDC hdc;
 	SIZE sz;
-	char *test = "TCLOCK light";	// upper/lower cases should be balanced.
+	const char *test = "TCLOCK light";
+								// upper/lower cases should be balanced.
 	char entry[10], buf[160], title[80];
 	char classname[80];
 	RECT rcCtrl, rcWin, rcClient;

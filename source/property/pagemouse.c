@@ -30,7 +30,7 @@ static void InitFunction(HWND hDlg, int id);
 static BOOL  m_bInit = FALSE;
 static BOOL  m_bChanged = FALSE;
 
-static char *m_section = "Mouse";
+static const char *m_section = "Mouse";
 static PMOUSESTRUCT m_pMouseCommand = NULL;
 static int m_nCurrent = -1;
 static int m_widthOpt = 0;

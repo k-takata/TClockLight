@@ -18,10 +18,10 @@ static void GetFilesInDir(HWND hwnd, const char *root);
 static BOOL m_bDisp = FALSE;
 static int m_nDispType = 0;
 static int m_nUserStr = 0;
-static char *m_section = "Player";
 static BOOL m_bPlaying = FALSE;
 static int m_numFiles = 0;
 static int m_nCurrent = 0;
+static const char *m_section = "Player";
 
 /*-------------------------------------------------------------
   initialize
@@ -301,7 +301,7 @@ BOOL PlayByNumber(HWND hwnd, int n)
 }
 
 /*-------------------------------------------------------------
-  clear elasped time
+  clear elapsed time
 ---------------------------------------------------------------*/
 void ClearDisp(HWND hwnd)
 {
@@ -351,7 +351,7 @@ void ListSoundFiles(HWND hwnd, const char *src)
 		bdir = FALSE;
 		if((('A' <= fname[0] && fname[0] <= 'Z') ||
 				('a' <= fname[0] && fname[0] <= 'z')) &&
-			fname[1] == ':' && 
+			fname[1] == ':' &&
 			fname[2] == '\\' && fname[3] == 0)
 		{
 			char temp[80];

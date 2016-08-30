@@ -80,7 +80,7 @@ BOOL WINAPI HookStart(HWND hwndMain)
 	}
 	
 	// get thread ID of taskbar (explorer)
-	// Specal thanks to T.Iwata.
+	// Special thanks to T.Iwata.
 	idThread = GetWindowThreadProcessId(hwndTaskbar, NULL);
 	if(!idThread)
 	{

@@ -473,7 +473,7 @@ FONT 9, "MS Sans Serif"
 BEGIN
     CONTROL         "Flat Task switch",IDC_TASKSWITCHFLAT,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,8,5,77,12
-    CONTROL         "Separators of Task swtch",IDC_TASKSWITCH_SEPARAT,"Button",
+    CONTROL         "Separators of Task switch",IDC_TASKSWITCH_SEPARAT,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,8,23,98,12
     CONTROL         "Hide grippers",IDC_RBHIDE,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,8,41,77,12

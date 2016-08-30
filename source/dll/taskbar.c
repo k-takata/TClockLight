@@ -136,7 +136,7 @@ void EndRebarGrippers(HWND hwndRebar)
 }
 
 /*----------------------------------------------------
-   flat taskbar
+  flat taskbar
 ------------------------------------------------------*/
 void SetFlatTaskbar(HWND hwndTaskbar)
 {
@@ -164,7 +164,7 @@ void SetFlatTaskbar(HWND hwndTaskbar)
 	SendMessage(hwndTaskbar, WM_SYSCOLORCHANGE, 0, 0);
 	
 	SetWindowPos(hwndTaskbar, NULL, 0, 0, 0, 0,
-		SWP_DRAWFRAME | SWP_FRAMECHANGED | 
+		SWP_DRAWFRAME | SWP_FRAMECHANGED |
 		SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
 }
 
@@ -282,7 +282,7 @@ void EndLayeredTaskbar(HWND hwndTaskbar)
 }
 
 /*--------------------------------------------------
-  redraw ReBarWindow32 forcely
+  redraw ReBarWindow32 forcedly
 ----------------------------------------------------*/
 void RefreshRebar(HWND hwndRebar)
 {

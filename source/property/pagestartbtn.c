@@ -23,7 +23,7 @@ static void OnSansho(HWND hDlg);
 static void OnChooseColor(HWND hDlg);
 static void OnSanshoBmp(HWND hDlg);
 
-static char *m_section = "StartButton";
+static const char *m_section = "StartButton";
 static BOOL m_bInit = FALSE;
 static BOOL m_bChanged = FALSE;
 static HFONT m_hfontb;
@@ -95,7 +95,7 @@ INT_PTR CALLBACK PageStartButtonProc(HWND hDlg, UINT message,
 			}
 			return TRUE;
 		case WM_MEASUREITEM:
-			// common/comobox.c
+			// common/combobox.c
 			OnMeasureItemColorCombo((LPMEASUREITEMSTRUCT)lParam);
 			return TRUE;
 		case WM_DRAWITEM:
@@ -257,7 +257,7 @@ void OnApply(HWND hDlg)
 }
 
 /*------------------------------------------------
-   initizlize "Color" comoboxes
+   initialize "Color" comboboxes
 --------------------------------------------------*/
 void InitColor(HWND hDlg)
 {
@@ -285,7 +285,7 @@ void OnDrawItem(HWND hDlg, LPDRAWITEMSTRUCT pdis)
 	strcpy(texts[2], MyString(IDS_BTNLIGHT, "ButtonLight"));
 	strcpy(texts[3], MyString(IDS_BTNTEXT, "ButtonText"));
 	
-	// common/comobox.c
+	// common/combobox.c
 	OnDrawItemColorCombo(pdis, texts);
 }
 
@@ -382,7 +382,7 @@ void OnUseBack(HWND hDlg)
 --------------------------------------------------*/
 void OnSansho(HWND hDlg)
 {
-	char *filter = "Bitmap, Icon (*.bmp, *.ico)\0*.bmp;*.ico\0"
+	const char *filter = "Bitmap, Icon (*.bmp, *.ico)\0*.bmp;*.ico\0"
 		"Executable (*.exe, *.dll)\0*.exe;*.dll\0"
 		"All (*.*)\0*.*\0\0";
 	char deffile[MAX_PATH], fname[MAX_PATH+10];
@@ -453,7 +453,7 @@ void OnChooseColor(HWND hDlg)
 --------------------------------------------------*/
 void OnSanshoBmp(HWND hDlg)
 {
-	char *filter = "Bitmap (*.bmp)\0*.bmp\0\0";
+	const char *filter = "Bitmap (*.bmp)\0*.bmp\0\0";
 	char deffile[MAX_PATH], fname[MAX_PATH+10];
 	
 	deffile[0] = 0;

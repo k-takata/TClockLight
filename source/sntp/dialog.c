@@ -192,9 +192,9 @@ void LoadLog(HWND hDlg)
 	buf[dwRead] = '\0';
 	if(dwRead == dwReadLen)
 	{
-		while (*p && (*p != '\n'))
+		while(*p && (*p != '\n'))
 			++p;
-		if (*p == '\n')
+		if(*p == '\n')
 			++p;
 	}
 	SetDlgItemText(hDlg, IDC_SNTPLOGRESULT, p);
@@ -279,7 +279,7 @@ void OnHelp(HWND hDlg)
 }
 
 /*------------------------------------------------
-    When server name changed
+  When server name changed
 --------------------------------------------------*/
 void OnNTPServer(HWND hDlg)
 {
@@ -290,7 +290,7 @@ void OnNTPServer(HWND hDlg)
 }
 
 /*------------------------------------------------
-    Delete Server Name
+  Delete Server Name
 --------------------------------------------------*/
 void OnDelServer(HWND hDlg)
 {
@@ -378,12 +378,14 @@ BOOL IsUserAdmin(void)
 	pfnIsUserAnAdmin pIsUserAnAdmin;
 //	HMODULE hShell32 = LoadLibrary("shell32.dll");
 	HMODULE hShell32 = GetModuleHandle("shell32.dll");
-	if (hShell32 == NULL) {
+	if(hShell32 == NULL)
+	{
 		return TRUE;
 	}
 	pIsUserAnAdmin = (pfnIsUserAnAdmin)
 			GetProcAddress(hShell32, (LPCSTR) 680);
-	if (pIsUserAnAdmin != NULL) {
+	if(pIsUserAnAdmin != NULL)
+	{
 		fIsAdmin = pIsUserAnAdmin();
 	}
 //	FreeLibrary(hShell32);

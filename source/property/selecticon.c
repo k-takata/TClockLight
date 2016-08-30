@@ -60,7 +60,7 @@ INT_PTR CALLBACK DlgProcSelectIcon(HWND hDlg, UINT message,
 		{
 			WORD id;
 			id = LOWORD(wParam);
-			switch (id)
+			switch(id)
 			{
 				case IDC_SANSHOICON:
 					OnBrowse(hDlg);
@@ -225,7 +225,7 @@ void OnDrawItem(LPARAM lParam)
 --------------------------------------------------*/
 void OnBrowse(HWND hDlg)
 {
-	char *filter = "Bitmap, Icon (*.bmp, *.ico)\0*.bmp;*.ico\0"
+	const char *filter = "Bitmap, Icon (*.bmp, *.ico)\0*.bmp;*.ico\0"
 		"Executable (*.exe, *.dll)\0*.exe;*.dll\0"
 		"All (*.*)\0*.*\0\0";
 	char deffile[MAX_PATH], fname[MAX_PATH];

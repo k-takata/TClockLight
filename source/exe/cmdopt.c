@@ -157,7 +157,7 @@ void SendStringToClock(HWND hwndClock, const char *value, int type)
 			wvalue[i++] = 0x0d; wvalue[i] = 0x0a;
 			sp += 2;
 		}
-		// unicode charactor
+		// unicode character
 		else if(*sp == '\\' && *(sp + 1) == 'x')
 		{
 			wchar_t ch = 0;

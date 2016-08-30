@@ -49,7 +49,7 @@ static BOOL m_bCursorOn = FALSE;
 static HBITMAP m_hbmpButton = NULL;
 static HDC m_hdcButton = NULL;
 static int m_wButton = -1, m_hButton = -1;
-static char *m_section = "StartButton";
+static const char *m_section = "StartButton";
 
 
 /*--------------------------------------------------
@@ -307,7 +307,7 @@ void InitStartButtonPos(HWND hwndClock)
 }
 
 /*------------------------------------------------------------
-  initalize size and position of ReBarWindow32/MSTaskSwWClass
+  initialize size and position of ReBarWindow32/MSTaskSwWClass
 -------------------------------------------------------------*/
 void SetTaskWinPos(HWND hwndClock, HWND hwndStart, HWND hwndTask)
 {

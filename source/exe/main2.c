@@ -73,7 +73,7 @@ int TClockExeMain(void)
 	RegisterClass(&wndclass);
 	
 #if 0
-	// use message-only window to reduse memory consumption
+	// use message-only window to reduce memory consumption
 	if(g_winver&WIN2000)
 		hwndParent = HWND_MESSAGE;	// message-only window
 	else

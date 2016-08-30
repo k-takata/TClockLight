@@ -11,7 +11,7 @@ STYLE DS_MODALFRAME | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Settings of Player"
 FONT 9, "MS Sans Serif"
 BEGIN
-    CONTROL         "Show elasped time on clock",IDC_SHOWTIME,"Button",
+    CONTROL         "Show elapsed time on clock",IDC_SHOWTIME,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,13,13,115,12
     CONTROL         "Whole",IDC_SHOWWHOLE,"Button",BS_AUTORADIOBUTTON | 
                     WS_GROUP | WS_TABSTOP,24,28,39,12

@@ -43,7 +43,7 @@ static HBITMAP m_hbmpMenu = NULL;  // offscreen BMP
 static COLORREF m_colMenu;         // color
 static BOOL m_bTile = FALSE;       // tile
 static int m_alpha = 255;          // transparency
-static char *m_section = "StartMenu";
+static const char *m_section = "StartMenu";
 
 /*--------------------------------------------------
   initialize

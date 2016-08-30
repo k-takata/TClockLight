@@ -34,7 +34,7 @@ void RelToAbs(char *dst, const char *src)
 }
 
 /*--------------------------------------------------------
-  Retreive a file name and option from a command string
+  Retrieve a file name and option from a command string
 ----------------------------------------------------------*/
 void GetFileAndOption(const char* command, char* fname, char* option)
 {

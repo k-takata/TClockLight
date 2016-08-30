@@ -11,7 +11,7 @@
 /* Globals */
 
 BOOL    g_bInitClock = FALSE;  // InitTClock() has been called
-HANDLE  g_hInst;               // instanse handle
+HANDLE  g_hInst;               // instance handle
 BOOL    g_bIniSetting;         // use tclock.ini
 char    g_inifile[MAX_PATH];   // ini file name
 char    g_mydir[MAX_PATH];     // path of tcdll.dll
@@ -38,8 +38,8 @@ void InitClock(HWND hwnd)
 	
 	g_hInst = GetModuleHandle(DLLFILENAME);
 	
-	g_winver = CheckWinVersion();       // common/util.c
-	g_bVisualStyle = IsXPVisualStyle(); // common/util.c
+	g_winver = CheckWinVersion();       // common/utl.c
+	g_bVisualStyle = IsXPVisualStyle(); // common/utl.c
 	
 #if 0
 	if(!(g_winver&WIN10RS1))

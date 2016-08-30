@@ -56,7 +56,7 @@ BOOL MyAlphaBlend(HDC hdcDest, int nXOriginDest, int nYOriginDest,
 	if(m_hmodMSIMG32 == NULL) InitMsimg32();
 	
 	if(m_pAlphaBlend)
-		return m_pAlphaBlend(hdcDest, nXOriginDest, nYOriginDest, 
+		return m_pAlphaBlend(hdcDest, nXOriginDest, nYOriginDest,
 			nWidthDest, nHeightDest,
 			hdcSrc, nXOriginSrc, nYOriginSrc,
 			nWidthSrc, nHeightSrc, blendFunction);

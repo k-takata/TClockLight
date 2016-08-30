@@ -87,15 +87,6 @@ void InitAlarm(void);
 void EndAlarm(void);
 void OnTimerAlarm(HWND hwnd, const SYSTEMTIME* st, int reason);
 
-/* ---------- sntp.c -------------- */
-/* BOOL InitSNTP(HWND hwndParent);
-void EndSNTP(HWND hwndParent);
-void SNTPCommand(HWND hwndMain, const char *pCommand);
-void StartSyncTime(HWND hwndMain, const char *pServer,
-	int nTimeOut, BOOL bRAS);
-void OnTimerSNTP(HWND hwndMain);
-void OnTCMRequestSNTPLog(HWND hwndMain, HWND hDlg); */
-
 /* ---------- about.c -------------- */
 void ShowAboutBox(HWND hwnd);
 extern HWND g_hDlgAbout;

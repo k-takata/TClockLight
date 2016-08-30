@@ -16,7 +16,7 @@ static const char *m_mykey = REGMYKEY;
 static const char *GetKey(const char *section, char *buf);
 
 /*------------------------------------------------
-  get registory key from section name
+  get registry key from section name
 --------------------------------------------------*/
 const char *GetKey(const char *section, char *buf)
 {
@@ -120,14 +120,12 @@ BOOL SetMyRegStr(const char *section, const char *entry, const char *val)
 			strcpy(buf, "\"");
 			strcat(buf, val);
 			strcat(buf, "\"");
-			if(WritePrivateProfileString(key, entry, buf, g_inifile))
-				r = TRUE;
+			r = WritePrivateProfileString(key, entry, buf, g_inifile);
 			free(buf);
 		}
 		else
 		{
-			if(WritePrivateProfileString(key, entry, val, g_inifile))
-				r = TRUE;
+			r = WritePrivateProfileString(key, entry, val, g_inifile);
 		}
 	}
 	else

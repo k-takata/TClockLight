@@ -11,7 +11,7 @@
 #if TC_ENABLE_MOUSEDROP
 
 /* Statics */
-static char *m_section = "Mouse";
+static const char *m_section = "Mouse";
 
 /*------------------------------------------------
    when files dropped to the clock

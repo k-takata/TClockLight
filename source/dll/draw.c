@@ -99,7 +99,7 @@ void LoadDrawingSetting(HWND hwnd)
 	if(m_fillbackcolor)
 		m_bFillTray = GetMyRegLong(NULL, "FillTray", FALSE);
 	
-	m_colfore = GetMyRegLong(NULL, "ForeColor", 
+	m_colfore = GetMyRegLong(NULL, "ForeColor",
 		0x80000000 | COLOR_BTNTEXT);
 	
 #if TC_ENABLE_CLOCKDECORATION
@@ -150,7 +150,7 @@ void LoadDrawingSetting(HWND hwnd)
 }
 
 /*------------------------------------------------
-  clear up resouces
+  clear up resources
 --------------------------------------------------*/
 void ClearDrawing(void)
 {
@@ -167,12 +167,12 @@ void ClearClockDC(void)
 {
 	m_ClockWidth = -1;
 	
-	if(m_hdcClock) DeleteDC(m_hdcClock); 
+	if(m_hdcClock) DeleteDC(m_hdcClock);
 	m_hdcClock = NULL;
 	if(m_hbmpClock) DeleteObject(m_hbmpClock);
 	m_hbmpClock = NULL;
 	
-	if(m_hdcClockBack) DeleteDC(m_hdcClockBack); 
+	if(m_hdcClockBack) DeleteDC(m_hdcClockBack);
 	m_hdcClockBack = NULL;
 	if(m_hbmpClockBack) DeleteObject(m_hbmpClockBack);
 	m_hbmpClockBack = NULL;
@@ -236,14 +236,14 @@ LRESULT CalcRect(HWND hwnd, int *textwidth, int *textheight)
 	hclock += (tm.tmHeight - tm.tmInternalLeading) / 2 + m_dheight;
 	
 #if TC_ENABLE_CLOCKDECORATION
-	if (m_nClockDecoration == 1)
+	if(m_nClockDecoration == 1)
 	{
 		wclock += m_nShadowRange;
 		hclock += m_nShadowRange;
 	}
 #endif
 #if TC_ENABLE_ANALOGCLOCK
-	if (m_useAnalogClock && (m_nAClockPos == 1 || m_nAClockPos == 2))
+	if(m_useAnalogClock && (m_nAClockPos == 1 || m_nAClockPos == 2))
 	{
 		wclock += m_nAClockSize;
 	}
@@ -623,7 +623,7 @@ void GradientFillClock(HDC hdc, const RECT* prc,
 	vert[0].Blue   = (COLOR16)((int)GetBValue(col1) * 256);
 	vert[0].Alpha  = 0x0000;
 	vert[1].x      = prc->right;
-	vert[1].y      = prc->bottom; 
+	vert[1].y      = prc->bottom;
 	vert[1].Red    = (COLOR16)((int)GetRValue(col2) * 256);
 	vert[1].Green  = (COLOR16)((int)GetGValue(col2) * 256);
 	vert[1].Blue   = (COLOR16)((int)GetBValue(col2) * 256);
@@ -661,26 +661,28 @@ void LoadAnalogClockSetting(void)
 
 BOOL InitAnalogClock(HWND hwnd, HDC hdc)
 {
-	if (!m_useAnalogClock) return FALSE;
+	if(!m_useAnalogClock) return FALSE;
 
 	ClearAnalogClock();
 
 	// load background
-	if (m_fname[0]) {
+	if(m_fname[0])
+	{
 		char fname2[MAX_PATH];
 
 		RelToAbs(fname2, m_fname);
 		m_hbmAclk = (HBITMAP)LoadImage(NULL, fname2, IMAGE_BITMAP,
 			0, 0, LR_LOADFROMFILE);
 
-		if (m_hbmAclk) {
+		if(m_hbmAclk)
+		{
 			int x, y, size;
 
-			if (GetBmpSize(m_hbmAclk, &x, &y)) // dllutl.c
+			if(GetBmpSize(m_hbmAclk, &x, &y)) // dllutl.c
 				size = (x < y) ? x : y;
 			else
 				size = -1;
-			if (m_nAClockSize == 0)
+			if(m_nAClockSize == 0)
 				m_nAClockSize = (size > 0) ? size : ACLOCK_DEFSIZE;
 
 			CreateOffScreenDC(hdc, &m_hdcBack, &m_hbmBack,
@@ -688,10 +690,13 @@ BOOL InitAnalogClock(HWND hwnd, HDC hdc)
 			m_hdcAclk = CreateCompatibleDC(hdc);
 			SelectObject(m_hdcAclk, m_hbmAclk);
 
-			if (m_nAClockSize == size) {
+			if(m_nAClockSize == size)
+			{
 				BitBlt(m_hdcBack, 0, 0, m_nAClockSize, m_nAClockSize,
 					m_hdcAclk, 0, 0, SRCCOPY);
-			} else {
+			}
+			else
+			{
 				StretchBlt(m_hdcBack, 0, 0, m_nAClockSize, m_nAClockSize,
 					m_hdcAclk, 0, 0, size, size, SRCCOPY);
 			}
@@ -701,9 +706,10 @@ BOOL InitAnalogClock(HWND hwnd, HDC hdc)
 		}
 	}
 
-	if (m_nAClockSize == 0) m_nAClockSize = ACLOCK_DEFSIZE;
+	if(m_nAClockSize == 0) m_nAClockSize = ACLOCK_DEFSIZE;
 
-	if (!m_hdcBack) {
+	if(!m_hdcBack)
+	{
 //		const int center = (m_nAClockSize - 1) / 2;
 		RECT rc;
 		HBRUSH hBrush;
@@ -728,10 +734,13 @@ BOOL InitAnalogClock(HWND hwnd, HDC hdc)
 	m_hpenHour = CreatePen(PS_SOLID, m_bHourHandBold ? 2 : 1, m_colHourHand);
 	m_hpenMin = CreatePen(PS_SOLID, m_bMinHandBold ? 2 : 1, m_colMinHand);
 
-	if (m_hdcAclk && m_hbmAclk && m_hdcBack && m_hbmBack
-			&& m_hdcMask && m_hbmMask && m_hpenHour && m_hpenMin) {
+	if(m_hdcAclk && m_hbmAclk && m_hdcBack && m_hbmBack
+			&& m_hdcMask && m_hbmMask && m_hpenHour && m_hpenMin)
+	{
 		return TRUE;
-	} else {
+	}
+	else
+	{
 		ClearAnalogClock();
 		return FALSE;
 	}
@@ -739,17 +748,17 @@ BOOL InitAnalogClock(HWND hwnd, HDC hdc)
 
 void ClearAnalogClock(void)
 {
-	if (m_hdcAclk) { DeleteDC(m_hdcAclk); m_hdcAclk = NULL; }
-	if (m_hbmAclk) { DeleteObject(m_hbmAclk); m_hbmAclk = NULL; }
+	if(m_hdcAclk) { DeleteDC(m_hdcAclk); m_hdcAclk = NULL; }
+	if(m_hbmAclk) { DeleteObject(m_hbmAclk); m_hbmAclk = NULL; }
 
-	if (m_hdcBack) { DeleteDC(m_hdcBack); m_hdcBack = NULL; }
-	if (m_hbmBack) { DeleteObject(m_hbmBack); m_hbmBack = NULL; }
+	if(m_hdcBack) { DeleteDC(m_hdcBack); m_hdcBack = NULL; }
+	if(m_hbmBack) { DeleteObject(m_hbmBack); m_hbmBack = NULL; }
 
-	if (m_hdcMask) { DeleteDC(m_hdcMask); m_hdcMask = NULL; }
-	if (m_hbmMask) { DeleteObject(m_hbmMask); m_hbmMask = NULL; }
+	if(m_hdcMask) { DeleteDC(m_hdcMask); m_hdcMask = NULL; }
+	if(m_hbmMask) { DeleteObject(m_hbmMask); m_hbmMask = NULL; }
 
-	if (m_hpenHour) { DeleteObject(m_hpenHour); m_hpenHour = NULL; }
-	if (m_hpenMin) { DeleteObject(m_hpenMin); m_hpenMin = NULL; }
+	if(m_hpenHour) { DeleteObject(m_hpenHour); m_hpenHour = NULL; }
+	if(m_hpenMin) { DeleteObject(m_hpenMin); m_hpenMin = NULL; }
 
 	m_lastHour = -1;
 	m_lastMin = -1;
@@ -762,14 +771,15 @@ void DrawAnalogClock(HWND hwnd, HDC hdcClock, const SYSTEMTIME *pt,
 	SYSTEMTIME st;
 	COLORREF col;
 
-	if (!m_useAnalogClock) return;
+	if(!m_useAnalogClock) return;
 
-	if (!m_hdcAclk && !InitAnalogClock(hwnd, hdcClock)) return;
+	if(!m_hdcAclk && !InitAnalogClock(hwnd, hdcClock)) return;
 
-	if (pt) memcpy(&st, pt, sizeof (SYSTEMTIME));
+	if(pt) memcpy(&st, pt, sizeof (SYSTEMTIME));
 	else GetLocalTime(&st);
 
-	if (st.wMinute != m_lastMin || st.wHour != m_lastHour) {
+	if(st.wMinute != m_lastMin || st.wHour != m_lastHour)
+	{
 		const int center = (m_nAClockSize - 1) / 2;
 		POINT ptHour, ptMin;
 
@@ -816,7 +826,7 @@ void DrawAnalogClock(HWND hwnd, HDC hdcClock, const SYSTEMTIME *pt,
 		BitBlt(m_hdcMask, 0, 0, m_nAClockSize, m_nAClockSize,
 			m_hdcAclk, 0, 0, DSTINVERT);
 */
-		if (m_nAClockPos == 2)
+		if(m_nAClockPos == 2)
 			x = wclock - 1 - m_nAClockSize + m_nAClockHPos;
 		else
 			x = m_nAClockHPos;

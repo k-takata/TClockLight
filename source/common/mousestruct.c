@@ -142,7 +142,7 @@ void SaveMouseFunc(const PMOUSESTRUCT plist)
 #define MOUSEFUNC_FILELIST    26
 #define MOUSEFUNC_OPENFILE    100
 
-static int oldToNew[] = {
+static const int oldToNew[] = {
 	IDC_DATETIME,
 	IDC_EXITWIN,
 	IDC_RUNAPP,
@@ -179,7 +179,7 @@ void ImportOldMouseFunc(void)
 {
 	char oldentry[20], newsection[20], s[MAX_PATH];
 	int i, j, k, count, nfunc;
-	char *oldoptions[] = { "%d%dFile", "%d%dClip",
+	const char *oldoptions[] = { "%d%dFile", "%d%dClip",
 		"%d%dVol", "%d%dDrv" , "%d%dDelay", NULL, };
 	
 	count = 0;

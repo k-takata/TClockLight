@@ -83,7 +83,7 @@ void OnInit(HWND hDlg)
 }
 
 /*------------------------------------------------
-  retreive setting
+  retrieve setting
 --------------------------------------------------*/
 void OnOK(HWND hDlg)
 {

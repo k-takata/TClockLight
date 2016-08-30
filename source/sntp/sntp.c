@@ -54,8 +54,8 @@ static const char *m_section = "SNTP";
 static char m_servername[BUFSIZE_SERVER] = { 0 }; // SNTP server's host name
 static int  m_nTimeOut = 1000;              // msec of time out
 static BOOL m_bSaveLog = FALSE;             // save log ?
-static char m_soundfile[MAX_PATH] = { 0 };  // sound file 
-static int  m_nMinuteDif = 0;               // forcely time difference
+static char m_soundfile[MAX_PATH] = { 0 };  // sound file
+static int  m_nMinuteDif = 0;               // forcedly time difference
 
 static DWORD m_dwTickCountOnSend = 0;    // starting time of sending data
 static DWORD m_dwTickCountOnRecv = 0;    // starting time of receiving data
@@ -332,7 +332,7 @@ void SNTPSend(HWND hwndSNTP, unsigned long serveraddr)
 	HostTimeToNTPTime(&ht, &NTP_Send.transmit_timestamp);
 	
 	// send a packet
-	if(sendto(m_socket, (const char *)&NTP_Send, sizeof(NTP_Send), 0, 
+	if(sendto(m_socket, (const char *)&NTP_Send, sizeof(NTP_Send), 0,
 		(struct sockaddr *)&serversockaddr,
 		sizeof(serversockaddr)) == SOCKET_ERROR)
 	{
@@ -563,7 +563,7 @@ void Log(HWND hwndSNTP, const char *msg)
 		CloseHandle(hf);
 	}
 	
-	// 
+	// update log window
 	if(!g_hwndLog)
 	{
 		HWND hwnd = NULL;
@@ -642,8 +642,9 @@ static void GetRealSystemTimeAsFileTime(FILETIME *pft)
 	FILETIME ft;
 	GetSystemTimeAsFileTime(pft);
 	ft = *pft;
-	while ((ft.dwLowDateTime == pft->dwLowDateTime)
-			&& (ft.dwHighDateTime == pft->dwHighDateTime)) {
+	while((ft.dwLowDateTime == pft->dwLowDateTime)
+			&& (ft.dwHighDateTime == pft->dwHighDateTime))
+	{
 		Sleep(0);
 		GetSystemTimeAsFileTime(pft);
 	}

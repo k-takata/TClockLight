@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------
-  localeinfo.c : get locale infomation, date and time format
+  localeinfo.c : get locale information, date and time format
   (C) 1997-2003 Kazuto Sato
   Please read readme.txt about the license.
   
