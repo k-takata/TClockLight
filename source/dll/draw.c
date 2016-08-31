@@ -255,20 +255,25 @@ LRESULT CalcRect(HWND hwnd, int *textwidth, int *textheight)
 	
 	if(g_bFitClock)
 	{
-		RECT rcTray, rcTaskbar;
+		//RECT rcTray;
+		RECT rcTaskbar;
 		
-		GetWindowRect(GetParent(hwnd), &rcTray);
+		//GetWindowRect(GetParent(hwnd), &rcTray);
 		GetClientRect(GetParent(GetParent(hwnd)), &rcTaskbar);
 		
 		// horizontal task bar
 		if(rcTaskbar.right - rcTaskbar.left >
 			rcTaskbar.bottom - rcTaskbar.top)
 		{
-			hclock = rcTray.bottom - rcTray.top;
+			//hclock = rcTray.bottom - rcTray.top;
+			hclock = g_OrigClockHeight;
 		}
 		// vertical task bar
 		else
-			wclock = rcTray.right - rcTray.left;
+		{
+			//wclock = rcTray.right - rcTray.left;
+			wclock = g_OrigClockWidth;
+		}
 	}
 	
 	return MAKELONG(wclock, hclock);
@@ -521,7 +526,7 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	}
 	
 #if TC_ENABLE_ANALOGCLOCK
-	DrawAnalogClock(hwnd, m_hdcClock, pt, wclock, hclock);	// ANALOGCLOCK
+	DrawAnalogClock(hwnd, m_hdcClock, pt, wclock, hclock);	// Analog Clock
 #endif
 	
 //	if(g_nBlink > 0 && (g_nBlink % 2) == 0) dwRop = NOTSRCCOPY;

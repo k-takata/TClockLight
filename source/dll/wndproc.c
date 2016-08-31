@@ -270,7 +270,7 @@ LRESULT CALLBACK SubclassTrayProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 {
 	switch(message)
 	{
-		case (WM_USER+100):        // a message requesting for clock size
+		case (WM_USER+100):	// a message requesting for notify area size
 		{
 			LRESULT ret, size;
 			HWND hwndClock = (HWND)dwRefData;
