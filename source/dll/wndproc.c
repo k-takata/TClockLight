@@ -70,11 +70,9 @@ LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		case WM_ERASEBKGND:
 			break;
 		
-#if 0
 		case (WM_USER+100):        // a message requesting for clock size
 			if(g_bNoClock) break;  // sent from parent window
-			return OnCalcRect(hwnd);
-#endif
+			return OnCalcRect(hwnd);  // (only before Win10RS1)
 		
 		case WM_WINDOWPOSCHANGING:  // size arrangement
 			if(g_bNoClock) break;
@@ -232,7 +230,7 @@ static void RearrangeNotifyArea(HWND hwnd, HWND hwndClock)
 	POINT posclk = {0, 0};
 	int wclock, hclock;
 	HWND hwndChild;
-
+	
 	size = OnCalcRect(hwndClock);
 	wclock = LOWORD(size);
 	hclock = HIWORD(size);
@@ -289,11 +287,28 @@ LRESULT CALLBACK SubclassTrayProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 			NMHDR *nmh = (NMHDR*)lParam;
 			HWND hwndClock = (HWND)dwRefData;
 
-			if(g_bNoClock || nmh->code != PGN_CALCSIZE)
+			if(g_bNoClock || nmh->code != PGN_CALCSIZE ||
+					g_bTaskbarPosChanging)
 				break;
 			ret = DefSubclassProc(hwnd, message, wParam, lParam);
 			RearrangeNotifyArea(hwnd, hwndClock);
 			return ret;
+		}
+		case WM_WINDOWPOSCHANGING:
+		{
+			RECT rc;
+			
+			GetWindowRect(GetParent(hwnd), &rc);
+			if (!EqualRect(&rc, &g_rcTaskbar))
+			{
+				g_rcTaskbar = rc;
+				g_bTaskbarPosChanging = TRUE;
+			}
+			else
+			{
+				g_bTaskbarPosChanging = FALSE;
+			}
+			break;
 		}
 	}
 	

@@ -407,6 +407,12 @@ void DrawClock(HWND hwnd, HDC hdc, const SYSTEMTIME* pt)
 	GetClientRect(hwnd, &rcClock);
 	wclock = rcClock.right;
 	hclock = rcClock.bottom;
+	if(g_bTaskbarPosChanging)
+	{
+		g_OrigClockWidth = wclock;
+		g_OrigClockHeight = hclock;
+		g_bTaskbarPosChanging = FALSE;
+	}
 	
 	size = (DWORD)CalcRect(hwnd, &wtext, &htext);
 	if(wclock < LOWORD(size) || hclock < HIWORD(size))

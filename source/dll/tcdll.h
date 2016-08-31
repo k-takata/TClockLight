@@ -54,6 +54,8 @@ extern BOOL    g_bVisualStyle;
 extern BOOL    g_bNoClock;
 extern int     g_OrigClockWidth;
 extern int     g_OrigClockHeight;
+extern RECT    g_rcTaskbar;
+extern BOOL    g_bTaskbarPosChanging;
 extern BOOL    g_bLMousePassThru;
 
 /* ---------- wndproc.c ----------- */

@@ -20,6 +20,8 @@ BOOL    g_bVisualStyle;        // Windows XP theme is used
 BOOL    g_bNoClock;            // don't customize clock
 int     g_OrigClockWidth;      // original clock width
 int     g_OrigClockHeight;     // original clock height
+RECT    g_rcTaskbar;
+BOOL    g_bTaskbarPosChanging;
 BOOL    g_bLMousePassThru;     // pass through left button messages
 
 #define SUBCLASS_ID			1
@@ -66,6 +68,9 @@ void InitClock(HWND hwnd)
 	GetWindowRect(hwnd, &rc);
 	g_OrigClockWidth = rc.right - rc.left;
 	g_OrigClockHeight = rc.bottom - rc.top;
+	// Save taskbar position
+	GetWindowRect(GetParent(GetParent(hwnd)), &g_rcTaskbar);
+	g_bTaskbarPosChanging = FALSE;
 	
 	// tell tclock.exe clock's HWND
 	PostMessage(g_hwndTClockMain, TCM_HWNDCLOCK, 0, (LPARAM)hwnd);
@@ -77,8 +82,11 @@ void InitClock(HWND hwnd)
 	InitUserStr();     // userstr.c
 	
 	// subclassfy the clock window !!
-	SetWindowSubclass(GetParent(hwnd), SubclassTrayProc, SUBCLASSTRAY_ID,
-			(DWORD_PTR)hwnd);
+	if(g_winver&WIN10RS1)
+	{
+		SetWindowSubclass(GetParent(hwnd), SubclassTrayProc,
+				SUBCLASSTRAY_ID, (DWORD_PTR)hwnd);
+	}
 	SetWindowSubclass(hwnd, SubclassProc, SUBCLASS_ID, 0);
 	
 	// don't accept double clicks
@@ -171,7 +179,11 @@ void EndClock(HWND hwnd)
 	
 	// restore window procedure
 	RemoveWindowSubclass(hwnd, SubclassProc, SUBCLASS_ID);
-	RemoveWindowSubclass(GetParent(hwnd), SubclassTrayProc, SUBCLASSTRAY_ID);
+	if(g_winver&WIN10RS1)
+	{
+		RemoveWindowSubclass(GetParent(hwnd), SubclassTrayProc,
+				SUBCLASSTRAY_ID);
+	}
 	
 #if TC_ENABLE_TASKBAR
 	RefreshTaskbar(hwnd);  // taskbar.c
