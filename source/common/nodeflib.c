@@ -11,9 +11,10 @@
 #ifdef NODEFAULTLIB
 
 /*-------------------------------------------
-  memcpy for BCC
+  memcpy
 ---------------------------------------------*/
-void *r_memcpy(void *d, const void *s, size_t l)
+#pragma function(memcpy)
+void *memcpy(void *d, const void *s, size_t l)
 {
 	size_t i;
 	void *start = d;
