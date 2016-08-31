@@ -457,8 +457,8 @@ void TimeDifHandler(FORMATHANDLERSTRUCT* pstruc)
 	}
 	
 	SystemTimeToFileTime(pstruc->pt, &ft);
-	if(bMinus) *(DWORDLONG*)&ft -= M32x32to64(dif * 60, 10000000);
-	else       *(DWORDLONG*)&ft += M32x32to64(dif * 60, 10000000);
+	if(bMinus) *(DWORDLONG*)&ft -= UInt32x32To64(dif * 60, 10000000);
+	else       *(DWORDLONG*)&ft += UInt32x32To64(dif * 60, 10000000);
 	FileTimeToSystemTime(&ft, pstruc->pt);
 }
 
