@@ -34,16 +34,16 @@ INT_PTR CALLBACK PageMiscProc(HWND hDlg, UINT message,
 			id = LOWORD(wParam); code = HIWORD(wParam);
 			switch(id)
 			{
+#if TC_ENABLE_DESKTOPICON
+				case IDC_DESKTOPICON:
+				case IDC_TRANSDESKTOPICONBK:
+#endif
 				case IDC_NOCLOCK:
 					g_bApplyClock = TRUE;
 					SendPSChanged(hDlg);
 					break;
 				case IDC_MCIWAVE:
 				case IDC_TASKBARRESTART:
-#if TC_ENABLE_DESKTOPICON
-				case IDC_DESKTOPICON:
-				case IDC_TRANSDESKTOPICONBK:
-#endif
 					SendPSChanged(hDlg);
 					break;
 				case IDC_DELAYSTART:
@@ -102,8 +102,9 @@ void OnInit(HWND hDlg)
 	CheckDlgButton(hDlg, IDC_DESKTOPICON,
 		GetMyRegLong(NULL, "DeskTopIcon", FALSE));
 	
-	CheckDlgButton(hDlg, IDC_TRANSDESKTOPICONBK,
-		GetMyRegLong(NULL, "TransDeskTopIconBK", FALSE));
+	//CheckDlgButton(hDlg, IDC_TRANSDESKTOPICONBK,
+	//	GetMyRegLong(NULL, "TransDeskTopIconBK", FALSE));
+	EnableWindow(GetDlgItem(hDlg, IDC_TRANSDESKTOPICONBK), FALSE);
 #endif
 	
 	GetMyRegStr(NULL, "HelpURL", s, MAX_PATH, "");
@@ -141,10 +142,6 @@ void OnApply(HWND hDlg)
 	
 	GetDlgItemText(hDlg, IDC_HELPURL, s, MAX_PATH);
 	SetMyRegStr(NULL, "HelpURL", s);
-	
-#if TC_ENABLE_DESKTOPICON
-	SetDesktopIcons();
-#endif
 }
 
 /*------------------------------------------------

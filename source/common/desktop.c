@@ -16,7 +16,7 @@
 
 /* Statics */
 static void GetDesktopIcons(void);
-static void DesktopIconsTransparentSetReset(BOOL c);
+//static void DesktopIconsTransparentSetReset(BOOL c);
 
 static HWND hwndDesktop = NULL;
 
@@ -37,6 +37,7 @@ void GetDesktopIcons(void)
 	}
 }
 
+#if 0
 /*--------------------------------------------------
   make background of icon text transparent
 ----------------------------------------------------*/
@@ -52,6 +53,7 @@ void DesktopIconsTransparentSetReset(BOOL c)
 	}
 	InvalidateRect(hwndDesktop, NULL, TRUE);
 }
+#endif
 
 /*--------------------------------------------------
   start customizing desktop icons
@@ -77,6 +79,7 @@ void SetDesktopIcons(void)
 			SetWindowLong(hwndDesktop, GWL_STYLE, s | LVS_SMALLICON);
 		}
 
+#if 0
 	// transparent
 		c = (ListView_GetTextBkColor(hwndDesktop) == CLR_NONE);
 		if(GetMyRegLong(NULL, "TransDeskTopIconBK", FALSE))
@@ -89,6 +92,7 @@ void SetDesktopIcons(void)
 			if(c)
 				DesktopIconsTransparentSetReset(FALSE);
 		}
+#endif
 	}
 }
 
@@ -105,7 +109,7 @@ void EndDesktopIcons(void)
 		s = GetWindowLong(hwndDesktop, GWL_STYLE);
 		SetWindowLong(hwndDesktop, GWL_STYLE, s & ~LVS_SMALLICON);
 
-		DesktopIconsTransparentSetReset(FALSE);
+		//DesktopIconsTransparentSetReset(FALSE);
 		hwndDesktop = NULL;
 	}
 }

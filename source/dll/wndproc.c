@@ -113,9 +113,6 @@ LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 #if TC_ENABLE_SYSINFO
 				case IDTIMER_SYSINFO:
 					OnTimerSysInfo();		// sysinfo.c
-#if TC_ENABLE_DESKTOPICON
-					SetDesktopIcons();		// desktop.c
-#endif
 					return 0;
 #endif
 			}
@@ -400,6 +397,10 @@ void OnRefreshClock(HWND hwnd)
 #if TC_ENABLE_SYSINFO
 	EndSysInfo(hwnd);  // sysinfo.c
 	InitSysInfo(hwnd);  // sysinfo.c
+#endif
+	
+#if TC_ENABLE_DESKTOPICON
+	SetDesktopIcons();	// desktop.c
 #endif
 	
 	PostMessage(GetParent(GetParent(hwnd)), WM_SIZE,
