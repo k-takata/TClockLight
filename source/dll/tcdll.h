@@ -195,3 +195,7 @@ void CpuMoni_end(void);
 /* ---------- battery.c --------------- */
 void GetBatteryLifePercent(int *batteryLife, int *batteryMode);
 
+/* ---------- desktop.c  ---------- */
+void SetDesktopIcons(void);
+void EndDesktopIcons(void);
+

@@ -106,6 +106,7 @@ net.obj: $(SRCDIR)\net.c $(TCDLLH) ..\config.h
 hdd.obj: $(SRCDIR)\hdd.c $(TCDLLH) ..\config.h
 cpu.obj: $(SRCDIR)\cpu.c $(TCDLLH) ..\config.h
 battery.obj: $(SRCDIR)\battery.c $(TCDLLH) ..\config.h
+desktop.obj: $(SRCDIR)\desktop.c $(TCDLLH) ..\config.h
 
 # common obj files
 
@@ -118,7 +119,6 @@ nodeflib.obj: $(COMMONDIR)\nodeflib.c $(COMMONH)
 mixer.obj: $(COMMONDIR)\mixer.c $(COMMONH) ..\config.h
 vistavol.obj: $(COMMONDIR)\vistavol.cpp ..\config.h
 	$(CC) $(COPT)$@ $(COMMONDIR)\vistavol.cpp
-desktop.obj: $(COMMONDIR)\desktop.c $(COMMONH) ..\config.h
 
 # res file
 

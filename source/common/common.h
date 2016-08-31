@@ -375,11 +375,6 @@ char* MyString(UINT uID, const char *entry);
 HFONT CreateDialogFont(void);
 void SetDialogLanguage(HWND hDlg, const char *section, HFONT hfont);
 
-/* ---------- desktop.c  ---------- */
-
-void SetDesktopIcons(void);
-void EndDesktopIcons(void);
-
 /* -- utl.c ---------------------------------------- */
 
 // Windows version flag

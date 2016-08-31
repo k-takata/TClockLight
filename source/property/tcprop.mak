@@ -29,8 +29,7 @@ OBJS=pagecolor.obj pagesize.obj pageformat.obj pageformat2.obj\
 	tclang.obj langcode.obj list.obj\
 	combobox.obj autoformat.obj localeinfo.obj selectfile.obj \
 	playfile.obj soundselect.obj alarmstruct.obj mousestruct.obj\
-	utl.obj exec.obj reg.obj font.obj\
-	desktop.obj
+	utl.obj exec.obj reg.obj font.obj
 
 LIBS=kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib\
 	shell32.lib winmm.lib comctl32.lib dwmapi.lib
@@ -115,7 +114,6 @@ exec.obj: $(COMMONDIR)\exec.c $(COMMONH)
 reg.obj: $(COMMONDIR)\reg.c $(COMMONH)
 font.obj: $(COMMONDIR)\font.c $(COMMONH)
 nodeflib.obj: $(COMMONDIR)\nodeflib.c $(COMMONH)
-desktop.obj: $(COMMONDIR)\desktop.c $(COMMONH) ..\config.h
 
 # res file
 

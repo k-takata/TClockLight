@@ -6,7 +6,7 @@
 	- small icon
 	- transparent
 ---------------------------------------------*/
-#include "common.h"
+#include "tcdll.h"
 
 #if TC_ENABLE_DESKTOPICON
 
@@ -61,7 +61,7 @@ void DesktopIconsTransparentSetReset(BOOL c)
 void SetDesktopIcons(void)
 {
 	LONG s;
-	BOOL c;
+	//BOOL c;
 
 	if(!GetMyRegLong(NULL, "DeskTopIcon", FALSE))
 	{
