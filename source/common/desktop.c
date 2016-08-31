@@ -14,8 +14,15 @@
 #define LVS_SMALLICON           0x0002
 #endif
 
+/* Statics */
+static void GetDesktopIcons(void);
+static void DesktopIconsTransparentSetReset(BOOL c);
+
 static HWND hwndDesktop = NULL;
 
+/*------------------------------------------------
+  relative desktop list view handle
+--------------------------------------------------*/
 void GetDesktopIcons(void)
 {
 	HWND hwnd;
@@ -30,6 +37,9 @@ void GetDesktopIcons(void)
 	}
 }
 
+/*--------------------------------------------------
+  make background of icon text transparent
+----------------------------------------------------*/
 void DesktopIconsTransparentSetReset(BOOL c)
 {
 	if(c)
@@ -43,6 +53,9 @@ void DesktopIconsTransparentSetReset(BOOL c)
 	InvalidateRect(hwndDesktop, NULL, TRUE);
 }
 
+/*--------------------------------------------------
+  start customizing desktop icons
+----------------------------------------------------*/
 void SetDesktopIcons(void)
 {
 	LONG s;
@@ -80,13 +93,12 @@ void SetDesktopIcons(void)
 }
 
 /*--------------------------------------------------
-    reset desktop icons
+  end customizing desktop icons
 ----------------------------------------------------*/
 void EndDesktopIcons(void)
 {
 	LONG s;
 
-//	GetDesktopIcons();
 	if(hwndDesktop)
 	{
 		// normal icon
