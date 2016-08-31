@@ -507,17 +507,17 @@ BEGIN
 #if TC_ENABLE_DESKTOPICON
     CONTROL         "Use small desktop icon view",IDC_DESKTOPICON,"Button",
                     BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP,
-                    6,81,94,12
+                    6,81,100,12
     CONTROL         "Make the background of desktop icons text transparent",
                     IDC_TRANSDESKTOPICONBK, BUTTON, BS_AUTOCHECKBOX | 
-                    WS_CHILD | WS_VISIBLE | WS_TABSTOP,6,97,171,12
+                    WS_CHILD | WS_VISIBLE | WS_TABSTOP,6,97,190,12
 #else
     CONTROL         "Use small desktop icon view",IDC_DESKTOPICON,"Button",
                     BS_AUTOCHECKBOX | WS_CHILD | NOT WS_VISIBLE | WS_TABSTOP,
-                    6,80,94,12
+                    6,81,100,12
     CONTROL         "Make the background of desktop icons text transparent",
                     IDC_TRANSDESKTOPICONBK, BUTTON, BS_AUTOCHECKBOX | 
-                    WS_CHILD | NOT WS_VISIBLE | WS_TABSTOP,6,95,171,12
+                    WS_CHILD | NOT WS_VISIBLE | WS_TABSTOP,6,97,190,12
 #endif
     LTEXT           "Help URL",IDC_STATIC,8,116,51,11
     EDITTEXT        IDC_HELPURL,7,128,160,13,ES_AUTOHSCROLL
