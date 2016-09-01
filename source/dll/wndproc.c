@@ -331,13 +331,13 @@ void OnTimerMain(HWND hwnd)
 	// adjusting milliseconds gap
 	if(t.wMilliseconds > 50)
 	{
-		KillTimer(hwnd, IDTIMER_MAIN);
+		//KillTimer(hwnd, IDTIMER_MAIN);
 		SetTimer(hwnd, IDTIMER_MAIN, 1001 - t.wMilliseconds, NULL);
 		bTimerAdjusting = TRUE;
 	}
 	else if(bTimerAdjusting)
 	{
-		KillTimer(hwnd, IDTIMER_MAIN);
+		//KillTimer(hwnd, IDTIMER_MAIN);
 		bTimerAdjusting = FALSE;
 		SetTimer(hwnd, IDTIMER_MAIN, 1000, NULL);
 	}
