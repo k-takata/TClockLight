@@ -72,6 +72,7 @@ LRESULT CALLBACK SubclassProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		
 		case (WM_USER+100):        // a message requesting for clock size
 			if(g_bNoClock) break;  // sent from parent window
+			if(g_winver&WIN10RS1) break;
 			return OnCalcRect(hwnd);  // (only before Win10RS1)
 		
 		case WM_WINDOWPOSCHANGING:  // size arrangement
@@ -262,6 +263,17 @@ static void RearrangeNotifyArea(HWND hwnd, HWND hwndClock)
 }
 
 /*------------------------------------------------
+  vertical taskbar ?
+--------------------------------------------------*/
+BOOL IsVertTaskbar(HWND hwndTaskbar)
+{
+	RECT rc;
+	
+	GetWindowRect(hwndTaskbar, &rc);
+	return (rc.bottom - rc.top) > (rc.right - rc.left);
+}
+
+/*------------------------------------------------
   subclass procedure of the tray
 --------------------------------------------------*/
 LRESULT CALLBACK SubclassTrayProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
@@ -296,12 +308,12 @@ LRESULT CALLBACK SubclassTrayProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 		}
 		case WM_WINDOWPOSCHANGING:
 		{
-			RECT rc;
+			BOOL vert;
 			
-			GetWindowRect(GetParent(hwnd), &rc);
-			if (!EqualRect(&rc, &g_rcTaskbar))
+			vert = IsVertTaskbar(GetParent(hwnd));
+			if (g_bVertTaskbar != vert)
 			{
-				g_rcTaskbar = rc;
+				g_bVertTaskbar = vert;
 				g_bTaskbarPosChanging = TRUE;
 			}
 			else

@@ -20,7 +20,7 @@ BOOL    g_bVisualStyle;        // Windows XP theme is used
 BOOL    g_bNoClock;            // don't customize clock
 int     g_OrigClockWidth;      // original clock width
 int     g_OrigClockHeight;     // original clock height
-RECT    g_rcTaskbar;
+BOOL    g_bVertTaskbar;        // vertical taskbar ?
 BOOL    g_bTaskbarPosChanging;
 BOOL    g_bLMousePassThru;     // pass through left button messages
 
@@ -68,8 +68,8 @@ void InitClock(HWND hwnd)
 	GetWindowRect(hwnd, &rc);
 	g_OrigClockWidth = rc.right - rc.left;
 	g_OrigClockHeight = rc.bottom - rc.top;
-	// Save taskbar position
-	GetWindowRect(GetParent(GetParent(hwnd)), &g_rcTaskbar);
+	// Save taskbar direction
+	g_bVertTaskbar = IsVertTaskbar(GetParent(GetParent(hwnd)));
 	g_bTaskbarPosChanging = FALSE;
 	
 	// tell tclock.exe clock's HWND
