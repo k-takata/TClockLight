@@ -1,6 +1,6 @@
 
         TClock Light 改造版  by K.Takata
-          Ver.kt1608xx (based on tclocklight-040702-3)
+          Ver.kt1609xx (based on tclocklight-040702-3)
 
 １．概要
 　タスクトレイの時計を改造するソフトである TClock Light (かずぼん氏作)(*1) を
@@ -375,7 +375,7 @@ UAC (User Account Control) が有効な場合に、tcsntp.exe を使って SNTP で
   表示するように変更。
 ・SNTP のログに年の表示を追加。
 
-2016/08/xx
+2016/09/xx
 ・Windows 10 Anniversary Update で動かない問題の対処。(T-Clock Redux の
   コードを参考に。)
 ・High DPI 対応。
