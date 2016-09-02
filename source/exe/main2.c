@@ -32,6 +32,19 @@ int TClockExeMain(void)
 	MSG msg;
 	WNDCLASS wndclass;
 	HWND hwnd, hwndParent;
+#ifndef _WIN64
+	BOOL wow64;
+	
+	if(IsWow64Process(GetCurrentProcess(), &wow64))
+	{
+		if(wow64)
+		{
+			MessageBox(NULL, "Please use x64 version.",
+					"Error", MB_OK|MB_ICONEXCLAMATION);
+			return 1;
+		}
+	}
+#endif
 	
 	// not to execute the program twice
 	hwnd = GetTClockMainWindow();
