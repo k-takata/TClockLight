@@ -530,8 +530,10 @@ LRESULT OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	if(g_bLMousePassThru && message == WM_LBUTTONDOWN)
 	{
 		if(skipmsg)
+			// Skip this message. Only stop blinking.
 			return 0;
 		else
+			// Pass through this message to the original wndproc.
 			return DefSubclassProc(hwnd, message, wParam, lParam);
 	}
 	
@@ -545,6 +547,7 @@ LRESULT OnMouseDown(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 LRESULT OnMouseUp(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if(g_bLMousePassThru && message == WM_LBUTTONUP)
+		// Pass through this message to the original wndproc.
 		return DefSubclassProc(hwnd, message, wParam, lParam);
 	
 	PostMessage(g_hwndTClockMain, message, wParam, lParam);
