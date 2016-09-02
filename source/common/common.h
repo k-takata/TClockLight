@@ -302,22 +302,6 @@ DWORDLONG r_M32x32to64(DWORD a, DWORD b);
 
 #define M32x32to64(a,b) r_M32x32to64(a,b)
 
-#ifdef __BORLANDC__
-
-#undef memcpy
-#define memcpy(d,s,l) r_memcpy(d,s,l)
-
-#undef memset
-#define memset(d,c,l) r_memset(d,c,l)
-
-#undef strlen
-#define strlen(s) lstrlen(s)
-
-#undef strcat
-#define strcat(d, s) lstrcat(d, s)
-
-#endif  // end of __BORLANDC__
-
 #else   // #ifndef NODEFAULTLIB
 
 #define atox(p) strtol((p),NULL,16)

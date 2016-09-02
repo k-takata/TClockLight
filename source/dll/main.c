@@ -29,11 +29,6 @@ static void Debug_ListChild(HWND hwndParent, int depth);
   entry point of this DLL
 --------------------------------------------------*/
 #ifdef NODEFAULTLIB
-
-#ifdef __BORLANDC__
-#define _DllMainCRTStartup DllEntryPoint
-#endif
-
 BOOL WINAPI _DllMainCRTStartup(HANDLE hModule, DWORD dwFunction, LPVOID lpNot)
 #else
 int WINAPI DllMain(HANDLE hModule, DWORD dwFunction, LPVOID lpNot)
