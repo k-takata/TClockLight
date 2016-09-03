@@ -255,24 +255,25 @@ LRESULT CalcRect(HWND hwnd, int *textwidth, int *textheight)
 	
 	if(g_bFitClock)
 	{
-		//RECT rcTray;
-		RECT rcTaskbar;
+		RECT rcTray;
+		int h = g_OrigClockHeight, w = g_OrigClockWidth;
 		
-		//GetWindowRect(GetParent(hwnd), &rcTray);
-		GetClientRect(GetParent(GetParent(hwnd)), &rcTaskbar);
+		if(!(g_winver&WIN10RS1))
+		{
+			GetWindowRect(GetParent(hwnd), &rcTray);
+			h = rcTray.bottom - rcTray.top;
+			w = rcTray.right - rcTray.left;
+		}
 		
 		// horizontal task bar
-		if(rcTaskbar.right - rcTaskbar.left >
-			rcTaskbar.bottom - rcTaskbar.top)
+		if(!IsVertTaskbar(GetParent(GetParent(hwnd))))
 		{
-			//hclock = rcTray.bottom - rcTray.top;
-			hclock = g_OrigClockHeight;
+			hclock = h;
 		}
 		// vertical task bar
 		else
 		{
-			//wclock = rcTray.right - rcTray.left;
-			wclock = g_OrigClockWidth;
+			wclock = w;
 		}
 	}
 	
