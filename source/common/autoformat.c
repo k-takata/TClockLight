@@ -215,7 +215,7 @@ void AutoFormat(char* dst, BOOL* parts)
 	
 	if(parts[PART_HOUR])
 	{
-		strcat(dst, "hh");
+		strcat(dst, "_h");
 		if(parts[PART_MINUTE] || parts[PART_SECOND])
 			strcat(dst, ":");
 		else if(!m_bTimeMarkerIsFirst && parts[PART_AMPM])
