@@ -40,7 +40,7 @@ int TClockExeMain(void)
 		if(wow64)
 		{
 			MessageBox(NULL, "Please use x64 version.",
-					"Error", MB_OK|MB_ICONEXCLAMATION);
+					"TClock", MB_OK|MB_ICONEXCLAMATION);
 			return 1;
 		}
 	}
@@ -61,7 +61,7 @@ int TClockExeMain(void)
 	if(FindWindow("ObjectBar Toolbar", NULL))
 	{
 		MessageBox(NULL, "ObjectBar is running",
-			"Error", MB_OK|MB_ICONEXCLAMATION);
+			"TClock", MB_OK|MB_ICONEXCLAMATION);
 		return 1;
 	}
 	

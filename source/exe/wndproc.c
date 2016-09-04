@@ -298,7 +298,7 @@ void OnTCMClockError(HWND hwnd, LPARAM lParam)
 {
 	char s[160];
 	
-	wsprintf(s, "%s: %d", "failed to start TClock.", lParam);
+	wsprintf(s, "Failed to start TClock: %d", lParam);
 	MessageBox(NULL, s, "Error", MB_OK|MB_ICONEXCLAMATION);
 	
 	PostMessage(hwnd, WM_CLOSE, 0, 0);
