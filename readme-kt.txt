@@ -136,9 +136,13 @@ Privilege Isolation) の制限で、時計を右クリックしてもメニューが
 それぞれの機能拡張はオフにしてありますので、使用する際には設定を変更して
 コンパイルする必要があります。詳細は config-kt.txt を参照してください。
 
-・tclocklight-050716
-・TClock Light Unofficial 060502
-・tclocklight- 080409
+・tclocklight-050716 (TClock Lightスレッド@別館 part1 11氏)
+・TClock Light Unofficial 060502 (by ◆FDQ3TClock氏)
+・tclocklight- 080409 (by slic氏)
+
+あるいは、別配布の custom 版が使用できます。custom 版でどの機能が有効化されて
+いるかは、ソースファイル内の source_all\config.h および source_custom\config.h
+で確認できます。（custom 版の詳細については説明を省きます。）
 
 3.13. x64 への対応
 　x64 に正式対応しました。
