@@ -399,8 +399,9 @@ void OnApply(HWND hDlg)
 		g_bApplyMain = FALSE;
 	}
 	
+	if(GetFocus() == GetDlgItem(hDlg, IDC_APPLY))
+		PostMessage(hDlg, WM_NEXTDLGCTL, 0, FALSE);
 	EnableDlgItem(hDlg, IDC_APPLY, FALSE);
-	PostMessage(hDlg, WM_NEXTDLGCTL, 0, FALSE);
 }
 
 /*-------------------------------------------
