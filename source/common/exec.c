@@ -134,7 +134,7 @@ BOOL ExecFile(HWND hwnd, const char* command)
 	
 	free(option);
 	
-	return ((int)sei.hInstApp > 32);
+	return ((int)(INT_PTR)sei.hInstApp > 32);
 }
 
 /*------------------------------------------------

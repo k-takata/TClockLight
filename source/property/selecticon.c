@@ -96,7 +96,7 @@ BOOL InitSelectIcon(HWND hDlg)
 	if(num[0] == 0) index = 0;
 	else index = atoi(num);
 	
-	count = (int)ExtractIcon(m_hInst, fname, (UINT)-1);
+	count = (int)(INT_PTR)ExtractIcon(m_hInst, fname, (UINT)-1);
 	if(count == 0)
 	{
 		strcpy(msg, MyString(IDS_NOICON, "NoIcon"));
