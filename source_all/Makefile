@@ -7,7 +7,7 @@ OUTDIR=out
 
 
 # Check target
-!IF "$(CPU)"=="AMD64" || "$(TARGET_CPU)"=="x64" || "$(Platform)"=="x64" || "$(PLATFORM)"=="x64" || DEFINED(AMD64)
+!IF "$(CPU)"=="AMD64" || "$(TARGET_CPU)"=="x64" || "$(PLATFORM)"=="x64" || "$(PLATFORM)"=="X64" || DEFINED(AMD64)
 WIN64=1
 !ENDIF
 
