@@ -79,7 +79,7 @@ INT_PTR CALLBACK DlgProcAbout(HWND hDlg, UINT message,
 			{
 				SetTextColor(hdc, RGB(0,0,255));
 				SetBkMode(hdc, TRANSPARENT);
-				return (int)GetSysColorBrush(COLOR_3DFACE);
+				return (INT_PTR)GetSysColorBrush(COLOR_3DFACE);
 			}
 			break;
 		}
