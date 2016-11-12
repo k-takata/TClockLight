@@ -29,10 +29,10 @@ build_script:
 
 after_build:
   - if "%VC%-%APPVEYOR_PULL_REQUEST_NUMBER%"=="10-" set CREATEPKG=yes
-  - "for /f %%i in (\'py -3 appveyor\\jstdate.py\') do set TODAY=%%i"
+  - "for /f \"usebackq\" %%i in (`py -3 -c \"from datetime import datetime, timedelta; print((datetime.utcnow() + timedelta(hours=9)).strftime(\'%%Y%%m%%d\'))\"`) do set TODAY=%%i"
   - >
     if "%CREATEPKG%"=="yes"
-    pack %TODAY%-%APPVEYOR_REPO_COMMIT% &&
+    pack kt%TODAY%-%APPVEYOR_REPO_COMMIT% &&
     move pkg\tclocklight-*.zip . &&
     move pkg\tclocklight-*-custom.7z .
 
