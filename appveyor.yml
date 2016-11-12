@@ -1,0 +1,56 @@
+version: "{build}"
+
+shallow_clone: true
+
+environment:
+  global:
+    SEVENZIP: 'C:\Program Files\7-Zip\7z.exe'
+    SETENVCMD: 'C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd'
+    VCVARSALLBAT14: 'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'
+
+  matrix:
+    - VC: 10
+    - VC: 14
+      ARCH: x86
+    - VC: 14
+      ARCH: x64
+
+before_build:
+  - prepare_custom.bat
+
+build_script:
+  # If VC is 10, build both x86 and x64.
+  - >
+    if %VC%==10
+    "%SETENVCMD%" /x86 /release &&
+    make_all.bat &&
+    "%SETENVCMD%" /x64 /release &&
+    make_all.bat
+  # If VC is 14, build only specified architecture.
+  - if %VC%==14 "%VCVARSALLBAT14%" %ARCH% && make_all.bat
+
+after_build:
+  # Create packages only if VC is 10 and not a PR build.
+  - if "%VC%-%APPVEYOR_PULL_REQUEST_NUMBER%"=="10-" set CREATEPKG=yes
+  # Get today's date in JST.
+  - >
+    for /f "usebackq" %%i in (`py -3 -c
+    "from datetime import datetime, timedelta;
+    print((datetime.utcnow() + timedelta(hours=9)).strftime('%%Y%%m%%d'))"
+    `) do set TODAY=%%i
+  - >
+    if "%CREATEPKG%"=="yes"
+    pack kt%TODAY%-%APPVEYOR_REPO_COMMIT% &&
+    move pkg\tclocklight-*.zip . &&
+    move pkg\tclocklight-*-custom.7z .
+
+#test_script:
+#  - 
+
+artifacts:
+  - path: tclocklight-*.zip
+    name: main package
+  - path: tclocklight-*-custom.7z
+    name: custom package
+
+# vim: ts=2 sw=2 et
