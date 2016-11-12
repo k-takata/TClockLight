@@ -2,6 +2,9 @@
 if "%1"=="" goto usage
 setlocal DISABLEDELAYEDEXPANSION
 
+:: 7z (official version) or 7-zip32 (undll + common archiver) can be used
+if "%SEVENZIP%"=="" set SEVENZIP=7-zip32
+
 :: Normal version
 set execfiles=tcdll.tclock tclock.exe tcplayer.exe tcprop.exe tcsntp.exe tctimer.exe
 set pkgfiles=readme-kt.txt config-kt.txt format-kt.txt readme.html
@@ -10,8 +13,8 @@ set srcfiles=source source_all\Makefile source_all\config.h source_custom\Makefi
 if exist pkg rd /s /q pkg
 mkdir pkg
 
-rem 7-zip32 a -mx=9 -m0=PPMd source.7z %srcfiles% -xr!out -xr!out64 -xr!work -xr!work64 -xr!*.bak -xr!*.old -xr!*.sw? -xr!*~ -xr!*.aps -xr!tags
-7-zip32 a -m0=PPMd:o=31:mem=25 source.7z %srcfiles% -xr!out -xr!out64 -xr!work -xr!work64 -xr!*.bak -xr!*.old -xr!*.sw? -xr!*~ -xr!*.aps -xr!tags
+rem "%SEVENZIP" a -mx=9 -m0=PPMd source.7z %srcfiles% -xr!out -xr!out64 -xr!work -xr!work64 -xr!*.bak -xr!*.old -xr!*.sw? -xr!*~ -xr!*.aps -xr!tags
+"%SEVENZIP%" a -m0=PPMd:o=31:mem=25 source.7z %srcfiles% -xr!out -xr!out64 -xr!work -xr!work64 -xr!*.bak -xr!*.old -xr!*.sw? -xr!*~ -xr!*.aps -xr!tags
 move /y source.7z pkg > nul
 
 robocopy source\out   pkg\x86 %execfiles% > nul
@@ -20,7 +23,7 @@ robocopy lang pkg\lang /xf *~ *.sw? > nul
 robocopy .    pkg %pkgfiles% > nul
 
 cd pkg
-7-zip32 a -mx=9 tclocklight-%1.zip %pkgfiles% lang x86 x64 source.7z
+"%SEVENZIP%" a -mx=9 tclocklight-%1.zip %pkgfiles% lang x86 x64 source.7z
 cd ..
 
 
@@ -33,7 +36,7 @@ robocopy source_custom\out   pkg\custom\x86 %execfiles% > nul
 robocopy source_custom\out64 pkg\custom\x64 %execfiles% > nul
 
 cd pkg
-7-zip32 a -mx=9 tclocklight-%1-custom.7z all custom
+"%SEVENZIP%" a -mx=9 tclocklight-%1-custom.7z all custom
 cd ..
 
 goto end
