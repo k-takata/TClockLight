@@ -34,8 +34,9 @@ static BOOL bMuteFlg;
 #endif
 
 #if TC_ENABLE_CPU
+extern int CPUUsage[];
 static BOOL m_bCPU;
-static int iCPUUsage;
+static int totalCPUUsage;
 #endif
 
 #if TC_ENABLE_NETWORK
@@ -132,7 +133,7 @@ void OnTimerSysInfo(void)
 #if TC_ENABLE_CPU
 	if(m_bCPU)
 	{
-		iCPUUsage = CpuMoni_get(); // cpu.c
+		totalCPUUsage = CpuMoni_get(); // cpu.c
 	}
 #endif
 #if TC_ENABLE_BATTERY
@@ -454,12 +455,23 @@ void CPUHandler(FORMATHANDLERSTRUCT* pstruc)
 	{
 		m_bCPU = TRUE;
 		CpuMoni_start(); // cpu.c
-		iCPUUsage = CpuMoni_get(); // cpu.c
+		totalCPUUsage = CpuMoni_get(); // cpu.c
 		g_bDispSecond = TRUE;
 	}
 
-	pstruc->sp += 2;
-	FormatNum(&pstruc->sp, &pstruc->dp, iCPUUsage, pstruc->bZeroPad);
+	if('0' <= pstruc->sp[2] && pstruc->sp[2] <='7') // to be fixed for more than 8 CPU cores
+	{
+		// CPU usage per core
+		const int processorNum = pstruc->sp[2] - '0';
+		pstruc->sp += 3;
+		FormatNum(&pstruc->sp, &pstruc->dp, CPUUsage[processorNum], pstruc->bZeroPad);
+	}
+	else
+	{
+		// total CPU usage
+		pstruc->sp += 2;
+		FormatNum(&pstruc->sp, &pstruc->dp, totalCPUUsage, pstruc->bZeroPad);
+	}
 }
 #endif
 
