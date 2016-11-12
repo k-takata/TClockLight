@@ -6,17 +6,27 @@ environment:
   global:
     SEVENZIP: 'C:\Program Files\7-Zip\7z.exe'
 
+  matrix:
+    - VC: 10
+    - VC: 15
+      ARCH: x86
+    - VC: 15
+      ARCH: x64
+
 before_build:
   - prepare_custom.bat
 
 build_script:
-  - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x86 /release'
-  - make_all.bat
-  - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64 /release'
-  - make_all.bat
+  - >
+    if %VC%==10
+    "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x86 /release &&
+    make_all.bat &&
+    "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64 /release &&
+    make_all.bat
+  - if %VC%==15 "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" %ARCH% && make_all.bat
 
 after_build:
-  - if "%APPVEYOR_PULL_REQUEST_NUMBER%"=="" set CREATEPKG=yes
+  - if "%VC%-%APPVEYOR_PULL_REQUEST_NUMBER%"=="10-" set CREATEPKG=yes
   - if "%CREATEPKG%"=="yes" pack %APPVEYOR_REPO_COMMIT%
   - if "%CREATEPKG%"=="yes" move pkg\tclocklight-*.zip .
   - if "%CREATEPKG%"=="yes" move pkg\tclocklight-*-custom.7z .
