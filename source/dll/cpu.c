@@ -38,6 +38,10 @@ PDH_HCOUNTER hCPUCounter[MAX_PROCESSOR] = { NULL };
 
 void CpuMoni_start(void)
 {
+	PDH_STATUS status;
+	wchar_t counterName[64];
+	int i;
+
 	if ( hmodPDH )
 	{
 		CpuMoni_end();
@@ -66,8 +70,6 @@ void CpuMoni_start(void)
 		goto FAILURE_PDH_COUNTER_INITIALIZATION;
 	}
 
-	PDH_STATUS status;
-
 	// initialize
 	status = pPdhOpenQueryW(NULL, 0, &hQuery);
 	if ( status != ERROR_SUCCESS )
@@ -76,8 +78,7 @@ void CpuMoni_start(void)
 	}
 
 	// create cpu counter
-	wchar_t counterName[64];
-	for ( int i = 0; i < MAX_PROCESSOR; ++i )
+	for ( i = 0; i < MAX_PROCESSOR; ++i )
 	{
 		wsprintfW(counterName, L"\\Processor(%d)\\%% Processor Time", i);
 
@@ -108,13 +109,14 @@ FAILURE_PDH_COUNTER_INITIALIZATION:
 
 int CpuMoni_get(void)
 {
+	PDH_STATUS           status;
+	PDH_FMT_COUNTERVALUE FmtValue;
+	int i;
+
 	if ( hQuery == NULL )
 	{
 		return 0;
 	}
-
-	PDH_STATUS           status;
-	PDH_FMT_COUNTERVALUE FmtValue;
 
 	// get current data
 	status = pPdhCollectQueryData(hQuery);
@@ -124,7 +126,7 @@ int CpuMoni_get(void)
 	}
 
 	// get cpu counter
-	for ( int i = 0; i < MAX_PROCESSOR; ++i )
+	for ( i = 0; i < MAX_PROCESSOR; ++i )
 	{
 		status = pPdhGetFormattedCounterValue(hCPUCounter[i], PDH_FMT_DOUBLE, NULL, &FmtValue);
 		if ( status != ERROR_SUCCESS )
