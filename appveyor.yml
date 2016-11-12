@@ -16,15 +16,18 @@ build_script:
   - make_all.bat
 
 after_build:
-  - if "%APPVEYOR_PULL_REQUEST_NUMBER%"=="" pack %APPVEYOR_REPO_COMMIT%
+  - if "%APPVEYOR_PULL_REQUEST_NUMBER%"=="" set CREATEPKG=yes
+  - if "%CREATEPKG%"=="yes" pack %APPVEYOR_REPO_COMMIT%
+  - if "%CREATEPKG%"=="yes" move pkg\tclocklight-*.zip .
+  - if "%CREATEPKG%"=="yes" move pkg\tclocklight-*-custom.7z .
 
 #test_script:
 #  - 
 
 artifacts:
-  - path: pkg\*.zip
+  - path: tclocklight-*.zip
     name: main package
-  - path: pkg\*_custom.7z
+  - path: tclocklight-*-custom.7z
     name: custom package
 
 # vim: ts=2 sw=2 et
