@@ -5,12 +5,14 @@ shallow_clone: true
 environment:
   global:
     SEVENZIP: 'C:\Program Files\7-Zip\7z.exe'
+    SETENVCMD: 'C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd'
+    VCVARSALLBAT14: 'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'
 
   matrix:
     - VC: 10
-    - VC: 15
+    - VC: 14
       ARCH: x86
-    - VC: 15
+    - VC: 14
       ARCH: x64
 
 before_build:
@@ -19,17 +21,19 @@ before_build:
 build_script:
   - >
     if %VC%==10
-    "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x86 /release &&
+    "%SETENVCMD%" /x86 /release &&
     make_all.bat &&
-    "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64 /release &&
+    "%SETENVCMD%" /x64 /release &&
     make_all.bat
-  - if %VC%==15 "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" %ARCH% && make_all.bat
+  - if %VC%==14 "%VCVARSALLBAT14%" %ARCH% && make_all.bat
 
 after_build:
   - if "%VC%-%APPVEYOR_PULL_REQUEST_NUMBER%"=="10-" set CREATEPKG=yes
-  - if "%CREATEPKG%"=="yes" pack %APPVEYOR_REPO_COMMIT%
-  - if "%CREATEPKG%"=="yes" move pkg\tclocklight-*.zip .
-  - if "%CREATEPKG%"=="yes" move pkg\tclocklight-*-custom.7z .
+  - >
+    if "%CREATEPKG%"=="yes"
+    pack %APPVEYOR_REPO_COMMIT% &&
+    move pkg\tclocklight-*.zip . &&
+    move pkg\tclocklight-*-custom.7z .
 
 #test_script:
 #  - 
