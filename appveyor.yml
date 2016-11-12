@@ -1,0 +1,25 @@
+version: "{build}"
+
+shallow_clone: true
+
+
+before_build:
+  - prepare_custom.bat
+
+build_script:
+  - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x86 /release'
+  - make_all.bat
+  - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64 /release'
+  - make_all.bat
+
+#after_build:
+#  - 
+
+#test_script:
+#  - 
+
+#artifacts:
+#  - path: 
+#    name: 
+
+# vim: ts=2 sw=2 et
