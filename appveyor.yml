@@ -2,6 +2,9 @@ version: "{build}"
 
 shallow_clone: true
 
+environment:
+  global:
+    SEVENZIP: 'C:\Program Files\7-Zip\7z.exe'
 
 before_build:
   - prepare_custom.bat
@@ -12,14 +15,16 @@ build_script:
   - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64 /release'
   - make_all.bat
 
-#after_build:
-#  - 
+after_build:
+  - if "%APPVEYOR_PULL_REQUEST_NUMBER%"=="" pack %APPVEYOR_REPO_COMMIT%
 
 #test_script:
 #  - 
 
-#artifacts:
-#  - path: 
-#    name: 
+artifacts:
+  - path: pkg\*.zip
+    name: main package
+  - path: pkg\*_custom.7z
+    name: custom package
 
 # vim: ts=2 sw=2 et
