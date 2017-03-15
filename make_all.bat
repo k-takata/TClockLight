@@ -33,7 +33,7 @@ exit /b
 
 :check_source
 if not exist Makefile (
-	echo Souce files not found.
+	echo Source files not found.
 	echo Run prepare_custom.bat in admin mode.
 	exit /b 1
 )
