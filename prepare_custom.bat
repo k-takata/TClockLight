@@ -1,7 +1,7 @@
 @echo off
 
-if not exist source_all\nul exit
-if not exist source_custom\nul exit
+if not exist source_all\nul goto :eof
+if not exist source_custom\nul goto :eof
 
 cd source_all
 call :createlink
@@ -14,13 +14,13 @@ goto :eof
 
 
 :createlink
-if exist common   rmdir common
-if exist dll      rmdir dll
-if exist exe      rmdir exe
-if exist player   rmdir player
-if exist property rmdir property
-if exist sntp     rmdir sntp
-if exist timer    rmdir timer
+call :removelink common
+call :removelink dll
+call :removelink exe
+call :removelink player
+call :removelink property
+call :removelink sntp
+call :removelink timer
 
 mklink /d common   ..\source\common
 mklink /d dll      ..\source\dll
@@ -29,4 +29,14 @@ mklink /d player   ..\source\player
 mklink /d property ..\source\property
 mklink /d sntp     ..\source\sntp
 mklink /d timer    ..\source\timer
+exit /b
+
+
+:removelink
+if exist %1\nul (
+	rmdir %1
+) else if exist %1 (
+	rem Remove Cygwin's symlink.
+	del /a %1
+)
 exit /b
