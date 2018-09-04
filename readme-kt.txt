@@ -12,13 +12,12 @@ x64 への対応などの変更を行っています。
 
 
 ２．インストール
-　一般ユーザー権限で書き込み可能な適当なディレクトリを用意し、そこにファイル
-を解凍してください。(C:\Program Files などにはインストールしないでください。)
-　その後、使用している OS に合わせて、x64, x86 いずれかのディレクトリに入って
-いるファイルを、1階層上にコピーしてください。以下のように、実行ファイルのある
-場所に lang ディレクトリがなければなりません。
+　一般ユーザー権限で書き込み可能な適当なディレクトリを用意し、そこに OS に
+合わせて x64 版 (64bit) または x86 版 (32bit) のいずれかのファイルを解凍して
+ください。(C:\Program Files などにはインストールしないでください。)
+　以下のようなディレクトリ構成になっていることを確認してください。
 
-     tclock
+     tclock インストール先
      │  tcdll.tclock
      │  tclock.exe
      │  tcplayer.exe
@@ -421,6 +420,7 @@ UAC (User Account Control) が有効な場合に、tcsntp.exe を使って SNTP で
 ・nifty @homepage の閉鎖に伴い、ヘルプの URL を「TClock2ch付属サイト」に変更。
   http://tclock2ch.no.land.to/
   http://tclock2ch.no.land.to/kazubon/tclocklight/help/ja/
+・通常版のパッケージ構成を変更し、x64 版と x86 版を分離。
 
 
 ６．ライセンス

@@ -19,12 +19,21 @@ move /y source.7z pkg > nul
 
 robocopy source\out   pkg\x86 %execfiles% > nul
 robocopy source\out64 pkg\x64 %execfiles% > nul
-robocopy lang pkg\lang /xf *~ *.sw? > nul
-robocopy .    pkg %pkgfiles% > nul
+robocopy lang pkg\x86\lang /xf *~ *.sw? > nul
+robocopy lang pkg\x64\lang /xf *~ *.sw? > nul
+robocopy .    pkg\x86 %pkgfiles% > nul
+robocopy .    pkg\x64 %pkgfiles% > nul
+copy pkg\source.7z pkg\x86 > nul
+copy pkg\source.7z pkg\x64 > nul
 
-cd pkg
-"%SEVENZIP%" a -mx=9 tclocklight-%1.zip %pkgfiles% lang x86 x64 source.7z
-cd ..
+pushd pkg\x86
+rem "%SEVENZIP%" a -mx=9 ..\tclocklight-%1-x86.zip %pkgfiles% lang source.7z
+"%SEVENZIP%" a -mx=9 ..\tclocklight-%1-x86.zip .
+popd
+pushd pkg\x64
+rem "%SEVENZIP%" a -mx=9 ..\tclocklight-%1-x86.zip %pkgfiles% lang source.7z
+"%SEVENZIP%" a -mx=9 ..\tclocklight-%1-x64.zip .
+popd
 
 
 :: All/Custom versions
