@@ -1,6 +1,6 @@
 
         TClock Light 改造版  by K.Takata
-          Ver.kt160911 (based on tclocklight-040702-3)
+          Ver.kt180904 (based on tclocklight-040702-3)
 
 １．概要
 　タスクトレイの時計を改造するソフトである TClock Light (かずぼん氏作)(*1) を
@@ -414,6 +414,13 @@ UAC (User Account Control) が有効な場合に、tcsntp.exe を使って SNTP で
 ・マルチディスプレイ使用時の挙動を一部改善。
 ・x86 版を 64bit OS で実行できないようにチェックを追加。
 ・デフォルトの時間の書式を hh から _h に変更。
+
+2018/09/04
+・VC2015 で x64 版がビルドできなかったのを修正。
+・書式 CU[0-7] を追加。コアごとの CPU 使用率の表示に対応。(PR #4) (all 版のみ)
+・nifty @homepage の閉鎖に伴い、ヘルプの URL を「TClock2ch付属サイト」に変更。
+  http://tclock2ch.no.land.to/
+  http://tclock2ch.no.land.to/kazubon/tclocklight/help/ja/
 
 
 ６．ライセンス
