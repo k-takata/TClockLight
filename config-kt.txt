@@ -104,11 +104,11 @@
 ４．参考情報
 
 ・システム情報の表示（CPU使用率など）
-  http://homepage1.nifty.com/kazubon/progdoc/tclock/sysinfo.html
+  http://homepage1.nifty.com/kazubon/progdoc/tclock/sysinfo.html (404)
 ・機能のはずし方
-  http://homepage1.nifty.com/kazubon/progdoc/tclock/superlight.html
+  http://homepage1.nifty.com/kazubon/progdoc/tclock/superlight.html (404)
 ・TClock2ch付属サイト…
-  http://www22.atpages.jp/tclock2ch/
+  http://tclock2ch.no.land.to/
     - tclocklight-050716.zip
     - tclocklight-unofficial-060502.zip
     - tclocklight-080409.zip

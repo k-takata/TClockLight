@@ -28,6 +28,14 @@ BE CAREFUL! The packages on AppVeyor are NOT tested.
 * Supports some new text formats.
 * etc.
 
+## Documents
+
+The following documents are available. (all in Japanese)
+
+* [readme-kt.txt](readme-kt.txt): Readme for the "kt" version
+* [config-kt.txt](config-kt.txt): How to configure TClock Light kt
+* [format-kt.txt](format-kt.txt): Format strings that can be used in TClock Light kt
+* [readme.html](readme.html): The original readme by Kazubon
 
 ## License
 
