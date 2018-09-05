@@ -42,7 +42,9 @@ The following documents are available. (all in Japanese)
 You may distribute under the terms of the GNU General Public License.
 
 
-## References
+## References / Links
 
 * TClock Light (The original version by Kazubon):  
   http://homepage1.nifty.com/kazubon/tclocklight/ (404)
+* TClock2ch付属サイト (A useful site for TClock2ch and TClock Light):  
+  http://tclock2ch.no.land.to/
