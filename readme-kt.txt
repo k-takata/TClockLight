@@ -1,6 +1,6 @@
 
         TClock Light 改造版  by K.Takata
-          Ver.kt180904 (based on tclocklight-040702-3)
+          Ver.kt240522 (based on tclocklight-040702-3)
 
 １．概要
 　タスクトレイの時計を改造するソフトである TClock Light (かずぼん氏作)(*1) を
@@ -8,7 +8,8 @@ K.Takata が勝手に改変したものです。
 　消費メモリの削減、ログ表示の改善、アラーム機能の強化、Vista/7/8/10 への対応、
 x64 への対応などの変更を行っています。
 
-(*1) http://homepage1.nifty.com/kazubon/tclocklight/
+(*1) http://homepage1.nifty.com/kazubon/tclocklight/ (404)
+     http://web.archive.org/web/20161108103238/http://homepage1.nifty.com/kazubon/
 
 
 ２．インストール
@@ -209,6 +210,9 @@ UAC (User Account Control) が有効な場合に、tcsntp.exe を使って SNTP で
 
 4.6. リモートデスクトップで接続時に表示がちらつく
 　リモートデスクトップで接続したときに、時計の表示がちらつくことがあります。
+
+4.7. Windows 11
+　Windows 11 ではエラーが出て動作しません。
 
 
 ５．更新履歴
@@ -426,6 +430,11 @@ UAC (User Account Control) が有効な場合に、tcsntp.exe を使って SNTP で
   http://tclock2ch.no.land.to/kazubon/tclocklight/help/ja/
 ・通常版のパッケージ構成を変更し、x64 版と x86 版を分離。
 ・リモートデスクトップで接続時のちらつきを制限事項として記載。
+
+2024/05/22
+・マルチモニター使用時などに、時計ウィンドウより右側のパーツ（通知ボタン、
+　全画面ボタン）が徐々に右側にずれていく問題を修正。
+・Windows 11 で動作しない旨を明記。
 
 
 ６．ライセンス
