@@ -229,7 +229,7 @@ static void RearrangeNotifyArea(HWND hwnd, HWND hwndClock)
 {
 	LRESULT size;
 	POINT posclk = {0, 0};
-	int wclock, hclock;
+	int wclock, hclock, lastx, lasty;
 	HWND hwndChild;
 	
 	size = OnCalcRect(hwndClock);
@@ -238,26 +238,36 @@ static void RearrangeNotifyArea(HWND hwnd, HWND hwndClock)
 	SetWindowPos(hwndClock, NULL, 0, 0, wclock, hclock,
 			SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER);
 	MapWindowPoints(hwndClock, hwnd, &posclk, 1);
+	lastx = posclk.x + wclock;
+	lasty = posclk.y + hclock;
 	posclk.x += g_OrigClockWidth;
 	posclk.y += g_OrigClockHeight;
-	hwndChild = hwndClock;
-	while((hwndChild = GetWindow(hwndChild, GW_HWNDNEXT)) != NULL)
+
+	// Loop for all the windows after the clock window.
+	for(hwndChild = hwndClock;
+			(hwndChild = GetWindow(hwndChild, GW_HWNDNEXT)) != NULL; )
 	{
+		RECT rc;
 		POINT pos = {0, 0};
 		MapWindowPoints(hwndChild, hwnd, &pos, 1);
+		GetWindowRect(hwndChild, &rc);
 		if(pos.x >= posclk.x)
 		{
 			// Horizontal taskbar
-			pos.x += wclock - g_OrigClockWidth;
+			//pos.x += wclock - g_OrigClockWidth;
+			pos.x = lastx;
 			SetWindowPos(hwndChild, NULL, pos.x, pos.y, 0, 0,
 					SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
+			lastx = pos.x + rc.right - rc.left;
 		}
 		else if(pos.y >= posclk.y)
 		{
 			// Vertical taskbar
-			pos.y += hclock - g_OrigClockHeight;
+			//pos.y += hclock - g_OrigClockHeight;
+			pos.y = lasty;
 			SetWindowPos(hwndChild, NULL, pos.x, pos.y, 0, 0,
 					SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
+			lasty = pos.y + rc.bottom - rc.top;
 		}
 	}
 }
