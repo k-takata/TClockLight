@@ -183,6 +183,7 @@ UAC (User Account Control) が有効な場合に、tcsntp.exe を使って SNTP で
 ※以上のような問題があるため、Vista 以降での時刻合わせは、TClock Light の機能を
   使わずに、OS の標準機能を使うことをお薦めします。設定の詳細は、例えば以下の
   サイトを参照してください。
+  https://kfujieda.hatenablog.com/entry/2020/03/14/214544
   http://wiki.nothing.sh/page?NTP
   http://www.daytradenet.com/blog/tokidoki/archives/12/11/041530.html
 
